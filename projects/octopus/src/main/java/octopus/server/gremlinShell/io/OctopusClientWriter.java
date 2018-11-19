@@ -124,7 +124,9 @@ public class OctopusClientWriter extends BufferedWriter
 		ByteBufAllocator allocator = UnpooledByteBufAllocator.DEFAULT;
 		try {
 			final ByteBuf bb = serializer.serializeResponseAsBinary(responseMessageBuilder.result(result).create(), allocator);
-			return bb.toString(StandardCharsets.UTF_8);
+			String bbS = bb.toString(StandardCharsets.UTF_8);
+            bb.release();
+            return bbS;
 		} catch (SerializationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

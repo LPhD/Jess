@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 
 class BaseResultProcessor:
     def __init__(self, result):
@@ -13,7 +14,8 @@ class BaseResultProcessor:
     def id(element):
         return element['id']
     def properties(self):
-        return self.result['properties']
+        return self.result
+
 
 class NodeResultPropertyCleaner(BaseResultProcessor):
     def properties(self):

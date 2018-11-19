@@ -70,12 +70,14 @@ addStep("siblings", {
 */
 
 addStep("statements", {
+    log.error("AST_SYNTAX________________________________________________________________");
 	delegate
 	.identity()
 	.until(has(NODE_ISCFGNODE, 'True'))
     .repeat(__.start().parents())
-	.identity()
-})
+	.identity()   
+}) 
+
 
 /**
    Get number of children of an AST node.

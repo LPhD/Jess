@@ -14,6 +14,7 @@
 */
 
 getFunctionsByName = { name ->
+
 	getNodesWithTypeAndCode(TYPE_FUNCTION, name)
 }
 

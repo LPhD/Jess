@@ -1,7 +1,23 @@
+doSomething = { a, b ->
+    log.error("misc.GROOVYTESTDOSOMETHING-----------------------------------------------------");
+    log.error(a);
+    log.error(b);
+    log.error(this.class.name);
+    log.error(owner.class.name);
+    log.error(delegate.class.name);
+}
+
 forwardSlice = { def args -> 
+		 log.error("GroovyTEST0-----------------------------------------------------");
+         
 	     def symbols = args[0];
 	     def ORDER = 5; if(args.size() > 1) ORDER = args[1];
 	     def edgeTypes = ['REACHES', 'CONTROLS']; if(args.size() > 2) edgeTypes = args[2];
+         
+		 log.error("GroovyTEST1-----------------------------------------------------");
+         log.error(symbols);
+         log.error(ORDER);
+         log.error(edgeTypes);
 	     
   	_()
 	.copySplit(

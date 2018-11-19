@@ -1,10 +1,3 @@
-
-hasRegex = { args ->
-	property = args[0];
-	regex = args[1];
-	delegate.has(property, textRegex(regex))
-}
-
 In = { def args ->
 
  def edgeType = args[0];

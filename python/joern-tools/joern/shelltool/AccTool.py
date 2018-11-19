@@ -14,6 +14,10 @@ class AccTool(LookupTool):
 
     def processLine(self, line):
 
+#        print('BATCHTOOL###########################################################')
+#        print(line)
+#        print('BATCHTOOL###########################################################')
+        
         nodeId = line
         self.nodeIds.append(nodeId)
 

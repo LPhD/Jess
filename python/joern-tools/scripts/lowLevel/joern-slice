@@ -49,17 +49,25 @@ class SliceTool(AccTool):
             return self._createBackwardQueryForNode(nodeIds)
 
     def _createForwardQueryForNode(self, nodeIds):
-
-        forwardQuery = """
-        idListToNodes(%s)
+	
+    
+        print('FORWARDSLICE###################################################################################')
+        print(self)
+        print(self.args.label)
+        print(self.args.order)
+        print(self.args)
+        print(nodeIds)
+        print('FORWARDSLICEENDE###################################################################################')
+         
+        forwardQuery = """idListToNodes(%s)
+        
         .sideEffect
         {
            seedNodeId = %s;
 
            if(it.type == 'Callee'){
 
-                symbols = it.matchParents{it.type == 'AssignmentExpr'}
-                          .lval().code.toList()
+                symbols = it.matchParents{it.type == 'AssignmentExpr'}.lval().code.toList()
 
            } else if(it.type == 'Argument'){
                  symbols = it.defines().code.toList()
@@ -69,15 +77,37 @@ class SliceTool(AccTool):
         }.statements().transform{
             nodes = it.forwardSlice(symbols, %d).id.toList()
             [seedNodeId, nodes, idListToNodes(nodes).outE().id.toList() ]
-        }
+        }    
+        
         """ % (nodeIds, self.args.label, self.args.order)
+        
+ #       forwardQuery = """idListToNodes(%s)
+ #       
+ #       .sideEffect
+ #       {
+ #          seedNodeId = %s;
+#
+#           if(it.type == 'Callee'){
+#
+#                symbols = it.matchParents{it.type == 'AssignmentExpr'}.lval().code.toList()
+#
+ #          } else if(it.type == 'Argument'){
+#                 symbols = it.defines().code.toList()
+ #          } else{
+ #                symbols = it.statements().out('USE', 'DEF').code.toList()
+ #          }
+ #       }.statements().transform{
+ #           nodes = it.forwardSlice(symbols, %d).id.toList()
+ #           [seedNodeId, nodes, idListToNodes(nodes).outE().id.toList() ]
+ #       }
+ #       """ % (nodeIds, self.args.label, self.args.order)
 
         return forwardQuery
 
     def _createBackwardQueryForNode(self, nodeIds):
 
-        backwardQuery = """
-        idListToNodes(%s)
+        backwardQuery = """idListToNodes(%s)
+        
         .sideEffect
         {
           seedNodeId = %s;

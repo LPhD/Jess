@@ -45,12 +45,8 @@ dependencies{
 
 // Python utilities
 
-task octopusMlutils(type: Exec) {
-    workingDir './python/octopus-mlutils'
-    commandLine 'python3', 'setup.py', 'install', '--user'
-}
 
-task octopusTools(type: Exec, dependsOn: octopusMlutils) {
+task octopusTools(type: Exec) {
     workingDir './python/octopus-tools'
     commandLine 'python3', 'setup.py', 'install', '--user'
 }

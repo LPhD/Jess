@@ -11,6 +11,8 @@ public abstract class OctopusScriptBase extends Script
 
 	public void addStep(String name, Closure closure)
 	{
+        System.out.println("Name: "+name+", Closure: "+closure);
+        
 		Map<String, Closure> sessionSteps = getSessionSteps();
 		sessionSteps.put(name, closure);
 	}

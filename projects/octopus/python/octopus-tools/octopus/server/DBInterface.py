@@ -20,11 +20,19 @@ class DBInterface:
             self.j.runGremlinQuery('toggle_json')
 
     def runGremlinQuery(self, query):
+    
+ #       print('DBI _______________________##############_______________________________')
+ #       print(self)
+ #       print(query)
+ #       print('DBIENDE ____________________################__________________________________')
+        
         result = self.j.runGremlinQuery(query)
 
         if not self.jsonEnabled:
             return result
+            
 
+        
         return self.transformer.transform(result)
 
     def chunks(self, ids, chunkSize):
