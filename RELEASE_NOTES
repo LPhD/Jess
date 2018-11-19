@@ -1,4 +1,26 @@
-Version 0.2 => Version 0.2.5
+Version 0.2.5 => Version 1.0
+
+New features:
+-------------
+
+- Added custom script for generation of all different graph types (cfg, ast, etc) as .dot and .pn files for every function in a project 
+
+- Moved to a newer Tinkerpop Version (for better performance)
+
+
+Bug fixes:
+----------
+
+- Fixed ResultProcessor
+
+- Removed clone of ocopus tools in mutils
+
+- Fixed memory leak in OctopusClientWriter
+
+- Fixed bugs in documentaion
+
+
+
 =============================
 
 Version 0.2.5 introduces some new features and fixes a number of bugs.
