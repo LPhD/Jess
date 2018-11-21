@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import octopus.OctopusEnvironment;
 import octopus.api.projects.OctopusProject;
 import octopus.api.projects.ProjectManager;
-import octopus.server.database.titan.JanusGraphLocalDatabaseManager;
+import octopus.server.database.janus.JanusGraphLocalDatabaseManager;
 
 public class OctopusProjectManager
 {

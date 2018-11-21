@@ -1,4 +1,4 @@
-package octopus.server.database.titan;
+package octopus.server.database.janus;
 
 import java.io.File;
 import java.io.IOException;

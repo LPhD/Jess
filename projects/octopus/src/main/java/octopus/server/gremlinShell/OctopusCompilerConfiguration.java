@@ -52,7 +52,7 @@ class OctopusImportCustomizer extends ImportCustomizer
 		OctopusImportCustomizerProvider provider = new OctopusImportCustomizerProvider();
 
 		imports.addAll(provider.getAllImports());
-		imports.add("static com.thinkaurelius.titan.core.attribute.Text.*");
+		imports.add("static org.janusgraph.core.attribute.Text.*");
 		imports.add("static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*");
 		imports.add("static org.apache.tinkerpop.gremlin.process.traversal.step.TraversalOptionParent.*");
 		imports.add("groovy.grape.Grape");

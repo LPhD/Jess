@@ -1,4 +1,4 @@
-package octopus.server.importer.csv.titan;
+package octopus.server.importer.csv.janus;
 
 
 public class Constants

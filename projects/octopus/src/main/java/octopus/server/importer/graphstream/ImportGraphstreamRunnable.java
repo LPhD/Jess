@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import octopus.api.database.Database;
 import octopus.api.projects.OctopusProject;
 import octopus.api.projects.ProjectManager;
-import octopus.server.importer.graphstream.titan.GraphstreamImporter;
+import octopus.server.importer.graphstream.janus.GraphstreamImporter;
 
 public class ImportGraphstreamRunnable implements Runnable
 {

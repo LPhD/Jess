@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import octopus.api.database.Database;
 import octopus.api.projects.OctopusProject;
 import octopus.api.projects.ProjectManager;
-import octopus.server.importer.csv.titan.CSVImporter;
+import octopus.server.importer.csv.janus.CSVImporter;
 
 public class ImportCSVRunnable implements Runnable
 {

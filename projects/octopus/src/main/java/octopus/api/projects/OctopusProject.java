@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import octopus.api.database.Database;
-import octopus.server.database.titan.JanusGraphLocalDatabaseManager;
+import octopus.server.database.janus.JanusGraphLocalDatabaseManager;
 
 public class OctopusProject
 {

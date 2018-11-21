@@ -1,4 +1,4 @@
-package octopus.server.importer.graphstream.titan;
+package octopus.server.importer.graphstream.janus;
 
 import java.io.IOException;
 import java.lang.reflect.Array;

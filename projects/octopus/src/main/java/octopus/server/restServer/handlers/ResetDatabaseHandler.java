@@ -2,7 +2,7 @@ package octopus.server.restServer.handlers;
 
 import octopus.api.projects.OctopusProject;
 import octopus.api.projects.ProjectManager;
-import octopus.server.database.titan.JanusGraphLocalDatabaseManager;
+import octopus.server.database.janus.JanusGraphLocalDatabaseManager;
 import octopus.server.restServer.OctopusRestHandler;
 import spark.Request;
 import spark.Response;

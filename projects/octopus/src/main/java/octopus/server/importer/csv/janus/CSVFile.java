@@ -1,4 +1,4 @@
-package octopus.server.importer.csv.titan;
+package octopus.server.importer.csv.janus;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

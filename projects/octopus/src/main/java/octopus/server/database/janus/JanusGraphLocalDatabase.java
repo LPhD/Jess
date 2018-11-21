@@ -1,4 +1,4 @@
-package octopus.server.database.titan;
+package octopus.server.database.janus;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.structure.Graph;
