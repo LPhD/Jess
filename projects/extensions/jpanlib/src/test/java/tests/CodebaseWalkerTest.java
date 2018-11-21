@@ -25,9 +25,17 @@ public class CodebaseWalkerTest
 		try
 		{
 			Set<String> expected = new HashSet<String>();
-			expected.add("src/test/java/tests/samples/subdir/test.c");
-			expected.add("src/test/java/tests/samples/test.c");
-			expected.add("src/test/java/tests/samples/tiff.cpp");
+			
+			//Different Paths in Windows
+			if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+				expected.add("src\\test\\java\\tests\\samples\\subdir\\test.c");
+				expected.add("src\\test\\java\\tests\\samples\\test.c");
+				expected.add("src\\test\\java\\tests\\samples\\tiff.cpp");
+			} else {
+				expected.add("src/test/java/tests/samples/subdir/test.c");
+				expected.add("src/test/java/tests/samples/test.c");
+				expected.add("src/test/java/tests/samples/tiff.cpp");
+			}
 
 			FilenameAggregator listener = new FilenameAggregator();
 			provider.addListener(listener);

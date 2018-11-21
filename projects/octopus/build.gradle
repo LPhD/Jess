@@ -48,7 +48,12 @@ dependencies{
 
 task octopusTools(type: Exec) {
     workingDir './python/octopus-tools'
-    commandLine 'python3', 'setup.py', 'install', '--user'
+	//Different command for windows
+	if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+		commandLine 'python', 'setup.py', 'install', '--user'
+	} else {
+		commandLine 'python3', 'setup.py', 'install', '--user'
+	}
 }
 
 task copyToLib(type: Copy) {

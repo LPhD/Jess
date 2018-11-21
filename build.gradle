@@ -24,7 +24,12 @@ allprojects {
 
 task joernTools(type: Exec) {
     workingDir './python/joern-tools'
-    commandLine 'python3', 'setup.py', 'install', '--user'
+	//Different command for windows
+    if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+		commandLine 'python', 'setup.py', 'install', '--user'
+	} else {
+		commandLine 'python3', 'setup.py', 'install', '--user'
+	}
 }
 
 // Copy extensions and plugins into Octopus plugin directory
