@@ -35,7 +35,7 @@ dependencies{
   compile group: 'org.janusgraph', name: 'janusgraph-core', version: '0.2.0'
 
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
-  compile group: 'org.apache.tinkerpop', name: 'gremlin-driver', version: '3.0.2-incubating'
+  compile group: 'org.apache.tinkerpop', name: 'gremlin-driver', version: '3.1.0-incubating'
   compile group: 'com.opencsv', name: 'opencsv', version: '3.5'
   compile group: 'org.graphstream', name: 'gs-core', version: '1.3'
 
