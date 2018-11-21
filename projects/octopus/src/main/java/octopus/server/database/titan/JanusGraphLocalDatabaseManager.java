@@ -5,22 +5,23 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 
-import com.thinkaurelius.titan.core.schema.Mapping;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
-import com.thinkaurelius.titan.core.PropertyKey;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.schema.TitanManagement;
-import com.thinkaurelius.titan.core.util.TitanCleanup;
+import org.janusgraph.core.schema.Mapping;
+import org.janusgraph.core.PropertyKey;
+import org.janusgraph.core.JanusGraphFactory;
+import org.janusgraph.core.JanusGraph;
+import org.janusgraph.core.schema.JanusGraphManagement;
+import org.janusgraph.core.util.JanusGraphCleanup;
 
 import octopus.api.database.Database;
 import octopus.api.database.DatabaseManager;
 import octopus.api.projects.OctopusProject;
 
-public class TitanLocalDatabaseManager implements DatabaseManager {
+public class JanusGraphLocalDatabaseManager implements DatabaseManager {
 
 	@Override
 	public void initializeDatabaseForProject(OctopusProject project) throws IOException
@@ -48,8 +49,8 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 
 	private void initializeDatabaseSchema(String configFilename)
 	{
-		TitanGraph graph = TitanFactory.open(configFilename);
-		TitanManagement schema = graph.openManagement();
+		JanusGraph graph = JanusGraphFactory.open(configFilename);
+		JanusGraphManagement schema = graph.openManagement();
 
 		PropertyKey extIdKey = schema.makePropertyKey("_key").dataType(String.class).make();
 		PropertyKey typeKey = schema.makePropertyKey("type").dataType(String.class).make();
@@ -77,9 +78,9 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 	@Override
 	public Database getDatabaseInstanceForProject(OctopusProject project)
 	{
-		TitanLocalDatabase database = new TitanLocalDatabase();
+		JanusGraphLocalDatabase database = new JanusGraphLocalDatabase();
 		String dbConfigFile = project.getDBConfigFile();
-		TitanGraph graph = TitanFactory.open(dbConfigFile);
+		JanusGraph graph = JanusGraphFactory.open(dbConfigFile);
 		database.setGraph(graph);
 		return database;
 	}
@@ -88,9 +89,9 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 	public void deleteDatabaseForProject(OctopusProject project)
 	{
 		Database database = getDatabaseInstanceForProject(project);
-		TitanLocalDatabase titanDatabase = (TitanLocalDatabase) database;
-		String dbPathName = titanDatabase.getPathToDatabase();
-		String indexPathName = titanDatabase.getPathToIndex();
+		JanusGraphLocalDatabase janusGraphDatabase = (JanusGraphLocalDatabase) database;
+		String dbPathName = janusGraphDatabase.getPathToDatabase();
+		String indexPathName = janusGraphDatabase.getPathToIndex();
 
 		try {
 			FileUtils.deleteDirectory(new File(dbPathName));
@@ -110,7 +111,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		Graph graph = database.getGraph();
 		try {
 			graph.close();
-			TitanCleanup.clear((TitanGraph) graph);
+			JanusGraphCleanup.clear((JanusGraph) graph);
 			initializeDatabaseForProject(project);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

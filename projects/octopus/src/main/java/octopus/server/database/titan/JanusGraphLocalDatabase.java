@@ -5,7 +5,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 
 import octopus.api.database.Database;
 
-public class TitanLocalDatabase implements Database {
+public class JanusGraphLocalDatabase implements Database {
 
 	private Graph graph;
 

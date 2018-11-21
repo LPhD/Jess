@@ -225,7 +225,7 @@ public class GraphstreamImporter extends SinkAdapter {
             	// Cardinality.list is not supported by default in TitanDB, but we can always try
                 try {
 					v.property(VertexProperty.Cardinality.list, attribute, newValue);
-				} catch (com.thinkaurelius.titan.core.SchemaViolationException e) {
+				} catch (org.janusgraph.core.SchemaViolationException e) {
 					logger.error("nodeAttributeChanged on node {}: list properties are not supported.", nodeId);
 				}
 			} else {

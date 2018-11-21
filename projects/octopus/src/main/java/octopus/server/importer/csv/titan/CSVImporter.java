@@ -8,7 +8,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thinkaurelius.titan.core.SchemaViolationException;
+import org.janusgraph.core.SchemaViolationException;
 
 public class CSVImporter
 {

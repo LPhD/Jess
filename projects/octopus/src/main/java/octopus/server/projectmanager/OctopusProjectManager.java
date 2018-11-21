@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import octopus.OctopusEnvironment;
 import octopus.api.projects.OctopusProject;
 import octopus.api.projects.ProjectManager;
-import octopus.server.database.titan.TitanLocalDatabaseManager;
+import octopus.server.database.titan.JanusGraphLocalDatabaseManager;
 
 public class OctopusProjectManager
 {
@@ -117,7 +117,7 @@ public class OctopusProjectManager
 			throw new RuntimeException("Project already exists");
 
 		OctopusProject project = createOctopusProjectForName(name);
-		TitanLocalDatabaseManager databaseManager = new TitanLocalDatabaseManager();
+		JanusGraphLocalDatabaseManager databaseManager = new JanusGraphLocalDatabaseManager();
 		databaseManager.initializeDatabaseForProject(project);
 		logger.debug("Adding project to map: " + name);
 		nameToProject.put(name, project);
@@ -178,7 +178,7 @@ public class OctopusProjectManager
 	{
 		OctopusProject project = new ProjectManager().getProjectByName(name);
 
-		TitanLocalDatabaseManager dbManager = new TitanLocalDatabaseManager();
+		JanusGraphLocalDatabaseManager dbManager = new JanusGraphLocalDatabaseManager();
 		dbManager.deleteDatabaseForProject(project);
 	}
 
