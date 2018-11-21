@@ -21,10 +21,10 @@ class DBInterface:
 
     def runGremlinQuery(self, query):
     
- #       print('DBI _______________________##############_______________________________')
- #       print(self)
- #       print(query)
- #       print('DBIENDE ____________________################__________________________________')
+        print('DBI _______________________##############_______________________________')
+        print(self)
+        print(query)
+        print('DBIENDE ____________________################__________________________________')
         
         result = self.j.runGremlinQuery(query)
 

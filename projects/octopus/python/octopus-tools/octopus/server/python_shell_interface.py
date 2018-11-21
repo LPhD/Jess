@@ -93,10 +93,10 @@ class PythonShellInterface:
 
     def runGremlinQuery(self, query):
 
-#        print('TEST IN PYTHON_SHELL_INTERFACE______________________________________________________')
-#        print(self)
- #       print(query)
- #       print('TESTENDE IN PYTHON_SHELL_INTERFACE______________________________________________________')
+        print('TEST IN PYTHON_SHELL_INTERFACE______________________________________________________')
+        print(self)
+        print(query)
+        print('TESTENDE IN PYTHON_SHELL_INTERFACE______________________________________________________')
         while True:
             try:
                 return self.shell_connection.run_command(query)
