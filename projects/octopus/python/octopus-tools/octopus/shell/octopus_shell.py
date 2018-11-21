@@ -13,27 +13,27 @@ class OctopusShellConnection(object):
 
     def request(self, request):
     
- #       print('REQUEST ______________________________________________________')
+        print('REQUEST ______________________________________________________')
         request = "{}\0".format(request.strip())
- #       print(request)
+        print(request)
         request = request.encode()
- #       print(request)
+        print(request)
         self.socket.sendall(request)
-  #      print('REQUESTENDE ______________________________________________________')
+        print('REQUESTENDE ______________________________________________________')
 
     def getresponse(self):
- #       print('RESPONSE ______________________________________________________')
- #       print(self)
+        print('RESPONSE ______________________________________________________')
+        print(self)
             
         response = b""
- #       print(response)
+        print(response)
         
         while True:
             chunk = self.socket.recv(2048)
             response += chunk
             
-#            print('RESPONSEWHILE ______________________________________________________')
- #           print(response)
+            print('RESPONSEWHILE ______________________________________________________')
+            print(response)
             
             try:
                 if response[-1] == 0x00:
@@ -41,21 +41,21 @@ class OctopusShellConnection(object):
             except:
                 pass
                 
- #       print('RESPONSEWHILEENDE ______________________________________________________')
- #       print(response)
+        print('RESPONSEWHILEENDE ______________________________________________________')
+        print(response)
         response = response[:-1].decode().strip()
- #       print(response)
- #       print('RESPONSEENDE ______________________________________________________')
+        print(response)
+        print('RESPONSEENDE ______________________________________________________')
         return response
 
     def run_command(self, command):
         self.request(command)
         response = self.getresponse()
- #       print('TEST2 ______________________________________________________')
- #       print(self)
-  #      print(command)
-  #      print(response)
- #       print('TESTENDE2 ______________________________________________________')
+        print('TEST2 ______________________________________________________')
+        print(self)
+        print(command)
+        print(response)
+        print('TESTENDE2 ______________________________________________________')
         if re.match("\[.*Exception\]", response):
             raise RuntimeError(response)
         return response.split('\n')
