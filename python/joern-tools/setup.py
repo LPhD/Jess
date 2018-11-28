@@ -1,10 +1,9 @@
 import os, sys, fnmatch, platform 
 
 from platform import linux_distribution
-
-
+    
 #Only if Linux
-if (platform.system() == linux_distribution):
+if (platform.system() == "Linux"):
     from setuptools import setup, find_packages
 
 
@@ -22,7 +21,8 @@ def getScripts():
     return x
 
 #Only if Linux
-if (platform.system() == linux_distribution):
+if (platform.system() == "Linux"):
+    print("Setting up scripts...")
     setup(
         name = "joern",
         version = "0.3",
