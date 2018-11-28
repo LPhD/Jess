@@ -4,6 +4,12 @@ import sys
 class BaseResultProcessor:
     def __init__(self, result):
         self.result = result
+        #Property labels on edges
+        if 'properties' not in result:
+            props = {}
+            for k, v in result.items():
+                 props[k] = [{'value': result[k], 'id': v}]
+            self.result['properties'] = props
     @staticmethod
     def value(element,key):
         prop = element['properties'].get(key,[])
