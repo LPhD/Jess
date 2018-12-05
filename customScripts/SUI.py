@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
+import os
+import pygraphviz as pgv
+
 from octopus.server.DBInterface import DBInterface
+from joern.shelltool.PlotConfiguration import PlotConfiguration
+from joern.shelltool.PlotResult import NodeResult, EdgeResult
+
 
 # Connect to project DB
 projectName = 'EvoDiss.tar.gz'
 db = DBInterface()
+db.disable_json()
 db.connectToDatabase(projectName)
 
 ## Example entry points ##
@@ -11,10 +18,11 @@ db.connectToDatabase(projectName)
 # 331936 CallExpression tenElmArray()
 # 356576 Callee tenElmArray()
 # 307360 FunctionDef mainTest()
+# 4264 FunctionDef bubblesort()
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'356576'}
+entryPointId = {'4264'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -52,7 +60,7 @@ def identifySemanticUnits (currentEntryPoints):
             identifySemanticUnits (result)
             
             
-        # Do something for every type
+        # Do something for every type where it is necessary
         
         
     
@@ -90,14 +98,123 @@ def getCalledFunctionDef (verticeId):
     else:
         return ""
    
-
 # Adds the given vertice ids to the Semantic Unit    
 def addToSemanticUnit (result): 
     for verticeId in result: 
         semanticUnit.add(verticeId)
-        
 
-identifySemanticUnits(entryPointId)    
+# Output of the code of the Semantic Unit        
+def codeOutput ():
+    code = ['']
+    for verticeId in semanticUnit: 
+        query = """g.V(%s).values('code')""" % (verticeId)
+        code.append(db.runGremlinQuery(query)) 
     
-# Output results on console
+    for x in code: print(x)
+    
+
+ ################ Plotting ################################   
+# Plots the results    
+def plotResults ():
+    # Get plot configuration
+    plot_configuration = PlotConfiguration()
+    #Config is read from plotconfig.cfg in same folder as SUI.py
+    f = open((os.path.join(os.path.dirname(__file__), 'plotconfig.cfg')) , "r")
+    plot_configuration.parse(f)
+    labels = ["IS_AST_PARENT"]  
+             
+
+    print("Get nodes")
+    nodes = getNodes()
+    
+    print("Get edges")
+#    edges = getEdges(labels)
+    
+    #Make the graph
+    print("Make graph")
+    G = pgv.AGraph(directed=True, strict=False)
+    print("_addNodes")
+    addNodes(plot_configuration, G, nodes)
+    print("_addEdges")
+#    addEdges(G, edges)
+    outputGraph(G, "SemanticUnit")  
+
+# Returns a list of all vertices in semanticUnit    
+def getNodes():
+#### Returns v[id]
+    for id in semanticUnit:
+       result = db.runGremlinQuery("g.V("+id+")")
+    print(result)
+    return result
+    
+def getEdges(labels):
+#### what is returned?
+    query = """
+        {}.repeat(outE({}).subgraph('sg').inV().simplePath()).cap('sg').next().traversal().E()
+        """.format(0, ','.join(map(lambda x: "'{}'".format(x), labels)))
+    result = db.runGremlinQuery(query)
+    
+    for x in result: print(x)
+    
+    return result
+        
+def addNodes(plot_configuration, G, nodes):
+#### what kind of input is expected?
+    for v in nodes:
+        nr = NodeResult(v)
+
+        label = createGraphElementLabel(plot_configuration.getElementDisplayItems(nr))
+        plot_properties = plot_configuration.getElementLayout(nr)
+        if label:
+            plot_properties['label'] = label
+        G.add_node(nr.getId(), **plot_properties)
+
+def addEdges(plot_configuration, G, edges):
+    for e in edges:
+        er = EdgeResult(e)
+        label = createGraphElementLabel(plot_configuration.getElementDisplayItems(er))
+        plot_properties = plot_configuration.getElementLayout(er)
+        plot_properties['label'] = label
+        G.add_edge(er.getSrc(), er.getDest(), er.getId(), **plot_properties)
+            
+def createGraphElementLabel(labeldata):
+    return "\n".join([":".join([str(escape(e)) for e in d]) for d in labeldata])
+
+def escape(label):
+    return str(label).replace("\\", "\\\\")
+
+                   
+def output(s):
+    #Create folder with name of project (if its not already there)
+    if not os.path.exists("SemanticUnit"):
+        os.makedirs("SemanticUnit")
+    #Filename contains the project name, the current function name and the graph type
+    filename = 'SemanticUnit.dot'
+    #Write to file
+    print("Creating "+filename+" ...")
+    file = open("SemanticUnit/SemanticUnit.dot", 'w')
+    file.write(s)
+    file.close()
+    # Use terminal output to convert .dot to .png
+    os.system("dot -Tpng 'SemanticUnit/SemanticUnit.dot' -o 'SemanticUnit/SemanticUnit.png'")
+    #Print status update
+    print("Creation of "+filename+" was successfull!")
+        
+def outputGraph(self, G, identifier):
+    outputString = '//' + identifier + '\n'
+    outputString += str(G) + '\n'
+    outputString += '//###' + '\n'
+    output(outputString)     
+ ################ Plotting ################################   
+ 
+# Start identification process
+identifySemanticUnits(entryPointId)    
+
+# Plot resulting graph
+#plotResults()
+    
+# Output resulting Ids on console
 for x in semanticUnit: print(x)
+
+# Print code results
+codeOutput()
