@@ -6,47 +6,56 @@ projectName = 'EvoDiss.tar.gz'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
-# Id of entry point vertice (currently its from mainTest)
+## Example entry points ##
 # 315552 ExpressionStatement threeElmArray()
 # 331936 CallExpression tenElmArray()
 # 356576 Callee tenElmArray()
 # 307360 FunctionDef mainTest()
-#
-entryPointId = ['356576']
 
-semanticUnit = entryPointId
+## Work with sets, as they are way faster and allow only unique elements ##
+# Ids of entry point vertices 
+entryPointId = {'356576'}
+# Initialize empty Semantic Unit set
+semanticUnit = set()
+# Initialize empty set of checked vertices (because we only need to check the vertices once)
+checkedVertices = set()
 
 # Main function. Decides based on the vertice type, what methods are called
 def identifySemanticUnits (currentEntryPoints):
     # Reset current result
-    result = ""
+    result = ""   
+    # Remove vertices from currentEntryPoints, that are already checked
+    currentEntryPoints = currentEntryPoints - checkedVertices
     
-    ########################### Something is wrong here, iterates endlessly ################################################
+    # Check each entry point 
     for currentNode in currentEntryPoints:
         # Get type of current vertice 
         query = """g.V(%s).values('type')""" % (currentNode)
         type = db.runGremlinQuery(query)
-
+        # Add current entry point to checked list
+        checkedVertices.add(currentNode)
+        # Add current entry point to Semantic Unit 
+        semanticUnit.add(currentNode) 
     
         # Get enclosed vertices if current vertice is a function declaration
         if (type[0] == "FunctionDef"):
-            result = getEnclosedCode(currentNode) 
-            # For every enclosed vertice, get related Elements?
+            result = set(getEnclosedCode(currentNode)) 
+            # Add current results (alle enclosed elements) to Semantic Unit 
+            addToSemanticUnit(result)            
+            # For every enclosed vertice, get related elements
+            identifySemanticUnits(result)
             
-################################################################################ TO DO ########################            
-        
-        if (type[0] == "Callee"):
-            # Get called function if current vertice is a callee
-            result = getCalledFunctionDef(currentNode)
-            # For every enclosed vertice, get related Elements?
+        # Get called function if current vertice is a callee
+        if (type[0] == "Callee"):            
+            result = set(getCalledFunctionDef(currentNode))
+            # Get related elements of the called function
             identifySemanticUnits (result)
-################################################################################ TO DO ########################
+            
             
         # Do something for every type
         
         
-    # Add current results to Semantic Unit 
-    addToSemanticUnit(result)
+    
 
 # Return all vertices that belong to the same parent function
 def getEnclosedCode (verticeId):
@@ -82,11 +91,11 @@ def getCalledFunctionDef (verticeId):
         return ""
    
 
-# Adds the given vertice id to the Semantic Unit    
+# Adds the given vertice ids to the Semantic Unit    
 def addToSemanticUnit (result): 
     for verticeId in result: 
-        if verticeId not in semanticUnit:
-            semanticUnit.append(verticeId)
+        semanticUnit.add(verticeId)
+        
 
 identifySemanticUnits(entryPointId)    
     
