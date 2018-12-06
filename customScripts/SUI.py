@@ -21,7 +21,7 @@ db.connectToDatabase(projectName)
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'307360'}
+entryPointId = {'4264'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -111,6 +111,15 @@ def codeOutput ():
     
     for x in code: print(x)
     
+# Output of the vertices of the Semantic Unit        
+def nodeOutput ():
+    code = ['']
+    for verticeId in semanticUnit: 
+        query = """g.V(%s)""" % (verticeId)
+        code.append(db.runGremlinQuery(query)) 
+    
+    for x in code: print(x)
+   
 
  ################ Plotting ################################   
  
@@ -141,9 +150,10 @@ def plotResults ():
 
 # Returns all vertices of the SemanticUnit    
 def getNodes():
-    query = """idListToNodes(%s)""" % (list(semanticUnit))  
+    # Remove unneeded nodes. Within or without are not working...
+    query = """idListToNodes(%s).not(has('type', 'Symbol')).not(has('type', 'CFGExitNode')).not(has('type','CFGEntryNode'))""" % (list(semanticUnit))  
     return db.runGremlinQuery(query)
-            
+           
 # Returns all AST edges of the Semantic Unit    
 def getEdges():
     query = """idListToNodes(%s)
@@ -216,3 +226,6 @@ plotResults()
 
 # Print code results
 #codeOutput()
+
+# Print node results
+#nodeOutput()
