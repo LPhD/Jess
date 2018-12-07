@@ -7,7 +7,7 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
-includeEnclosedCode = True
+includeEnclosedCode = False
 
 
 
@@ -25,10 +25,13 @@ db.connectToDatabase(projectName)
 # 356576 Callee tenElmArray()
 # 307360 FunctionDef mainTest()
 # 4264 FunctionDef bubblesort()
+# 225336 IfStatement in compareResults
+# 241888 corresponding ElseStatement
+# 213216 ForStatement in compareResults
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'356576'}
+entryPointId = {'241888'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -50,7 +53,9 @@ def identifySemanticUnits (currentEntryPoints):
         checkedVertices.add(currentNode)
         # Add current entry point to Semantic Unit 
         semanticUnit.add(currentNode) 
-    
+        
+################################ Structural relations ################################
+
         # Get enclosed vertices if current vertice is a function declaration
         if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
             result = set(getEnclosedCode(currentNode)) 
@@ -59,14 +64,34 @@ def identifySemanticUnits (currentEntryPoints):
             # For every enclosed vertice, get related elements
             identifySemanticUnits(result)
             
+        # Get enclosed vertices if current vertice is a for-, while- or if-statement
+        if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):            
+            result = set(getChildren(currentNode))
+            # Add current results (alle enclosed elements) to Semantic Unit 
+            addToSemanticUnit(result)
+            # For every enclosed vertice, get related elements
+            identifySemanticUnits (result) 
+            
+        # Get the corresponding if-statement, if current vertice is an else-statement
+        if (type[0] == "ElseStatement"):            
+            result = set(getIfStatement(currentNode))
+            # Get related elements of the if/else-statement
+            identifySemanticUnits (result)
+            
+######################################################################################           
+################################### Call relations ################################### 
+           
         # Get called function if current vertice is a callee
         if (type[0] == "Callee"):            
             result = set(getCalledFunctionDef(currentNode))
             # Get related elements of the called function
             identifySemanticUnits (result)
             
+######################################################################################
+            
             
         # Do something for every type where it is necessary
+
         
         
     
@@ -87,18 +112,24 @@ def getEnclosedCode (verticeId):
         result = ""
            
     return result
+
+# Return all AST children vertice ids of the given vertice
+def getChildren (verticeId):
+    query = """g.V(%s).emit().repeat(out(AST_EDGE)).unfold().id()""" % (verticeId)
+    return db.runGremlinQuery(query)
     
 # Return the called function id
 def getCalledFunctionDef (verticeId):
 ### We do it like that because there is no explicit link from callee to called function. ####
-### Runs into problems if there is more than one function with the given name #############
+### Runs into problems if there is more than one function with the given name ###############
 
     # Get name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
     result = db.runGremlinQuery(query)
          
     # Get the id of the called function (parent of identifier with code from result of last query)
-    query = """g.V().has('type', 'Identifier').has('code', '%s').in().has('type', 'FunctionDef').id()""" % (result[0])
+    query = """g.V().has('type', 'Identifier').has('code', '%s')
+        .in().has('type', 'FunctionDef').id()""" % (result[0])
     result = db.runGremlinQuery(query)  
 
     # Check if result is in DB (could also be a C function like puts())
@@ -106,6 +137,11 @@ def getCalledFunctionDef (verticeId):
         return result
     else:
         return ""
+        
+# Return the corresponding if-statement
+def getIfStatement (verticeId):
+    query = """g.V(%s).in().has('type', 'IfStatement').id()""" % (verticeId)
+    return db.runGremlinQuery(query)
    
 # Adds the given vertice ids to the Semantic Unit    
 def addToSemanticUnit (result): 
@@ -131,7 +167,7 @@ def nodeOutput ():
     for x in code: print(x)
    
 
- ################ Plotting ################################   
+####################################### Plotting ###############################################    
  
 # Plots the results    
 def plotResults ():
@@ -162,7 +198,10 @@ def plotResults ():
 # Returns all vertices of the SemanticUnit    
 def getNodes():
     # Remove unneeded nodes. Within or without are not working...
-    query = """idListToNodes(%s).not(has('type', 'Symbol')).not(has('type', 'CFGExitNode')).not(has('type','CFGEntryNode'))""" % (list(semanticUnit))  
+    query = """idListToNodes(%s)
+        .not(has('type', 'Symbol'))
+        .not(has('type', 'CFGExitNode'))
+        .not(has('type','CFGEntryNode'))""" % (list(semanticUnit))  
     return db.runGremlinQuery(query)
            
 # Returns all AST edges of the Semantic Unit    
@@ -224,7 +263,7 @@ def output(G):
     #Print status update
     print("Creation of plot was successfull!")
     
- ################ Plotting ################################   
+####################################### Plotting ###############################################   
  
 # Start identification process
 identifySemanticUnits(entryPointId)    
