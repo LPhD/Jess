@@ -6,6 +6,13 @@ from octopus.server.DBInterface import DBInterface
 from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
+####### Configuration options #################
+includeEnclosedCode = True
+
+
+
+###############################################
+
 
 # Connect to project DB
 projectName = 'EvoDiss.tar.gz'
@@ -21,7 +28,7 @@ db.connectToDatabase(projectName)
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'4264'}
+entryPointId = {'356576'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -45,7 +52,7 @@ def identifySemanticUnits (currentEntryPoints):
         semanticUnit.add(currentNode) 
     
         # Get enclosed vertices if current vertice is a function declaration
-        if (type[0] == "FunctionDef"):
+        if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
             result = set(getEnclosedCode(currentNode)) 
             # Add current results (alle enclosed elements) to Semantic Unit 
             addToSemanticUnit(result)            
@@ -83,6 +90,9 @@ def getEnclosedCode (verticeId):
     
 # Return the called function id
 def getCalledFunctionDef (verticeId):
+### We do it like that because there is no explicit link from callee to called function. ####
+### Runs into problems if there is more than one function with the given name #############
+
     # Get name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
     result = db.runGremlinQuery(query)
@@ -91,7 +101,7 @@ def getCalledFunctionDef (verticeId):
     query = """g.V().has('type', 'Identifier').has('code', '%s').in().has('type', 'FunctionDef').id()""" % (result[0])
     result = db.runGremlinQuery(query)  
 
-    # Check if result is in DB
+    # Check if result is in DB (could also be a C function like puts())
     if (len(result) > 0):      
         return result
     else:
@@ -137,14 +147,15 @@ def plotResults ():
     nodes = getNodes()    
     print("Get edges")
     edges = getEdges()
-    
+
     #Make the graph
     print("Make graph")
     G = pgv.AGraph(directed=True, strict=False)
     print("_addNodes")
     addNodes(plot_configuration, G, nodes)
     print("_addEdges")
-    addEdges(plot_configuration, G, edges)
+    if (len(edges) > 0):
+        addEdges(plot_configuration, G, edges)
     #Output result
     output(G)  
 
@@ -156,10 +167,10 @@ def getNodes():
            
 # Returns all AST edges of the Semantic Unit    
 def getEdges():
-    query = """idListToNodes(%s)
-        .repeat(outE('IS_AST_PARENT').subgraph('sg').inV().simplePath()).cap('sg').next().traversal().E()
-        """ % (list(semanticUnit))    
+    # Get all incoming edges that are part of the AST
+    query = """idListToNodes(%s).inE('IS_AST_PARENT')""" % (list(semanticUnit))    
     return db.runGremlinQuery(query)
+       
 
 # Adds nodes to the graph G    
 def addNodes(plot_configuration, G, nodes):
