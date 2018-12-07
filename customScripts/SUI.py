@@ -7,7 +7,8 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
-includeEnclosedCode = False
+generateOnlyAST = True
+includeEnclosedCode = True
 
 
 
@@ -31,7 +32,7 @@ db.connectToDatabase(projectName)
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'241888'}
+entryPointId = {'24704'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -88,7 +89,14 @@ def identifySemanticUnits (currentEntryPoints):
             identifySemanticUnits (result)
             
 ######################################################################################
-            
+################################## Define relations ##################################
+
+        # Get declaration  if current vertice is a identifier
+        if (type[0] == "Identifier"):            
+            result = set(getDeclaration(currentNode))
+            # Get related elements of the called function
+            identifySemanticUnits (result)
+
             
         # Do something for every type where it is necessary
 
@@ -137,7 +145,26 @@ def getCalledFunctionDef (verticeId):
         return result
     else:
         return ""
+
         
+        ########################### TO DO ###################################
+# Return id of declaration vertice for the identifier        
+def getDeclaration (verticeId):
+    print("#########################################################################")   
+    print("In edges, in vertices, out edges, out vertices:")
+    query = """g.V(%s).inE()""" % (verticeId)
+    print(db.runGremlinQuery(query))
+    query = """g.V(%s).in()""" % (verticeId)
+    print(db.runGremlinQuery(query))
+    query = """g.V(%s).outE()""" % (verticeId)
+    print(db.runGremlinQuery(query))
+    query = """g.V(%s).out()""" % (verticeId)
+    print(db.runGremlinQuery(query))  
+    print("#########################################################################")    
+    return ""
+         ########################### TO DO ###################################           
+
+         
 # Return the corresponding if-statement
 def getIfStatement (verticeId):
     query = """g.V(%s).in().has('type', 'IfStatement').id()""" % (verticeId)
@@ -176,13 +203,19 @@ def plotResults ():
     #Config is read from plotconfig.cfg in same folder as SUI.py
     f = open((os.path.join(os.path.dirname(__file__), 'plotconfig.cfg')) , "r")
     plot_configuration.parse(f)
-    labels = ["IS_AST_PARENT"]  
+    labels = ["IS_AST_PARENT"] 
     
-    #Get nodes and edges of semanticUnit
-    print("Get nodes")
-    nodes = getNodes()    
-    print("Get edges")
-    edges = getEdges()
+    #Get nodes and edges of semanticUnit (either as AST or full property graph)
+    if (generateOnlyAST):
+        print("Get nodes")
+        nodes = getASTNodes()    
+        print("Get edges")
+        edges = getASTEdges()    
+    else:
+        print("Get nodes")
+        nodes = getNodes()    
+        print("Get edges")
+        edges = getEdges()
 
     #Make the graph
     print("Make graph")
@@ -195,21 +228,31 @@ def plotResults ():
     #Output result
     output(G)  
 
-# Returns all vertices of the SemanticUnit    
-def getNodes():
+# Returns all AST vertices of the SemanticUnit    
+def getASTNodes():
     # Remove unneeded nodes. Within or without are not working...
     query = """idListToNodes(%s)
         .not(has('type', 'Symbol'))
         .not(has('type', 'CFGExitNode'))
         .not(has('type','CFGEntryNode'))""" % (list(semanticUnit))  
     return db.runGremlinQuery(query)
+
+# Returns all vertices of the SemanticUnit    
+def getNodes():
+    query = """idListToNodes(%s)""" % (list(semanticUnit))  
+    return db.runGremlinQuery(query)
            
 # Returns all AST edges of the Semantic Unit    
-def getEdges():
+def getASTEdges():
     # Get all incoming edges that are part of the AST
     query = """idListToNodes(%s).inE('IS_AST_PARENT')""" % (list(semanticUnit))    
     return db.runGremlinQuery(query)
-       
+    
+# Returns all edges of the Semantic Unit    
+def getEdges():
+    # Get all incoming edges 
+    query = """idListToNodes(%s).inE()""" % (list(semanticUnit))    
+    return db.runGremlinQuery(query)       
 
 # Adds nodes to the graph G    
 def addNodes(plot_configuration, G, nodes):
