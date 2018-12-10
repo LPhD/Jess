@@ -7,7 +7,7 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
-generateOnlyAST = True
+generateOnlyAST = False
 includeEnclosedCode = True
 
 
@@ -56,9 +56,14 @@ def identifySemanticUnits (currentEntryPoints):
         semanticUnit.add(currentNode) 
         
 ################################ Structural relations ################################
+        # Get all enclosed vertices if current vertice is a File
+        if ((type[0] == "File") and (includeEnclosedCode == True)):
+        
+        # Get all included files if current vertice is a Directory
+        if ((type[0] == "Directory") and (includeEnclosedCode == True)):
 
         # Get enclosed vertices if current vertice is a function declaration
-        if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
+        if ((type[0] in ["FunctionDef", "Function"]) and (includeEnclosedCode == True)):
             result = set(getEnclosedCode(currentNode)) 
             # Add current results (alle enclosed elements) to Semantic Unit 
             addToSemanticUnit(result)            
@@ -88,21 +93,61 @@ def identifySemanticUnits (currentEntryPoints):
             # Get related elements of the called function
             identifySemanticUnits (result)
             
+        # Get called function if current vertice is a CallExpression
+        if (type[0] == "CallExpression"):
+            
 ######################################################################################
 ################################## Define relations ##################################
 
-        # Get declaration  if current vertice is a identifier
+        # Get declaration  if current vertice is an identifier
         if (type[0] == "Identifier"):            
             result = set(getDeclaration(currentNode))
             # Get related elements of the called function
             identifySemanticUnits (result)
 
             
+            
+        
+        # Get XXX if current vertice is a AssignmentExpression
+        if (type[0] == "AssignmentExpression"):    
+               
+        # Get all included variables and methods? if current vertice is an Argument or ArgumentList or Condition or 'UnaryExpression'
+        if (type[0] in ["Argument", "ArgumentList", "Condition", "UnaryExpression"]):
+        
+        # Get all uses if current vertice is an IdentifierDeclStatement? Make this as configuration option
+        if (type[0] ==  "IdentifierDeclStatement"):
+        
+        # Get XXX if current vertice is a 'Symbol'
+        if (type[0] ==  "Symbol"):
+        
+            
         # Do something for every type where it is necessary
+        
+        # Do nothing for:
+        # 'AdditiveExpression' a + b
+        # 'PrimaryExpression' 1
+        # 'IncDec' ++
+        # 'UnaryOperator' !
+        # 'UnaryOperationExpression' - 1
+        # 'ArrayIndexing' array[1]
+        # 'ReturnType' void
+        # 'CFGEntryNode' ENRTY
+        # 'CFGExitNode' EXIT
+        # 'InitializerList' 7 (size of list)
+        # 'ForInit' i = 0
+        # 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
+        # 'IdentifierDecl' i (contained in IdentifierDeclStatement)
+        # 'Parameter' i (contained in ParameterList)
+        # 'ParameterType' int (contained in ParameterList)
+        # 'ParameterList' int i (contained in FunctionDef)
+        # 'RelationalExpression' i > 5 (contained in condition)
+        # 'Sizeof' empty?
+        # 'SizeofOperand' empty?
+        # 'Decl' empty?
+        # 'DeclStmt' empty?
+        # 'CompoundStatement' empty?
 
-        
-        
-    
+   
 
 # Return all vertices that belong to the same parent function
 def getEnclosedCode (verticeId):
