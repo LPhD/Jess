@@ -29,16 +29,18 @@ db.connectToDatabase(projectName)
 # 225336 IfStatement in compareResults
 # 241888 corresponding ElseStatement
 # 213216 ForStatement in compareResults
+# 8384 Directory src 
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'24704'}
+entryPointId = {'8192'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
 checkedVertices = set()
 
-# Main function. Decides based on the vertice type, what methods are called
+# Main function. Decides based on the vertice type, what methods are called 
+# The currentEntryPoints are always added to the Semantic Unit
 def identifySemanticUnits (currentEntryPoints):
     # Reset current result
     result = ""   
@@ -58,24 +60,24 @@ def identifySemanticUnits (currentEntryPoints):
 ################################ Structural relations ################################
         # Get all enclosed vertices if current vertice is a File
         if ((type[0] == "File") and (includeEnclosedCode == True)):
-        
+            print("File" +str(currentNode))
+            
         # Get all included files if current vertice is a Directory
         if ((type[0] == "Directory") and (includeEnclosedCode == True)):
-
+            result = set(getIncludedFiles(currentNode))
+            # For every enclosed file, get related elements
+            identifySemanticUnits(result)
+            
         # Get enclosed vertices if current vertice is a function declaration
         if ((type[0] in ["FunctionDef", "Function"]) and (includeEnclosedCode == True)):
-            result = set(getEnclosedCode(currentNode)) 
-            # Add current results (alle enclosed elements) to Semantic Unit 
-            addToSemanticUnit(result)            
-            # For every enclosed vertice, get related elements
+            result = set(getEnclosedCode(currentNode))           
+            # For each enclosed vertice, add to the Semantic Unit and get related elements
             identifySemanticUnits(result)
             
         # Get enclosed vertices if current vertice is a for-, while- or if-statement
         if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):            
             result = set(getChildren(currentNode))
-            # Add current results (alle enclosed elements) to Semantic Unit 
-            addToSemanticUnit(result)
-            # For every enclosed vertice, get related elements
+            # For each enclosed vertice, add to the Semantic Unit and get related elements
             identifySemanticUnits (result) 
             
         # Get the corresponding if-statement, if current vertice is an else-statement
@@ -95,6 +97,7 @@ def identifySemanticUnits (currentEntryPoints):
             
         # Get called function if current vertice is a CallExpression
         if (type[0] == "CallExpression"):
+            print("CallExpression" +str(currentNode))
             
 ######################################################################################
 ################################## Define relations ##################################
@@ -109,17 +112,20 @@ def identifySemanticUnits (currentEntryPoints):
             
         
         # Get XXX if current vertice is a AssignmentExpression
-        if (type[0] == "AssignmentExpression"):    
+        if (type[0] == "AssignmentExpression"):  
+            print("CallExpression" +str(currentNode))
                
         # Get all included variables and methods? if current vertice is an Argument or ArgumentList or Condition or 'UnaryExpression'
         if (type[0] in ["Argument", "ArgumentList", "Condition", "UnaryExpression"]):
-        
+            print("Argument, ArgumentList, Condition, UnaryExpression" +currentNode)
+            
         # Get all uses if current vertice is an IdentifierDeclStatement? Make this as configuration option
         if (type[0] ==  "IdentifierDeclStatement"):
-        
+            print("IdentifierDeclStatement" +currentNode)
+            
         # Get XXX if current vertice is a 'Symbol'
         if (type[0] ==  "Symbol"):
-        
+            print("Symbol" +str(currentNode))
             
         # Do something for every type where it is necessary
         
@@ -146,9 +152,13 @@ def identifySemanticUnits (currentEntryPoints):
         # 'Decl' empty?
         # 'DeclStmt' empty?
         # 'CompoundStatement' empty?
-
+        
+# Return all vertices of type file that belong to the given directory (not recursive)        
+def getIncludedFiles (verticeId):
+    query = """g.V(%s).out().has('type', 'File').id()""" % (verticeId)
+    return db.runGremlinQuery(query)
+    
    
-
 # Return all vertices that belong to the same parent function
 def getEnclosedCode (verticeId):
     # Get (parent) functionId of vertice with verticeId
