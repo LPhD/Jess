@@ -9,6 +9,7 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 ####### Configuration options #################
 generateOnlyAST = False
 includeEnclosedCode = True
+connectIfWithElse = True
 
 
 
@@ -31,10 +32,11 @@ db.connectToDatabase(projectName)
 # 213216 ForStatement in compareResults
 # 8384 Directory src 
 # 12480  File C.c
+# 4128 Condition in bubblesort for
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'8384'}
+entryPointId = {'213216'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -60,13 +62,13 @@ def identifySemanticUnits (currentEntryPoints):
         
 ################################ Structural relations ################################
         # Get all included files if current vertice is a Directory
-        if ((type[0] == "Directory") and (includeEnclosedCode == True)):
+        if (type[0] == "Directory"):
             result = set(getIncludedFiles(currentNode))
             # For every enclosed file, get related elements
             identifySemanticUnits(result)
             
         # Get all enclosed lines of code if current vertice is a File
-        if ((type[0] == "File") and (includeEnclosedCode == True)):
+        if (type[0] == "File"):
             result = set(getEnclosedCodeOfFile(currentNode))
             # For every enclosed code line, get related elements
             identifySemanticUnits(result)
@@ -81,13 +83,38 @@ def identifySemanticUnits (currentEntryPoints):
         if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):            
             result = set(getChildren(currentNode))
             # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result) 
-            
-        # Get the corresponding if-statement, if current vertice is an else-statement
-        if (type[0] == "ElseStatement"):            
-            result = set(getIfStatement(currentNode))
-            # Get related elements of the if/else-statement
             identifySemanticUnits (result)
+        # Get only the Syntax Elements of the selected statement     
+        elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):
+        
+            # Get corresponding if-statement only if the configuration is selected
+            if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
+                result = set(getElse(currentNode))
+                # Just add, no further analysis?
+                semanticUnit.update(result)
+                                
+            result = set(getInitAndCondition(currentNode))
+            ########################### UnaryExpression or other possibilities? UnaryExpression has identifier i, but no connection to symbol i. Bug?
+            # For each enclosed vertice, add to the Semantic Unit and get related elements
+            identifySemanticUnits(result)             
+                       
+        # Get the corresponding if, while or for-statement, if current vertice is an else-statement, condition or for-init
+        if (type[0] in ["ElseStatement", "Condition", "ForInit"]):            
+            result = set(getIfWhileForStatement(currentNode))
+            # Get related elements of the if/else-statement
+            identifySemanticUnits (result)           
+
+        # Get the parent function definition if the current vertice is a parameter    
+        if (type[0] == ("Parameter")):
+            result = set(getParameterList(currentNode))
+            # Get related elements 
+            identifySemanticUnits (result) 
+
+        # Get the parent function definition if the current vertice is a parameter    
+        if (type[0] == ("ParameterList")):
+            result = set(getFunctionDefIn(currentNode))
+            # Get related elements 
+            identifySemanticUnits (result)             
             
 ######################################################################################           
 ################################### Call relations ################################### 
@@ -107,7 +134,7 @@ def identifySemanticUnits (currentEntryPoints):
             
         # Get function definition vertice if current vertice is a function 
         if (type[0] == "Function"):
-            result = set(getFunctionDef(currentNode))           
+            result = set(getFunctionDefOut(currentNode))           
             # Add FunctionDef to the Semantic Unit and get related elements
             identifySemanticUnits(result)
             
@@ -135,6 +162,22 @@ def identifySemanticUnits (currentEntryPoints):
         # Get XXX if current vertice is a 'Symbol'
         if (type[0] ==  "Symbol"):
             print("Symbol" +str(currentNode))
+
+######################################################################################
+##################################### Data Flow ######################################
+
+        # Get all used symbols (variables)
+        if (type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression"]):
+            #Depends on type? For Statement etc. Different behaviour based on config. Include Condition etc
+            result = set(getUsedSymbols(currentNode))
+            # Get related elements of the called function
+            identifySemanticUnits (result)
+        
+        # Get all changes to the used symbols (variables)       
+        if (type[0] == "Symbol"):
+            result = set(getDefinesOfSymbols(currentNode))
+            identifySemanticUnits (result)
+
             
         # Do something for every type where it is necessary
         
@@ -191,9 +234,19 @@ def getEnclosedCodeOfFunction (verticeId):
     return result
     
 # Return function definition vertice of a given function
-def getFunctionDef (verticeId):
-    query = """g.V().out().has('type', 'FunctionDef').id()"""
+def getFunctionDefOut (verticeId):
+    query = """g.V(%s).out().has('type', 'FunctionDef').id()""" % (verticeId)
     return db.runGremlinQuery(query)    
+    
+# Return parameter list of a parameter
+def getParameterList (verticeId):
+    query = """g.V(%s).in(AST_EDGE).has('type', 'ParameterList')id()""" % (verticeId)
+    return db.runGremlinQuery(query)    
+    
+# Return parent function definition vertice of a vertice
+def getFunctionDefIn (verticeId):
+    query = """g.V(%s).in(AST_EDGE).has('type', 'FunctionDef').id()""" % (verticeId)
+    return db.runGremlinQuery(query)      
 
 # Return all AST children vertice ids of the given vertice
 def getChildren (verticeId):
@@ -226,6 +279,9 @@ def getCalledFunctionDef (verticeId):
 def getDeclaration (verticeId):
     print("#########################################################################")   
     print("In edges, in vertices, out edges, out vertices:")
+    #ParameterList -> AST Parent ->  FunctionDef
+    #ForInit ?
+    #IdentifierDeclStatement (int j) -> AST Parent -> IdentifierDecl (j) -> AST Parent -> Identifier (j) and IdentifierDeclType (int)
     query = """g.V(%s).inE()""" % (verticeId)
     print(db.runGremlinQuery(query))
     query = """g.V(%s).in()""" % (verticeId)
@@ -236,13 +292,38 @@ def getDeclaration (verticeId):
     print(db.runGremlinQuery(query))  
     print("#########################################################################")    
     return ""
-         ########################### TO DO ###################################           
+         ########################### TO DO ###################################     
 
-         
-# Return the corresponding if-statement
-def getIfStatement (verticeId):
-    query = """g.V(%s).in().has('type', 'IfStatement').id()""" % (verticeId)
-    return db.runGremlinQuery(query)   
+# Return all symbols (variables) that were used         
+def getUsedSymbols (verticeId):
+    #USE edges and DEF edges
+    query = """g.V(%s).out(USES_EDGE).id()""" % (verticeId)
+    return db.runGremlinQuery(query) 
+
+    # Only defines before?
+# Return all vertices that change a symbol (variable)         
+def getDefinesOfSymbols (verticeId):
+    #USE edges and DEF edges
+    query = """g.V(%s).in(DEFINES_EDGE).id()""" % (verticeId)
+    return db.runGremlinQuery(query)     
+
+# Return the Init Statement and the Condition of an If,For or WhileStatement    
+def getInitAndCondition (verticeId):
+    query = """g.V(%s).out(AST_EDGE).has('type', within('ForInit', 'Condition')).id()""" % (verticeId)
+    return db.runGremlinQuery(query) 
+    
+# Return the If,For or WhileStatement of an Init Statement or Condition       
+def getIfWhileForStatement (verticeId):
+    query = """g.V(%s).in(AST_EDGE).has('type', within('ForStatement', 'IfStatement', 'WhileStatement')).id()""" % (verticeId)
+    return db.runGremlinQuery(query)  
+
+# Return the corresponding else-statement of an if-statement    
+def getElse (verticeId):
+    query = """g.V(%s).out(AST_EDGE).has('type', 'ElseStatement').id()""" % (verticeId)
+    return db.runGremlinQuery(query)     
+    
+    
+###################################### Output ###############################################################
 
 # Output of the code of the Semantic Unit        
 def codeOutput ():
@@ -262,7 +343,6 @@ def nodeOutput ():
     
     for x in code: print(x)
    
-
 ####################################### Plotting ###############################################    
  
 # Plots the results    
@@ -276,9 +356,9 @@ def plotResults ():
     
     #Get nodes and edges of semanticUnit (either as AST or full property graph)
     if (generateOnlyAST):
-        print("Get nodes")
+        print("Get AST nodes")
         nodes = getASTNodes()    
-        print("Get edges")
+        print("Get AST edges")
         edges = getASTEdges()    
     else:
         print("Get nodes")
@@ -299,11 +379,9 @@ def plotResults ():
 
 # Returns all AST vertices of the SemanticUnit    
 def getASTNodes():
-    # Remove unneeded nodes. Within or without are not working...
-    query = """idListToNodes(%s)
-        .not(has('type', 'Symbol'))
-        .not(has('type', 'CFGExitNode'))
-        .not(has('type','CFGEntryNode'))""" % (list(semanticUnit))  
+    # Remove unneeded nodes
+    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode')))
+        """ % (list(semanticUnit))  
     return db.runGremlinQuery(query)
 
 # Returns all vertices of the SemanticUnit    
