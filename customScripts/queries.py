@@ -12,13 +12,29 @@ db.connectToDatabase(projectName)
 
 ##### Normal Gremlin queries #####
 
+# Get vertice with id 147512
+query = "g.V(147512)" 
+#Shows code of vertice 4256
+query = "g.V(4256).values('code')"  
 #Shows code of all nodes of type function
 query = "g.V().has('type', 'Function').values('code')"
 #Shows code of all file nodes
 query = "g.V().has('type', 'File').values('code')"
-#Shows code of vertice 4256
-query = "g.V(4256).values('code')"   
+# Get IDs of all argument verteces
+query = "g.V().has('type', 'Argument').id()" 
+# Get all code vertices of a function
+query = "g.V().has('functionId', '341').values('code')""" 
+# Get all code vertices of type argument of a function
+query = "g.V().has('functionId', '341').has('type', 'Argument').values('code')" 
 
+
+##### Titan DB specific queries #####
+
+# Get vertices that contain the word bubble (wildcards not working)
+query = "g.V().has('code', textContains('bubble')).values('code')"
+# Get vertices that contain a word starting with bubble 
+query = "g.V().has('code', textContainsPrefix('bubble')).values('code')"
+ 
 
 ##### Groovy Gremlin queries (with closures and custom steps) #####
 
@@ -28,14 +44,6 @@ query = """getFunctionsByName("bubblesort")"""
 query = """getCallsTo("bubblesort").values('code')"""
 # Get AST parent node of vertice 147584
 query = """g.V(147584).parents().values('code')"""
-# Get IDs of all argument verteces
-query = """g.V().has('type', 'Argument').id()""" 
-# Get vertice with id 147512
-query = """g.V(147512)""" 
-# Get all code vertices of a function
-query = """g.V().has('functionId', '341').values('code')""" 
-# Get all code vertices of type argument of a function
-query = """g.V().has('functionId', '341').has('type', 'Argument').values('code')""" 
 # Get code of all vertices that are part of function 341 and have incoming DEF edges
 query = """g.V().has('functionId', '341').out(DEFINES_EDGE).values('code')""" 
  # Get code of all vertices that were defined by an argument (outgoing DEF edge of an argument node)
@@ -69,8 +77,6 @@ result = db.runGremlinQuery(query)
 for x in result: print(x)
 
 
-
-
 ############################################################################################################
 ##### NOT WORKING OR PROBLEMS
 ############################################################################################################
@@ -81,6 +87,12 @@ query = """getFunctionsByFilename("C.c")"""
 query = """g.V().has('code', textRegex('*C.c*'))"""
 # Another regex problem
 query = """getCallsToRegex("bubblesor*").values('code')"""
+# textContains does not work, getCallsTo works, but only with exact name
+query = """getCallsTo(textContains("out")).values('code')"""
+# textContainsRegex also does not work
+query = """getCallsTo(textContainsRegex("out*")).values('code')"""
+# This works, but regex syntax is unclear
+query = """g.V().has('code', textContainsRegex('bubblesor+')).values('code')"""
 # No signature of method: org.apache.tinkerpop.gremlin.process.traversal.traverser.O_Traverser.codeContains() is applicable for argument types: (java.lang.String) values: [bubblesort]
 query = """g.V().sideEffect{it.codeContains("bubblesort");}"""
 #Gremly-Groovy Syntax with it, doenst work as normal query?
