@@ -8,7 +8,7 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
 generateOnlyAST = False
-includeEnclosedCode = True
+includeEnclosedCode = False
 connectIfWithElse = True
 
 
@@ -22,21 +22,23 @@ db = DBInterface()
 db.connectToDatabase(projectName)
 
 ## Example entry points ##
-# 315552 ExpressionStatement threeElmArray()
-# 331936 CallExpression tenElmArray()
-# 356576 Callee tenElmArray()
-# 307360 FunctionDef mainTest()
-# 4264 FunctionDef bubblesort()
-# 225336 IfStatement in compareResults
-# 241888 corresponding ElseStatement
-# 213216 ForStatement in compareResults
-# 8384 Directory src 
-# 12480  File C.c
-# 4128 Condition in bubblesort for
+## Caution, depends on db ##
+# 4120 Directory src
+# 450648 File C_Test.c
+# 454744 FunctionDef compareResults()
+# 233656 IfStatement in compareResults
+# 217096 corresponding ElseStatement
+# 233568 ForStatement in compareResults
+# 467032 Condition in above ForStatement
+# 188648 ExpressionStatement in above ForStatement
+# 331936 CallExpression compareResults() in threeElmArray()
+# 524376 Callee compareResults() in threeElmArray()
+
+
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'213216'}
+entryPointId = {'4120'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -180,7 +182,7 @@ def identifySemanticUnits (currentEntryPoints):
 
             
         # Do something for every type where it is necessary
-        
+        # TODO: Missing types from /jpanlib/src/main/java
         # Do nothing for:
         # 'AdditiveExpression' a + b
         # 'PrimaryExpression' 1
