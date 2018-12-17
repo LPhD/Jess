@@ -23,8 +23,9 @@ db.connectToDatabase(projectName)
 
 ## Example entry points ##
 ## Caution, depends on db ##
+# 4120 Directory src
 # 450648 File C_Test.c
-# 4120 FunctionDef compareResults()
+# 454744 FunctionDef compareResults()
 # 233656 IfStatement in compareResults
 # 217096 corresponding ElseStatement
 # 233568 ForStatement in compareResults
