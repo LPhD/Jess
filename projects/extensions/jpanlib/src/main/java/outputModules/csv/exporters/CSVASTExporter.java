@@ -26,6 +26,7 @@ public class CSVASTExporter extends ASTExporter
 		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
 		astDatabaseNode.initialize(node);
 		astDatabaseNode.setCurrentFunction(currentFunction);
+		astDatabaseNode.setInsideFunctionBlock(this.isInsideFunctionBlock());
 		Map<String, Object> properties = astDatabaseNode.createProperties();
 
 		properties.put(NodeKeys.FUNCTION_ID,
