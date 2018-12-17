@@ -14,8 +14,7 @@ import misc.MultiHashMap;
  * better suited for DDG creation.
  */
 
-public class DefUseCFG
-{
+public class DefUseCFG {
 
 	private LinkedList<Object> statements = new LinkedList<Object>();
 	private MultiHashMap<Object, Object> symbolsUsed = new MultiHashMap<Object, Object>();
@@ -29,96 +28,77 @@ public class DefUseCFG
 
 	private static final List<Object> EMPTY_LIST = new LinkedList<Object>();
 
-	public void addStatement(Object statementId)
-	{
+	public void addStatement(Object statementId) {
 		statements.add(statementId);
 	}
 
-	public void addSymbolUsed(Object key, String symbol)
-	{
+	public void addSymbolUsed(Object key, String symbol) {
 		symbolsUsed.add(key, symbol);
 	}
 
-	public void addSymbolDefined(Object key, String symbol)
-	{
+	public void addSymbolDefined(Object key, String symbol) {
 		symbolsDefined.add(key, symbol);
 	}
 
-	public Collection<Object> getSymbolsDefinedBy(Object blockId)
-	{
+	public Collection<Object> getSymbolsDefinedBy(Object blockId) {
 		List<Object> listForKey = symbolsDefined.get(blockId);
 		if (listForKey == null)
 			return EMPTY_LIST;
 		return listForKey;
 	}
 
-	public void addParentBlock(Object thisBlockId, Object parentId)
-	{
+	public void addParentBlock(Object thisBlockId, Object parentId) {
 		parentBlocks.add(thisBlockId, parentId);
 	}
 
-	public void addChildBlock(Object thisBlockId, Object childId)
-	{
+	public void addChildBlock(Object thisBlockId, Object childId) {
 		childBlocks.add(thisBlockId, childId);
 	}
 
-	public LinkedList<Object> getStatements()
-	{
+	public LinkedList<Object> getStatements() {
 		return statements;
 	}
 
-	public MultiHashMap<Object, Object> getSymbolsUsed()
-	{
+	public MultiHashMap<Object, Object> getSymbolsUsed() {
 		return symbolsUsed;
 	}
 
-	public MultiHashMap<Object, Object> getSymbolsDefined()
-	{
+	public MultiHashMap<Object, Object> getSymbolsDefined() {
 		return symbolsDefined;
 	}
 
-	public MultiHashMap<Object, Object> getParentBlocks()
-	{
+	public MultiHashMap<Object, Object> getParentBlocks() {
 		return parentBlocks;
 	}
 
-	public MultiHashMap<Object, Object> getChildBlocks()
-	{
+	public MultiHashMap<Object, Object> getChildBlocks() {
 		return childBlocks;
 	}
 
-	public Object getIdForSymbol(String symbol)
-	{
+	public Object getIdForSymbol(String symbol) {
 		return symbolIds.get(symbol);
 	}
 
-	public void setSetSymbolId(String symbolCode, Object symbolId)
-	{
+	public void setSetSymbolId(String symbolCode, Object symbolId) {
 		symbolIds.put(symbolCode, symbolId);
 	}
 
-	public void addUsesForExitNode()
-	{
+	public void addUsesForExitNode() {
 
-		for (String symbol : parameters)
-		{
-			// this.addSymbolUsed(exitNode, symbol);
-			this.addSymbolUsed(exitNode, "* " + symbol);
+		for (String symbol : parameters) {
+			this.addSymbolUsed(exitNode, symbol);
 		}
 	}
 
-	public void setExitNode(Object exitNode)
-	{
+	public void setExitNode(Object exitNode) {
 		this.exitNode = exitNode;
 	}
 
-	public void setParameters(LinkedList<String> params)
-	{
+	public void setParameters(LinkedList<String> params) {
 		parameters = params;
 	}
 
-	public void addParameter(String str)
-	{
+	public void addParameter(String str) {
 		parameters.add(str);
 	}
 
