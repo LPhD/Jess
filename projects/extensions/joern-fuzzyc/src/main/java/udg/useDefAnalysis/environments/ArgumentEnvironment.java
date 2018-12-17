@@ -19,7 +19,7 @@ public class ArgumentEnvironment extends EmitDefAndUseEnvironment
 			LinkedList<String> derefChildSymbols = new LinkedList<String>();
 			for (String symbol : childSymbols)
 			{
-				derefChildSymbols.add(CUseDefExpression.simplify("* " + symbol));
+				derefChildSymbols.add(CUseDefExpression.simplify(symbol));
 				if (!symbol.startsWith("& "))
 				{
 					// !patch to see if we can detect macro-sources!

@@ -16,7 +16,7 @@ public class ArrayIndexingEnvironment extends EmitUseEnvironment
 		LinkedList<String> derefedChildren = new LinkedList<String>();
 		for (String c : childSymbols)
 		{
-			derefedChildren.add(CUseDefExpression.simplify("* " + c));
+			derefedChildren.add(CUseDefExpression.simplify(c));
 		}
 
 		symbols.addAll(derefedChildren);

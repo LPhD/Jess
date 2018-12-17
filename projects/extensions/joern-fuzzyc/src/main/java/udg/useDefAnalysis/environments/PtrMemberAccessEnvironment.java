@@ -21,7 +21,7 @@ public class PtrMemberAccessEnvironment extends UseDefEnvironment
 		LinkedList<String> derefedChildren = new LinkedList<String>();
 		for (String c : symbols)
 		{
-			derefedChildren.add(CUseDefExpression.simplify("* " + c));
+			derefedChildren.add(CUseDefExpression.simplify(c));
 		}
 
 		retval.addAll(derefedChildren);

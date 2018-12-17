@@ -19,7 +19,7 @@ public class UnaryOpEnvironment extends EmitUseEnvironment
 		{
 			for (String symbol : childSymbols)
 			{
-				symbols.add(CUseDefExpression.simplify("& " + symbol));
+				symbols.add(CUseDefExpression.simplify(symbol));
 			}
 
 			return;
@@ -38,7 +38,7 @@ public class UnaryOpEnvironment extends EmitUseEnvironment
 		LinkedList<String> derefedChildren = new LinkedList<String>();
 		for (String c : childSymbols)
 		{
-			derefedChildren.add(CUseDefExpression.simplify("* " + c));
+			derefedChildren.add(CUseDefExpression.simplify(c));
 		}
 
 		retval.addAll(derefedChildren);
