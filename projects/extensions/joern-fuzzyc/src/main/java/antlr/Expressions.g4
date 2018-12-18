@@ -18,9 +18,7 @@ shift_expression: additive_expression ( ('<<'|'>>') shift_expression)?;
 additive_expression: multiplicative_expression (('+'| '-') additive_expression)?;
 multiplicative_expression: cast_expression ( ('*'| '/'| '%') multiplicative_expression)?;
 
-cast_expression: ('(' cast_target ')' cast_expression)
-               | unary_expression
-;
+cast_expression: ('(' cast_target ')' cast_expression);
 
 cast_target: type_name ptr_operator*;
 
@@ -31,7 +29,8 @@ unary_expression: inc_dec cast_expression
                 | sizeof_expression 
                 | new_expression
                 | postfix_expression
-                ;
+                ;                
+
 
 new_expression: '::'? NEW type_name '[' conditional_expression? ']' 
               | '::'? NEW type_name '(' expr? ')'
