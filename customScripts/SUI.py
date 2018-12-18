@@ -8,8 +8,9 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
 generateOnlyAST = False
-includeEnclosedCode = False
+includeEnclosedCode = True
 connectIfWithElse = True
+searchDirsRecursively = True
 
 
 
@@ -17,7 +18,8 @@ connectIfWithElse = True
 
 
 # Connect to project DB
-projectName = 'EvoDiss.tar.gz'
+projectName = 'JoernTest'
+# projectName = 'EvoDiss.tar.gz'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -33,12 +35,13 @@ db.connectToDatabase(projectName)
 # 188648 ExpressionStatement in above ForStatement
 # 331936 CallExpression compareResults() in threeElmArray()
 # 524376 Callee compareResults() in threeElmArray()
+# 8320 FunctionDef bubblesort
 
 
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'4120'}
+entryPointId = {'4328'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -65,7 +68,12 @@ def identifySemanticUnits (currentEntryPoints):
 ################################ Structural relations ################################
         # Get all included files if current vertice is a Directory
         if (type[0] == "Directory"):
-            result = set(getIncludedFiles(currentNode))
+            # Add only the contained files
+            if (searchDirsRecursively == False):
+                result = set(getIncludedFiles(currentNode))
+            else:
+                result = set(getIncludedFilesAndDirectories(currentNode))
+            
             # For every enclosed file, get related elements
             identifySemanticUnits(result)
             
@@ -180,6 +188,10 @@ def identifySemanticUnits (currentEntryPoints):
             result = set(getDefinesOfSymbols(currentNode))
             identifySemanticUnits (result)
 
+        #Problems: 
+        # Global variables 
+        # ++ i in for (not a real problem, as it is always inside for. But what if method is called?
+        # ++ i in general is not working, only identified as UnaryExpression but not as ExpressionAssignment
             
         # Do something for every type where it is necessary
         # TODO: Missing types from /jpanlib/src/main/java
@@ -212,6 +224,11 @@ def getIncludedFiles (verticeId):
     query = """g.V(%s).out().has('type', 'File').id()""" % (verticeId)
     return db.runGremlinQuery(query)
     
+# Return all vertices of type file and directory that belong to the given directory (recursive)        
+def getIncludedFilesAndDirectories (verticeId):
+    query = """g.V(%s).out().has('type', within('File', 'Directory')).id()""" % (verticeId)
+    return db.runGremlinQuery(query)    
+       
 # Return all vertices that belong to the given file 
 def getEnclosedCodeOfFile (verticeId):
 ############################# Only adds vertices of type Function? ########################
