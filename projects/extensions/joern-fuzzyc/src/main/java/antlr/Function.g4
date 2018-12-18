@@ -56,7 +56,9 @@ jump_statement: BREAK ';'		#breakStatement
 
 label: CASE? (identifier | number | CHAR ) ':' ;
 
-expr_statement: expr? ';';
+expr_statement: expr? ';'
+				| ?expr ';'
+				;
 
 condition: expr
 	 | type_name declarator '=' assign_expr;
