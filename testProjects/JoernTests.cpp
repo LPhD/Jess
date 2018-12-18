@@ -25,13 +25,7 @@ void testWhileAndInc() {
 	global = 5;
 }
 
-void testMethodCallInFor(){
 
-	for(int i = 0, i < 5, i = addI()){
-
-	}
-}
-
-int addI(){
+int addI(int i){
 	return ++i;
 }
