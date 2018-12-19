@@ -1,3 +1,7 @@
+plugins {
+	id 'antlr'
+}
+
 
 task copyToLib3(type: Copy) {
     into "lib"
@@ -5,20 +9,25 @@ task copyToLib3(type: Copy) {
 }
 
 dependencies{
+	antlr "org.antlr:antlr4:4.5.3"
+	
 	compile project(':projects:extensions:jpanlib')
 
 	compile group: 'com.tunnelvisionlabs', name: 'antlr4-annotations', version: '4.5.3'
 	compile group: 'com.tunnelvisionlabs', name: 'antlr4-runtime', version: '4.5.3'
-	compile group: 'com.tunnelvisionlabs', name: 'antlr4', version: '4.5.3'
 	compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
 	compile group: 'org.neo4j', name: 'neo4j', version: '2.1.8'
 	compile group: 'junit', name: 'junit', version: '4.12'
+	
 }
 
 //Generate Java files from grammar
 generateGrammarSource{
-	source = "src/main/java"
-	outputDirectory = "src/main/java"
+
+	copy {
+		from "target/generated-sources/antlr4/antlr"
+		into "src/main/java/antlr"
+	}
 }
 
 
