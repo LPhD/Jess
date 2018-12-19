@@ -36,13 +36,20 @@ cast_target: type_name ptr_operator*;
 
 // currently does not implement delete
 
-unary_expression: inc_dec cast_expression
+unary_expression: cast_expression
                 | unary_op_and_cast_expr
                 | sizeof_expression 
                 | new_expression
                 | postfix_expression
                 ;
-
+                
+/*inc_dec cast_expression  
+*        unary_expression
+*                | postfix_expression
+*                       primary_expression
+*/   
+ 
+ 
 new_expression: '::'? NEW type_name '[' conditional_expression? ']' 
               | '::'? NEW type_name '(' expr? ')'
               ;
