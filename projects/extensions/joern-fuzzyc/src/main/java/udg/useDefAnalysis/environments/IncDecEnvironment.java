@@ -14,12 +14,7 @@ public class IncDecEnvironment extends EmitDefAndUseEnvironment
 	@Override
 	public boolean isDef(ASTProvider child)
 	{
-		int childNum = child.getChildNumber();
-
-		if (childNum == 0)
-			return true;
-
-		return false;
+		return true;
 	}
 
 }
