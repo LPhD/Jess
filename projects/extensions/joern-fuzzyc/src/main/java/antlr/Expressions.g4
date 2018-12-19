@@ -34,10 +34,6 @@ cast_expression: ('(' cast_target ')' cast_expression)
 
 cast_target: type_name ptr_operator*;
 
-//Special case for ++i, as otherwise it would be an unary_expression
-pre_inc_dec_op_expression: inc_dec primary_expression #preIncDecOp
-                            ; 
-
 // currently does not implement delete
 
 unary_expression: inc_dec cast_expression
@@ -73,6 +69,7 @@ postfix_expression: postfix_expression '[' expr ']' #arrayIndexing
                   | postfix_expression '->' TEMPLATE? (identifier) #ptrMemberAccess
                   | postfix_expression inc_dec #incDecOp
                   | primary_expression # primaryOnly
+                  | inc_dec primary_expression #incDecOp
                   ;
 
 function_argument_list: ( function_argument (',' function_argument)* )?;
