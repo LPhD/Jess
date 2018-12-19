@@ -23,15 +23,29 @@ dependencies{
 
 //Generate Java files from grammar
 generateGrammarSource{
-	includes = ['src/main/java/antlr/Function.g4', 'src/main/java/antlr/Module.g4']
-	source = "src/main/java/antlr"
-	arguments << "-lib" << "src/main/java/antlr"
-	copy {
-		from "build/generated-src/antlr/java/antlr"
-		into "src/main/java/antlr"
+	
+	if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+		includes = ['**/Function.g4', '**/Module.g4']
+	} else {
+		includes = ['src/main/java/antlr/Function.g4', 'src/main/java/antlr/Module.g4']
 	}
+	
+	source = "src/main/java/antlr"
+	
+	//Make grammaer know the imports
+	arguments << "-lib" << "src/main/java/antlr"			
 }
 
+task copyGenratedFiles(type: Copy) {
+	into "src/main/java/antlr"
+	from "build/generated-src/antlr/java/antlr"
+}
 
+task removeUnusedFiles() {
+	delete "build/generated-src/antlr/java/antlr"
+}
+
+copyGenratedFiles.dependsOn generateGrammarSource
+build.dependsOn copyGenratedFiles
 build.dependsOn copyToLib3
 

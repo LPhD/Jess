@@ -30,14 +30,13 @@ multiplicative_expression: cast_expression ( ('*'| '/'| '%') multiplicative_expr
 
 cast_expression: ('(' cast_target ')' cast_expression)
                | unary_expression
-;
+                ;
 
 cast_target: type_name ptr_operator*;
 
 // currently does not implement delete
 
-unary_expression: cast_expression
-                | unary_op_and_cast_expr
+unary_expression: unary_op_and_cast_expr
                 | sizeof_expression 
                 | new_expression
                 | postfix_expression
