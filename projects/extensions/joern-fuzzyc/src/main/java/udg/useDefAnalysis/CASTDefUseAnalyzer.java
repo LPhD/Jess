@@ -55,6 +55,8 @@ public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer
 			return new AssignmentEnvironment();
 		case "PostIncDecOperationExpression":
 			return new IncDecEnvironment();
+		case "PreIncDecOperationExpression":
+			return new IncDecEnvironment();	
 		case "IdentifierDecl":
 		case "Parameter":
 			return new DeclEnvironment();

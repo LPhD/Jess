@@ -3,19 +3,29 @@ grammar Expressions;
 expr: assign_expr (',' expr)?;
 
 assign_expr: conditional_expression (assignment_operator assign_expr)?;
+
 conditional_expression: or_expression #normOr
 		      | or_expression ('?' expr ':' conditional_expression) #cndExpr;
 
 
 or_expression : and_expression ('||' or_expression)?;
+
 and_expression : inclusive_or_expression ('&&' and_expression)?;
+
 inclusive_or_expression: exclusive_or_expression ('|' inclusive_or_expression)?;
+
 exclusive_or_expression: bit_and_expression ('^' exclusive_or_expression)?;
+
 bit_and_expression: equality_expression ('&' bit_and_expression)?;
+
 equality_expression: relational_expression (equality_operator equality_expression)?;
+
 relational_expression: shift_expression (relational_operator relational_expression)?;
+
 shift_expression: additive_expression ( ('<<'|'>>') shift_expression)?;
+
 additive_expression: multiplicative_expression (('+'| '-') additive_expression)?;
+
 multiplicative_expression: cast_expression ( ('*'| '/'| '%') multiplicative_expression)?;
 
 cast_expression: ('(' cast_target ')' cast_expression)
@@ -23,6 +33,10 @@ cast_expression: ('(' cast_target ')' cast_expression)
 ;
 
 cast_target: type_name ptr_operator*;
+
+//Special case for ++i, as otherwise it would be an unary_expression
+pre_inc_dec_op_expression: inc_dec primary_expression #preIncDecOp
+                            ; 
 
 // currently does not implement delete
 

@@ -97,6 +97,7 @@ import ast.expressions.MemberAccess;
 import ast.expressions.MultiplicativeExpression;
 import ast.expressions.OrExpression;
 import ast.expressions.PostIncDecOperationExpression;
+import ast.expressions.PreIncDecOperationExpression;
 import ast.expressions.PrimaryExpression;
 import ast.expressions.PtrMemberAccess;
 import ast.expressions.RelationalExpression;
@@ -665,6 +666,18 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	{
 		nesting.consolidateSubExpression(ctx);
 	}
+	
+	public void enterPreIncDecOp(IncDecOpContext ctx)
+	{
+		PreIncDecOperationExpression expr = new PreIncDecOperationExpression();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);
+	}
+
+	public void exitPreIncDecOp(IncDecOpContext ctx)
+	{
+		nesting.consolidateSubExpression(ctx);
+	}	
 
 	public void enterPrimary(Primary_expressionContext ctx)
 	{

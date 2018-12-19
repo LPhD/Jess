@@ -1,5 +1,7 @@
 package ast.expressions;
 
+import ast.ASTNode;
+
 public class PreIncDecOperationExpression extends PrefixExpression
 {
 	private Expression variableExpression = null;
@@ -13,5 +15,14 @@ public class PreIncDecOperationExpression extends PrefixExpression
 	{
 		this.variableExpression = variableExpression;
 		super.addChild(variableExpression);
+	}
+	
+	@Override
+	public void addChild(ASTNode node)
+	{
+		if (node instanceof Expression)
+			setVariableExpression((Expression) node);
+		else
+			super.addChild(node);
 	}
 }
