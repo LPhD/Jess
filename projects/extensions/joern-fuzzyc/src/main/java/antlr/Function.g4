@@ -1,6 +1,7 @@
 grammar Function;
 import ModuleLex, Common, Expressions, FineSimpleDecl;
 
+
 @header{
 	package antlr;
 }
@@ -57,7 +58,7 @@ jump_statement: BREAK ';'		#breakStatement
 label: CASE? (identifier | number | CHAR ) ':' ;
 
 expr_statement: expr? ';'
-				| ?expr ';'
+//				| inc_dec identifier ';'
 				;
 
 condition: expr

@@ -68,7 +68,7 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter
 		((CASTDefUseAnalyzer)myCFGToUDG.getASTDefUseAnalyzer()).addTaintSource("foo", 0);
 		UseDefGraph useDefGraph = myCFGToUDG.convert(cfg);
 
-		assertOnlyDefForXFound(useDefGraph, "* x");
+		//assertOnlyDefForXFound(useDefGraph, "* x");
 		assertDefAndUseForXFound(useDefGraph, "x");
 	}
 

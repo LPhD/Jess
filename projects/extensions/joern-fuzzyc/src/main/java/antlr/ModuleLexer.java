@@ -1,4 +1,4 @@
-// Generated from src/main/java/antlr/Module.g4 by ANTLR 4.5.4-SNAPSHOT
+// Generated from ..\java\antlr\Module.g4 by ANTLR 4.5.3
 
 	package antlr;
 
@@ -14,7 +14,13 @@ import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.*;
 
+@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class ModuleLexer extends Lexer {
+	static { RuntimeMetaData.checkVersion("4.5.3", RuntimeMetaData.VERSION); }
+
+	protected static final DFA[] _decisionToDFA;
+	protected static final PredictionContextCache _sharedContextCache =
+		new PredictionContextCache();
 	public static final int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
@@ -109,7 +115,7 @@ public class ModuleLexer extends Lexer {
 	}
 
 	@Override
-	@NotNull
+
 	public Vocabulary getVocabulary() {
 		return VOCABULARY;
 	}
@@ -117,7 +123,7 @@ public class ModuleLexer extends Lexer {
 
 	public ModuleLexer(CharStream input) {
 		super(input);
-		_interp = new LexerATNSimulator(this,_ATN);
+		_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
 	@Override
@@ -132,8 +138,11 @@ public class ModuleLexer extends Lexer {
 	@Override
 	public String[] getModeNames() { return modeNames; }
 
+	@Override
+	public ATN getATN() { return _ATN; }
+
 	public static final String _serializedATN =
-		"\3\uaf6f\u8320\u479d\ub75c\u4880\u1605\u191c\uab37\2g\u037c\b\1\4\2\t"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\2g\u037c\b\1\4\2\t"+
 		"\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -182,18 +191,15 @@ public class ModuleLexer extends Lexer {
 		"\ne\3f\3f\3f\3f\3f\3f\3f\3f\3f\5f\u0345\nf\3g\3g\3g\3g\3g\3g\3g\3h\3h"+
 		"\3i\3i\3i\3i\7i\u0354\ni\fi\16i\u0357\13i\3i\3i\3i\3i\3i\3j\6j\u035f\n"+
 		"j\rj\16j\u0360\3j\3j\3k\3k\3k\3k\7k\u0369\nk\fk\16k\u036c\13k\3k\5k\u036f"+
-		"\nk\3k\3k\3k\3k\3l\3l\3l\3l\3m\3m\3m\3m\3\u0355\2\2n\3\2\3\5\2\4\7\2\5"+
-		"\t\2\6\13\2\7\r\2\b\17\2\t\21\2\n\23\2\13\25\2\f\27\2\r\31\2\16\33\2\17"+
-		"\35\2\20\37\2\21!\2\22#\2\23%\2\24\'\2\25)\2\26+\2\27-\2\30/\2\31\61\2"+
-		"\32\63\2\33\65\2\34\67\2\359\2\36;\2\37=\2 ?\2!A\2\"C\2#E\2$G\2%I\2&K"+
-		"\2\'M\2(O\2)Q\2*S\2+U\2,W\2-Y\2.[\2/]\2\60_\2\61a\2\62c\2\63e\2\64g\2"+
-		"\65i\2\66k\2\67m\28o\29q\2:s\2;u\2<w\2=y\2>{\2?}\2@\177\2A\u0081\2B\u0083"+
-		"\2C\u0085\2D\u0087\2E\u0089\2F\u008b\2G\u008d\2H\u008f\2I\u0091\2J\u0093"+
-		"\2K\u0095\2L\u0097\2M\u0099\2N\u009b\2O\u009d\2P\u009f\2Q\u00a1\2R\u00a3"+
-		"\2S\u00a5\2T\u00a7\2U\u00a9\2V\u00ab\2W\u00ad\2X\u00af\2Y\u00b1\2Z\u00b3"+
-		"\2[\u00b5\2\\\u00b7\2]\u00b9\2^\u00bb\2_\u00bd\2`\u00bf\2a\u00c1\2b\u00c3"+
-		"\2\2\u00c5\2\2\u00c7\2\2\u00c9\2\2\u00cb\2\2\u00cd\2\2\u00cf\2\2\u00d1"+
-		"\2c\u00d3\2d\u00d5\2e\u00d7\2f\u00d9\2g\3\2\17\6\2C\\aac|\u0080\u0080"+
+		"\nk\3k\3k\3k\3k\3l\3l\3l\3l\3m\3m\3m\3m\3\u0355\2n\3\3\5\4\7\5\t\6\13"+
+		"\7\r\b\17\t\21\n\23\13\25\f\27\r\31\16\33\17\35\20\37\21!\22#\23%\24\'"+
+		"\25)\26+\27-\30/\31\61\32\63\33\65\34\67\359\36;\37= ?!A\"C#E$G%I&K\'"+
+		"M(O)Q*S+U,W-Y.[/]\60_\61a\62c\63e\64g\65i\66k\67m8o9q:s;u<w=y>{?}@\177"+
+		"A\u0081B\u0083C\u0085D\u0087E\u0089F\u008bG\u008dH\u008fI\u0091J\u0093"+
+		"K\u0095L\u0097M\u0099N\u009bO\u009dP\u009fQ\u00a1R\u00a3S\u00a5T\u00a7"+
+		"U\u00a9V\u00abW\u00adX\u00afY\u00b1Z\u00b3[\u00b5\\\u00b7]\u00b9^\u00bb"+
+		"_\u00bd`\u00bfa\u00c1b\u00c3\2\u00c5\2\u00c7\2\u00c9\2\u00cb\2\u00cd\2"+
+		"\u00cf\2\u00d1c\u00d3d\u00d5e\u00d7f\u00d9g\3\2\17\6\2C\\aac|\u0080\u0080"+
 		"\6\2\62;C\\aac|\4\2\f\f\17\17\4\2ZZzz\4\2))^^\4\2$$^^\4\2WWww\4\2NNnn"+
 		"\4\2GGgg\4\2--//\6\2FFHHffhh\5\2\62;CHch\5\2\13\f\16\17\"\"\u03a7\2\3"+
 		"\3\2\2\2\2\5\3\2\2\2\2\7\3\2\2\2\2\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2"+
@@ -446,5 +452,9 @@ public class ModuleLexer extends Lexer {
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
+		_decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];
+		for (int i = 0; i < _ATN.getNumberOfDecisions(); i++) {
+			_decisionToDFA[i] = new DFA(_ATN.getDecisionState(i), i);
+		}
 	}
 }

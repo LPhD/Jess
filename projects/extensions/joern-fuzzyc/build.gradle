@@ -23,9 +23,11 @@ dependencies{
 
 //Generate Java files from grammar
 generateGrammarSource{
-
+	includes = ['**/Function.g4', '**/Module.g4']
+	source = "src/main/java/antlr"
+	arguments << "-lib" << "src/main/java/antlr"
 	copy {
-		from "target/generated-sources/antlr4/antlr"
+		from "build/generated-src/antlr/java/antlr"
 		into "src/main/java/antlr"
 	}
 }
