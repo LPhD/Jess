@@ -7,7 +7,7 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
-generateOnlyAST = False
+generateOnlyAST = True
 includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
@@ -18,30 +18,29 @@ searchDirsRecursively = True
 
 
 # Connect to project DB
-projectName = 'JoernTest'
-# projectName = 'EvoDiss.tar.gz'
+#projectName = 'JoernTest'
+projectName = 'EvoDiss.tar.gz'
+#projectName = 'Revamp'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
 ## Example entry points ##
 ## Caution, depends on db ##
-# 4120 Directory src
-# 450648 File C_Test.c
-# 454744 FunctionDef compareResults()
-# 233656 IfStatement in compareResults
-# 217096 corresponding ElseStatement
-# 233568 ForStatement in compareResults
-# 467032 Condition in above ForStatement
-# 188648 ExpressionStatement in above ForStatement
-# 331936 CallExpression compareResults() in threeElmArray()
-# 524376 Callee compareResults() in threeElmArray()
-# 8320 FunctionDef bubblesort
-
-
+# [8248] Directory src
+# [217176] File C_Test.c
+# [188432] FunctionDef compareResults
+# [258096, 282680] IfStatements in compareResults
+# [413864] ElseStatement in compareResults
+# [200720] ForStatement in compareResults
+# [225368, 225472, 241856] Conditions in compareResults
+# [233560] PostIncDecOperationExpression in compareResults
+# [463016] FunctionDef threeElmArray
+# [299064] CallExpression compareResults in threeElmArray
+# [303160] Callee compareResults in threeElmArray
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'4328'}
+entryPointId = {'53320'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
