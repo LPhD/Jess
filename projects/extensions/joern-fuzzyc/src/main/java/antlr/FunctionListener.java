@@ -63,6 +63,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_closer(FunctionParser.Pre_closerContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_proc}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_proc(FunctionParser.Pre_procContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_proc}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_proc(FunctionParser.Pre_procContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#opening_curly}.
 	 * @param ctx the parse tree
 	 */
