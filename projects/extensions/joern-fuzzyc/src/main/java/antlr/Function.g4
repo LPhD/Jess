@@ -9,6 +9,7 @@ import ModuleLex, Common, Expressions, FineSimpleDecl;
 statements: (pre_opener
             | pre_closer
             | pre_else {preProcSkipToEnd(); }
+            | pre_proc
             | statement)*;
 
 statement: opening_curly
@@ -24,6 +25,7 @@ statement: opening_curly
 pre_opener: PRE_IF;
 pre_else: PRE_ELSE;
 pre_closer: PRE_ENDIF;
+pre_proc: PRE_PROC;
 opening_curly: '{';
 closing_curly: '}';
                 
