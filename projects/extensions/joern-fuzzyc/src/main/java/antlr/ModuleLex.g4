@@ -41,6 +41,7 @@ CLOSING_CURLY: '}';
 PRE_IF: ('#if' | '#ifdef' | '#ifndef') ~[\r\n]* '\r'? '\n';
 PRE_ELSE: ('#else' | '#elif') ~[\r\n]* '\r'? '\n';
 PRE_ENDIF: '#endif' ~[\r\n]* '\r'? '\n';
+PRE_INCLUDE: '#include' ~[\r\n]* '\r'? '\n';
 PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
 
 

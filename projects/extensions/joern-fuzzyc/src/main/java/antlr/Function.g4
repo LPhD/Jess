@@ -25,6 +25,7 @@ statement: opening_curly
 pre_opener: PRE_IF;
 pre_else: PRE_ELSE;
 pre_closer: PRE_ENDIF;
+pre_include: PRE_INCLUDE;
 pre_proc: PRE_PROC;
 opening_curly: '{';
 closing_curly: '}';
@@ -39,6 +40,7 @@ selection_or_iteration: TRY                      #Try_statement
                       | FOR '(' (for_init_statement | ';') condition? ';'  expr? ')' #For_statement
                       | DO                          #Do_statement
                       | WHILE '(' condition ')'     #While_statement
+                      | PRE_IF '('? (condition|identifier) ')'? #Pre_if_statement
 ;
 
 // Don't know why, but: introducing this unused rule results
