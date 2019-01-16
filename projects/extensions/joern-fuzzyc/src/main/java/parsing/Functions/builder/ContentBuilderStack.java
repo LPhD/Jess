@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import ast.ASTNode;
 import ast.c.statements.blockstarters.IfStatement;
+import ast.c.statements.blockstarters.PreIfStatement;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.TryStatement;
 
@@ -42,6 +43,18 @@ public class ContentBuilderStack
 	public IfStatement getIf()
 	{
 		return shadowStack.getIf();
+	}
+	
+	//Preprocessor if/else handling
+	public PreIfStatement getPreIfInPreElseCase()
+	{
+		return shadowStack.getPreIfInPreElseCase();
+	}
+	
+	//Preprocessor if handling
+	public PreIfStatement getPreIf()
+	{
+		return shadowStack.getPreIf();
 	}
 
 	public DoStatement getDo()

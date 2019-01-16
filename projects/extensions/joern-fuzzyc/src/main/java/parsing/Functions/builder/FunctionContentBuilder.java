@@ -47,6 +47,7 @@ import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
+import antlr.FunctionParser.Pre_else_statementContext;
 import antlr.FunctionParser.Primary_expressionContext;
 import antlr.FunctionParser.PtrMemberAccessContext;
 import antlr.FunctionParser.Relational_expressionContext;
@@ -72,6 +73,7 @@ import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
+import ast.c.statements.blockstarters.PreElseStatement;
 import ast.c.statements.blockstarters.PreIfStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
@@ -221,6 +223,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void enterElse(Else_statementContext ctx)
 	{
 		replaceTopOfStack(new ElseStatement(), ctx);
+	}
+	
+	public void enterPreElse(Pre_else_statementContext ctx)
+	{
+		replaceTopOfStack(new PreElseStatement(), ctx);
 	}
 
 	public void exitStatement(StatementContext ctx)

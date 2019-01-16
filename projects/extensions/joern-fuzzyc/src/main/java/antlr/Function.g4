@@ -40,7 +40,8 @@ selection_or_iteration: TRY                      #Try_statement
                       | FOR '(' (for_init_statement | ';') condition? ';'  expr? ')' #For_statement
                       | DO                          #Do_statement
                       | WHILE '(' condition ')'     #While_statement
-                      | PRE_IF '('? (condition|identifier) ')'? #Pre_if_statement
+                      | PRE_IF '('? condition ')'? #Pre_if_statement
+                      | PRE_ELSE                    #Pre_else_statement
 ;
 
 // Don't know why, but: introducing this unused rule results

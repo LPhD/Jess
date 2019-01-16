@@ -5,6 +5,7 @@ import java.util.Stack;
 
 import ast.ASTNode;
 import ast.c.statements.blockstarters.IfStatement;
+import ast.c.statements.blockstarters.PreIfStatement;
 import ast.logical.statements.CompoundStatement;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.TryStatement;
@@ -37,6 +38,7 @@ public class ShadowStack
 	public void push(ASTNode statementItem)
 	{
 		if (statementItem instanceof IfStatement
+				|| statementItem instanceof PreIfStatement
 				|| statementItem instanceof DoStatement
 				|| statementItem instanceof TryStatement)
 		{
@@ -67,6 +69,18 @@ public class ShadowStack
 		stack.push(topItem);
 		return (IfStatement) returnItem.ifOrDoOrTry;
 	}
+	
+	//Preprocessor if/else handling
+	public PreIfStatement getPreIfInPreElseCase()
+	{
+		if (stack.size() < 2)
+			return null;
+
+		StackItem topItem = stack.pop();
+		StackItem returnItem = stack.pop();
+		stack.push(topItem);
+		return (PreIfStatement) returnItem.ifOrDoOrTry;
+	}
 
 	public IfStatement getIf()
 	{
@@ -77,6 +91,28 @@ public class ShadowStack
 		{
 			item = stack.pop();
 			retval = (IfStatement) item.ifOrDoOrTry;
+		} catch (EmptyStackException ex)
+		{
+			return null;
+		} catch (ClassCastException ex)
+		{
+			stack.push(item);
+			return null;
+		}
+
+		return retval;
+	}
+	
+	//Preprocessor if handling
+	public PreIfStatement getPreIf()
+	{
+		PreIfStatement retval;
+		StackItem item = null;
+
+		try
+		{
+			item = stack.pop();
+			retval = (PreIfStatement) item.ifOrDoOrTry;
 		} catch (EmptyStackException ex)
 		{
 			return null;

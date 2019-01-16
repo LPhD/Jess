@@ -6,13 +6,13 @@ import ast.walking.ASTNodeVisitor;
 
 public class PreIfStatement extends IfStatementBase
 {
-	private ElseStatement elseNode = null;
+	private PreElseStatement elseNode = null;
 
 	public int getChildCount()
 	{
 		int childCount = super.getChildCount();
 
-		if (getElseNode() != null)
+		if (getPreElseNode() != null)
 			childCount++;
 		return childCount;
 	}
@@ -25,17 +25,17 @@ public class PreIfStatement extends IfStatementBase
 		else if (i == 1)
 			return statement;
 		else if (i == 2)
-			return getElseNode();
+			return getPreElseNode();
 		throw new RuntimeException("Invalid IfItem");
 	}
 
-	public ElseStatement getElseNode()
+	public PreElseStatement getPreElseNode()
 	{
 		return elseNode;
 	}
 
 	//TODO Add preprocessor else
-	public void setElseNode(ElseStatement elseNode)
+	public void setPreElseNode(PreElseStatement elseNode)
 	{
 		this.elseNode = elseNode;
 	}
