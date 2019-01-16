@@ -67,6 +67,15 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 				.peek();
 		builder.enterIf(ctx);
 	}
+	
+	//Preprocessor if handling
+	@Override
+	public void enterPre_if_statement(FunctionParser.Pre_if_statementContext ctx)
+	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
+				.peek();
+		builder.enterPreIf(ctx);
+	}
 
 	@Override
 	public void enterFor_statement(FunctionParser.For_statementContext ctx)

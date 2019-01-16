@@ -34,6 +34,7 @@ import antlr.FunctionParser.Function_argument_listContext;
 import antlr.FunctionParser.GotoStatementContext;
 import antlr.FunctionParser.IdentifierContext;
 import antlr.FunctionParser.If_statementContext;
+import antlr.FunctionParser.Pre_if_statementContext;
 import antlr.FunctionParser.IncDecOpContext;
 import antlr.FunctionParser.Inc_decContext;
 import antlr.FunctionParser.Inclusive_or_expressionContext;
@@ -71,6 +72,7 @@ import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
+import ast.c.statements.blockstarters.PreIfStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.declarations.IdentifierDeclType;
@@ -193,6 +195,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void enterIf(If_statementContext ctx)
 	{
 		replaceTopOfStack(new IfStatement(), ctx);
+	}
+	
+	//Preprocessor if handling
+	public void enterPreIf(Pre_if_statementContext ctx)
+	{
+		replaceTopOfStack(new PreIfStatement(), ctx);
 	}
 
 	public void enterFor(For_statementContext ctx)
