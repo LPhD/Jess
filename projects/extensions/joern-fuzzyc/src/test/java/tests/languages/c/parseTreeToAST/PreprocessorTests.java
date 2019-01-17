@@ -1,13 +1,11 @@
 package tests.languages.c.parseTreeToAST;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-
 import ast.logical.statements.CompoundStatement;
 
-public class PreprocessorTests
-{
+public class PreprocessorTests{
 
 	@Test
 	public void NestedIfndefs()
@@ -15,7 +13,8 @@ public class PreprocessorTests
 		String input = "#ifdef foo\n#else\n #ifdef foo\n#else\n#endif\n#endif";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil
 				.parseAndWalk(input);
-		assertTrue(item.getStatements().size() == 0);
+		assertEquals("The size was: "+item.getStatements().size()+
+				", but we expected: 0", 0, item.getStatements().size());
 	}
 
 	@Test
@@ -24,8 +23,8 @@ public class PreprocessorTests
 		String input = "#if foo\n bar(); #else\n foo(); foo(); #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil
 				.parseAndWalk(input);
-		System.out.println(contentItem.getStatements().size());
-		assertTrue(contentItem.getStatements().size() == 1);
+		assertEquals("The size was "+contentItem.getStatements().size()+
+				", but we expected: 3", 3, contentItem.getStatements().size());
 	}
 
 }

@@ -6,8 +6,9 @@ import ModuleLex, Common, Expressions, FineSimpleDecl;
 	package antlr;
 }
 
-statements: (pre_closer          
-            | pre_proc
+statements: (PRE_ENDIF          
+            | PRE_PROC
+            | PRE_INCLUDE
             | statement)*;
 
 statement: opening_curly
@@ -20,11 +21,6 @@ statement: opening_curly
          | water
         ;
 
-
-
-pre_closer: PRE_ENDIF;
-pre_include: PRE_INCLUDE;
-pre_proc: PRE_PROC;
 opening_curly: '{';
 closing_curly: '}';
                 
