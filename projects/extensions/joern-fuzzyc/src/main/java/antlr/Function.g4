@@ -6,9 +6,7 @@ import ModuleLex, Common, Expressions, FineSimpleDecl;
 	package antlr;
 }
 
-statements: (pre_opener
-            | pre_closer
-            | pre_else {preProcSkipToEnd(); }
+statements: (pre_closer          
             | pre_proc
             | statement)*;
 
@@ -22,8 +20,8 @@ statement: opening_curly
          | water
         ;
 
-pre_opener: PRE_IF;
-pre_else: PRE_ELSE;
+
+
 pre_closer: PRE_ENDIF;
 pre_include: PRE_INCLUDE;
 pre_proc: PRE_PROC;

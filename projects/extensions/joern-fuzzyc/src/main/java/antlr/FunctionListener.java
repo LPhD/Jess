@@ -33,26 +33,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitStatement(FunctionParser.StatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#pre_opener}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_opener(FunctionParser.Pre_openerContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#pre_opener}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_opener(FunctionParser.Pre_openerContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#pre_else}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_else(FunctionParser.Pre_elseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#pre_else}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_else(FunctionParser.Pre_elseContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_closer}.
 	 * @param ctx the parse tree
 	 */

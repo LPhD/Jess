@@ -45,30 +45,6 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPre_opener(FunctionParser.Pre_openerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_opener(FunctionParser.Pre_openerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPre_else(FunctionParser.Pre_elseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_else(FunctionParser.Pre_elseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterPre_closer(FunctionParser.Pre_closerContext ctx) { }
 	/**
 	 * {@inheritDoc}
