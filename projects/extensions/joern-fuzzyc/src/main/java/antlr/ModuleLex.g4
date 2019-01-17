@@ -43,6 +43,7 @@ PRE_ELSE: ('#else' | '#elif') ~[\r\n]* '\r'? '\n';
 PRE_ENDIF: '#endif' ~[\r\n]* '\r'? '\n';
 PRE_INCLUDE: '#include' ~[\r\n]* '\r'? '\n';
 PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
+PRE_STMT: (PRE_IF | PRE_ELSE | PRE_ENDIF | PRE_INCLUDE | PRE_PROC);
 
 
 HEX_LITERAL : '0' ('x'|'X') HexDigit+ IntegerTypeSuffix? ;
