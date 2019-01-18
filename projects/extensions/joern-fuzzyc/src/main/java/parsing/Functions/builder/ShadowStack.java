@@ -109,15 +109,14 @@ public class ShadowStack
 		PreIfStatement retval;
 		StackItem item = null;
 
-		try
-		{
+		try	{
 			item = stack.pop();
 			retval = (PreIfStatement) item.ifOrDoOrTry;
-		} catch (EmptyStackException ex)
-		{
-			return null;
-		} catch (ClassCastException ex)
-		{
+		} catch (EmptyStackException ex) {		
+			System.out.println("Stack is empty!");
+			return null;			
+		} catch (ClassCastException ex)	{
+			System.out.println("StackClassCastException!");
 			stack.push(item);
 			return null;
 		}

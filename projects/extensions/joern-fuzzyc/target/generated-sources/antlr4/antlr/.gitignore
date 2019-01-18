@@ -6,3 +6,5 @@
 /CommonParser.java
 /ModuleLex.java
 /ModuleLex.tokens
+/ModuleLexer.java
+/ModuleLexer.tokens
