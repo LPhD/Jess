@@ -7,7 +7,6 @@ import ModuleLex, Common, Expressions, FineSimpleDecl;
 }
 
 statements: (PRE_ENDIF          
-            | PRE_PROC
             | PRE_INCLUDE
             | statement)*;
 
@@ -21,8 +20,8 @@ statement: opening_curly
          | water
         ;
 
-opening_curly: '{';
-closing_curly: '}';
+opening_curly: OPENING_CURLY;
+closing_curly: CLOSING_CURLY;
                 
 block_starter: selection_or_iteration;
 
@@ -38,10 +37,6 @@ selection_or_iteration: TRY                      #Try_statement
                       | PRE_ELSE                    #Pre_else_statement
 ;
 
-// Don't know why, but: introducing this unused rule results
-// in a performance boost.
-
-do_statement1: DO statement WHILE '(' expr ')';
 
 for_init_statement : simple_decl
                    | expr ';'

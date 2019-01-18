@@ -42,8 +42,8 @@ PRE_IF: ('#if' | '#ifdef' | '#ifndef') ~[\r\n]* '\r'? '\n';
 PRE_ELSE: ('#else' | '#elif') ~[\r\n]* '\r'? '\n';
 PRE_ENDIF: '#endif' ~[\r\n]* '\r'? '\n';
 PRE_INCLUDE: '#include' ~[\r\n]* '\r'? '\n';
-PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
-PRE_STMT: (PRE_IF | PRE_ELSE | PRE_ENDIF | PRE_INCLUDE | PRE_PROC);
+//PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
+PRE_STMT: (PRE_IF | PRE_ELSE | PRE_ENDIF | PRE_INCLUDE );
 
 
 HEX_LITERAL : '0' ('x'|'X') HexDigit+ IntegerTypeSuffix? ;
