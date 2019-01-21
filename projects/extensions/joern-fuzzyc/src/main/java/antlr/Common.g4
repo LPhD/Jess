@@ -7,39 +7,56 @@ grammar Common;
 
 @parser::members
 {
-            public boolean skipToEndOfObject()
-            {
+            //Find the closing bracket to the opening bracket (and then return true), skip everything that is in between
+            public boolean skipToEndOfObject() {
+                //Stack of curly brackets
                 Stack<Object> CurlyStack = new Stack<Object>();
+                //Object for the brackets
                 Object o = new Object();
+                //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
                 int t = _input.LA(1);
 
+                //Find the closing bracket to the opening bracket, skip everything that is in between
                 while(t != EOF && !(CurlyStack.empty() && t == CLOSING_CURLY)){
                     
+                    //If there is an #else inside a method or class
                     if(t == PRE_ELSE){
+                        //Stack for collecting #ifs
                         Stack<Object> ifdefStack = new Stack<Object>();
+                        //Return and parse #else, skip to next input
                         consume();
                         t = _input.LA(1);
                         
+                        //Find the closing #endif to the opening #else, skip everything that is in between (#else/#endif included)
                         while(t != EOF && !(ifdefStack.empty() && (t == PRE_ENDIF))){
+                            //Collect all found opening #ifs. If a #endif is found, remove one #if/#else from stack
                             if(t == PRE_IF)
                                 ifdefStack.push(o);
                             else if(t == PRE_ENDIF)
                                 ifdefStack.pop();
+
+                            //Return and parse current t, skip to next input
                             consume();
                             t = _input.LA(1);
                         }
                     }
                     
+                    //Collect all found opening brackets. If a closing bracket is found, remove one opening bracket from stack
                     if(t == OPENING_CURLY)
                         CurlyStack.push(o);
                     else if(t == CLOSING_CURLY)
                         CurlyStack.pop();
-                    
+                        
+                    //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
                     consume();
                     t = _input.LA(1);
                 }
-                if(t != EOF)
+                
+                if(t != EOF){
+                    //Return the closing bracket (if there is one)
                     consume();
+                 }   
+                 
                 return true;
             }
 
