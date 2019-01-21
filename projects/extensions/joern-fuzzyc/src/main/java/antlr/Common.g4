@@ -2,6 +2,7 @@ grammar Common;
 
 @header{
   import java.util.Stack;
+  import java.util.EmptyStackException;
 }
 
 

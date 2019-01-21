@@ -7,18 +7,19 @@ import ast.logical.statements.CompoundStatement;
 
 public class PreprocessorTests{
 
-//	@Test
-//	public void NestedIfndefs()	{
-//		String input = "#ifdef foo\n#else\n #ifdef foo\n#else\n#endif\n#endif";
-//		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-//		assertEquals("The size was: "+item.getStatements().size()+", but we expected: 0", 0, item.getStatements().size());
-//	} Stack is empty exception?
+	//Stack is empty exception?
+	@Test
+	public void NestedIfndefs()	{
+		String input = "#ifdef foo\n#else\n #ifdef foo\n#else\n#endif\n#endif";
+		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals( 0, item.getStatements().size());
+	} 
 
 	@Test
 	public void testPreElseStatements()	{
 		String input = "#if foo\n bar(); #else\n foo(); foo(); #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("The size was "+contentItem.getStatements().size()+", but we expected: 3", 3, contentItem.getStatements().size());
+		assertEquals(3, contentItem.getStatements().size());
 	}
 
 }

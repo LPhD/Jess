@@ -4,6 +4,7 @@
 
 
   import java.util.Stack;
+  import java.util.EmptyStackException;
 
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -40,42 +41,6 @@ public class FunctionBaseListener implements FunctionListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStatement(FunctionParser.StatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPre_closer(FunctionParser.Pre_closerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_closer(FunctionParser.Pre_closerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPre_include(FunctionParser.Pre_includeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_include(FunctionParser.Pre_includeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPre_proc(FunctionParser.Pre_procContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_proc(FunctionParser.Pre_procContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -225,6 +190,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -237,13 +214,13 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDo_statement1(FunctionParser.Do_statement1Context ctx) { }
+	@Override public void enterPre_if_condition(FunctionParser.Pre_if_conditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDo_statement1(FunctionParser.Do_statement1Context ctx) { }
+	@Override public void exitPre_if_condition(FunctionParser.Pre_if_conditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

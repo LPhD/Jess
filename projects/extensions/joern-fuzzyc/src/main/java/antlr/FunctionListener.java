@@ -4,6 +4,7 @@
 
 
   import java.util.Stack;
+  import java.util.EmptyStackException;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -32,36 +33,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStatement(FunctionParser.StatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#pre_closer}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_closer(FunctionParser.Pre_closerContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#pre_closer}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_closer(FunctionParser.Pre_closerContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#pre_include}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_include(FunctionParser.Pre_includeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#pre_include}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_include(FunctionParser.Pre_includeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#pre_proc}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_proc(FunctionParser.Pre_procContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#pre_proc}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_proc(FunctionParser.Pre_procContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#opening_curly}.
 	 * @param ctx the parse tree
@@ -201,6 +172,18 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_if_statement(FunctionParser.Pre_if_statementContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code Pre_elif_statement}
+	 * labeled alternative in {@link FunctionParser#selection_or_iteration}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Pre_elif_statement}
+	 * labeled alternative in {@link FunctionParser#selection_or_iteration}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code Pre_else_statement}
 	 * labeled alternative in {@link FunctionParser#selection_or_iteration}.
 	 * @param ctx the parse tree
@@ -213,15 +196,15 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#do_statement1}.
+	 * Enter a parse tree produced by {@link FunctionParser#pre_if_condition}.
 	 * @param ctx the parse tree
 	 */
-	void enterDo_statement1(FunctionParser.Do_statement1Context ctx);
+	void enterPre_if_condition(FunctionParser.Pre_if_conditionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link FunctionParser#do_statement1}.
+	 * Exit a parse tree produced by {@link FunctionParser#pre_if_condition}.
 	 * @param ctx the parse tree
 	 */
-	void exitDo_statement1(FunctionParser.Do_statement1Context ctx);
+	void exitPre_if_condition(FunctionParser.Pre_if_conditionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#for_init_statement}.
 	 * @param ctx the parse tree
