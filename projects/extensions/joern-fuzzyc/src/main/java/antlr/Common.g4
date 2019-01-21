@@ -7,82 +7,80 @@ grammar Common;
 
 @parser::members
 {
-            //Find the closing bracket to the opening bracket (and then return true), skip everything that is in between
-            public boolean skipToEndOfObject() {
-                //Stack of curly brackets
-                Stack<Object> CurlyStack = new Stack<Object>();
-                //Object for the brackets
-                Object o = new Object();
-                //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
-                int t = _input.LA(1);
+    //Find the closing bracket to the opening bracket (and then return true), skip everything that is in between
+    public boolean skipToEndOfObject(){
+        //Stack of curly brackets
+        Stack<Object> CurlyStack = new Stack<Object>();
+        //Stack for collecting #ifs
+        Stack<Object> ifdefStack = new Stack<Object>();
+        //Object for the brackets and #ifs
+        Object o = new Object();
+        //Check weather current object is inside an outermoste preprocessor else statement
+        Boolean insideOutermostPreElseStatement = false;
+        //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
+        int t = _input.LA(1);
 
-                //Find the closing bracket to the opening bracket, skip everything that is in between
-                while(t != EOF && !(CurlyStack.empty() && t == CLOSING_CURLY)){
-                    
-                    //If there is an #else inside a method or class
-                    if(t == PRE_ELSE){
-                        //Stack for collecting #ifs
-                        Stack<Object> ifdefStack = new Stack<Object>();
-                        //Return and parse #else, skip to next input
+        //Find the closing bracket to the opening bracket, skip everything that is in between.
+        //Finish only if every opening bracket has a closing bracket and every #if has a closing #endif or the last #endif comes after the method end
+        while(t != EOF && !(CurlyStack.empty() && (ifdefStack.empty() || insideOutermostPreElseStatement)  && (t == CLOSING_CURLY)){
+            
+            try {
+                //Collect all found opening #ifs. If a #endif is found, remove one #if from stack
+                if(t == PRE_IF) 
+                    ifdefStack.push(o);         
+                else if(t == PRE_ENDIF) 
+                    ifdefStack.pop();
+                //Collect all found opening brackets. If a closing bracket is found, remove one opening bracket from stack
+                else if(t == OPENING_CURLY)                 
+                    CurlyStack.push(o);
+                else if(t == CLOSING_CURLY)
+                   CurlyStack.pop();
+
+            } catch (EmptyStackException e) {
+                //Do nothing
+            }
+            
+            //Check if we are inside the outermost #if#else block (because the final #endif can appear after the closing bracket of a method)
+            if(t == PRE_ELSE && ifdefStack.size() == 1){
+                insideOutermostPreElseStatement = true;
+            }
+                
+            //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
+            consume();
+            t = _input.LA(1);           
+        }
+        
+        if(t != EOF){
+            //Return and parse the closing bracket (if there is one)
+            consume();
+         }   
+         
+        return true;
+    }
+
+       // this should go into FunctionGrammar but ANTLR fails
+       // to join the parser::members-section on inclusion
+       
+       public boolean preProcSkipToEnd()
+       {
+                    Stack<Object> CurlyStack = new Stack<Object>();
+                    Object o = new Object();
+                    int t = _input.LA(1);
+
+                    while(t != EOF && !(CurlyStack.empty() && t == PRE_ENDIF)){
+                                            
+                        if(t == PRE_IF)
+                            CurlyStack.push(o);
+                        else if(t == PRE_ENDIF)
+                            CurlyStack.pop();
+                        
                         consume();
                         t = _input.LA(1);
-                        
-                        //Find the closing #endif to the opening #else, skip everything that is in between (#else/#endif included)
-                        while(t != EOF && !(ifdefStack.empty() && (t == PRE_ENDIF))){
-                            //Collect all found opening #ifs. If a #endif is found, remove one #if/#else from stack
-                            if(t == PRE_IF)
-                                ifdefStack.push(o);
-                            else if(t == PRE_ENDIF)
-                                ifdefStack.pop();
-
-                            //Return and parse current t, skip to next input
-                            consume();
-                            t = _input.LA(1);
-                        }
                     }
-                    
-                    //Collect all found opening brackets. If a closing bracket is found, remove one opening bracket from stack
-                    if(t == OPENING_CURLY)
-                        CurlyStack.push(o);
-                    else if(t == CLOSING_CURLY)
-                        CurlyStack.pop();
-                        
-                    //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
-                    consume();
-                    t = _input.LA(1);
-                }
-                
-                if(t != EOF){
-                    //Return the closing bracket (if there is one)
-                    consume();
-                 }   
-                 
-                return true;
-            }
-
-   // this should go into FunctionGrammar but ANTLR fails
-   // to join the parser::members-section on inclusion
-   
-   public boolean preProcSkipToEnd()
-   {
-                Stack<Object> CurlyStack = new Stack<Object>();
-                Object o = new Object();
-                int t = _input.LA(1);
-
-                while(t != EOF && !(CurlyStack.empty() && t == PRE_ENDIF)){
-                                        
-                    if(t == PRE_IF)
-                        CurlyStack.push(o);
-                    else if(t == PRE_ENDIF)
-                        CurlyStack.pop();
-                    
-                    consume();
-                    t = _input.LA(1);
-                }
-                if(t != EOF)
-                    consume();
-                return true;
-   }
+                    if(t != EOF)
+                        consume();
+                    return true;
+       }
 
 }
 
