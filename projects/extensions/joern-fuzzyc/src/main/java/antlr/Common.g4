@@ -22,7 +22,7 @@ grammar Common;
 
         //Find the closing bracket to the opening bracket, skip everything that is in between.
         //Finish only if every opening bracket has a closing bracket and every #if has a closing #endif or the last #endif comes after the method end
-        while(t != EOF && !(CurlyStack.empty() && (ifdefStack.empty() || insideOutermostPreElseStatement)  && (t == CLOSING_CURLY)){
+        while(t != EOF && !(CurlyStack.empty() && (ifdefStack.empty() || insideOutermostPreElseStatement)  && (t == CLOSING_CURLY))){
             
             try {
                 //Collect all found opening #ifs. If a #endif is found, remove one #if from stack
