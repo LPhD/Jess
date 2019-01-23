@@ -6,6 +6,7 @@ import ast.ASTNode;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.PreElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
+import ast.c.statements.blockstarters.PreElIfStatement;
 import ast.c.statements.blockstarters.PreIfStatement;
 import ast.expressions.Expression;
 import ast.logical.statements.BlockStarter;
@@ -101,12 +102,24 @@ public class NestingReconstructor
 							
 						//Preprocessor else
 						} else if (stack.peek() instanceof PreElseStatement)	{
-							BlockStarter elseItem = (BlockStarter) stack.pop();
-							elseItem.addChild(curBlockStarter);
+							BlockStarter preElseItem = (BlockStarter) stack.pop();
+							preElseItem.addChild(curBlockStarter);
 							
+							//Does this work if the belonging #if is an #elif? 
 							PreIfStatement lastIf = (PreIfStatement) stack.getPreIfInPreElseCase();
 							if (lastIf != null)	{
-								lastIf.setPreElseNode((PreElseStatement) elseItem);
+								lastIf.setPreElseNode((PreElseStatement) preElseItem);
+							}
+							return;
+							
+						//Preprocessor elif	
+						} else if (stack.peek() instanceof PreElIfStatement)	{
+							BlockStarter preElIfItem = (BlockStarter) stack.pop();
+							preElIfItem.addChild(curBlockStarter);
+						
+							PreIfStatement lastIf = (PreIfStatement) stack.getPreIfInPreElseCase();
+							if (lastIf != null)	{
+								lastIf.setPreElIfNode((PreElIfStatement) preElIfItem);
 							}
 							return;
 						}
@@ -131,6 +144,16 @@ public class NestingReconstructor
 							lastIf.setPreElseNode((PreElseStatement) curBlockStarter);
 						else
 							throw new RuntimeException("Warning: cannot find #if for #else");
+						return;
+						
+				// add #elif statement to the previous #if-statement, which has already been consolidated so we can return	
+				} else if (curBlockStarter instanceof PreElIfStatement){	
+					
+						PreIfStatement lastIf = (PreIfStatement) stack.getPreIf();
+						if (lastIf != null)
+							lastIf.setPreElIfNode((PreElIfStatement) curBlockStarter);
+						else
+							throw new RuntimeException("Warning: cannot find #if for #elif");
 						return;
 						
 				// add while statement to the previous do-statement, if that exists. Otherwise, do nothing special.	

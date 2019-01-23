@@ -35,8 +35,8 @@ public class ShadowStack
 		itemStack = aItemStack;
 	}
 
-	public void push(ASTNode statementItem)
-	{
+	public void push(ASTNode statementItem)	{
+		//Blockstarters
 		if (statementItem instanceof IfStatement
 				|| statementItem instanceof PreIfStatement
 				|| statementItem instanceof DoStatement
@@ -71,14 +71,14 @@ public class ShadowStack
 	}
 	
 	//Preprocessor if/else handling
-	public PreIfStatement getPreIfInPreElseCase()
-	{
+	public PreIfStatement getPreIfInPreElseCase()	{
 		if (stack.size() < 2)
 			return null;
 
 		StackItem topItem = stack.pop();
 		StackItem returnItem = stack.pop();
 		stack.push(topItem);
+		//Works also for #elif?
 		return (PreIfStatement) returnItem.ifOrDoOrTry;
 	}
 
@@ -104,13 +104,13 @@ public class ShadowStack
 	}
 	
 	//Preprocessor if handling
-	public PreIfStatement getPreIf()
-	{
+	public PreIfStatement getPreIf() {
 		PreIfStatement retval;
 		StackItem item = null;
 
 		try	{
 			item = stack.pop();
+			//Works also for #elif?
 			retval = (PreIfStatement) item.ifOrDoOrTry;
 		} catch (EmptyStackException ex) {		
 			System.out.println("Stack is empty!");

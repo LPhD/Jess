@@ -47,7 +47,9 @@ import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
+import antlr.FunctionParser.Pre_elif_statementContext;
 import antlr.FunctionParser.Pre_else_statementContext;
+import antlr.FunctionParser.Pre_endif_statementContext;
 import antlr.FunctionParser.Primary_expressionContext;
 import antlr.FunctionParser.PtrMemberAccessContext;
 import antlr.FunctionParser.Relational_expressionContext;
@@ -73,6 +75,7 @@ import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
+import ast.c.statements.blockstarters.PreElIfStatement;
 import ast.c.statements.blockstarters.PreElseStatement;
 import ast.c.statements.blockstarters.PreIfStatement;
 import ast.declarations.ClassDefStatement;
@@ -134,6 +137,7 @@ import parsing.ASTNodeFactory;
 import parsing.Shared.InitDeclContextWrapper;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
+import statements.blockclosers.PreEndIfStatement;
 
 /**
  * The FunctionContentBuilder is invoked while walking the parse tree to create
@@ -200,8 +204,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	//Preprocessor if handling
-	public void enterPreIf(Pre_if_statementContext ctx)
-	{
+	public void enterPreIf(Pre_if_statementContext ctx)	{
 		replaceTopOfStack(new PreIfStatement(), ctx);
 	}
 
@@ -225,9 +228,19 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		replaceTopOfStack(new ElseStatement(), ctx);
 	}
 	
-	public void enterPreElse(Pre_else_statementContext ctx)
-	{
+	//Preprocessor if handling
+	public void enterPreElse(Pre_else_statementContext ctx)	{
 		replaceTopOfStack(new PreElseStatement(), ctx);
+	}
+	
+	//Preprocessor if handling
+	public void enterPreElIf(Pre_elif_statementContext ctx)	{
+		replaceTopOfStack(new PreElIfStatement(), ctx);
+	}
+	
+	//Preprocessor if handling
+	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
+		replaceTopOfStack(new PreEndIfStatement(), ctx);
 	}
 
 	public void exitStatement(StatementContext ctx)

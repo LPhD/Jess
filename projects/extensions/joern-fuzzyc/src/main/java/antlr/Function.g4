@@ -11,7 +11,6 @@ statements: (statement)*;
 statement: opening_curly
          | closing_curly
          | block_starter
-         | PRE_ENDIF 
          | jump_statement
          | label 
          | simple_decl
@@ -35,6 +34,7 @@ selection_or_iteration: TRY                      #Try_statement
                       | PRE_IF pre_if_condition  #Pre_if_statement
                       | PRE_ELIF pre_if_condition  #Pre_elif_statement
                       | PRE_ELSE                    #Pre_else_statement
+                      | PRE_ENDIF               #Pre_endif_statement
 ;
 
 //Elif needs to be done!

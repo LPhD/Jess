@@ -64,9 +64,16 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	@Override
 	public void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx)
 	{
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
-				.peek();
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterPreElse(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx)
+	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreElIf(ctx);
 	}
 
 	@Override
@@ -81,9 +88,16 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	@Override
 	public void enterPre_if_statement(FunctionParser.Pre_if_statementContext ctx)
 	{
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
-				.peek();
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterPreIf(ctx);
+	}
+	
+	//Preprocessor if handling
+	@Override
+	public void enterPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx)
+	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreEndIf(ctx);
 	}
 
 	@Override

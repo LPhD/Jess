@@ -214,6 +214,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_if_condition(FunctionParser.Pre_if_conditionContext ctx) { }
 	/**
 	 * {@inheritDoc}

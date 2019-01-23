@@ -196,6 +196,18 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code Pre_endif_statement}
+	 * labeled alternative in {@link FunctionParser#selection_or_iteration}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Pre_endif_statement}
+	 * labeled alternative in {@link FunctionParser#selection_or_iteration}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_if_condition}.
 	 * @param ctx the parse tree
 	 */
