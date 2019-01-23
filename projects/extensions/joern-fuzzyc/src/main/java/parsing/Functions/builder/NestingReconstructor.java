@@ -73,12 +73,9 @@ public class NestingReconstructor
 
 	// Joins consecutive BlockStarters on the stack
 
-	protected void consolidateBlockStarters(ASTNode node)
-	{
-		while (true)
-		{
-			try
-			{
+	protected void consolidateBlockStarters(ASTNode node)	{
+		while (true){
+			try	{
 				BlockStarter curBlockStarter = (BlockStarter) stack.peek();
 				curBlockStarter = (BlockStarter) stack.pop();
 				curBlockStarter.addChild(node);

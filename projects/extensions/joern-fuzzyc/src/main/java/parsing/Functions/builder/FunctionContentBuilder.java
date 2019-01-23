@@ -243,16 +243,15 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		replaceTopOfStack(new PreEndIfStatement(), ctx);
 	}
 
-	public void exitStatement(StatementContext ctx)
-	{
-		if (stack.size() == 0)
-			throw new RuntimeException();
+	public void exitStatement(StatementContext ctx)	{
+		if (stack.size() == 0) {
+			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
+		}
 
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 
-		if (itemToRemove instanceof BlockCloser)
-		{
+		if (itemToRemove instanceof BlockCloser){
 			closeCompoundStatement();
 			return;
 		}
@@ -260,24 +259,20 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		// We keep Block-starters and compound items
 		// on the stack. They are removed by following
 		// statements.
-		if (itemToRemove instanceof BlockStarter
-				|| itemToRemove instanceof CompoundStatement)
+		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement)
 			return;
 
 		nesting.consolidate();
 	}
 
-	private void closeCompoundStatement()
-	{
+	private void closeCompoundStatement()	{
 		stack.pop(); // remove 'CloseBlock'
 		CompoundStatement compoundItem = (CompoundStatement) stack.pop();
 		nesting.consolidateBlockStarters(compoundItem);
 	}
 
 	// Expression handling
-
-	public void enterExpression(ExprContext ctx)
-	{
+	public void enterExpression(ExprContext ctx)	{
 		Expression expression = new Expression();
 		nodeToRuleContext.put(expression, ctx);
 		stack.push(expression);

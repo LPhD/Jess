@@ -1,6 +1,6 @@
 grammar Module;
 
-import ModuleLex, Expressions, Common, FunctionDef, CoarseSimpleDecl;
+import ModuleLex, Preprocessor, Expressions, Common, FunctionDef, CoarseSimpleDecl;
 
 /*
     Copyright (C) 2013 Fabian 'fabs' Yamaguchi <fabs@phenoelit.de>
@@ -22,7 +22,7 @@ import ModuleLex, Expressions, Common, FunctionDef, CoarseSimpleDecl;
 	package antlr;
 }
 
-code : (function_def | simple_decl | using_directive | water )*;
+code : (function_def | simple_decl | using_directive | pre_statement | water )*;
 
 using_directive: USING NAMESPACE identifier ';';
 

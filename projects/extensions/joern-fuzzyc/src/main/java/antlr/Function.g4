@@ -1,5 +1,5 @@
 grammar Function;
-import ModuleLex, Common, Expressions, FineSimpleDecl;
+import ModuleLex, Preprocessor, Common, Expressions, FineSimpleDecl;
 
 
 @header{
@@ -20,6 +20,7 @@ statement: opening_curly
 
 opening_curly: OPENING_CURLY;
 closing_curly: CLOSING_CURLY;
+                      
                 
 block_starter: selection_or_iteration;
 
@@ -31,16 +32,9 @@ selection_or_iteration: TRY                      #Try_statement
                       | FOR '(' (for_init_statement | ';') condition? ';'  expr? ')' #For_statement
                       | DO                          #Do_statement
                       | WHILE '(' condition ')'     #While_statement
-                      | PRE_IF pre_if_condition  #Pre_if_statement
-                      | PRE_ELIF pre_if_condition  #Pre_elif_statement
-                      | PRE_ELSE                    #Pre_else_statement
-                      | PRE_ENDIF               #Pre_endif_statement
+                      | pre_statement           #Preprocessor_statements
 ;
 
-//Elif needs to be done!
-pre_if_condition: condition
-            | 'defined' '('? condition ')'?
-            ;
 
 for_init_statement : simple_decl
                    | expr ';'

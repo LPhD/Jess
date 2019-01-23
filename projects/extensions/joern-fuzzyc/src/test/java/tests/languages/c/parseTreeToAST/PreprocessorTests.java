@@ -24,7 +24,7 @@ public class PreprocessorTests {
 
 	@Test
 	public void preIfAndElseStatement() {
-		String input = "#if foo\\n #endif";
+		String input = "#if foo \n int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		System.out.println(contentItem.getStatements());
 		System.out.println(contentItem.getStatement(0).getTypeAsString());
