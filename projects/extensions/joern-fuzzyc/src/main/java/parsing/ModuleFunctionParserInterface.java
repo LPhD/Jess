@@ -32,7 +32,7 @@ public class ModuleFunctionParserInterface
 			System.err.println("Error parsing function "
 					+ ctx.function_name().getText() + ". skipping.");
 
-			// ex.printStackTrace();
+			ex.printStackTrace();
 		}
 		CompoundStatement result = parser.getResult();
 		Compound_statementContext statementContext = ctx.compound_statement();
