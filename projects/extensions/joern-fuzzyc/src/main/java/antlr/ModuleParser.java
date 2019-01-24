@@ -206,7 +206,8 @@ public class ModuleParser extends Parser {
 	            
 	            //Check if we are inside the outermost #if#else block (because the final #endif can appear after the closing bracket of a method)
 	            if((t == PRE_ELSE || t == PRE_ELIF) && ifdefStack.size() == 1){
-	                insideOutermostPreElseStatement = true;
+	            	//Not working correctly?
+	                //insideOutermostPreElseStatement = true;
 	            }
 	                
 	            //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
