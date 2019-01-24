@@ -103,6 +103,7 @@ WHITESPACE=102
 CPPCOMMENT=103
 ELLIPSIS=104
 OTHER=105
+Pre_if_statement=106
 ';'=1
 'defined'=2
 '('=3

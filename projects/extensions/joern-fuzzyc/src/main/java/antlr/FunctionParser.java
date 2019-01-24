@@ -199,7 +199,7 @@ public class FunctionParser extends Parser {
 	            }
 	            
 	            //Check if we are inside the outermost #if#else block (because the final #endif can appear after the closing bracket of a method)
-	            if(t == PRE_ELSE && ifdefStack.size() == 1){
+	            if((t == PRE_ELSE || t == PRE_ELIF) && ifdefStack.size() == 1){
 	                insideOutermostPreElseStatement = true;
 	            }
 	                
@@ -215,29 +215,34 @@ public class FunctionParser extends Parser {
 	         
 	        return true;
 	    }
-
 	       // this should go into FunctionGrammar but ANTLR fails
 	       // to join the parser::members-section on inclusion
 	       
-	       public boolean preProcSkipToEnd()
-	       {
-	                    Stack<Object> CurlyStack = new Stack<Object>();
-	                    Object o = new Object();
-	                    int t = _input.LA(1);
+	       //Find the closing #endif to the opening #if (and then return true), skip everything that is in between
+	       public boolean preProcSkipToEnd()  {
+	       		//Stack for collecting #ifs
+	            Stack<Object> PreprocessorStack = new Stack<Object>();
+	            //Object for the  #ifs
+	            Object o = new Object();
+	            //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
+	            int t = _input.LA(1);
 
-	                    while(t != EOF && !(CurlyStack.empty() && t == PRE_ENDIF)){
-	                                            
+					//Look for the closing #endif to the first opening #if
+	                while(t != EOF && !(PreprocessorStack.empty() && t == PRE_ENDIF)){
+	                        //Collect all found opening #ifs. If a #endif is found, remove one #if from stack                    
 	                        if(t == PRE_IF)
-	                            CurlyStack.push(o);
+	                            PreprocessorStack.push(o);
 	                        else if(t == PRE_ENDIF)
-	                            CurlyStack.pop();
-	                        
+	                            PreprocessorStack.pop();
+	                            
+	                        //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
 	                        consume();
 	                        t = _input.LA(1);
-	                    }
-	                    if(t != EOF)
-	                        consume();
-	                    return true;
+	                }
+	                //Return and parse the closing #endif (if there is one)
+	                if(t != EOF)
+	 					consume();
+	                return true;
 	       }
 
 
