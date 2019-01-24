@@ -346,6 +346,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPre_if_block(FunctionParser.Pre_if_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_if_block(FunctionParser.Pre_if_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_if_condition(FunctionParser.Pre_if_conditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
