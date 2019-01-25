@@ -21,7 +21,7 @@ grammar Common;
                 while(t != EOF && !(CurlyStack.empty() && t == CLOSING_CURLY)){
                     
                     //If there is an #else inside a method or class
-                    if(t == PRE_ELSE){
+                    if(t == PRE_ELSE || t == PRE_ELIF){
                         //Stack for collecting #ifs
                         Stack<Object> ifdefStack = new Stack<Object>();
                         //Return and parse #else, skip to next input
