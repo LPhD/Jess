@@ -6,7 +6,6 @@ import ast.ASTNode;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.PreElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
-import ast.c.statements.blockstarters.PreElIfStatement;
 import ast.c.statements.blockstarters.PreIfStatement;
 import ast.expressions.Expression;
 import ast.logical.statements.BlockStarter;
@@ -73,97 +72,93 @@ public class NestingReconstructor
 
 	// Joins consecutive BlockStarters on the stack
 
-	protected void consolidateBlockStarters(ASTNode node)	{
-		while (true){
-			try	{
+	protected void consolidateBlockStarters(ASTNode node)
+	{
+		while (true)
+		{
+			try
+			{
 				BlockStarter curBlockStarter = (BlockStarter) stack.peek();
 				curBlockStarter = (BlockStarter) stack.pop();
 				curBlockStarter.addChild(node);
 				node = curBlockStarter;
-				
-				//If and preprocessor if statements
+
 				if (curBlockStarter instanceof IfStatement || curBlockStarter instanceof PreIfStatement){
-					
-					// This is an if inside an else, e.g., 'else if' handling
-					if (stack.size() > 0 ) {												
-						//Normal Else
-						if (stack.peek() instanceof ElseStatement)	{	
+
+					if (stack.size() > 0 ) {
+						if (stack.peek() instanceof ElseStatement)	{
+							// This is an if inside an else, e.g., 'else if'
+							// handling
+
 							BlockStarter elseItem = (BlockStarter) stack.pop();
 							elseItem.addChild(curBlockStarter);
-							
+
 							IfStatement lastIf = (IfStatement) stack.getIfInElseCase();
-							if (lastIf != null) {
+							if (lastIf != null)
+							{
 								lastIf.setElseNode((ElseStatement) elseItem);
 							}
+
 							return;
-							
-						//Preprocessor else
+							//Preprocessor else
 						} else if (stack.peek() instanceof PreElseStatement)	{
-							BlockStarter preElseItem = (BlockStarter) stack.pop();
-							preElseItem.addChild(curBlockStarter);
-							
-							//Does this work if the belonging #if is an #elif? 
+							// This is an if inside an else, e.g., 'else if'
+							// handling
+
+							BlockStarter elseItem = (BlockStarter) stack.pop();
+							elseItem.addChild(curBlockStarter);
+
 							PreIfStatement lastIf = (PreIfStatement) stack.getPreIfInPreElseCase();
 							if (lastIf != null)	{
-								lastIf.setPreElseNode((PreElseStatement) preElseItem);
+								lastIf.setPreElseNode((PreElseStatement) elseItem);
 							}
-							return;
-							
-						//Preprocessor elif	
-						} else if (stack.peek() instanceof PreElIfStatement)	{
-							BlockStarter preElIfItem = (BlockStarter) stack.pop();
-							preElIfItem.addChild(curBlockStarter);
-						
-							PreIfStatement lastIf = (PreIfStatement) stack.getPreIfInPreElseCase();
-							if (lastIf != null)	{
-								lastIf.setPreElIfNode((PreElIfStatement) preElIfItem);
-							}
+
 							return;
 						}
 					}
-					
-				// add else statement to the previous if-statement, which has already been consolidated so we can return	
-				} else if (curBlockStarter instanceof ElseStatement){
-				
+
+				} else if (curBlockStarter instanceof ElseStatement)
+				{
+					// add else statement to the previous if-statement,
+					// which has already been consolidated so we can return
+
 					IfStatement lastIf = (IfStatement) stack.getIf();
 					if (lastIf != null)
 						lastIf.setElseNode((ElseStatement) curBlockStarter);
 					else
-						throw new RuntimeException("Warning: cannot find if for else");
+						throw new RuntimeException(
+								"Warning: cannot find if for else");
 
 					return;
-					
-				// add #else statement to the previous #if-statement, which has already been consolidated so we can return	
-				} else if (curBlockStarter instanceof PreElseStatement){	
-					
+				}
+				//Preprocessor else
+				else if (curBlockStarter instanceof PreElseStatement)
+					{
+						// add else statement to the previous if-statement,
+						// which has already been consolidated so we can return
+
 						PreIfStatement lastIf = (PreIfStatement) stack.getPreIf();
 						if (lastIf != null)
 							lastIf.setPreElseNode((PreElseStatement) curBlockStarter);
 						else
-							throw new RuntimeException("Warning: cannot find #if for #else");
+							throw new RuntimeException(
+									"Warning: cannot find #if for #else");
+
 						return;
-						
-				// add #elif statement to the previous #if-statement, which has already been consolidated so we can return	
-				} else if (curBlockStarter instanceof PreElIfStatement){	
-					
-						PreIfStatement lastIf = (PreIfStatement) stack.getPreIf();
-						if (lastIf != null)
-							lastIf.setPreElIfNode((PreElIfStatement) curBlockStarter);
-						else
-							throw new RuntimeException("Warning: cannot find #if for #elif");
-						return;
-						
-				// add while statement to the previous do-statement, if that exists. Otherwise, do nothing special.	
-				} else if (curBlockStarter instanceof WhileStatement) {
+				} else if (curBlockStarter instanceof WhileStatement)
+				{
+					// add while statement to the previous do-statement
+					// if that exists. Otherwise, do nothing special.
 
 					DoStatement lastDo = stack.getDo();
-					if (lastDo != null)	{
-						lastDo.addChild(((WhileStatement) curBlockStarter).getCondition());
+					if (lastDo != null)
+					{
+						lastDo.addChild(((WhileStatement) curBlockStarter)
+								.getCondition());
 						return;
 					}
-					
-				// catch-statements	
-				} else if (curBlockStarter instanceof CatchStatement) {
+				} else if (curBlockStarter instanceof CatchStatement)
+				{
 					TryStatement tryStatement = stack.getTry();
 					if (tryStatement != null)
 					{
@@ -178,7 +173,8 @@ public class NestingReconstructor
 					return;
 				}
 
-			} catch (ClassCastException ex)	{
+			} catch (ClassCastException ex)
+			{
 				break;
 			}
 		}
