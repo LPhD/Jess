@@ -47,6 +47,7 @@ import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
+import antlr.FunctionParser.Pre_blockstarterContext;
 import antlr.FunctionParser.Pre_elif_statementContext;
 import antlr.FunctionParser.Pre_else_statementContext;
 import antlr.FunctionParser.Pre_endif_statementContext;
@@ -137,7 +138,6 @@ import parsing.ASTNodeFactory;
 import parsing.Shared.InitDeclContextWrapper;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
-import statements.blockclosers.PreEndIfStatement;
 
 /**
  * The FunctionContentBuilder is invoked while walking the parse tree to create
@@ -201,12 +201,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void enterIf(If_statementContext ctx)
 	{
 		replaceTopOfStack(new IfStatement(), ctx);
-	}
-	
-	//Preprocessor if handling
-	public void enterPreIf(Pre_if_statementContext ctx)	{
-		replaceTopOfStack(new PreIfStatement(), ctx);
-	}
+	}	
 
 	public void enterFor(For_statementContext ctx)
 	{
@@ -227,22 +222,35 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	{
 		replaceTopOfStack(new ElseStatement(), ctx);
 	}
+
 	
 	//Preprocessor if handling
+	public void enterPreBlockstarter(Pre_blockstarterContext ctx)	{
+		replaceTopOfStack(new CompoundStatement(), ctx);
+	}	
+	
+	//Preprocessor if handling
+	public void enterPreIf(Pre_if_statementContext ctx)	{
+		replaceTopOfStack(new PreIfStatement(), ctx);
+	}
+	
+	//Preprocessor else handling
 	public void enterPreElse(Pre_else_statementContext ctx)	{
 		replaceTopOfStack(new PreElseStatement(), ctx);
 	}
 	
-	//Preprocessor if handling
+	//Preprocessor elif handling
 	public void enterPreElIf(Pre_elif_statementContext ctx)	{
 		replaceTopOfStack(new PreElIfStatement(), ctx);
 	}
 	
-	//Preprocessor if handling
+	//Preprocessor endif handling
 	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
-		replaceTopOfStack(new PreEndIfStatement(), ctx);
+		replaceTopOfStack(new BlockCloser(), ctx);
 	}
 
+	
+	
 	public void exitStatement(StatementContext ctx)	{
 		if (stack.size() == 0) {
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");

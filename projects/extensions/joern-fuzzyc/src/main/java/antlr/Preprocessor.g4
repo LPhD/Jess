@@ -8,7 +8,10 @@ pre_statement: PRE_IF pre_if_condition   #Pre_if_statement
                       | PRE_ENDIF               #Pre_endif_statement            
 ;
 
-pre_if_block: PRE_IF { preProcSkipToEnd(); };
+pre_blockstarter: PRE_IF pre_if_condition
+                | PRE_ELIF pre_if_condition  
+                | PRE_ELSE   
+                ;
 
 pre_if_condition: condition
                | 'defined' '('? condition ')'?

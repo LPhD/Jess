@@ -320,15 +320,15 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#pre_if_block}.
+	 * Enter a parse tree produced by {@link FunctionParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
-	void enterPre_if_block(FunctionParser.Pre_if_blockContext ctx);
+	void enterPre_blockstarter(FunctionParser.Pre_blockstarterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link FunctionParser#pre_if_block}.
+	 * Exit a parse tree produced by {@link FunctionParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
-	void exitPre_if_block(FunctionParser.Pre_if_blockContext ctx);
+	void exitPre_blockstarter(FunctionParser.Pre_blockstarterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_if_condition}.
 	 * @param ctx the parse tree

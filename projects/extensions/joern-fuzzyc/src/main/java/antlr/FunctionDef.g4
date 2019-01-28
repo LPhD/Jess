@@ -1,5 +1,5 @@
 grammar FunctionDef;
-import ModuleLex;
+import ModuleLex, Preprocessor;
 
 function_def : template_decl_start? return_type? function_name
             function_param_list ctor_list? compound_statement;
@@ -16,7 +16,7 @@ parameter_decl : param_decl_specifiers parameter_id;
 parameter_id: ptrs? ('(' parameter_id ')' | parameter_name) type_suffix?;
 
 compound_statement: OPENING_CURLY { skipToEndOfObject(); }
-                    | PRE_IF { preProcSkipToEnd(); }
+                    | pre_blockstarter { preProcSkipToEnd(); }
                     ;
 
 ctor_list: ':'  ctor_initializer (',' ctor_initializer)*;
