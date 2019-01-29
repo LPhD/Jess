@@ -36,17 +36,6 @@ ALPHA_NUMERIC: [a-zA-Z_~][a-zA-Z0-9_]*;
 OPENING_CURLY: '{';
 CLOSING_CURLY: '}';
 
-// pre-processor directives: C/C++
-
-PRE_IF: ('#if' | '#ifdef' | '#ifndef');
-PRE_ELIF:  '#elif';
-PRE_ELSE: '#else';
-PRE_ENDIF: '#endif';
-PRE_INCLUDE: '#include';
-//PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
-PRE_STMT: (PRE_IF | PRE_ELSE | PRE_ELIF | PRE_ENDIF | PRE_INCLUDE );
-
-
 HEX_LITERAL : '0' ('x'|'X') HexDigit+ IntegerTypeSuffix? ;
 DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) IntegerTypeSuffix? ;
 OCTAL_LITERAL : '0' ('0'..'7')+ IntegerTypeSuffix? ;
