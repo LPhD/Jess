@@ -15,9 +15,7 @@ parameter_decl : param_decl_specifiers parameter_id;
 
 parameter_id: ptrs? ('(' parameter_id ')' | parameter_name) type_suffix?;
 
-compound_statement: OPENING_CURLY { skipToEndOfObject(); }
-                    | pre_blockstarter { preProcSkipToEnd(); }
-                    ;
+compound_statement: OPENING_CURLY { skipToEndOfObject(); } ;
 
 ctor_list: ':'  ctor_initializer (',' ctor_initializer)*;
 
