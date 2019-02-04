@@ -20,6 +20,7 @@ import parsing.ModuleFunctionParserInterface;
 import parsing.Modules.builder.FunctionDefBuilder;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
+import parsing.Shared.builders.PreprocessorBuilder;
 
 // Converts Parse Trees to ASTs for Modules
 
@@ -53,7 +54,34 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 	// the function parser and connect the AST node created for the
 	// function definition to the AST created by the function parser.
 	// ////////////////////////////////////////////////////////////////
+	
+	
+//New preprocessor stuff ---------------------------------------------------------------
+	@Override
+	public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
 
+		PreprocessorBuilder builder = new PreprocessorBuilder();
+		builder.createNew(ctx);
+		p.builderStack.push(builder);
+
+	}
+	
+	@Override
+	public void enterPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx) {
+		//TODO
+	}
+	
+	@Override
+	public void enterPre_else_statement(ModuleParser.Pre_else_statementContext ctx) {
+		//TODO
+	}
+	
+	@Override
+	public void enterPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+		//TODO
+	}
+//New preprocessor stuff end ---------------------------------------------------------------
+	
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx)
 	{
