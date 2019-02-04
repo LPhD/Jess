@@ -94,18 +94,6 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPre_blockstarter(ModuleParser.Pre_blockstarterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_blockstarter(ModuleParser.Pre_blockstarterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterPre_if_condition(ModuleParser.Pre_if_conditionContext ctx) { }
 	/**
 	 * {@inheritDoc}

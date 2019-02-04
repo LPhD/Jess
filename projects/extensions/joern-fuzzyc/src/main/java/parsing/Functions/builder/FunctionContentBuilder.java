@@ -34,7 +34,6 @@ import antlr.FunctionParser.Function_argument_listContext;
 import antlr.FunctionParser.GotoStatementContext;
 import antlr.FunctionParser.IdentifierContext;
 import antlr.FunctionParser.If_statementContext;
-import antlr.FunctionParser.Pre_if_statementContext;
 import antlr.FunctionParser.IncDecOpContext;
 import antlr.FunctionParser.Inc_decContext;
 import antlr.FunctionParser.Inclusive_or_expressionContext;
@@ -47,10 +46,6 @@ import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
-import antlr.FunctionParser.Pre_blockstarterContext;
-import antlr.FunctionParser.Pre_elif_statementContext;
-import antlr.FunctionParser.Pre_else_statementContext;
-import antlr.FunctionParser.Pre_endif_statementContext;
 import antlr.FunctionParser.Primary_expressionContext;
 import antlr.FunctionParser.PtrMemberAccessContext;
 import antlr.FunctionParser.Relational_expressionContext;
@@ -223,31 +218,27 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		replaceTopOfStack(new ElseStatement(), ctx);
 	}
 
+		
 	
-	//Preprocessor if handling
-	public void enterPreBlockstarter(Pre_blockstarterContext ctx)	{
-		replaceTopOfStack(new CompoundStatement(), ctx);
-	}	
-	
-	//Preprocessor if handling
-	public void enterPreIf(Pre_if_statementContext ctx)	{
-		replaceTopOfStack(new PreIfStatement(), ctx);
-	}
-	
-	//Preprocessor else handling
-	public void enterPreElse(Pre_else_statementContext ctx)	{
-		replaceTopOfStack(new PreElseStatement(), ctx);
-	}
-	
-	//Preprocessor elif handling
-	public void enterPreElIf(Pre_elif_statementContext ctx)	{
-		replaceTopOfStack(new PreElIfStatement(), ctx);
-	}
-	
-	//Preprocessor endif handling
-	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
-		replaceTopOfStack(new BlockCloser(), ctx);
-	}
+//	//Preprocessor if handling
+//	public void enterPreIf(Pre_if_statementContext ctx)	{
+//		replaceTopOfStack(new PreIfStatement(), ctx);
+//	}
+//	
+//	//Preprocessor else handling
+//	public void enterPreElse(Pre_else_statementContext ctx)	{
+//		replaceTopOfStack(new PreElseStatement(), ctx);
+//	}
+//	
+//	//Preprocessor elif handling
+//	public void enterPreElIf(Pre_elif_statementContext ctx)	{
+//		replaceTopOfStack(new PreElIfStatement(), ctx);
+//	}
+//	
+//	//Preprocessor endif handling
+//	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
+//		replaceTopOfStack(new BlockCloser(), ctx);
+//	}
 
 	
 	

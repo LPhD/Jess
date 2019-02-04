@@ -1,5 +1,5 @@
 grammar Function;
-import ModuleLex, Preprocessor, Common, Expressions, FineSimpleDecl;
+import ModuleLex, Common, Expressions, FineSimpleDecl;
 
 
 @header{
@@ -32,7 +32,6 @@ selection_or_iteration: TRY                      #Try_statement
                       | FOR '(' (for_init_statement | ';') condition? ';'  expr? ')' #For_statement
                       | DO                          #Do_statement
                       | WHILE '(' condition ')'     #While_statement
-                      | pre_statement           #Preprocessor_statements
 ;
 
 

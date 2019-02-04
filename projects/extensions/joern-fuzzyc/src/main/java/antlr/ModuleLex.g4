@@ -23,6 +23,16 @@ USING: 'using'; NAMESPACE: 'namespace';
 
 AUTO: 'auto'; REGISTER: 'register';
 
+// pre-processor directives: C/C++
+
+PRE_IF: ('#if' | '#ifdef' | '#ifndef');
+PRE_ELIF:  '#elif';
+PRE_ELSE: '#else';
+PRE_ENDIF: '#endif';
+PRE_INCLUDE: '#include';
+//PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
+
+
 // C++ keywords
 
 OPERATOR: 'operator';
