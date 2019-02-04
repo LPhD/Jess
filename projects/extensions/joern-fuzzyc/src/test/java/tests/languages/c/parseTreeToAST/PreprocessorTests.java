@@ -12,14 +12,16 @@ public class PreprocessorTests {
 	public void NestedIfndefs() {
 		String input = "#ifdef foo\n #else\n #ifdef foo\n #else\n #endif\n #endif";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals(0, item.getStatements().size());
+		System.out.println(item.getStatements());
+		assertEquals(8, item.getStatements().size());
 	}
 
 	@Test
 	public void testPreElseStatements() {
 		String input = "#if foo\n bar(); #else\n foo(); foo(); #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals(3, contentItem.getStatements().size());
+		System.out.println(contentItem.getStatements());
+		assertEquals(7, contentItem.getStatements().size());
 	}
 
 	@Test
