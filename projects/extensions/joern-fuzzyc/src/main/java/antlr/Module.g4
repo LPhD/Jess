@@ -24,5 +24,6 @@ import ModuleLex, Preprocessor, Expressions, Common, FunctionDef, CoarseSimpleDe
 
 code : (pre_statement | function_def | simple_decl | using_directive | water )*;
 
+
 using_directive: USING NAMESPACE identifier ';';
 

@@ -1,5 +1,5 @@
 grammar Function;
-import ModuleLex, Common, Expressions, FineSimpleDecl;
+import Preprocessor, ModuleLex, Common, Expressions, FineSimpleDecl;
 
 
 @header{
@@ -10,6 +10,7 @@ statements: (statement)*;
 
 statement: opening_curly
          | closing_curly
+         | pre_statement
          | block_starter
          | jump_statement
          | label 

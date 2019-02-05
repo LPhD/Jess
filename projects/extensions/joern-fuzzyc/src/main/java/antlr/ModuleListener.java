@@ -34,53 +34,73 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitUsing_directive(ModuleParser.Using_directiveContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_statement(ModuleParser.Pre_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_statement(ModuleParser.Pre_statementContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code Pre_if_statement}
-	 * labeled alternative in {@link ModuleParser#pre_statement}.
+	 * labeled alternative in {@link ModuleParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
 	void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code Pre_if_statement}
-	 * labeled alternative in {@link ModuleParser#pre_statement}.
+	 * labeled alternative in {@link ModuleParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
 	void exitPre_if_statement(ModuleParser.Pre_if_statementContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code Pre_elif_statement}
-	 * labeled alternative in {@link ModuleParser#pre_statement}.
+	 * labeled alternative in {@link ModuleParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
 	void enterPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code Pre_elif_statement}
-	 * labeled alternative in {@link ModuleParser#pre_statement}.
+	 * labeled alternative in {@link ModuleParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
 	void exitPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code Pre_else_statement}
-	 * labeled alternative in {@link ModuleParser#pre_statement}.
+	 * labeled alternative in {@link ModuleParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
 	void enterPre_else_statement(ModuleParser.Pre_else_statementContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code Pre_else_statement}
-	 * labeled alternative in {@link ModuleParser#pre_statement}.
+	 * labeled alternative in {@link ModuleParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
 	void exitPre_else_statement(ModuleParser.Pre_else_statementContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code Pre_endif_statement}
-	 * labeled alternative in {@link ModuleParser#pre_statement}.
+	 * labeled alternative in {@link ModuleParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
 	void enterPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code Pre_endif_statement}
-	 * labeled alternative in {@link ModuleParser#pre_statement}.
+	 * labeled alternative in {@link ModuleParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
 	void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_command}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_command(ModuleParser.Pre_commandContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_command}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_command(ModuleParser.Pre_commandContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_if_condition}.
 	 * @param ctx the parse tree
