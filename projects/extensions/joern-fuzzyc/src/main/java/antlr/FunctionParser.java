@@ -316,8 +316,8 @@ public class FunctionParser extends Parser {
 		public Closing_curlyContext closing_curly() {
 			return getRuleContext(Closing_curlyContext.class,0);
 		}
-		public Pre_statementContext pre_statement() {
-			return getRuleContext(Pre_statementContext.class,0);
+		public Pre_blockstarterContext pre_blockstarter() {
+			return getRuleContext(Pre_blockstarterContext.class,0);
 		}
 		public Block_starterContext block_starter() {
 			return getRuleContext(Block_starterContext.class,0);
@@ -376,7 +376,7 @@ public class FunctionParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(182);
-				pre_statement();
+				pre_blockstarter();
 				}
 				break;
 			case 4:
@@ -6611,7 +6611,7 @@ public class FunctionParser extends Parser {
 		"\2\2\u00a8\u0339\3\2\2\2\u00aa\u033b\3\2\2\2\u00ac\u033d\3\2\2\2\u00ae"+
 		"\u033f\3\2\2\2\u00b0\u00b2\5\4\3\2\u00b1\u00b0\3\2\2\2\u00b2\u00b5\3\2"+
 		"\2\2\u00b3\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4\3\3\2\2\2\u00b5\u00b3"+
-		"\3\2\2\2\u00b6\u00c0\5\6\4\2\u00b7\u00c0\5\b\5\2\u00b8\u00c0\5\30\r\2"+
+		"\3\2\2\2\u00b6\u00c0\5\6\4\2\u00b7\u00c0\5\b\5\2\u00b8\u00c0\5\32\16\2"+
 		"\u00b9\u00c0\5\n\6\2\u00ba\u00c0\5\20\t\2\u00bb\u00c0\5\22\n\2\u00bc\u00c0"+
 		"\5\\/\2\u00bd\u00c0\5\24\13\2\u00be\u00c0\5\u00aeX\2\u00bf\u00b6\3\2\2"+
 		"\2\u00bf\u00b7\3\2\2\2\u00bf\u00b8\3\2\2\2\u00bf\u00b9\3\2\2\2\u00bf\u00ba"+

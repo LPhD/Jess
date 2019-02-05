@@ -46,6 +46,7 @@ import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
+import antlr.FunctionParser.Pre_if_statementContext;
 import antlr.FunctionParser.Primary_expressionContext;
 import antlr.FunctionParser.PtrMemberAccessContext;
 import antlr.FunctionParser.Relational_expressionContext;
@@ -221,9 +222,16 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		
 	
 //	//Preprocessor if handling
-//	public void enterPreIf(Pre_if_statementContext ctx)	{
+	public void enterPreIf(Pre_if_statementContext ctx)	{
 //		replaceTopOfStack(new PreIfStatement(), ctx);
-//	}
+		PreIfStatement preIf = new PreIfStatement();
+		nodeToRuleContext.put(preIf, ctx);
+		stack.push(preIf);
+	}
+	
+	public void exitPreIf(Pre_if_statementContext ctx)	{
+		nesting.consolidateSubExpression(ctx);
+	}
 //	
 //	//Preprocessor else handling
 //	public void enterPreElse(Pre_else_statementContext ctx)	{

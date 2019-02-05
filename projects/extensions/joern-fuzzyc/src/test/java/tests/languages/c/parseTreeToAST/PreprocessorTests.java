@@ -13,7 +13,7 @@ public class PreprocessorTests {
 		String input = "#ifdef foo\n #else\n #ifdef foo\n #else\n #endif\n #endif";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		System.out.println(item.getStatements());
-		assertEquals(8, item.getStatements().size());
+		assertEquals(6, item.getStatements().size());
 	}
 
 	@Test

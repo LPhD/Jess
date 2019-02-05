@@ -10,7 +10,7 @@ statements: (statement)*;
 
 statement: opening_curly
          | closing_curly
-         | pre_statement
+         | pre_blockstarter
          | block_starter
          | jump_statement
          | label 
