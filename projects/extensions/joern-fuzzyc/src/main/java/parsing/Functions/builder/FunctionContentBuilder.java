@@ -46,6 +46,9 @@ import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
+import antlr.FunctionParser.Pre_elif_statementContext;
+import antlr.FunctionParser.Pre_else_statementContext;
+import antlr.FunctionParser.Pre_endif_statementContext;
 import antlr.FunctionParser.Pre_if_statementContext;
 import antlr.FunctionParser.Primary_expressionContext;
 import antlr.FunctionParser.PtrMemberAccessContext;
@@ -72,6 +75,7 @@ import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
 import ast.c.preprocessor.PreElIfStatement;
 import ast.c.preprocessor.PreElseStatement;
+import ast.c.preprocessor.PreEndIfStatement;
 import ast.c.preprocessor.PreIfStatement;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
@@ -220,10 +224,9 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 
 		
-	
-//	//Preprocessor if handling
+//-----------------------------------------------------------------------------------------------	
+	//Preprocessor if handling
 	public void enterPreIf(Pre_if_statementContext ctx)	{
-//		replaceTopOfStack(new PreIfStatement(), ctx);
 		PreIfStatement preIf = new PreIfStatement();
 		nodeToRuleContext.put(preIf, ctx);
 		stack.push(preIf);
@@ -232,22 +235,40 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void exitPreIf(Pre_if_statementContext ctx)	{
 		nesting.consolidateSubExpression(ctx);
 	}
-//	
-//	//Preprocessor else handling
-//	public void enterPreElse(Pre_else_statementContext ctx)	{
-//		replaceTopOfStack(new PreElseStatement(), ctx);
-//	}
-//	
-//	//Preprocessor elif handling
-//	public void enterPreElIf(Pre_elif_statementContext ctx)	{
-//		replaceTopOfStack(new PreElIfStatement(), ctx);
-//	}
-//	
-//	//Preprocessor endif handling
-//	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
-//		replaceTopOfStack(new BlockCloser(), ctx);
-//	}
-
+	
+	//Preprocessor else handling
+	public void enterPreElse(Pre_else_statementContext ctx)	{
+		PreElseStatement preElse = new PreElseStatement();
+		nodeToRuleContext.put(preElse, ctx);
+		stack.push(preElse);
+	}
+	
+	public void exitPreElse(Pre_else_statementContext ctx)	{
+		nesting.consolidateSubExpression(ctx);
+	}
+	
+	//Preprocessor elif handling
+	public void enterPreElIf(Pre_elif_statementContext ctx)	{
+		PreElIfStatement preElIf = new PreElIfStatement();
+		nodeToRuleContext.put(preElIf, ctx);
+		stack.push(preElIf);
+	}
+	
+	public void exitPreElIf(Pre_elif_statementContext ctx)	{
+		nesting.consolidateSubExpression(ctx);
+	}
+	
+	//Preprocessor endif handling
+	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
+		PreEndIfStatement preEndIf = new PreEndIfStatement();
+		nodeToRuleContext.put(preEndIf, ctx);
+		stack.push(preEndIf);
+	}
+	
+	public void exitPreEndIf(Pre_endif_statementContext ctx)	{
+		nesting.consolidateSubExpression(ctx);
+	}
+//-----------------------------------------------------------------------------------------------
 	
 	
 	public void exitStatement(StatementContext ctx)	{

@@ -69,37 +69,39 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 		builder.enterIf(ctx);
 	}
 	
+//-------------------------------------------------------------------------------------------------	
+	//Preprocessor handling
+	@Override
+	public void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx)
+	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreElse(ctx);
+	}
 	
-//	//Preprocessor handling
-//	@Override
-//	public void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx)
-//	{
-//		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-//		builder.enterPreElse(ctx);
-//	}
-//	
-//	//Preprocessor handling
-//	@Override
-//	public void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx)
-//	{
-////TODO
-//	}
-//	
-//	//Preprocessor handling
-//	@Override
-//	public void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx)
-//	{
-//		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-//		builder.enterPreElIf(ctx);
-//	}
-//	
-//	//Preprocessor handling
-//	@Override
-//	public void exitPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx) {
-////TODO
-//	}
-//	
-//	//Preprocessor if handling
+	//Preprocessor handling
+	@Override
+	public void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx)
+	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreElse(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx)
+	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreElIf(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreElIf(ctx);
+	}
+	
+	//Preprocessor if handling
 	@Override
 	public void enterPre_if_statement(FunctionParser.Pre_if_statementContext ctx)	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
@@ -112,20 +114,22 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitPreIf(ctx);
 	}
-//	
-//	//Preprocessor if handling
-//	@Override
-//	public void enterPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx)	{
-//		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-//		builder.enterPreEndIf(ctx);
-//	}
-//	
-//	//Preprocessor if handling
-//	@Override
-//	public void exitPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx)	{
-////TODO
-//	}
-
+	
+	//Preprocessor if handling
+	@Override
+	public void enterPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx)	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreEndIf(ctx);
+	}
+	
+	//Preprocessor if handling
+	@Override
+	public void exitPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx)	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreEndIf(ctx);
+	}
+//---------------------------------------------------------------------------------------------------------------
+	
 	@Override
 	public void enterFor_statement(FunctionParser.For_statementContext ctx)
 	{
