@@ -10,6 +10,7 @@ import antlr.ModuleParser;
 import antlr.ModuleParser.Class_defContext;
 import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
+import antlr.ModuleParser.Pre_statementContext;
 import antlr.ModuleParser.Type_nameContext;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
@@ -56,6 +57,14 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 	// function definition to the AST created by the function parser.
 	// ////////////////////////////////////////////////////////////////
 	
+	//Does not work, why?	
+	@Override
+	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
+		// TODO Auto-generated method stub
+		PreprocessorBuilder builder = new PreprocessorBuilder();
+		builder.createNew(ctx);
+		p.builderStack.push(builder);
+	}
 	
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx)
