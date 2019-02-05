@@ -1,7 +1,6 @@
-package ast.c.statements.blockstarters;
+package ast.c.preprocessor;
 
 import ast.expressions.Expression;
-import ast.logical.statements.Statement;
 
 public class PreIfStatement extends Expression {
 
