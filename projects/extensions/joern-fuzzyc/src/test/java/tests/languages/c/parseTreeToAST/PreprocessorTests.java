@@ -19,6 +19,7 @@ public class PreprocessorTests {
 		System.out.println(item.getStatement(3).getTypeAsString());
 		System.out.println(item.getStatement(4).getTypeAsString());
 		System.out.println(item.getStatement(5).getTypeAsString());
+
 		assertEquals(6, item.getStatements().size());
 	}
 
@@ -47,5 +48,18 @@ public class PreprocessorTests {
 		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("PreElseStatement", contentItem.getStatement(1).getTypeAsString());
 	}
+	
+	@Test
+	public void preIfWithBracketsAroundCondition() {
+		String input = "#if (foo < 5) \n int i; #endif";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		System.out.println(contentItem.getStatements());
+		System.out.println(contentItem.getStatement(0).getTypeAsString());
+		System.out.println(contentItem.getStatement(1).getTypeAsString());
+		System.out.println(contentItem.getStatement(2).getTypeAsString());
+		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("PreElseStatement", contentItem.getStatement(1).getTypeAsString());
+	}
+	
 
 }
