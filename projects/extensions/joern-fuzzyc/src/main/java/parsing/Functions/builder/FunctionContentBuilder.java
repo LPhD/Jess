@@ -238,6 +238,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void exitPreIf(Pre_if_statementContext ctx)	{
 		PreIfStatement preStatement = (PreIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+		nesting.addItemToParent(preStatement);
 	}
 	
 	//Preprocessor else handling
@@ -250,6 +251,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void exitPreElse(Pre_else_statementContext ctx)	{
 		PreElseStatement preStatement = (PreElseStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+		nesting.addItemToParent(preStatement);
 	}
 	
 	//Preprocessor elif handling
@@ -262,6 +264,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void exitPreElIf(Pre_elif_statementContext ctx)	{
 		PreElIfStatement preStatement = (PreElIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+		nesting.addItemToParent(preStatement);
 	}
 	
 	//Preprocessor endif handling
@@ -274,6 +277,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void exitPreEndIf(Pre_endif_statementContext ctx)	{
 		PreEndIfStatement preStatement = (PreEndIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+		nesting.addItemToParent(preStatement);
 	}	
 	
 
