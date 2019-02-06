@@ -227,61 +227,85 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 
 		
-//-----------------------------------------------------------------------------------------------	
-	//Preprocessor if handling
+//------------------------------------Preprocessor if handling----------------------------------------------------------	
+
+	/**
+	 * Replace top of stack with the current item, as the parent item is only a placeholder
+	 * This makes the element appear as a {@link PreIfStatement}, rather than a {@link Statement}
+	 * @param ctx
+	 */
 	public void enterPreIf(Pre_if_statementContext ctx)	{
-		PreIfStatement preIf = new PreIfStatement();
-		nodeToRuleContext.put(preIf, ctx);
-		stack.push(preIf);
+		replaceTopOfStack(new PreIfStatement(), ctx);
 	}
 	
-	public void exitPreIf(Pre_if_statementContext ctx)	{
+	/**
+	 * Pops the item from the stack and adds its children (the following statements)
+	 * @param ctx
+	 */
+	public void exitPreIf(Pre_if_statementContext ctx)	{		
 		PreIfStatement preStatement = (PreIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 		nesting.addItemToParent(preStatement);
 	}
 	
-	//Preprocessor else handling
+	/**
+	 * Replace top of stack with the current item, as the parent item is only a placeholder
+	 * This makes the element appear as a {@link PreElseStatement}, rather than a {@link Statement}
+	 * @param ctx
+	 */
 	public void enterPreElse(Pre_else_statementContext ctx)	{
-		PreElseStatement preElse = new PreElseStatement();
-		nodeToRuleContext.put(preElse, ctx);
-		stack.push(preElse);
+		replaceTopOfStack(new PreElseStatement(), ctx);
 	}
 	
+	/**
+	 * Pops the item from the stack and adds its children (the following statements)
+	 * @param ctx
+	 */
 	public void exitPreElse(Pre_else_statementContext ctx)	{
 		PreElseStatement preStatement = (PreElseStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 		nesting.addItemToParent(preStatement);
 	}
 	
-	//Preprocessor elif handling
+	/**
+	 * Replace top of stack with the current item, as the parent item is only a placeholder
+	 * This makes the element appear as a {@link PreElIfStatement}, rather than a {@link Statement}
+	 * @param ctx
+	 */
 	public void enterPreElIf(Pre_elif_statementContext ctx)	{
-		PreElIfStatement preElIf = new PreElIfStatement();
-		nodeToRuleContext.put(preElIf, ctx);
-		stack.push(preElIf);
+		replaceTopOfStack(new PreElIfStatement(), ctx);
 	}
 	
+	/**
+	 * Pops the item from the stack and adds its children (the following statements)
+	 * @param ctx
+	 */
 	public void exitPreElIf(Pre_elif_statementContext ctx)	{
 		PreElIfStatement preStatement = (PreElIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 		nesting.addItemToParent(preStatement);
 	}
 	
-	//Preprocessor endif handling
+	/**
+	 * Replace top of stack with the current item, as the parent item is only a placeholder
+	 * This makes the element appear as a {@link PreEndIfStatement}, rather than a {@link Statement}
+	 * @param ctx
+	 */
 	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
-		PreEndIfStatement preEndIf = new PreEndIfStatement();
-		nodeToRuleContext.put(preEndIf, ctx);
-		stack.push(preEndIf);
+		replaceTopOfStack(new PreEndIfStatement(), ctx);		
 	}
 	
+	/**
+	 * Pops the item from the stack and adds its children (the following statements)
+	 * @param ctx
+	 */
 	public void exitPreEndIf(Pre_endif_statementContext ctx)	{
 		PreEndIfStatement preStatement = (PreEndIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 		nesting.addItemToParent(preStatement);
 	}	
 	
-
-//-----------------------------------------------------------------------------------------------
+//----------------------------------Preprocessor if handling end-------------------------------------------------------------
 	
 	
 	public void exitStatement(StatementContext ctx)	{
