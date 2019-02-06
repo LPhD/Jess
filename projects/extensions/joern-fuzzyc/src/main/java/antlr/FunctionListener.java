@@ -270,53 +270,15 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_statement(FunctionParser.Pre_statementContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code Pre_if_statement}
-	 * labeled alternative in {@link FunctionParser#pre_blockstarter}.
+	 * Enter a parse tree produced by {@link FunctionParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
-	void enterPre_if_statement(FunctionParser.Pre_if_statementContext ctx);
+	void enterPre_blockstarter(FunctionParser.Pre_blockstarterContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code Pre_if_statement}
-	 * labeled alternative in {@link FunctionParser#pre_blockstarter}.
+	 * Exit a parse tree produced by {@link FunctionParser#pre_blockstarter}.
 	 * @param ctx the parse tree
 	 */
-	void exitPre_if_statement(FunctionParser.Pre_if_statementContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code Pre_elif_statement}
-	 * labeled alternative in {@link FunctionParser#pre_blockstarter}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code Pre_elif_statement}
-	 * labeled alternative in {@link FunctionParser#pre_blockstarter}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code Pre_else_statement}
-	 * labeled alternative in {@link FunctionParser#pre_blockstarter}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code Pre_else_statement}
-	 * labeled alternative in {@link FunctionParser#pre_blockstarter}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code Pre_endif_statement}
-	 * labeled alternative in {@link FunctionParser#pre_blockstarter}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code Pre_endif_statement}
-	 * labeled alternative in {@link FunctionParser#pre_blockstarter}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx);
+	void exitPre_blockstarter(FunctionParser.Pre_blockstarterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_command}.
 	 * @param ctx the parse tree
@@ -327,6 +289,46 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPre_command(FunctionParser.Pre_commandContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_if_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_if_statement(FunctionParser.Pre_if_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_if_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_if_statement(FunctionParser.Pre_if_statementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_elif_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_elif_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_else_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_else_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_endif_statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_endif_statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_if_condition}.
 	 * @param ctx the parse tree

@@ -298,6 +298,30 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPre_blockstarter(FunctionParser.Pre_blockstarterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_blockstarter(FunctionParser.Pre_blockstarterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPre_command(FunctionParser.Pre_commandContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_command(FunctionParser.Pre_commandContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_if_statement(FunctionParser.Pre_if_statementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -341,18 +365,6 @@ public class FunctionBaseListener implements FunctionListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPre_endif_statement(FunctionParser.Pre_endif_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPre_command(FunctionParser.Pre_commandContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_command(FunctionParser.Pre_commandContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
