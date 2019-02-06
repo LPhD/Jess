@@ -61,5 +61,17 @@ public class PreprocessorTests {
 		assertEquals("PreElseStatement", contentItem.getStatement(1).getTypeAsString());
 	}
 	
+	@Test
+	public void preIfWithNestedCondition() {
+		String input = "#if (foo < 5 && ( x < 1 || x > 5 )) \n int i; #endif";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		System.out.println(contentItem.getStatements());
+		System.out.println(contentItem.getStatement(0).getTypeAsString());
+		System.out.println(contentItem.getStatement(1).getTypeAsString());
+		System.out.println(contentItem.getStatement(2).getTypeAsString());
+		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("PreElseStatement", contentItem.getStatement(1).getTypeAsString());
+	}
+	
 
 }
