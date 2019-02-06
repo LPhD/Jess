@@ -1,7 +1,7 @@
 package tests.languages.c.parseTreeToAST;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
@@ -19,225 +19,200 @@ import ast.statements.IdentifierDeclStatement;
 import parsing.TokenSubStream;
 import parsing.Modules.ANTLRCModuleParserDriver;
 
-public class ModuleBuildersTest
-{
+public class ModuleBuildersTest {
 
 	@Test
-	public void testNestedStructs()
-	{
+	public void testNestedStructs() {
 		String input = "struct x{ struct y { struct z{}; }; }; abc";
 		List<ASTNode> codeItems = parseInput(input);
 		ClassDefStatement classDef = (ClassDefStatement) codeItems.get(0);
-		ClassDefStatement yClass = (ClassDefStatement) classDef.content
-				.getStatements().get(0);
-		ClassDefStatement zClass = (ClassDefStatement) yClass.content
-				.getStatements().get(0);
+		ClassDefStatement yClass = (ClassDefStatement) classDef.content.getStatements().get(0);
+		ClassDefStatement zClass = (ClassDefStatement) yClass.content.getStatements().get(0);
 
-		assertTrue(codeItems.size() == 1);
-		assertTrue(yClass.getIdentifier().getEscapedCodeStr().equals("y"));
-		assertTrue(zClass.getIdentifier().getEscapedCodeStr().equals("z"));
+		assertEquals(1, codeItems.size());
+		assertEquals("y", yClass.getIdentifier().getEscapedCodeStr());
+		assertEquals("z", zClass.getIdentifier().getEscapedCodeStr());
 	}
 
 	@Test
-	public void testStructName()
-	{
+	public void testStructName() {
 		String input = "struct foo{};";
 		List<ASTNode> codeItems = parseInput(input);
 		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		assertTrue(codeItem.identifier.getEscapedCodeStr().equals("foo"));
+		assertEquals("foo", codeItem.identifier.getEscapedCodeStr());
 	}
 
 	@Test
-	public void testUnnamedStruct()
-	{
+	public void testUnnamedStruct() {
 		String input = "struct {int x; } a;";
 		List<ASTNode> codeItems = parseInput(input);
 		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		assertTrue(codeItem.identifier.getEscapedCodeStr().equals("<unnamed>"));
+		assertEquals("<unnamed>", codeItem.identifier.getEscapedCodeStr());
 	}
 
 	@Test
-	public void testStructContent()
-	{
+	public void testStructContent() {
 		String input = "struct foo{};";
 		List<ASTNode> codeItems = parseInput(input);
 		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		assertTrue(codeItem.content != null);
+		assertEquals("", codeItem.content.getEscapedCodeStr());
 	}
 
 	@Test
-	public void testStructFunctionPointer()
-	{
+	public void testStructFunctionPointer() {
 		String input = "struct foo{ int*** (**bar)(long*); };";
 		List<ASTNode> codeItems = parseInput(input);
 		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		IdentifierDeclStatement ptrStatement =
-				(IdentifierDeclStatement) codeItem.content.getStatements().get(0);
-		IdentifierDecl ptrItem =
-				(IdentifierDecl) ptrStatement.getIdentifierDeclList().get(0);
+		IdentifierDeclStatement ptrStatement = (IdentifierDeclStatement) codeItem.content.getStatements().get(0);
+		IdentifierDecl ptrItem = (IdentifierDecl) ptrStatement.getIdentifierDeclList().get(0);
 
-		assertEquals(ptrItem.getType().completeType, "int * * * ( * * ) ( long * )");
+		assertEquals("int * * * ( * * ) ( long * )", ptrItem.getType().completeType);
 	}
 
-
 	@Test
-	public void testFunctionInClass()
-	{
+	public void testFunctionInClass() {
 		String input = "class foo{ bar(){} };";
 		List<ASTNode> codeItems = parseInput(input);
 		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		FunctionDefBase funcItem = (FunctionDefBase) codeItem.content.getStatements()
-				.get(0);
-		assertTrue(funcItem.getName().equals("bar"));
+		FunctionDefBase funcItem = (FunctionDefBase) codeItem.content.getStatements().get(0);
+		assertEquals("bar", funcItem.getName());
 	}
 
 	@Test
-	public void testDecl()
-	{
+	public void testDecl() {
 		String input = "int foo;";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems
-				.get(0);
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList()
-				.get(0);
-		assertTrue(decl.getName().getEscapedCodeStr().equals("foo"));
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("foo", decl.getName().getEscapedCodeStr());
 	}
 
 	@Test
-	public void testDeclListAfterClass()
-	{
+	public void testEmptyArrayInitialization() {
+		String input = "int arrayTest_2[0] = {};";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("IdentifierDeclStatement", codeItem.getTypeAsString());
+	}
+
+	@Test
+	public void testDeclListAfterClass() {
 		String input = "class foo{int x;} y;";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems
-				.get(codeItems.size() - 1);
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList()
-				.get(0);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(codeItems.size() - 1);
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
 		System.out.println(decl.getName().getEscapedCodeStr());
-		assertTrue(decl.getName().getEscapedCodeStr().equals("y"));
+		assertEquals("y", decl.getName().getEscapedCodeStr());
 	}
 
 	@Test
-	public void testClassDefBeforeContent()
-	{
+	public void testClassDefBeforeContent() {
 		String input = "class foo{int x;}";
 		List<ASTNode> codeItems = parseInput(input);
 
 		ClassDefStatement classCodeItem = (ClassDefStatement) codeItems.get(0);
-		IdentifierDeclStatement identifierCodeItem = (IdentifierDeclStatement) classCodeItem.content
-				.getStatements().get(0);
-		IdentifierDecl decl = (IdentifierDecl) identifierCodeItem
-				.getIdentifierDeclList().get(0);
+		IdentifierDeclStatement identifierCodeItem = (IdentifierDeclStatement) classCodeItem.content.getStatements()
+				.get(0);
+		IdentifierDecl decl = (IdentifierDecl) identifierCodeItem.getIdentifierDeclList().get(0);
 
-		assertTrue(classCodeItem.identifier.getEscapedCodeStr().equals("foo"));
-		assertTrue(decl.getName().getEscapedCodeStr().equals("x"));
+		assertEquals("foo", classCodeItem.identifier.getEscapedCodeStr());
+		assertEquals("x", decl.getName().getEscapedCodeStr());
 	}
 
 	@Test
-	public void testFuncName()
-	{
+	public void testFuncName() {
 		String input = "void foo(){};";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		assertTrue(codeItem.getName().equals("foo"));
+		assertEquals("foo", codeItem.getName());
 	}
 
 	@Test
-	public void testFuncSignature()
-	{
+	public void testFuncSignature() {
 		String input = "void foo(int x, char **ptr){};";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		System.out.println(codeItem.getEscapedCodeStr());
-		assertTrue(codeItem.getEscapedCodeStr()
-				.equals("foo (int x , char * * ptr)"));
+		assertEquals("foo (int x , char * * ptr)", codeItem.getEscapedCodeStr());
 	}
 
 	@Test
-	public void testSimpleParamList()
-	{
+	public void testSimpleParamList() {
 		String input = "int foo(int x){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 
 		System.out.println(codeItem.getChildCount());
-		assertTrue(codeItem.getChildCount() == 4);
+		assertEquals(4, codeItem.getChildCount());
 	}
 
 	@Test
-	public void testParamListGetCodeStr()
-	{
+	public void testParamListGetCodeStr() {
 		String input = "int foo(char *myParam, myType x){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		String codeStr = codeItem.getParameterList().getEscapedCodeStr();
 		System.out.println(codeStr);
-		assertTrue(codeStr.equals("char * myParam , myType x"));
+		assertEquals("char * myParam , myType x", codeStr);
 	}
 
 	@Test
-	public void testParamGetCodeStr()
-	{
+	public void testParamGetCodeStr() {
 		String input = "int foo(char *myParam, myType x){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		ParameterBase parameter = codeItem.getParameterList().getParameter(0);
 		String codeStr = parameter.getEscapedCodeStr();
 		System.out.println(codeStr);
-		assertTrue(codeStr.equals("char * myParam"));
+		assertEquals("char * myParam", codeStr);
 	}
 
 	@Test
-	public void testParamName()
-	{
+	public void testParamName() {
 		String input = "int foo(myType myParam){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		String name = codeItem.getParameterList().getParameter(0).getName();
-		assertTrue(name.equals("myParam"));
+		assertEquals("myParam", name);
 	}
 
 	@Test
-	public void testParamType()
-	{
+	public void testParamType() {
 		String input = "int foo(char *myParam){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		ParameterType type = (ParameterType)codeItem.getParameterList().getParameter(0).getType();
+		ParameterType type = (ParameterType) codeItem.getParameterList().getParameter(0).getType();
 		System.out.println(type.getEscapedCodeStr());
-		assertTrue(type.getEscapedCodeStr().equals("char *"));
+		assertEquals("char *", type.getEscapedCodeStr());
 	}
 
 	@Test
-	public void testFunctionPtrParam()
-	{
+	public void testFunctionPtrParam() {
 		String input = "int foo(void (*ptr)(char *)){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		System.out.println(codeItem.getEscapedCodeStr());
-		assertTrue(codeItem.getName().equals("foo"));
+		assertEquals("foo", codeItem.getName());
 	}
 
 	@Test
-	public void testEmptyParamList()
-	{
+	public void testEmptyParamList() {
 		String input = "int foo(){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		assertTrue(codeItem.getChildCount() == 4);
-		assertTrue(codeItem.getParameterList().getEscapedCodeStr().equals(""));
+		assertEquals(4, codeItem.getChildCount());
+		assertEquals("", codeItem.getParameterList().getEscapedCodeStr());
 	}
 
 	@Test
-	public void testEmptyParamListLocation()
-	{
+	public void testEmptyParamListLocation() {
 		String input = "int foo(){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		assertTrue(codeItem.getParameterList().size() == 0);
+		assertEquals(0, codeItem.getParameterList().size());
 	}
 
-	private List<ASTNode> parseInput(String input)
-	{
+	private List<ASTNode> parseInput(String input) {
 		ANTLRCModuleParserDriver parser = new ANTLRCModuleParserDriver();
 		TestASTWalker testProcessor = new TestASTWalker();
 		parser.addObserver(testProcessor);

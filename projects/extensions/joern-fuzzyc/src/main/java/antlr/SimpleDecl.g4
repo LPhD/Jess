@@ -10,6 +10,7 @@ init_declarator_list: init_declarator (',' init_declarator)* ';';
 
 initializer: assign_expr
            |'{' initializer_list '}'
+           |'{' '}'
 ;
 
 initializer_list: initializer (',' initializer)*;
