@@ -34,11 +34,11 @@ public class PreprocessorTests {
 		System.out.println(contentItem.getStatement(3).getTypeAsString());
 		System.out.println(contentItem.getStatement(4).getTypeAsString());
 		System.out.println(contentItem.getStatement(5).getTypeAsString());
-		assertEquals(7, contentItem.getStatements().size());
+		assertEquals("PreElseStatement", contentItem.getStatement(2).getTypeAsString());
 	}
 
 	@Test
-	public void preIfAndElseStatement() {
+	public void preIfStatement() {
 		String input = "#if foo \n int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		System.out.println(contentItem.getStatements());
@@ -46,7 +46,20 @@ public class PreprocessorTests {
 		System.out.println(contentItem.getStatement(1).getTypeAsString());
 		System.out.println(contentItem.getStatement(2).getTypeAsString());
 		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
-		assertEquals("PreElseStatement", contentItem.getStatement(1).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreElIfStatements() {
+		String input = "#if foo\n bar(); #elif\n foo(); foo(); #endif";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreElIfStatement", contentItem.getStatement(2).getTypeAsString());
+	}
+	
+	@Test
+	public void preEndIfStatement() {
+		String input = "#if bar \n int i; #endif";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreEndIfStatement", contentItem.getStatement(2).getTypeAsString());
 	}
 	
 	@Test
@@ -57,8 +70,7 @@ public class PreprocessorTests {
 		System.out.println(contentItem.getStatement(0).getTypeAsString());
 		System.out.println(contentItem.getStatement(1).getTypeAsString());
 		System.out.println(contentItem.getStatement(2).getTypeAsString());
-		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
-		assertEquals("PreElseStatement", contentItem.getStatement(1).getTypeAsString());
+		assertEquals(3, contentItem.getStatements().size());
 	}
 	
 	@Test
@@ -69,8 +81,7 @@ public class PreprocessorTests {
 		System.out.println(contentItem.getStatement(0).getTypeAsString());
 		System.out.println(contentItem.getStatement(1).getTypeAsString());
 		System.out.println(contentItem.getStatement(2).getTypeAsString());
-		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
-		assertEquals("PreElseStatement", contentItem.getStatement(1).getTypeAsString());
+		assertEquals(3, contentItem.getStatements().size());
 	}
 	
 
