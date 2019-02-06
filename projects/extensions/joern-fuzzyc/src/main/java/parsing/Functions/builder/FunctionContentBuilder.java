@@ -50,6 +50,7 @@ import antlr.FunctionParser.Pre_elif_statementContext;
 import antlr.FunctionParser.Pre_else_statementContext;
 import antlr.FunctionParser.Pre_endif_statementContext;
 import antlr.FunctionParser.Pre_if_statementContext;
+import antlr.FunctionParser.Pre_statementContext;
 import antlr.FunctionParser.Primary_expressionContext;
 import antlr.FunctionParser.PtrMemberAccessContext;
 import antlr.FunctionParser.Relational_expressionContext;
@@ -77,6 +78,7 @@ import ast.c.preprocessor.PreElIfStatement;
 import ast.c.preprocessor.PreElseStatement;
 import ast.c.preprocessor.PreEndIfStatement;
 import ast.c.preprocessor.PreIfStatement;
+import ast.c.preprocessor.PreStatement;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
 import ast.declarations.ClassDefStatement;
@@ -121,6 +123,7 @@ import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
 import ast.logical.statements.Statement;
+import ast.statements.ExpressionHolder;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.blockstarters.CatchStatement;
@@ -233,7 +236,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	public void exitPreIf(Pre_if_statementContext ctx)	{
-		nesting.consolidateSubExpression(ctx);
+		PreIfStatement preStatement = (PreIfStatement) stack.pop();
+		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 	}
 	
 	//Preprocessor else handling
@@ -244,7 +248,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	public void exitPreElse(Pre_else_statementContext ctx)	{
-		nesting.consolidateSubExpression(ctx);
+		PreElseStatement preStatement = (PreElseStatement) stack.pop();
+		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 	}
 	
 	//Preprocessor elif handling
@@ -255,7 +260,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	public void exitPreElIf(Pre_elif_statementContext ctx)	{
-		nesting.consolidateSubExpression(ctx);
+		PreElIfStatement preStatement = (PreElIfStatement) stack.pop();
+		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 	}
 	
 	//Preprocessor endif handling
@@ -266,8 +272,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	public void exitPreEndIf(Pre_endif_statementContext ctx)	{
-		nesting.consolidateSubExpression(ctx);
-	}
+		PreEndIfStatement preStatement = (PreEndIfStatement) stack.pop();
+		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+	}	
+	
+
 //-----------------------------------------------------------------------------------------------
 	
 	
