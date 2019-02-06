@@ -10,6 +10,7 @@ import antlr.ModuleParser;
 import antlr.ModuleParser.Class_defContext;
 import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
+import antlr.ModuleParser.Pre_if_statementContext;
 import antlr.ModuleParser.Pre_statementContext;
 import antlr.ModuleParser.Type_nameContext;
 import ast.declarations.IdentifierDecl;
@@ -61,6 +62,14 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 	@Override
 	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
 		// TODO Auto-generated method stub
+		PreprocessorBuilder builder = new PreprocessorBuilder();
+		builder.createNew(ctx);
+		p.builderStack.push(builder);
+	}
+	
+	//Does not work, why?	
+	@Override
+	public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx) {
 		PreprocessorBuilder builder = new PreprocessorBuilder();
 		builder.createNew(ctx);
 		p.builderStack.push(builder);

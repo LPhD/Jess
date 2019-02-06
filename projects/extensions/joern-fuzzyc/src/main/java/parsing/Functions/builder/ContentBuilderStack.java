@@ -3,7 +3,6 @@ package parsing.Functions.builder;
 import java.util.Stack;
 
 import ast.ASTNode;
-import ast.c.preprocessor.PreIfStatement;
 import ast.c.statements.blockstarters.IfStatement;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.TryStatement;
@@ -45,17 +44,17 @@ public class ContentBuilderStack
 		return shadowStack.getIf();
 	}
 	
-	//Preprocessor if/else handling
-	public PreIfStatement getPreIfInPreElseCase()
-	{
-		return shadowStack.getPreIfInPreElseCase();
-	}
-	
-	//Preprocessor if handling
-	public PreIfStatement getPreIf()
-	{
-		return shadowStack.getPreIf();
-	}
+//	//Preprocessor if/else handling
+//	public PreIfStatement getPreIfInPreElseCase()
+//	{
+//		return shadowStack.getPreIfInPreElseCase();
+//	}
+//	
+//	//Preprocessor if handling
+//	public PreIfStatement getPreIf()
+//	{
+//		return shadowStack.getPreIf();
+//	}
 
 	public DoStatement getDo()
 	{
