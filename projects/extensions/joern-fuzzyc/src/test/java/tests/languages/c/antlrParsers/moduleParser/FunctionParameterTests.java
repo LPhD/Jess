@@ -6,12 +6,10 @@ import org.junit.Test;
 
 import antlr.ModuleParser;
 
-public class FunctionParameterTests extends FunctionDefinitionTests
-{
+public class FunctionParameterTests extends FunctionDefinitionTests {
 
 	@Test
-	public void testFunctionPtrParam()
-	{
+	public void testFunctionPtrParam() {
 		String input = "int foo(char *(*param)(void)){}";
 
 		ModuleParser parser = createParser(input);
@@ -22,19 +20,16 @@ public class FunctionParameterTests extends FunctionDefinitionTests
 	}
 
 	@Test
-	public void testVoidParamList()
-	{
+	public void testVoidParamList() {
 		String input = "static int altgid(void){}";
 
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
-		System.out.println(output);
 		assertTrue(output.startsWith("(function_def "));
 	}
 
 	@Test
-	public void testParamVoidPtr()
-	{
+	public void testParamVoidPtr() {
 		String input = "static int altgid(void *ptr){}";
 
 		ModuleParser parser = createParser(input);
@@ -43,18 +38,16 @@ public class FunctionParameterTests extends FunctionDefinitionTests
 	}
 
 	@Test
-	public void testLinux__user()
-	{
+	public void testLinux__user() {
 		String input = "static long aio_read_events_ring(struct kioctx *ctx, struct io_event __user *event, long nr){}";
 
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
-		System.out.println(output);
+		assertTrue(output.startsWith("(function_def"));
 	}
 
 	@Test
-	public void testParamConstVoidPtr()
-	{
+	public void testParamConstVoidPtr() {
 		String input = "static ssize_t _7z_write_data(struct archive_write *a, const void *buff, size_t s){}";
 
 		ModuleParser parser = createParser(input);

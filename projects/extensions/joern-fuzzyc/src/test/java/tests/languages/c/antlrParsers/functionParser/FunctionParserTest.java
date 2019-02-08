@@ -7,12 +7,10 @@ import org.junit.Test;
 
 import parsing.FunctionParser;
 
-public class FunctionParserTest extends FunctionParserTestBase
-{
+public class FunctionParserTest extends FunctionParserTestBase {
 
 	@Test
-	public void testIf()
-	{
+	public void testIf() {
 		String input = "if(foo){}";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);
@@ -21,8 +19,7 @@ public class FunctionParserTest extends FunctionParserTestBase
 	}
 
 	@Test
-	public void testStructInFunc()
-	{
+	public void testStructInFunc() {
 		String input = "class foo{ int x; };";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);
@@ -31,8 +28,7 @@ public class FunctionParserTest extends FunctionParserTestBase
 	}
 
 	@Test
-	public void testSizeofStruct()
-	{
+	public void testSizeofStruct() {
 		String input = "while((buffer + len) > (tmp + sizeof(struct stun_attrib))) {}";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);

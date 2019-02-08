@@ -11,59 +11,50 @@ import cfg.CFG;
 import cfg.nodes.CFGNode;
 import cfg.nodes.InfiniteForNode;
 
-public class OtherTests extends CCFGCreatorTest
-{
+public class OtherTests extends CCFGCreatorTest {
 
 	@Test
-	public void testSingleCallBlockNumber()
-	{
+	public void testSingleCallBlockNumber() {
 		String input = "foo();";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.size() == 3);
 	}
 
 	@Test
-	public void testWhileNumberOfBlocks()
-	{
+	public void testWhileNumberOfBlocks() {
 		String input = "while(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.size() == 4);
 	}
 
 	@Test
-	public void testDoNumberOfBlocks()
-	{
+	public void testDoNumberOfBlocks() {
 		String input = "do{ bar(); }while(foo);";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.size() == 4);
 	}
 
 	@Test
-	public void testDoEmptyBody()
-	{
+	public void testDoEmptyBody() {
 		String input = "do{ }while(foo);";
 		CFG cfg = getCFGForCode(input);
 		assertFalse(containsErrorNode(cfg));
 	}
 
-	private boolean containsErrorNode(CFG cfg)
-	{
-		Stream<CFGNode> s = cfg.getVertices().stream().
-				filter(x -> x.getClass().getSimpleName().equals("CFGErrorNode"));
+	private boolean containsErrorNode(CFG cfg) {
+		Stream<CFGNode> s = cfg.getVertices().stream().filter(x -> x.getClass().getSimpleName().equals("CFGErrorNode"));
 		return (s.toArray().length != 0);
 	}
 
 	@Test
-	public void testForNumberOfBlocks()
-	{
+	public void testForNumberOfBlocks() {
 		String input = "for(i = 0; i < 10; i ++){ foo(); }";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.size() == 6);
 	}
 
 	@Test
-	public void testEmptyFor()
-	{
+	public void testEmptyFor() {
 		String input = "for(;;){}";
 		CFG cfg = getCFGForCode(input);
 		CFGNode node = getNodeByCode(cfg, "INFINITE FOR");
@@ -72,48 +63,42 @@ public class OtherTests extends CCFGCreatorTest
 	}
 
 	@Test
-	public void testSwitchNumberOfEdges()
-	{
+	public void testSwitchNumberOfEdges() {
 		String input = "switch(foo){ case 1: case2: case 3: }";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.numberOfEdges() == 8);
 	}
 
 	@Test
-	public void testSwitchWithBreakNumberOfEdges()
-	{
+	public void testSwitchWithBreakNumberOfEdges() {
 		String input = "switch(foo){ case 1: break; case2: break; case 3: }";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.numberOfEdges() == 10);
 	}
 
 	@Test
-	public void testSwitchWithDefaultLabelNumberOfEdges()
-	{
+	public void testSwitchWithDefaultLabelNumberOfEdges() {
 		String input = "switch(foo){ case 1: case2: default: }";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.numberOfEdges() == 7);
 	}
 
 	@Test
-	public void testTwoInstructions()
-	{
+	public void testTwoInstructions() {
 		String input = "x = 10; y = 20;";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.size() == 4);
 	}
 
 	@Test
-	public void testLinkBetweenBlocks()
-	{
+	public void testLinkBetweenBlocks() {
 		String input = "x = 10; y = 20;";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.numberOfEdges() == 3);
 	}
 
 	@Test
-	public void testReturnExitBlock()
-	{
+	public void testReturnExitBlock() {
 		// this needs to be parsed as a function
 
 		// String input = "int foo() { if(!x) return 1; y = x; return 0; }";
@@ -128,8 +113,7 @@ public class OtherTests extends CCFGCreatorTest
 	}
 
 	@Test
-	public void testReturnOneExitBlock()
-	{
+	public void testReturnOneExitBlock() {
 		String input = "if(!x) return 1; y = x;";
 		CFG cfg = getCFGForCode(input);
 
@@ -138,8 +122,7 @@ public class OtherTests extends CCFGCreatorTest
 	}
 
 	@Test
-	public void testGoto()
-	{
+	public void testGoto() {
 		// this needs to be parsed as a function
 
 		// String input =

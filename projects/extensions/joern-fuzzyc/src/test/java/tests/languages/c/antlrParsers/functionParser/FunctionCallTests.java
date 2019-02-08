@@ -7,12 +7,10 @@ import org.junit.Test;
 
 import parsing.FunctionParser;
 
-public class FunctionCallTests extends FunctionParserTestBase
-{
+public class FunctionCallTests extends FunctionParserTestBase {
 
 	@Test
-	public void testFunctionCall()
-	{
+	public void testFunctionCall() {
 		String input = "foo(x);";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);
@@ -21,8 +19,7 @@ public class FunctionCallTests extends FunctionParserTestBase
 	}
 
 	@Test
-	public void testTwoParameters()
-	{
+	public void testTwoParameters() {
 		String input = "foo(x,y);";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);
@@ -31,8 +28,7 @@ public class FunctionCallTests extends FunctionParserTestBase
 	}
 
 	@Test
-	public void testCallViaPtr()
-	{
+	public void testCallViaPtr() {
 		String input = "ptr->foo(x);";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);
@@ -41,8 +37,7 @@ public class FunctionCallTests extends FunctionParserTestBase
 	}
 
 	@Test
-	public void testCallWithExprInArg()
-	{
+	public void testCallWithExprInArg() {
 		String input = "foo(x == 1, x++);";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);

@@ -6,12 +6,10 @@ import org.junit.Test;
 
 import antlr.ModuleParser;
 
-public class OtherTests extends FunctionDefinitionTests
-{
+public class OtherTests extends FunctionDefinitionTests {
 
 	@Test
-	public void testNestedFunctionName()
-	{
+	public void testNestedFunctionName() {
 		String input = "int (foo)(){}";
 
 		ModuleParser parser = createParser(input);
@@ -20,8 +18,7 @@ public class OtherTests extends FunctionDefinitionTests
 	}
 
 	@Test
-	public void testOperatorOverloading()
-	{
+	public void testOperatorOverloading() {
 		String input = "inline bool operator == (const PlMessageHeader &b) const {}";
 
 		ModuleParser parser = createParser(input);
@@ -31,8 +28,7 @@ public class OtherTests extends FunctionDefinitionTests
 	}
 
 	@Test
-	public void testExceptionSpecificationCpp()
-	{
+	public void testExceptionSpecificationCpp() {
 		String input = "int foo() throw(){}";
 
 		ModuleParser parser = createParser(input);

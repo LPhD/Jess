@@ -15,61 +15,50 @@ import cfg.CFG;
 import parsing.ModuleParser;
 import parsing.Modules.ANTLRCModuleParserDriver;
 
-public class CFGCreator
-{
+public class CFGCreator {
 
-	private class NodeVisitor extends ASTNodeVisitor
-	{
+	private class NodeVisitor extends ASTNodeVisitor {
 		private CFG cfg;
 		private ASTToCFGConverter astToCFG = new ASTToCFGConverter();
 
-		public NodeVisitor()
-		{
+		public NodeVisitor() {
 			astToCFG.setFactory(new CCFGFactory());
 		}
 
 		@Override
-		public void visit(FunctionDefBase node)
-		{
+		public void visit(FunctionDefBase node) {
 			cfg = astToCFG.convert(node);
 		}
 
-		public CFG getResult()
-		{
+		public CFG getResult() {
 			return cfg;
 		}
 	}
 
-	private class Walker extends ASTWalker
-	{
+	private class Walker extends ASTWalker {
 
 		NodeVisitor visitor = new NodeVisitor();
 
 		@Override
-		public void startOfUnit(ParserRuleContext ctx, String filename)
-		{
+		public void startOfUnit(ParserRuleContext ctx, String filename) {
 		}
 
 		@Override
-		public void endOfUnit(ParserRuleContext ctx, String filename)
-		{
+		public void endOfUnit(ParserRuleContext ctx, String filename) {
 		}
 
 		@Override
-		public void processItem(ASTNode node, Stack<ASTNodeBuilder> nodeStack)
-		{
+		public void processItem(ASTNode node, Stack<ASTNodeBuilder> nodeStack) {
 			node.accept(visitor);
 		}
 
-		public CFG getResult()
-		{
+		public CFG getResult() {
 			return visitor.getResult();
 		}
 
 	}
 
-	public CFG getCFGForCode(String code)
-	{
+	public CFG getCFGForCode(String code) {
 		ANTLRCModuleParserDriver driver = new ANTLRCModuleParserDriver();
 		ModuleParser parser = new ModuleParser(driver);
 		Walker walker = new Walker();

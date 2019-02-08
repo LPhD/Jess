@@ -1,5 +1,6 @@
 package tests.languages.c.cfgCreation;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -7,44 +8,38 @@ import org.junit.Test;
 import cfg.CFG;
 import cfg.nodes.CFGNode;
 
-public class IfBlockTests extends CCFGCreatorTest
-{
+public class IfBlockTests extends CCFGCreatorTest {
 
 	@Test
-	public void testIfStatementNumberOfBlocks()
-	{
+	public void testIfStatementNumberOfBlocks() {
 		String input = "if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.size() == 4);
+		assertEquals(4, cfg.size());
 	}
 
 	@Test
-	public void testElseIfNumberOfBlocks()
-	{
+	public void testElseIfNumberOfBlocks() {
 		String input = "if(foo) bar(); else if(foo2) bar(2);";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.size() == 6);
+		assertEquals(6, cfg.size());
 	}
 
 	@Test
-	public void testElseIfElseIfNumberOfBlocks()
-	{
+	public void testElseIfElseIfNumberOfBlocks() {
 		String input = "if(foo1) bar1(); else if(foo2) bar2(); else if(foo3) bar3();";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.size() == 8);
+		assertEquals(8, cfg.size());
 	}
 
 	@Test
-	public void testIfStatementNumberOfEdges()
-	{
+	public void testIfStatementNumberOfEdges() {
 		String input = "if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.numberOfEdges() == 4);
+		assertEquals(4, cfg.numberOfEdges());
 	}
 
 	@Test
-	public void testIfStatementCondition()
-	{
+	public void testIfStatementCondition() {
 		String input = "if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
 		CFGNode condition = getNodeByCode(cfg, "foo");
@@ -52,8 +47,7 @@ public class IfBlockTests extends CCFGCreatorTest
 	}
 
 	@Test
-	public void testIfStatementBody()
-	{
+	public void testIfStatementBody() {
 		String input = "if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
 
@@ -61,8 +55,7 @@ public class IfBlockTests extends CCFGCreatorTest
 	}
 
 	@Test
-	public void testIfEdges()
-	{
+	public void testIfEdges() {
 		String input = "if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
 
@@ -76,8 +69,7 @@ public class IfBlockTests extends CCFGCreatorTest
 	}
 
 	@Test
-	public void testIfJoinWithPrevCode()
-	{
+	public void testIfJoinWithPrevCode() {
 		String input = "x = 10; if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
 
@@ -92,8 +84,7 @@ public class IfBlockTests extends CCFGCreatorTest
 	}
 
 	@Test
-	public void testIfJoinWithNextCode()
-	{
+	public void testIfJoinWithNextCode() {
 		String input = "if(foo){ bar(); } x = 10; ";
 		CFG cfg = getCFGForCode(input);
 
@@ -108,22 +99,19 @@ public class IfBlockTests extends CCFGCreatorTest
 	}
 
 	@Test
-	public void testEmptyElse()
-	{
+	public void testEmptyElse() {
 		// String input = "if(foo) bar(); else {}";
 		// CFG cfg = getCFGForCode(input);
 	}
 
 	@Test
-	public void testEmptyIf()
-	{
+	public void testEmptyIf() {
 		// String input = "if(foo){}else bar(); ";
 		// CFG cfg = getCFGForCode(input);
 	}
 
 	@Test
-	public void testIfElseNumberOfBlocks()
-	{
+	public void testIfElseNumberOfBlocks() {
 		String input = "if(foo){ bar(); }else{ woo(); }";
 		CFG cfg = getCFGForCode(input);
 		assertTrue(cfg.size() == 5);
