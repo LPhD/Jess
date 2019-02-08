@@ -1,4 +1,4 @@
-package statements.blockclosers;
+package ast.c.statements.blockclosers;
 
 import ast.logical.statements.BlockCloser;
 
