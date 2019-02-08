@@ -1,7 +1,6 @@
 package tests.languages.c.parseTreeToAST;
 
 import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import ast.logical.statements.CompoundStatement;
 

@@ -1,7 +1,6 @@
 package tests.languages.c.parseTreeToAST;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
@@ -11,6 +10,7 @@ import org.junit.Test;
 import antlr.ModuleLexer;
 import ast.ASTNode;
 import ast.c.functionDef.ParameterType;
+import ast.c.preprocessor.PreIfStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
@@ -210,6 +210,14 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		assertEquals(0, codeItem.getParameterList().size());
+	}
+	
+	@Test
+	public void preprocessorModuleBuilderTest() {
+	String input = "#if (foo < 5) \n int i; \n #endif";
+	List<ASTNode> codeItems = parseInput(input);
+	PreIfStatement codeItem = (PreIfStatement) codeItems.get(0);	
+	assertEquals("PreIfStatement", codeItem.getTypeAsString());
 	}
 
 	private List<ASTNode> parseInput(String input) {

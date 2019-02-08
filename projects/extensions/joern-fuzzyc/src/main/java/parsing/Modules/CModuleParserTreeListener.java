@@ -5,13 +5,13 @@ import java.util.List;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
+import antlr.FunctionParser;
 import antlr.ModuleBaseListener;
 import antlr.ModuleParser;
 import antlr.ModuleParser.Class_defContext;
 import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
-import antlr.ModuleParser.Pre_if_statementContext;
-import antlr.ModuleParser.Pre_statementContext;
+import antlr.ModuleParser.Pre_blockstarterContext;
 import antlr.ModuleParser.Type_nameContext;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
@@ -58,22 +58,65 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 	// function definition to the AST created by the function parser.
 	// ////////////////////////////////////////////////////////////////
 	
-	//Does not work, why?	
-	@Override
-	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
-		// TODO Auto-generated method stub
-		PreprocessorBuilder builder = new PreprocessorBuilder();
-		builder.createNew(ctx);
-		p.builderStack.push(builder);
-	}
 	
-	//Does not work, why?	
-	@Override
-	public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx) {
-		PreprocessorBuilder builder = new PreprocessorBuilder();
-		builder.createNew(ctx);
-		p.builderStack.push(builder);
-	}
+	//TODO Currently very similar code as in function listener... rework!
+	//-------------------------------------------------------------------------------------------------	
+		//Preprocessor handling
+		@Override
+		public void enterPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{			
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createElse(ctx);
+			p.builderStack.push(builder);
+		}
+		
+		//Preprocessor handling
+		@Override
+		public void exitPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+		}
+		
+		//Preprocessor handling
+		@Override
+		public void enterPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx)	{
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createElIf(ctx);
+			p.builderStack.push(builder);
+		}
+		
+		//Preprocessor handling
+		@Override
+		public void exitPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx) {
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+		}
+		
+		//Preprocessor if handling
+		@Override
+		public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createIf(ctx);
+			p.builderStack.push(builder);
+		}	
+		
+		//Preprocessor if handling
+		@Override
+		public void exitPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+		}
+		
+		//Preprocessor if handling
+		@Override
+		public void enterPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createEndIf(ctx);
+			p.builderStack.push(builder);
+		}
+		
+		//Preprocessor if handling
+		@Override
+		public void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+		}
+	//---------------------------------------------------------------------------------------------------------------
 	
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx)
