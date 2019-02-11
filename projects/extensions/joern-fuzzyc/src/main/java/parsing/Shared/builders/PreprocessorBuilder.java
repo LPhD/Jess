@@ -7,35 +7,41 @@ import ast.c.preprocessor.PreElIfStatement;
 import ast.c.preprocessor.PreElseStatement;
 import ast.c.preprocessor.PreEndIfStatement;
 import ast.c.preprocessor.PreIfStatement;
+import ast.c.preprocessor.PreStatement;
 import parsing.ASTNodeFactory;
 
 public class PreprocessorBuilder extends ASTNodeBuilder{
 	
+	PreStatement thisItem;
+	
 	
 	public void createIf(ParserRuleContext ctx) {
-		PreIfStatement thisItem = new PreIfStatement();
+		thisItem = new PreIfStatement();
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		this.createNew(ctx);
 	}
 	
 	public void createElIf(ParserRuleContext ctx) {
-		PreElIfStatement thisItem = new PreElIfStatement();
+		thisItem = new PreElIfStatement();
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		this.createNew(ctx);
 	}
 	
 	public void createElse(ParserRuleContext ctx) {
-		PreElseStatement thisItem =new PreElseStatement();
+		thisItem = new PreElseStatement();
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		this.createNew(ctx);
 	}
 	
 	public void createEndIf(ParserRuleContext ctx) {
-		PreEndIfStatement thisItem =new PreEndIfStatement();
+		thisItem = new PreEndIfStatement();
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		this.createNew(ctx);
 	}
 
 	@Override
 	public void createNew(ParserRuleContext ctx) {
-		// TODO Auto-generated method stub
-		
+		item = thisItem;		
 	}
 
 }

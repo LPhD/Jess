@@ -73,6 +73,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 		@Override
 		public void exitPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{
 			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
 		}
 		
 		//Preprocessor handling
@@ -87,6 +88,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 		@Override
 		public void exitPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx) {
 			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
 		}
 		
 		//Preprocessor if handling
@@ -101,6 +103,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 		@Override
 		public void exitPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
 			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
 		}
 		
 		//Preprocessor if handling
@@ -115,6 +118,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 		@Override
 		public void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
 			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
 		}
 	//---------------------------------------------------------------------------------------------------------------
 	
