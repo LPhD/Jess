@@ -40,11 +40,27 @@ pre_command: pre_define
             | pre_line
             | pre_pragma;
 
+//TODO
 pre_define: PRE_DEFINE;     
+//TODO
 pre_undef: PRE_UNDEF;
-pre_diagnostic: PRE_DIAGNOSTIC;
-pre_other: PRE_OTHER;
-pre_include: PRE_INCLUDE;
-pre_include_next: PRE_INCLUDE_NEXT;
+
+pre_macro_identifier: identifier;
+
+pre_diagnostic: PRE_DIAGNOSTIC STRING;
+
+pre_other: PRE_OTHER STRING;
+
+pre_include: PRE_INCLUDE '<' pre_include_filename '>'
+            | PRE_INCLUDE '"' pre_include_filename '"'
+            | PRE_INCLUDE pre_macro_identifier;
+
+pre_include_next: PRE_INCLUDE_NEXT '<' pre_include_filename '>'
+            | PRE_INCLUDE_NEXT '"' pre_include_filename '"'
+            | PRE_INCLUDE_NEXT pre_macro_identifier;
+
+pre_include_filename: ALPHA_NUMERIC* ('.' | '-' | '/' | ALPHA_NUMERIC)*;
+//TODO
 pre_line: PRE_LINE;
+//TODO
 pre_pragma: PRE_PRAGMA;

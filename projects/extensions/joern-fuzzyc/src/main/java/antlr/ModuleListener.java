@@ -144,6 +144,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPre_undef(ModuleParser.Pre_undefContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_macro_identifier}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_macro_identifier(ModuleParser.Pre_macro_identifierContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_macro_identifier}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_macro_identifier(ModuleParser.Pre_macro_identifierContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_diagnostic}.
 	 * @param ctx the parse tree
 	 */
@@ -183,6 +193,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPre_include_next(ModuleParser.Pre_include_nextContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_include_filename}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_include_filename(ModuleParser.Pre_include_filenameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_include_filename}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_include_filename(ModuleParser.Pre_include_filenameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_line}.
 	 * @param ctx the parse tree

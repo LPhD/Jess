@@ -178,6 +178,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPre_macro_identifier(ModuleParser.Pre_macro_identifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_macro_identifier(ModuleParser.Pre_macro_identifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_diagnostic(ModuleParser.Pre_diagnosticContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -221,6 +233,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPre_include_next(ModuleParser.Pre_include_nextContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPre_include_filename(ModuleParser.Pre_include_filenameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_include_filename(ModuleParser.Pre_include_filenameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

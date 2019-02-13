@@ -406,6 +406,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPre_macro_identifier(FunctionParser.Pre_macro_identifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_macro_identifier(FunctionParser.Pre_macro_identifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_diagnostic(FunctionParser.Pre_diagnosticContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -449,6 +461,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPre_include_next(FunctionParser.Pre_include_nextContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPre_include_filename(FunctionParser.Pre_include_filenameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_include_filename(FunctionParser.Pre_include_filenameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -39,8 +39,7 @@ PRE_LINE: '#line';
 PRE_PRAGMA: '#pragma' 'GCC'? ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning')?;
 //PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
 
-//Filename pattern for #include, allows every character despite > and ". DOES NOT WORK THIS WAY!
-//INCLUDE_FILENAME:( EscapeSequence | ~('>'|'"') )+;
+
 
 // C++ keywords
 
