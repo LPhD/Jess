@@ -60,7 +60,11 @@ pre_include_next: PRE_INCLUDE_NEXT '<' pre_include_filename '>'
             | PRE_INCLUDE_NEXT pre_macro_identifier;
 
 pre_include_filename: ALPHA_NUMERIC* ('.' | '-' | '/' | ALPHA_NUMERIC)*;
-//TODO
-pre_line: PRE_LINE;
+
+pre_line: PRE_LINE DECIMAL_LITERAL
+        | PRE_LINE DECIMAL_LITERAL STRING
+        | PRE_LINE DECIMAL_LITERAL pre_macro_identifier
+        | PRE_LINE pre_macro_identifier STRING
+        | PRE_LINE pre_macro_identifier;
 //TODO
 pre_pragma: PRE_PRAGMA;
