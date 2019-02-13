@@ -370,6 +370,26 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_macro_identifier(FunctionParser.Pre_macro_identifierContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_macro_parameters}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_macro_parameters(FunctionParser.Pre_macro_parametersContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_macro_parameters}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_macro_parameters(FunctionParser.Pre_macro_parametersContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_macro}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_macro(FunctionParser.Pre_macroContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_macro}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_macro(FunctionParser.Pre_macroContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_diagnostic}.
 	 * @param ctx the parse tree
 	 */

@@ -89,6 +89,30 @@ grammar Common;
  					consume();
                 return true;
        }
+       
+           //Find the end of a preprocessor macro
+           public boolean preProcFindMacroEnd()  {
+                //Stack for backslashes
+                Stack<Object> slashStack = new Stack<Object>();
+                //Object for the  slashes
+                Object o = new Object();
+                //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
+                int t = _input.LA(1);
+
+                //Look for end of the macro where a newline appears without a previous backslash
+                while(t != EOF && !(slashStack.empty() && t == '\n')){
+                                       
+                      if(t == '\\')
+                            slashStack.push(o);
+                      else if(t == '\n')
+                            slashStack.pop();
+                                
+                      //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
+                      consume();
+                      t = _input.LA(1);
+                }
+                    return true;
+           }
 
 }
 
