@@ -280,16 +280,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_blockstarter(FunctionParser.Pre_blockstarterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#pre_command}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_command(FunctionParser.Pre_commandContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#pre_command}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_command(FunctionParser.Pre_commandContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_if_statement}.
 	 * @param ctx the parse tree
 	 */
@@ -339,6 +329,96 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPre_if_condition(FunctionParser.Pre_if_conditionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_command}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_command(FunctionParser.Pre_commandContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_command}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_command(FunctionParser.Pre_commandContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_define}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_define(FunctionParser.Pre_defineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_define}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_define(FunctionParser.Pre_defineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_undef}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_undef(FunctionParser.Pre_undefContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_undef}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_undef(FunctionParser.Pre_undefContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_diagnostic}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_diagnostic(FunctionParser.Pre_diagnosticContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_diagnostic}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_diagnostic(FunctionParser.Pre_diagnosticContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_other}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_other(FunctionParser.Pre_otherContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_other}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_other(FunctionParser.Pre_otherContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_include}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_include(FunctionParser.Pre_includeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_include}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_include(FunctionParser.Pre_includeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_include_next}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_include_next(FunctionParser.Pre_include_nextContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_include_next}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_include_next(FunctionParser.Pre_include_nextContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_line}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_line(FunctionParser.Pre_lineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_line}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_line(FunctionParser.Pre_lineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_pragma}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_pragma(FunctionParser.Pre_pragmaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_pragma}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_pragma(FunctionParser.Pre_pragmaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#unary_operator}.
 	 * @param ctx the parse tree

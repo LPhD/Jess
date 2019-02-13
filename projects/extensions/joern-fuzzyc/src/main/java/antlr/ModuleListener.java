@@ -54,16 +54,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPre_blockstarter(ModuleParser.Pre_blockstarterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#pre_command}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_command(ModuleParser.Pre_commandContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#pre_command}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_command(ModuleParser.Pre_commandContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_if_statement}.
 	 * @param ctx the parse tree
 	 */
@@ -123,6 +113,96 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCondition(ModuleParser.ConditionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_command}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_command(ModuleParser.Pre_commandContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_command}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_command(ModuleParser.Pre_commandContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_define}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_define(ModuleParser.Pre_defineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_define}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_define(ModuleParser.Pre_defineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_undef}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_undef(ModuleParser.Pre_undefContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_undef}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_undef(ModuleParser.Pre_undefContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_diagnostic}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_diagnostic(ModuleParser.Pre_diagnosticContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_diagnostic}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_diagnostic(ModuleParser.Pre_diagnosticContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_other}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_other(ModuleParser.Pre_otherContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_other}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_other(ModuleParser.Pre_otherContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_include}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_include(ModuleParser.Pre_includeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_include}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_include(ModuleParser.Pre_includeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_include_next}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_include_next(ModuleParser.Pre_include_nextContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_include_next}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_include_next(ModuleParser.Pre_include_nextContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_line}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_line(ModuleParser.Pre_lineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_line}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_line(ModuleParser.Pre_lineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#pre_pragma}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_pragma(ModuleParser.Pre_pragmaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#pre_pragma}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_pragma(ModuleParser.Pre_pragmaContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#expr}.
 	 * @param ctx the parse tree
