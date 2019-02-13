@@ -29,9 +29,18 @@ PRE_IF: ('#if' | '#ifdef' | '#ifndef');
 PRE_ELIF:  '#elif';
 PRE_ELSE: '#else';
 PRE_ENDIF: '#endif';
-PRE_INCLUDE: '#include';
+PRE_DEFINE: '#define';     
+PRE_UNDEF:  '#undef';
+PRE_DIAGNOSTIC: ('#error' | '#warning');
+PRE_OTHER: ('#ident' |  '#sccs');
+PRE_INCLUDE:  ('#import' | '#include');
+PRE_INCLUDE_NEXT:  '#include_next';
+PRE_LINE: '#line';
+PRE_PRAGMA: '#pragma' 'GCC'? ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning')?;
 //PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
 
+//Filename pattern for #include, allows every character despite > and ". DOES NOT WORK THIS WAY!
+//INCLUDE_FILENAME:( EscapeSequence | ~('>'|'"') )+;
 
 // C++ keywords
 
