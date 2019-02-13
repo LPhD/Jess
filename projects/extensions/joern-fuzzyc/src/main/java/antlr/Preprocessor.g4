@@ -66,5 +66,7 @@ pre_line: PRE_LINE DECIMAL_LITERAL
         | PRE_LINE DECIMAL_LITERAL pre_macro_identifier
         | PRE_LINE pre_macro_identifier STRING
         | PRE_LINE pre_macro_identifier;
-//TODO
-pre_pragma: PRE_PRAGMA;
+
+pre_pragma: PRE_PRAGMA STRING
+            | PRE_PRAGMA identifier+
+            | PRE_PRAGMA;
