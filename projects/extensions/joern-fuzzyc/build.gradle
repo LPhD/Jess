@@ -25,28 +25,24 @@ dependencies{
 generateGrammarSource{
 	
 	if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-		includes = ['**/Function.g4', '**/Module.g4']
+		//Make grammar know the imports
+		arguments << "-lib" << "src\\main\\java\\antlr\\grammar"
+		
+		source = "src\\main\\java\\antlr\\grammar"
+		includes = ['**\\Function.g4', '**\\Module.g4']					
+		outputDirectory = file("src\\main\\java\\antlr\\generated\\")
+		
 	} else {
-		includes = ['src/main/java/antlr/Function.g4', 'src/main/java/antlr/Module.g4']
-	}
-	
-	source = "src/main/java/antlr"
-	
-	//Make grammar know the imports
-	arguments << "-lib" << "src/main/java/antlr"			
+		//Make grammar know the imports
+		arguments << "-lib" << "src/main/java/antlr/grammar"
+		
+		includes = ['src/main/java/antlr/grammar/Function.g4', 'src/main/java/antlr/grammar/Module.g4']
+		source = "src/main/java/antlr/grammar"		
+		outputDirectory = file("src/main/java/antlr/generated")		
+	}				
 }
 
-task copyGenratedFiles(type: Copy) {
-	into "src/main/java/antlr"
-	from "build/generated-src/antlr/java/antlr"
-}
 
-task removeUnusedFiles() {
-	delete "build/generated-src/"
-}
-
-copyGenratedFiles.dependsOn generateGrammarSource
-removeUnusedFiles.dependsOn copyGenratedFiles
-build.dependsOn removeUnusedFiles
+build.dependsOn generateGrammarSource
 build.dependsOn copyToLib3
 
