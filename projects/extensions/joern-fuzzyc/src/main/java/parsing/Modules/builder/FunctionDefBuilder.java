@@ -4,10 +4,10 @@ import java.util.Stack;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import antlr.generated.ModuleParser.Function_nameContext;
-import antlr.generated.ModuleParser.Function_param_listContext;
-import antlr.generated.ModuleParser.Parameter_declContext;
-import antlr.generated.ModuleParser.Return_typeContext;
+import antlr.ModuleParser.Function_nameContext;
+import antlr.ModuleParser.Function_param_listContext;
+import antlr.ModuleParser.Parameter_declContext;
+import antlr.ModuleParser.Return_typeContext;
 import ast.ASTNodeBuilder;
 import ast.c.functionDef.FunctionDef;
 import ast.expressions.Identifier;

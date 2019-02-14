@@ -4,8 +4,8 @@ import java.util.Stack;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import antlr.generated.ModuleParser.Parameter_declContext;
-import antlr.generated.ModuleParser.Parameter_idContext;
+import antlr.ModuleParser.Parameter_declContext;
+import antlr.ModuleParser.Parameter_idContext;
 import ast.ASTNodeBuilder;
 import ast.c.functionDef.ParameterType;
 import ast.functionDef.ParameterBase;

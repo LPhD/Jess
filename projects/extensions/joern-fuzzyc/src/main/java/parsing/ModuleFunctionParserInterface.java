@@ -3,9 +3,9 @@ package parsing;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.misc.Interval;
 
-import antlr.generated.ModuleParser;
-import antlr.generated.ModuleParser.Compound_statementContext;
-import antlr.generated.ModuleParser.Function_defContext;
+import antlr.ModuleParser;
+import antlr.ModuleParser.Compound_statementContext;
+import antlr.ModuleParser.Function_defContext;
 import ast.logical.statements.CompoundStatement;
 import parsing.Functions.ANTLRCFunctionParserDriver;
 

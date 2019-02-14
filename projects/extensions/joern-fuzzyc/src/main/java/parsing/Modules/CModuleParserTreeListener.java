@@ -5,14 +5,14 @@ import java.util.List;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import antlr.generated.FunctionParser;
-import antlr.generated.ModuleBaseListener;
-import antlr.generated.ModuleParser;
-import antlr.generated.ModuleParser.Class_defContext;
-import antlr.generated.ModuleParser.DeclByClassContext;
-import antlr.generated.ModuleParser.Init_declarator_listContext;
-import antlr.generated.ModuleParser.Pre_blockstarterContext;
-import antlr.generated.ModuleParser.Type_nameContext;
+import antlr.FunctionParser;
+import antlr.ModuleBaseListener;
+import antlr.ModuleParser;
+import antlr.ModuleParser.Class_defContext;
+import antlr.ModuleParser.DeclByClassContext;
+import antlr.ModuleParser.Init_declarator_listContext;
+import antlr.ModuleParser.Pre_blockstarterContext;
+import antlr.ModuleParser.Type_nameContext;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
 import ast.statements.IdentifierDeclStatement;

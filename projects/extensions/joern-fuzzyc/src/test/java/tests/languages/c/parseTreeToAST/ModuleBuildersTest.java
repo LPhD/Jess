@@ -7,7 +7,7 @@ import java.util.List;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.junit.Test;
 
-import antlr.generated.ModuleLexer;
+import antlr.ModuleLexer;
 import ast.ASTNode;
 import ast.c.functionDef.ParameterType;
 import ast.c.preprocessor.PreIfStatement;

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import antlr.generated.FunctionParser.StatementsContext;
+import antlr.FunctionParser.StatementsContext;
 import ast.c.expressions.CallExpression;
 import ast.c.statements.blockstarters.IfStatement;
 import ast.declarations.ClassDefStatement;

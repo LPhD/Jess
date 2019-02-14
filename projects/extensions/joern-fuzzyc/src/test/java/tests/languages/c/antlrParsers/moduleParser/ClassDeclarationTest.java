@@ -6,9 +6,9 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
 
-import antlr.generated.ModuleLexer;
-import antlr.generated.ModuleParser;
-import antlr.generated.ModuleParser.Class_defContext;
+import antlr.ModuleLexer;
+import antlr.ModuleParser;
+import antlr.ModuleParser.Class_defContext;
 
 public class ClassDeclarationTest {
 
