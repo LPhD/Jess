@@ -23,6 +23,7 @@ dependencies{
 
 //Generate Java files from grammar
 generateGrammarSource{
+	outputs.upToDateWhen { false }
 	
 	if (System.getProperty("os.name").toLowerCase().contains("windows")) {
 		//Make grammar know the imports
@@ -34,11 +35,11 @@ generateGrammarSource{
 		
 	} else {
 		//Make grammar know the imports
-		arguments << "-lib" << "src/main/java/antlr/grammar"
+		arguments << "-lib" << "src/main/java/antlr"
 		
-		includes = ['src/main/java/antlr/grammar/Function.g4', 'src/main/java/antlr/grammar/Module.g4']
-		source = "src/main/java/antlr/grammar"		
-		outputDirectory = file("src/main/java/antlr/generated")		
+		includes = ['src/main/java/antlr/Function.g4', 'src/main/java/antlr/Module.g4']
+		source = "src/main/java/antlr"		
+		outputDirectory = new File("src/main/java/")	
 	}				
 }
 
