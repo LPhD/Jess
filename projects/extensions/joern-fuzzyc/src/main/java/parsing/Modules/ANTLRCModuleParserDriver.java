@@ -4,8 +4,8 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import antlr.ModuleLexer;
-import antlr.ModuleParser;
+import antlr.generated.ModuleLexer;
+import antlr.generated.ModuleParser;
 import parsing.ANTLRParserDriver;
 import parsing.TokenSubStream;
 

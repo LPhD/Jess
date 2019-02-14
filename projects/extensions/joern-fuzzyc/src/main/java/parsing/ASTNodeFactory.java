@@ -2,11 +2,11 @@ package parsing;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import antlr.FunctionParser.InitDeclWithAssignContext;
-import antlr.FunctionParser.StatementContext;
-import antlr.ModuleParser.Parameter_declContext;
-import antlr.ModuleParser.Parameter_idContext;
-import antlr.ModuleParser.Parameter_nameContext;
+import antlr.generated.FunctionParser.InitDeclWithAssignContext;
+import antlr.generated.FunctionParser.StatementContext;
+import antlr.generated.ModuleParser.Parameter_declContext;
+import antlr.generated.ModuleParser.Parameter_idContext;
+import antlr.generated.ModuleParser.Parameter_nameContext;
 import ast.ASTNode;
 import ast.c.functionDef.Parameter;
 import ast.c.functionDef.ParameterType;

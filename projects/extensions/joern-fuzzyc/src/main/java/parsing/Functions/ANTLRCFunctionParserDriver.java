@@ -4,8 +4,8 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import antlr.FunctionLexer;
-import antlr.FunctionParser;
+import antlr.generated.FunctionLexer;
+import antlr.generated.FunctionParser;
 import parsing.ANTLRParserDriver;
 import parsing.TokenSubStream;
 

@@ -2,8 +2,8 @@ package parsing.Functions;
 
 import org.antlr.v4.runtime.misc.NotNull;
 
-import antlr.FunctionBaseListener;
-import antlr.FunctionParser;
+import antlr.generated.FunctionBaseListener;
+import antlr.generated.FunctionParser;
 import parsing.ANTLRParserDriver;
 import parsing.Functions.builder.FunctionContentBuilder;
 

@@ -3,7 +3,7 @@ package tests.languages.c.parseTreeToAST;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import antlr.FunctionLexer;
+import antlr.generated.FunctionLexer;
 import ast.ASTNode;
 import parsing.FunctionParser;
 import parsing.TokenSubStream;
