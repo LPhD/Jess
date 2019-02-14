@@ -26,11 +26,11 @@ generateGrammarSource{
 	
 	if (System.getProperty("os.name").toLowerCase().contains("windows")) {
 		//Make grammar know the imports
-		arguments << "-lib" << "src\\main\\java\\antlr\\grammar"
+		arguments << "-lib" << "src\\main\\java\\antlr"
 		
-		source = "src\\main\\java\\antlr\\grammar"
+		source = "src\\main\\java\\antlr"
 		includes = ['**\\Function.g4', '**\\Module.g4']					
-		outputDirectory = file("src\\main\\java\\antlr\\generated\\")
+		outputDirectory = new File("src\\main\\java\\")
 		
 	} else {
 		//Make grammar know the imports

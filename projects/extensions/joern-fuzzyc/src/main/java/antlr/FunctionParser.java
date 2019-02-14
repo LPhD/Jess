@@ -1,6 +1,6 @@
-// Generated from ..\java\antlr\grammar\Function.g4 by ANTLR 4.5.3
+// Generated from ..\java\antlr\Function.g4 by ANTLR 4.5.3
 
-	package antlr.generated;
+	package antlr;
 
 
   import java.util.Stack;

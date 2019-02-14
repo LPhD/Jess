@@ -3,7 +3,7 @@ import Preprocessor, ModuleLex, Common, Expressions, FineSimpleDecl;
 
 
 @header{
-	package antlr.generated;
+	package antlr;
 }
 
 statements: (statement)*;

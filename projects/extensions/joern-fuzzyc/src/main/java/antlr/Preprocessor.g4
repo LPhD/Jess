@@ -74,4 +74,5 @@ pre_line: PRE_LINE DECIMAL_LITERAL
 
 pre_pragma: PRE_PRAGMA STRING
             | PRE_PRAGMA identifier+
-            | PRE_PRAGMA;         
+            | PRE_PRAGMA;    
+    
