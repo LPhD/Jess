@@ -3,6 +3,7 @@ package outputModules.neo4j;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.RelationshipType;
 
+import ast.c.preprocessor.PreStatement;
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
 import ast.statements.IdentifierDeclStatement;
@@ -12,6 +13,7 @@ import outputModules.common.ASTNodeExporter;
 import outputModules.common.OutModASTNodeVisitor;
 import outputModules.neo4j.exporters.Neo4JClassDefExporter;
 import outputModules.neo4j.exporters.Neo4JDeclStmtExporter;
+import outputModules.neo4j.exporters.Neo4JPreStatementExporter;
 
 // Stays alive during the lifetime of the program
 
@@ -34,6 +36,12 @@ public class Neo4JASTNodeVisitor extends OutModASTNodeVisitor
 	public void visit(IdentifierDeclStatement node)
 	{
 		ASTNodeExporter importer = new Neo4JDeclStmtExporter();
+		importNode(importer, node);
+	}
+	
+	//Preprocessor handling
+	public void visit(PreStatement node)	{
+		ASTNodeExporter importer = new Neo4JPreStatementExporter();
 		importNode(importer, node);
 	}
 
