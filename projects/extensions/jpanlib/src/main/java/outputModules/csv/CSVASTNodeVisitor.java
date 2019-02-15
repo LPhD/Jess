@@ -2,6 +2,7 @@ package outputModules.csv;
 
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
+import ast.logical.statements.BlockStarter;
 import ast.statements.IdentifierDeclStatement;
 import databaseNodes.EdgeTypes;
 import outputModules.common.ASTNodeExporter;
@@ -10,6 +11,7 @@ import outputModules.common.Writer;
 import outputModules.csv.exporters.CSVClassDefExporter;
 import outputModules.csv.exporters.CSVDeclStmtExporter;
 import outputModules.csv.exporters.CSVFunctionExporter;
+import outputModules.csv.exporters.CSVPreStatementExporter;
 
 public class CSVASTNodeVisitor extends OutModASTNodeVisitor
 {
@@ -38,6 +40,14 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor
 		ASTNodeExporter importer = new CSVDeclStmtExporter();
 		importNode(importer, node);
 	}
+	
+	
+	//Preprocessor handling
+	public void visit(BlockStarter node)	{
+		ASTNodeExporter importer = new CSVPreStatementExporter();
+		importNode(importer, node);
+	}
+	
 
 	@Override
 	protected void addEdgeFromClassToFunc(long dstNodeId, Long classId)
