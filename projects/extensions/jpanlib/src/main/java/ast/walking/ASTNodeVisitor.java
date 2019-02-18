@@ -18,6 +18,7 @@ import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
+import ast.preprocessor.PreStatementBase;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.blockstarters.DoStatement;
@@ -51,7 +52,7 @@ public abstract class ASTNodeVisitor
 	}
 	
 	//Preprocessor
-	public void visit(BlockStarter item) {
+	public void visit(PreStatementBase item) {
 		defaultHandler(item);
 	}
 

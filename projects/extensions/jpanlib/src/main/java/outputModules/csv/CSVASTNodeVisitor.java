@@ -3,6 +3,7 @@ package outputModules.csv;
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
 import ast.logical.statements.BlockStarter;
+import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
 import databaseNodes.EdgeTypes;
 import outputModules.common.ASTNodeExporter;
@@ -44,9 +45,10 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor
 	
 	//Preprocessor handling
 	@Override
-	public void visit(BlockStarter node)	{
+	public void visit(PreStatementBase node)	{
 		ASTNodeExporter importer = new CSVPreStatementExporter();
-		importNode(importer, node);
+		long preId = importNode(importer, node);
+		visitPreStatementContent(node, preId);
 	}
 	
 

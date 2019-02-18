@@ -2,6 +2,7 @@ package outputModules.common;
 
 import ast.ASTNode;
 import ast.declarations.ClassDefStatement;
+import ast.preprocessor.PreStatementBase;
 import ast.walking.ASTNodeVisitor;
 
 public abstract class OutModASTNodeVisitor extends ASTNodeVisitor
@@ -34,6 +35,16 @@ public abstract class OutModASTNodeVisitor extends ASTNodeVisitor
 		// functions, declarations or other class definitions
 		contextStack.push(classNodeId);
 		visit(node.content);
+		contextStack.pop();
+	}
+	
+	//Preprocessor
+	protected void visitPreStatementContent(PreStatementBase node, long PreNodeId) {
+		// visit compound statement, it might contain
+		// functions, declarations, pre statements or class definitions
+		contextStack.push(PreNodeId);
+		//TODO
+		//visit(node.content);
 		contextStack.pop();
 	}
 }

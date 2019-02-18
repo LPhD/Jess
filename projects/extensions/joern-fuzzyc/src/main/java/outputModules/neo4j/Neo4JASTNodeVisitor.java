@@ -3,9 +3,9 @@ package outputModules.neo4j;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.RelationshipType;
 
-import ast.c.preprocessor.PreStatement;
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
+import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
 import databaseNodes.EdgeTypes;
 import neo4j.batchInserter.Neo4JBatchInserter;
@@ -40,9 +40,10 @@ public class Neo4JASTNodeVisitor extends OutModASTNodeVisitor
 	}
 	
 	//Preprocessor handling
-	public void visit(PreStatement node)	{
+	public void visit(PreStatementBase node)	{
 		ASTNodeExporter importer = new Neo4JPreStatementExporter();
-		importNode(importer, node);
+		long preNodeId = importNode(importer, node);
+		visitPreStatementContent(node, preNodeId);
 	}
 
 	@Override
