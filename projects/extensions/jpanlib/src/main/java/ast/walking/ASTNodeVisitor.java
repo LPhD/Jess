@@ -14,6 +14,7 @@ import ast.expressions.UnaryExpression;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
+import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
@@ -47,6 +48,11 @@ public abstract class ASTNodeVisitor
 	public void visit(ASTNode item)
 	{
 		visitChildren(item);
+	}
+	
+	//Preprocessor
+	public void visit(BlockStarter item) {
+		defaultHandler(item);
 	}
 
 	public void visit(ParameterList item)
