@@ -6,7 +6,6 @@ import ast.logical.statements.CompoundStatement;
 
 public class PreprocessorTests {
 
-	// Stack is empty exception?
 	@Test
 	public void NestedIfndefs() {
 		String input = "#ifdef foo\n #else\n #ifdef foo\n #else\n #endif\n #endif";
