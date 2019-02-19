@@ -28,6 +28,10 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 
 	@Override
 	protected void addASTLink(ASTNode parent, ASTNode child) {
+		System.out.println("Parent node: "+parent);
+		System.out.println("child node: "+child);
+		System.out.println("Parent node id: "+ Writer.getIdForObject(parent));
+		System.out.println("child node id: "+ Writer.getIdForObject(child));
 		long srcId = Writer.getIdForObject(parent);
 		long dstId = Writer.getIdForObject(child);
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);
