@@ -10,7 +10,6 @@ import ast.c.preprocessor.PreElseStatement;
 import ast.c.preprocessor.PreEndIfStatement;
 import ast.c.preprocessor.PreIfStatement;
 import ast.c.preprocessor.PreStatement;
-import ast.expressions.Identifier;
 import ast.logical.statements.Condition;
 import parsing.ASTNodeFactory;
 
