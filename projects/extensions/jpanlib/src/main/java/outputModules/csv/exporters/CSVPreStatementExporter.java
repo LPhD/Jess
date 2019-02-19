@@ -7,6 +7,7 @@ import databaseNodes.ASTDatabaseNode;
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.FileDatabaseNode;
+import databaseNodes.PreConditionDatabaseNode;
 import databaseNodes.PreStatementDatabaseNode;
 import outputModules.common.PreStatementExporter;
 import outputModules.common.Writer;
@@ -27,7 +28,7 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	}
 
 	@Override
-	protected void addASTLink(ASTNode parent, ASTNode child) {
+	protected void addASTLink(PreStatementDatabaseNode parent, PreConditionDatabaseNode child) {
 		System.out.println("Parent node: "+parent);
 		System.out.println("child node: "+child);
 		System.out.println("Parent node id: "+ Writer.getIdForObject(parent));
@@ -38,11 +39,9 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	}
 
 	@Override
-	protected void addASTNode(ASTNode node) {
-		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
-		astDatabaseNode.initialize(node);
-		Map<String, Object> properties = astDatabaseNode.createProperties();
-		Writer.addNode(node, properties);
+	protected void addASTNode(DatabaseNode dbNode) {
+		Map<String, Object> properties = dbNode.createProperties();
+		Writer.addNode(dbNode, properties);
 	}
 
 }
