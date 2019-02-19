@@ -2,7 +2,6 @@ package outputModules.common;
 
 import ast.ASTNode;
 import ast.preprocessor.PreStatementBase;
-import databaseNodes.ASTDatabaseNode;
 import databaseNodes.DatabaseNode;
 import databaseNodes.FileDatabaseNode;
 import databaseNodes.PreConditionDatabaseNode;
@@ -13,10 +12,10 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	
 	@Override
 	public void addToDatabaseSafe(ASTNode node)	{
-		addToDatabaseSafe(node);
+		addPreStatementToDatabaseSafe((PreStatementBase) node);
 	}
 	
-	public void addToDatabaseSafe(PreStatementBase preASTNode)	{
+	public void addPreStatementToDatabaseSafe(PreStatementBase preASTNode)	{
 		PreStatementDatabaseNode preDBNode = new PreStatementDatabaseNode();
 		try	{			
 			preDBNode.initialize(preASTNode);
