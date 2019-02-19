@@ -12,15 +12,14 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 
 	public void addToDatabaseSafe(ASTNode preASTNode)	{
 		PreStatementDatabaseNode preDBNode = new PreStatementDatabaseNode();
-		try	{			
+		try	{	
+			//Initialize and add main node
 			preDBNode.initialize(preASTNode);
 			addMainNode(preDBNode);
-			//Connect with parent
-			linkPreStatementToFileNode(preDBNode, curFile);	
-			
-			//new
+			//Call ast importer
 			astImporter.addASTToDatabase(preASTNode);
-						
+			//Connect main node with parent file
+			linkPreStatementToFileNode(preDBNode, curFile);	
 			
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();

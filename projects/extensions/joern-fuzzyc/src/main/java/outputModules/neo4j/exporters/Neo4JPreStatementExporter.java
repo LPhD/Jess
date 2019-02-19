@@ -17,6 +17,10 @@ import outputModules.common.PreStatementExporter;
 public class Neo4JPreStatementExporter extends PreStatementExporter {
 
 	protected GraphNodeStore nodeStore = new GraphNodeStore();
+	
+	public Neo4JPreStatementExporter() {
+		astImporter = new Neo4JASTExporter(nodeStore);
+	}
 
 	@Override
 	protected void addMainNode(DatabaseNode dbNode) {
@@ -27,7 +31,6 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		// index, but do not index location
 		properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);
-		astImporter = new Neo4JASTExporter(nodeStore);
 	}
 
 	protected void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode) {
