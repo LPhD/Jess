@@ -8,8 +8,7 @@ import databaseNodes.FileDatabaseNode;
 import databaseNodes.FunctionDatabaseNode;
 import udg.useDefAnalysis.ASTDefUseAnalyzer;
 
-public abstract class FunctionExporter extends ASTNodeExporter
-{
+public abstract class FunctionExporter extends ASTNodeExporter {
 	protected ASTExporter astImporter;
 	protected CFGExporter cfgImporter;
 	protected UDGExporter udgImporter;
@@ -21,18 +20,13 @@ public abstract class FunctionExporter extends ASTNodeExporter
 
 	protected abstract void linkFunctionWithAST(FunctionDatabaseNode function);
 
-	protected abstract void linkFunctionWithCFG(FunctionDatabaseNode function,
-			CFG cfg);
+	protected abstract void linkFunctionWithCFG(FunctionDatabaseNode function, CFG cfg);
 
-	protected abstract void linkFunctionToFileNode(
-			FunctionDatabaseNode function, FileDatabaseNode fileNode);
-
+	protected abstract void linkFunctionToFileNode(FunctionDatabaseNode function, FileDatabaseNode fileNode);
 
 	@Override
-	public void addToDatabaseSafe(ASTNode node)
-	{
-		try
-		{
+	public void addToDatabaseSafe(ASTNode node) {
+		try {
 			FunctionDatabaseNode function = new FunctionDatabaseNode();
 			// this actually constructs all other representations of
 			// the function.
@@ -40,9 +34,9 @@ public abstract class FunctionExporter extends ASTNodeExporter
 			function.setASTDefUseAnalyzer(analyzer);
 			function.setCFGFactory(cfgFactory);
 
-			try{
+			try {
 				function.initialize(node);
-			}catch(StackOverflowError err){
+			} catch (StackOverflowError err) {
 				System.err.println("caught stack overflow. Skipping function.");
 				return;
 			}
@@ -50,18 +44,14 @@ public abstract class FunctionExporter extends ASTNodeExporter
 			addFunctionToDatabase(function);
 			linkFunctionToFileNode(function, curFile);
 
-		}
-		catch (RuntimeException ex)
-		{
+		} catch (RuntimeException ex) {
 			ex.printStackTrace();
-			System.err.println("Error adding function to database: "
-					+ ((FunctionDefBase) node).getName());
+			System.err.println("Error adding function to database: " + ((FunctionDefBase) node).getName());
 			return;
 		}
 	}
 
-	private void addFunctionToDatabase(FunctionDatabaseNode function)
-	{
+	private void addFunctionToDatabase(FunctionDatabaseNode function) {
 
 		addMainNode(function);
 
@@ -75,21 +65,18 @@ public abstract class FunctionExporter extends ASTNodeExporter
 		ddgImporter.addDDGToDatabase(function.getDDG());
 		cdgImporter.addCDGToDatabase(function.getCDG());
 		domExporter.addDominatorTreeToDatabase(function.getDominatorTree());
-		domExporter.addPostDominatorTreeToDatabase(
-				function.getPostDominatorTree());
+		domExporter.addPostDominatorTreeToDatabase(function.getPostDominatorTree());
 
 		linkFunctionToASTAndCFG(function);
 
 	}
 
-	private void linkFunctionToASTAndCFG(FunctionDatabaseNode function)
-	{
+	private void linkFunctionToASTAndCFG(FunctionDatabaseNode function) {
 
 		linkFunctionWithAST(function);
 
 		CFG cfg = function.getCFG();
-		if (cfg != null)
-		{
+		if (cfg != null) {
 			linkFunctionWithCFG(function, cfg);
 		}
 	}
