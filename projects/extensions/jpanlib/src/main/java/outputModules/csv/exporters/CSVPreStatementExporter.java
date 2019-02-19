@@ -7,7 +7,6 @@ import databaseNodes.ASTDatabaseNode;
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.FileDatabaseNode;
-import databaseNodes.NodeKeys;
 import databaseNodes.PreStatementDatabaseNode;
 import outputModules.common.PreStatementExporter;
 import outputModules.common.Writer;

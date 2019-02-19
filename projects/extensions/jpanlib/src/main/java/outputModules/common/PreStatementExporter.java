@@ -13,6 +13,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			preNode.initialize(node);
 			addMainNode(preNode);
 			linkPreStatementToFileNode(preNode, curFile);
+			
 			addASTChildren(node);
 			
 		} catch (RuntimeException ex)	{
@@ -22,20 +23,26 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		}
 	}
 	
-	public void addASTToDatabase(ASTNode node) {
-		addASTNode(node);
-		addASTChildren(node);
+	/**
+	 * Add current ASTNode to database and look for its children
+	 * @param child The current node.
+	 * @param parent The parent node of the current node.
+	 */
+	public void addASTToDatabase(ASTNode parent, ASTNode child) {
+		addASTNode(child);
+		addASTLink(parent, child);
+		addASTChildren(child);
 	}
 	
-	protected void addASTChildren(ASTNode node) {
-
-		final int nChildren = node.getChildCount();
-
+	/**
+	 * Look for child nodes of the current node.
+	 * @param parent The current node.
+	 */
+	protected void addASTChildren(ASTNode parent) {
+		final int nChildren = parent.getChildCount();
 		for (int i = 0; i < nChildren; i++) {
-			ASTNode child = node.getChild(i);
-			//Different kind of children!
-			addASTToDatabase(child);
-			addASTLink(node, child);
+			ASTNode child = parent.getChild(i);
+			addASTToDatabase(parent, child);			
 		}
 
 	}
