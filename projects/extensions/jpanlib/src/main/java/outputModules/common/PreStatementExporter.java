@@ -17,7 +17,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			preDBNode.initialize(preASTNode);
 			addMainNode(preDBNode);
 			//Call ast importer
-			astImporter.addASTToDatabase(preASTNode);
+			astImporter.addASTToDatabase(preDBNode.getASTRoot());
 			//Connect main node with parent file
 			linkPreStatementToFileNode(preDBNode, curFile);	
 			
