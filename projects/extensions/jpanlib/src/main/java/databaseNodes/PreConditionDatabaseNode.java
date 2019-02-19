@@ -11,7 +11,6 @@ public class PreConditionDatabaseNode extends DatabaseNode{
 	@Override
 	public void initialize(Object obj)	{
 		condition = (Condition) obj;
-
 	}
 
 	@Override

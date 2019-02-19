@@ -12,7 +12,6 @@ public class PreStatementDatabaseNode extends DatabaseNode{
 	@Override
 	public void initialize(Object obj)	{
 		preStatement = (PreStatementBase) obj;
-
 	}
 
 	@Override

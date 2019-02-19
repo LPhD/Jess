@@ -46,7 +46,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			addASTLink(preDBNode, conditionDBNode);		
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
-			System.err.println("Error adding pre-statement children to database: "+ preDBNode.toString());
+			System.err.println("Error adding pre-statement condition to database: "+ preDBNode.toString());
 			return;
 		}	
 	}
