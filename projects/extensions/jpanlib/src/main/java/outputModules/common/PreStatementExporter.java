@@ -25,7 +25,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			linkPreStatementToFileNode(preDBNode, curFile);	
 			
 			//new
-			astImporter.addASTChildren(preASTNode);
+			astImporter.addASTToDatabase(preASTNode);
 						
 //			//Add condition for pre-if and -elif statements
 //			String type = preASTNode.getTypeAsString();
