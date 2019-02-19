@@ -7,7 +7,7 @@ import ast.preprocessor.PreStatementBase;
 
 public class PreStatementDatabaseNode extends DatabaseNode{
 
-	PreStatementBase preStatement;
+	public PreStatementBase preStatement;
 
 	@Override
 	public void initialize(Object obj)	{

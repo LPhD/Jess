@@ -33,6 +33,8 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 		System.out.println("child node: "+child);
 		System.out.println("Parent node id: "+ Writer.getIdForObject(parent));
 		System.out.println("child node id: "+ Writer.getIdForObject(child));
+		System.out.println("Parent node code: "+parent.preStatement.getEscapedCodeStr());
+		System.out.println("child node code: "+child.condition.getEscapedCodeStr());
 		long srcId = Writer.getIdForObject(parent);
 		long dstId = Writer.getIdForObject(child);
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);

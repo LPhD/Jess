@@ -6,7 +6,7 @@ import ast.logical.statements.Condition;
 
 public class PreConditionDatabaseNode extends DatabaseNode{
 
-	Condition condition;
+	public Condition condition;
 
 	@Override
 	public void initialize(Object obj)	{
