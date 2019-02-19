@@ -9,6 +9,7 @@ import databaseNodes.PreStatementDatabaseNode;
 
 public abstract class PreStatementExporter extends ASTNodeExporter{
 	
+	protected ASTExporter astImporter;
 	
 	@Override
 	public void addToDatabaseSafe(ASTNode node)	{
@@ -20,13 +21,18 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		try	{			
 			preDBNode.initialize(preASTNode);
 			addMainNode(preDBNode);
+			
+			//new
+			astImporter.addASTChildren(preASTNode);
+			
+			//Connect with parent
 			linkPreStatementToFileNode(preDBNode, curFile);	
 			
-			//Add condition for pre-if and -elif statements
-			String type = preASTNode.getTypeAsString();
-			if (type.equals("PreIfStatement") || type.equals("PreElIfStatement"))
-				addCondition(preDBNode, preASTNode);
-			//addASTChildren(node);
+//			//Add condition for pre-if and -elif statements
+//			String type = preASTNode.getTypeAsString();
+//			if (type.equals("PreIfStatement") || type.equals("PreElIfStatement"))
+//				addCondition(preDBNode, preASTNode);
+
 			
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
@@ -51,7 +57,8 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		}	
 	}
 	
-	
+
+
 	protected abstract void addASTLink(PreStatementDatabaseNode parent, PreConditionDatabaseNode child);
 	protected abstract void addASTNode(DatabaseNode dbNode);
 	protected abstract void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode);
@@ -75,16 +82,5 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 //			return;
 //		}		
 //	}
-//	
-//	/**
-//	 * Look for child nodes of the current node.
-//	 * @param parent The current node.
-//	 */
-//	protected void addASTChildren(ASTNode parent) {
-//		final int nChildren = parent.getChildCount();
-//		for (int i = 0; i < nChildren; i++) {
-//			ASTNode child = parent.getChild(i);
-//			addASTToDatabase(parent, child);			
-//		}
-//	}
+
 }

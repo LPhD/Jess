@@ -19,6 +19,7 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 		Map<String, Object> properties = dbNode.createProperties();
 		Writer.addNode(dbNode, properties);
 		mainNodeId = Writer.getIdForObject(dbNode);
+		astImporter = new CSVASTExporter();
 	}
 
 	protected void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode) {
@@ -29,12 +30,12 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 
 	@Override
 	protected void addASTLink(PreStatementDatabaseNode parent, PreConditionDatabaseNode child) {
-		System.out.println("Parent node: "+parent);
-		System.out.println("child node: "+child);
-		System.out.println("Parent node id: "+ Writer.getIdForObject(parent));
-		System.out.println("child node id: "+ Writer.getIdForObject(child));
-		System.out.println("Parent node code: "+parent.preStatement.getEscapedCodeStr());
-		System.out.println("child node code: "+child.condition.getEscapedCodeStr());
+		System.out.println("Parent node: " + parent);
+		System.out.println("child node: " + child);
+		System.out.println("Parent node id: " + Writer.getIdForObject(parent));
+		System.out.println("child node id: " + Writer.getIdForObject(child));
+		System.out.println("Parent node code: " + parent.preStatement.getEscapedCodeStr());
+		System.out.println("child node code: " + child.condition.getEscapedCodeStr());
 		long srcId = Writer.getIdForObject(parent);
 		long dstId = Writer.getIdForObject(child);
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);
