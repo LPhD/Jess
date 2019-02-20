@@ -26,7 +26,7 @@ public class Neo4JASTExporter extends ASTExporter {
 	}
 
 	@Override
-	protected void addASTChildren(ASTNode node) {
+	public void addASTChildren(ASTNode node) {
 		final int nChildren = node.getChildCount();
 
 		// HACK: not sure why, but adding AST-links backwards
