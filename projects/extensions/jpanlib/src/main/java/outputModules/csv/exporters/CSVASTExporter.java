@@ -29,7 +29,8 @@ public class CSVASTExporter extends ASTExporter {
 	protected void addASTNode(ASTNode node) {
 		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
 		astDatabaseNode.initialize(node);
-		astDatabaseNode.setCurrentFunction(currentFunction);
+		if (currentFunction != null)
+			astDatabaseNode.setCurrentFunction(currentFunction);
 		astDatabaseNode.setInsideFunctionBlock(this.isInsideFunctionBlock());
 		Map<String, Object> properties = astDatabaseNode.createProperties();
 		// TODO: currentFunction can be empty if we are inside a pre statement
