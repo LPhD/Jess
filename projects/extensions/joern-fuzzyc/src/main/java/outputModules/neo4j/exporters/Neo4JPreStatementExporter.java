@@ -25,13 +25,18 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 	
 	@Override
 	protected void addMainNode(DatabaseNode dbNode) {
-		Map<String, Object> properties = dbNode.createProperties();
-		nodeStore.addNeo4jNode(dbNode, properties);
+		PreStatementDatabaseNode preDBNode = (PreStatementDatabaseNode) dbNode;
+		
+		Map<String, Object> properties = preDBNode.createProperties();
+		nodeStore.addNeo4jNode(preDBNode, properties);
 
-		mainNodeId = nodeStore.getIdForObject(dbNode);
+		mainNodeId = nodeStore.getIdForObject(preDBNode);
 		// index, but do not index location
 		properties.remove(NodeKeys.LOCATION);
-		nodeStore.indexNode(dbNode, properties);		
+		nodeStore.indexNode(preDBNode, properties);
+		
+		//Call ast importer to add children
+		astImporter.addASTChildren(preDBNode.getASTRoot());
 	}
 
 	protected void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode) {

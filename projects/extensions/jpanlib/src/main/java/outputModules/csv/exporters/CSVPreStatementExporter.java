@@ -17,11 +17,16 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 
 	@Override
 	protected void addMainNode(DatabaseNode dbNode) {
-		Map<String, Object> properties = dbNode.createProperties();
-		Writer.addNode(dbNode, properties);
-		mainNodeId = Writer.getIdForObject(dbNode);
+		PreStatementDatabaseNode preDBNode = (PreStatementDatabaseNode) dbNode;
+				
+		Map<String, Object> properties = preDBNode.createProperties();
+		Writer.addNode(preDBNode, properties);
+		mainNodeId = Writer.getIdForObject(preDBNode);
 		
-		System.out.println("mainNodeId: " +mainNodeId);		
+		System.out.println("mainNodeId: " +mainNodeId);
+		
+		//Call ast importer to add children
+		astImporter.addASTChildren(preDBNode.getASTRoot());
 	}
 
 	protected void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode) {
