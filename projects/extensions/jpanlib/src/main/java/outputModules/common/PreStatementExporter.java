@@ -16,11 +16,11 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			//Initialize and add main node
 			preDBNode.initialize(preASTNode);
 			addMainNode(preDBNode);
+			//Call ast importer
+			astImporter.addASTToDatabase(preDBNode.getASTRoot());
 			//Connect main node with parent file
 			linkPreStatementToFileNode(preDBNode, curFile);	
-			//Call ast importer to add children
-			astImporter.addASTChildren(preDBNode.getASTRoot());
-						
+			
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
 			System.err.println("Error adding pre-statement to database: "+ preDBNode.toString());
