@@ -4,10 +4,12 @@ package parsing.Shared.builders;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import antlr.ModuleParser.ConditionContext;
+import antlr.ModuleParser.Pre_if_conditionContext;
 import ast.ASTNodeBuilder;
 import ast.c.preprocessor.PreElIfStatement;
 import ast.c.preprocessor.PreElseStatement;
 import ast.c.preprocessor.PreEndIfStatement;
+import ast.c.preprocessor.PreIfCondition;
 import ast.c.preprocessor.PreIfStatement;
 import ast.c.preprocessor.PreStatement;
 import ast.logical.statements.Condition;
@@ -17,11 +19,11 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 	
 	PreStatement thisItem;
 	
-	public void createPreStatement(ParserRuleContext ctx) {
-		thisItem = new PreStatement();
-		ASTNodeFactory.initializeFromContext(thisItem, ctx);
-		this.createNew(ctx);
-	}
+//	public void createPreStatement(ParserRuleContext ctx) {
+//		thisItem = new PreStatement();
+//		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+//		this.createNew(ctx);
+//	}
 	
 	public void createIf(ParserRuleContext ctx) {
 		thisItem = new PreIfStatement();
@@ -52,10 +54,17 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 		item = thisItem;		
 	}
 	
-	//TODO Function context also needed?
-	public void setCondition(ConditionContext ctx) {
-		thisItem.setCondition(new Condition());
-		ASTNodeFactory.initializeFromContext(thisItem.getCondition(), ctx);
+	public void setCondition(Pre_if_conditionContext ctx) {
+		PreIfCondition cond = new PreIfCondition();
+		ASTNodeFactory.initializeFromContext(cond, ctx);
+		thisItem.setCondition(cond);
+	}
+	
+	//TODO Needed?
+	public void setCondition(antlr.FunctionParser.Pre_if_conditionContext ctx) {
+		PreIfCondition cond = new PreIfCondition();
+		ASTNodeFactory.initializeFromContext(cond, ctx);
+		thisItem.setCondition(cond);
 	}
 
 }

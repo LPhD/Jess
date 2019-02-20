@@ -69,103 +69,104 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 	
 	//TODO Currently very similar code as in function listener... rework!
 	//-------------------------------------------------------------------------------------------------	
-		//Preprocessor handling
-	@Override
-	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
-		PreprocessorBuilder builder = new PreprocessorBuilder();
-		builder.createPreStatement(ctx);
-		p.builderStack.push(builder);
-		
-		String text = ctx.getText();
-
-		ANTLRCFunctionParserDriver driver = new ANTLRCFunctionParserDriver();
-		parsing.FunctionParser parser = new parsing.FunctionParser(driver);
-
-		try	{
-			parser.parseAndWalkString(text);
-		} catch (RuntimeException ex)	{
-			System.err.println("Error parsing function "+ ctx.getText() + ". skipping.");
-			ex.printStackTrace();
+//		//Preprocessor handling
+//	@Override
+//	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
+//		PreprocessorBuilder builder = new PreprocessorBuilder();
+//		builder.createPreStatement(ctx);
+//		p.builderStack.push(builder);
+//		
+//		String text = ctx.getText();
+//
+//		ANTLRCFunctionParserDriver driver = new ANTLRCFunctionParserDriver();
+//		parsing.FunctionParser parser = new parsing.FunctionParser(driver);
+//
+//		try	{
+//			parser.parseAndWalkString(text);
+//		} catch (RuntimeException ex)	{
+//			System.err.println("Error parsing function "+ ctx.getText() + ". skipping.");
+//			ex.printStackTrace();
+//		}
+//		
+//		//CompoundStatement result = parser.getResult();
+//		//Pre_statementContext statementContext = ctx.compound_statement();
+//		//ASTNodeFactory.initializeFromContext(result, statementContext);
+//		//return result;
+//	}
+//	
+//	//Preprocessor handling
+//	@Override
+//	public void exitPre_statement(ModuleParser.Pre_statementContext ctx)	{
+//		PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+//		p.notifyObserversOfItem(builder.getItem());
+//	}
+	
+		@Override
+		public void enterPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{			
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createElse(ctx);
+			p.builderStack.push(builder);
 		}
 		
-		//CompoundStatement result = parser.getResult();
-		//Pre_statementContext statementContext = ctx.compound_statement();
-		//ASTNodeFactory.initializeFromContext(result, statementContext);
-		//return result;
-	}
-	
-	//Preprocessor handling
-	@Override
-	public void exitPre_statement(ModuleParser.Pre_statementContext ctx)	{
-		PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-		p.notifyObserversOfItem(builder.getItem());
-	}
-	
-//		@Override
-//		public void enterPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{			
-//			PreprocessorBuilder builder = new PreprocessorBuilder();
-//			builder.createElse(ctx);
-//			p.builderStack.push(builder);
-//		}
-//		
-//		//Preprocessor handling
-//		@Override
-//		public void exitPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{
-//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-//			p.notifyObserversOfItem(builder.getItem());
-//		}
-//		
-//		//Preprocessor handling
-//		@Override
-//		public void enterPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx)	{
-//			PreprocessorBuilder builder = new PreprocessorBuilder();
-//			builder.createElIf(ctx);
-//			p.builderStack.push(builder);
-//		}
-//		
-//		//Preprocessor handling
-//		@Override
-//		public void exitPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx) {
-//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-//			p.notifyObserversOfItem(builder.getItem());
-//		}
-//		
-//		//Preprocessor if handling
-//		@Override
-//		public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
-//			PreprocessorBuilder builder = new PreprocessorBuilder();
-//			builder.createIf(ctx);
-//			p.builderStack.push(builder);
-//		}	
-//		
-//		//Preprocessor if handling
-//		@Override
-//		public void exitPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
-//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-//			p.notifyObserversOfItem(builder.getItem());
-//		}
-//		
-//		//Preprocessor if handling
-//		@Override
-//		public void enterPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
-//			PreprocessorBuilder builder = new PreprocessorBuilder();
-//			builder.createEndIf(ctx);
-//			p.builderStack.push(builder);
-//		}
-//		
-//		//Preprocessor if handling
-//		@Override
-//		public void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
-//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-//			p.notifyObserversOfItem(builder.getItem());
-//		}
-//		
-//		//Preprocessor condition handling
-//		@Override
-//		public void enterCondition(ModuleParser.ConditionContext ctx){
-//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.peek();
-//			builder.setCondition(ctx);
-//		}
+		//Preprocessor handling
+		@Override
+		public void exitPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
+		}
+		
+		//Preprocessor handling
+		@Override
+		public void enterPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx)	{
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createElIf(ctx);
+			p.builderStack.push(builder);
+		}
+		
+		//Preprocessor handling
+		@Override
+		public void exitPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx) {
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
+		}
+		
+		//Preprocessor if handling
+		@Override
+		public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createIf(ctx);
+			p.builderStack.push(builder);
+		}	
+		
+		//Preprocessor if handling
+		@Override
+		public void exitPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
+		}
+		
+		//Preprocessor if handling
+		@Override
+		public void enterPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createEndIf(ctx);
+			p.builderStack.push(builder);
+		}
+		
+		//Preprocessor if handling
+		@Override
+		public void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
+		}
+		
+		//Preprocessor condition handling
+		@Override
+		public void enterPre_if_condition(ModuleParser.Pre_if_conditionContext ctx){
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.peek();
+			builder.setCondition(ctx);
+		}
+
 	//---------------------------------------------------------------------------------------------------------------
 	
 	@Override
