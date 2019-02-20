@@ -1,6 +1,7 @@
 package outputModules.common;
 
 import ast.ASTNode;
+import ast.logical.statements.Condition;
 import ast.preprocessor.PreStatementBase;
 import databaseNodes.DatabaseNode;
 import databaseNodes.FileDatabaseNode;
@@ -39,8 +40,11 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	public void addCondition(PreStatementDatabaseNode preDBNode, PreStatementBase preASTNode) {
 		try	{			
 			PreConditionDatabaseNode conditionDBNode = new PreConditionDatabaseNode();		
+			Condition condition = (Condition) preASTNode.getCondition();
+			System.out.println("Condition: "+condition);
+			System.out.println("Condition code: "+condition.getEscapedCodeStr());
 			//Initialize condition as DB node
-			conditionDBNode.initialize(preASTNode.getChild(0));
+			conditionDBNode.initialize(condition);
 			addCondition(conditionDBNode);
 			//Link condition DB node with parent pre statement db node
 			addASTLink(preDBNode, conditionDBNode);		
