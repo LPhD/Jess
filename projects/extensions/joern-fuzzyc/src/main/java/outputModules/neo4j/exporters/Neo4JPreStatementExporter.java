@@ -13,6 +13,7 @@ import databaseNodes.PreStatementDatabaseNode;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.PreStatementExporter;
+import outputModules.common.Writer;
 
 public class Neo4JPreStatementExporter extends PreStatementExporter {
 
@@ -20,19 +21,34 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 	
 	public Neo4JPreStatementExporter() {
 		astImporter = new Neo4JASTExporter(nodeStore);
-	}	
+	}
+
 	
 	protected void addMainNode(PreStatementDatabaseNode dbNode) {
+		
 		Map<String, Object> properties = dbNode.createProperties();
-		nodeStore.addNeo4jNode(dbNode, properties);
+		Writer.addNode(dbNode, properties);
+		mainNodeId = Writer.getIdForObject(dbNode);
+		
+		System.out.println("mainNodeId: " +mainNodeId);
+		
 
-		mainNodeId = nodeStore.getIdForObject(dbNode);
+	}
+	
+	@Override
+	protected void addMainNode(DatabaseNode dbNode) {
+		PreStatementDatabaseNode preDBNode = (PreStatementDatabaseNode) dbNode;
+		
+		Map<String, Object> properties = preDBNode.createProperties();
+		nodeStore.addNeo4jNode(preDBNode, properties);
+
+		mainNodeId = nodeStore.getIdForObject(preDBNode);
 		// index, but do not index location
 		properties.remove(NodeKeys.LOCATION);
-		nodeStore.indexNode(dbNode, properties);
+		nodeStore.indexNode(preDBNode, properties);
 		
 		//Call ast importer to add children
-		astImporter.addASTChildren(dbNode.getASTRoot());
+		astImporter.addASTChildren(preDBNode.getASTRoot());
 	}
 
 	protected void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode) {
@@ -42,11 +58,6 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		long functionId = nodeStore.getIdForObject(classDefNode);
 
 		Neo4JBatchInserter.addRelationship(fileId, functionId, rel, null);
-	}
-
-	@Override
-	protected void addMainNode(DatabaseNode dbNode) {
-		addMainNode(dbNode);		
 	}
 
 }
