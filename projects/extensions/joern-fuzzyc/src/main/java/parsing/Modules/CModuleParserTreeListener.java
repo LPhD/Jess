@@ -3,22 +3,30 @@ package parsing.Modules;
 import java.util.Iterator;
 import java.util.List;
 
+import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
 
 import antlr.FunctionParser;
 import antlr.ModuleBaseListener;
 import antlr.ModuleParser;
 import antlr.ModuleParser.Class_defContext;
+import antlr.ModuleParser.Compound_statementContext;
 import antlr.ModuleParser.DeclByClassContext;
+import antlr.ModuleParser.Function_defContext;
 import antlr.ModuleParser.Init_declarator_listContext;
 import antlr.ModuleParser.Pre_blockstarterContext;
+import antlr.ModuleParser.Pre_statementContext;
 import antlr.ModuleParser.Type_nameContext;
+import ast.c.preprocessor.PreStatement;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
 import ast.statements.IdentifierDeclStatement;
 import parsing.ANTLRParserDriver;
+import parsing.ASTNodeFactory;
 import parsing.CompoundItemAssembler;
 import parsing.ModuleFunctionParserInterface;
+import parsing.Functions.ANTLRCFunctionParserDriver;
 import parsing.Functions.builder.FunctionContentBuilder;
 import parsing.Modules.builder.FunctionDefBuilder;
 import parsing.Shared.builders.ClassDefBuilder;
@@ -62,71 +70,102 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 	//TODO Currently very similar code as in function listener... rework!
 	//-------------------------------------------------------------------------------------------------	
 		//Preprocessor handling
-		@Override
-		public void enterPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{			
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createElse(ctx);
-			p.builderStack.push(builder);
+	@Override
+	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
+		PreprocessorBuilder builder = new PreprocessorBuilder();
+		builder.createPreStatement(ctx);
+		p.builderStack.push(builder);
+		
+		String text = ctx.getText();
+
+		ANTLRCFunctionParserDriver driver = new ANTLRCFunctionParserDriver();
+		parsing.FunctionParser parser = new parsing.FunctionParser(driver);
+
+		try	{
+			parser.parseAndWalkString(text);
+		} catch (RuntimeException ex)	{
+			System.err.println("Error parsing function "+ ctx.getText() + ". skipping.");
+			ex.printStackTrace();
 		}
 		
-		//Preprocessor handling
-		@Override
-		public void exitPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
-		}
-		
-		//Preprocessor handling
-		@Override
-		public void enterPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx)	{
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createElIf(ctx);
-			p.builderStack.push(builder);
-		}
-		
-		//Preprocessor handling
-		@Override
-		public void exitPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx) {
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
-		}
-		
-		//Preprocessor if handling
-		@Override
-		public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createIf(ctx);
-			p.builderStack.push(builder);
-		}	
-		
-		//Preprocessor if handling
-		@Override
-		public void exitPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
-		}
-		
-		//Preprocessor if handling
-		@Override
-		public void enterPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createEndIf(ctx);
-			p.builderStack.push(builder);
-		}
-		
-		//Preprocessor if handling
-		@Override
-		public void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
-		}
-		
-		//Preprocessor condition handling
-		@Override
-		public void enterCondition(ModuleParser.ConditionContext ctx){
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.peek();
-			builder.setCondition(ctx);
-		}
+		//CompoundStatement result = parser.getResult();
+		//Pre_statementContext statementContext = ctx.compound_statement();
+		//ASTNodeFactory.initializeFromContext(result, statementContext);
+		//return result;
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_statement(ModuleParser.Pre_statementContext ctx)	{
+		PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+		p.notifyObserversOfItem(builder.getItem());
+	}
+	
+//		@Override
+//		public void enterPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{			
+//			PreprocessorBuilder builder = new PreprocessorBuilder();
+//			builder.createElse(ctx);
+//			p.builderStack.push(builder);
+//		}
+//		
+//		//Preprocessor handling
+//		@Override
+//		public void exitPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{
+//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+//			p.notifyObserversOfItem(builder.getItem());
+//		}
+//		
+//		//Preprocessor handling
+//		@Override
+//		public void enterPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx)	{
+//			PreprocessorBuilder builder = new PreprocessorBuilder();
+//			builder.createElIf(ctx);
+//			p.builderStack.push(builder);
+//		}
+//		
+//		//Preprocessor handling
+//		@Override
+//		public void exitPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx) {
+//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+//			p.notifyObserversOfItem(builder.getItem());
+//		}
+//		
+//		//Preprocessor if handling
+//		@Override
+//		public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
+//			PreprocessorBuilder builder = new PreprocessorBuilder();
+//			builder.createIf(ctx);
+//			p.builderStack.push(builder);
+//		}	
+//		
+//		//Preprocessor if handling
+//		@Override
+//		public void exitPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
+//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+//			p.notifyObserversOfItem(builder.getItem());
+//		}
+//		
+//		//Preprocessor if handling
+//		@Override
+//		public void enterPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+//			PreprocessorBuilder builder = new PreprocessorBuilder();
+//			builder.createEndIf(ctx);
+//			p.builderStack.push(builder);
+//		}
+//		
+//		//Preprocessor if handling
+//		@Override
+//		public void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+//			p.notifyObserversOfItem(builder.getItem());
+//		}
+//		
+//		//Preprocessor condition handling
+//		@Override
+//		public void enterCondition(ModuleParser.ConditionContext ctx){
+//			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.peek();
+//			builder.setCondition(ctx);
+//		}
 	//---------------------------------------------------------------------------------------------------------------
 	
 	@Override

@@ -214,10 +214,10 @@ public class ModuleBuildersTest {
 	
 	@Test
 	public void preprocessorModuleBuilderTest() {
-	String input = "#if (foo < 5) \n int i; \n #endif";
-	List<ASTNode> codeItems = parseInput(input);
-	PreIfStatement codeItem = (PreIfStatement) codeItems.get(0);	
-	assertEquals("PreIfStatement", codeItem.getTypeAsString());
+		String input = "#if (modulefoo < 5) \n int modulei; \n #endif";
+		List<ASTNode> codeItems = parseInput(input);
+		PreIfStatement codeItem = (PreIfStatement) codeItems.get(0);	
+		assertEquals("PreIfStatement", codeItem.getTypeAsString());
 	}
 
 	private List<ASTNode> parseInput(String input) {

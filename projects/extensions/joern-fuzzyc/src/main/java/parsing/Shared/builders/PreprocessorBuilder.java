@@ -17,6 +17,11 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 	
 	PreStatement thisItem;
 	
+	public void createPreStatement(ParserRuleContext ctx) {
+		thisItem = new PreStatement();
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		this.createNew(ctx);
+	}
 	
 	public void createIf(ParserRuleContext ctx) {
 		thisItem = new PreIfStatement();
