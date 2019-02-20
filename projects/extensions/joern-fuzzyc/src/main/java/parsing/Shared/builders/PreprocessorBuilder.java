@@ -1,7 +1,12 @@
 package parsing.Shared.builders;
 
 
+import java.util.List;
+
+import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import antlr.ModuleParser.Pre_if_conditionContext;
 import ast.ASTNodeBuilder;
@@ -13,6 +18,8 @@ import ast.c.preprocessor.PreIfCondition;
 import ast.c.preprocessor.PreIfStatement;
 import ast.c.preprocessor.PreStatement;
 import parsing.ASTNodeFactory;
+import parsing.TokenSubStream;
+import parsing.Functions.ANTLRCFunctionParserDriver;
 
 public class PreprocessorBuilder extends ASTNodeBuilder{
 	
@@ -32,8 +39,27 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 	
 	public void createIf(ParserRuleContext ctx) {
 		thisItem = new PreIfStatement();
+		
+
+		//String text = input.getText(new Interval(startIndex, stopIndex));
+		
+		System.out.println("start: " +ctx.start);
+		System.out.println("stop: " +ctx.stop);
+		System.out.println("childs: " +ctx.children);
+		System.out.println("ctx: " +ctx);
+		
+		ANTLRCFunctionParserDriver driver = new ANTLRCFunctionParserDriver();
+		List <ParseTree> list = ctx.children;
+		for (ParseTree parseTree : list) {
+			driver.walkTree(parseTree);
+		}
+		
+		
+		
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
 		this.createNew(ctx);
+		
+		
 	}
 	
 	public void createElIf(ParserRuleContext ctx) {

@@ -113,7 +113,7 @@ abstract public class ANTLRParserDriver extends Observable
 
 	}
 
-	protected void walkTree(ParseTree tree)
+	public void walkTree(ParseTree tree)
 	{
 		ParseTreeWalker walker = new ParseTreeWalker();
 		walker.walk(getListener(), tree);
