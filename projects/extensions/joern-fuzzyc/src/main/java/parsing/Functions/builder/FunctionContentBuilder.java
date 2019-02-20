@@ -46,6 +46,7 @@ import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
+import antlr.FunctionParser.Pre_commandContext;
 import antlr.FunctionParser.Pre_elif_statementContext;
 import antlr.FunctionParser.Pre_else_statementContext;
 import antlr.FunctionParser.Pre_endif_statementContext;
@@ -74,6 +75,7 @@ import ast.ASTNode;
 import ast.ASTNodeBuilder;
 import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
+import ast.c.preprocessor.PreCommand;
 import ast.c.preprocessor.PreElIfStatement;
 import ast.c.preprocessor.PreElseStatement;
 import ast.c.preprocessor.PreEndIfStatement;
@@ -308,8 +310,28 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * Pushes the item on the stack
 	 * @param ctx
 	 */
-	public void enterPre_if_condition(Pre_if_conditionContext ctx)	{
-		PreIfCondition expr = new PreIfCondition();
+	public void enterPreIfCondition(Pre_if_conditionContext ctx)	{
+		PreIfCondition cond = new PreIfCondition();
+		nodeToRuleContext.put(cond, ctx);
+		stack.push(cond);
+	}
+	
+	/**
+	 * Pops the item from the stack and adds its children (the following statements)
+	 * @param ctx
+	 */
+	public void exitPreIfConditionn(Pre_if_conditionContext ctx)	{
+		PreIfCondition cond = (PreIfCondition) stack.pop();
+		ASTNodeFactory.initializeFromContext(cond, ctx);
+		nesting.addItemToParent(cond);
+	}
+	
+	/**
+	 * Pushes the item on the stack
+	 * @param ctx
+	 */
+	public void enterPreCommand(Pre_commandContext ctx)	{
+		PreCommand expr = new PreCommand();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
@@ -318,10 +340,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * Pops the item from the stack and adds its children (the following statements)
 	 * @param ctx
 	 */
-	public void exitPre_if_condition(Pre_if_conditionContext ctx)	{
-		PreIfCondition cond = (PreIfCondition) stack.pop();
-		ASTNodeFactory.initializeFromContext(cond, ctx);
-		nesting.addItemToParent(cond);
+	public void exitPreCommand(Pre_commandContext ctx)	{
+		PreCommand expr = (PreCommand) stack.pop();
+		ASTNodeFactory.initializeFromContext(expr, ctx);
+		nesting.addItemToParent(expr);
 	}
 	
 //----------------------------------Preprocessor if handling end-------------------------------------------------------------

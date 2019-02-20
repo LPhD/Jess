@@ -3,31 +3,20 @@ package parsing.Modules;
 import java.util.Iterator;
 import java.util.List;
 
-import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.misc.Interval;
 
-import antlr.FunctionParser;
 import antlr.ModuleBaseListener;
 import antlr.ModuleParser;
 import antlr.ModuleParser.Class_defContext;
-import antlr.ModuleParser.Compound_statementContext;
 import antlr.ModuleParser.DeclByClassContext;
-import antlr.ModuleParser.Function_defContext;
 import antlr.ModuleParser.Init_declarator_listContext;
-import antlr.ModuleParser.Pre_blockstarterContext;
-import antlr.ModuleParser.Pre_statementContext;
 import antlr.ModuleParser.Type_nameContext;
-import ast.c.preprocessor.PreStatement;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
 import ast.statements.IdentifierDeclStatement;
 import parsing.ANTLRParserDriver;
-import parsing.ASTNodeFactory;
 import parsing.CompoundItemAssembler;
 import parsing.ModuleFunctionParserInterface;
-import parsing.Functions.ANTLRCFunctionParserDriver;
-import parsing.Functions.builder.FunctionContentBuilder;
 import parsing.Modules.builder.FunctionDefBuilder;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
@@ -156,6 +145,21 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 		//Preprocessor if handling
 		@Override
 		public void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+			p.notifyObserversOfItem(builder.getItem());
+		}
+		
+		//Preprocessor if handling
+		@Override
+		public void enterPre_command(ModuleParser.Pre_commandContext ctx){
+			PreprocessorBuilder builder = new PreprocessorBuilder();
+			builder.createPreCommand(ctx);
+			p.builderStack.push(builder);
+		}
+		
+		//Preprocessor if handling
+		@Override
+		public void exitPre_command(ModuleParser.Pre_commandContext ctx){
 			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
 			p.notifyObserversOfItem(builder.getItem());
 		}

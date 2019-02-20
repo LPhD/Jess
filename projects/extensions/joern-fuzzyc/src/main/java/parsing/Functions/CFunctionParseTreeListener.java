@@ -1,7 +1,5 @@
 package parsing.Functions;
 
-import org.antlr.v4.runtime.misc.NotNull;
-
 import antlr.FunctionBaseListener;
 import antlr.FunctionParser;
 import parsing.ANTLRParserDriver;
@@ -72,24 +70,34 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 //-------------------------------------------------------------------------------------------------	
 	//Preprocessor handling
 	@Override
-	public void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx)
-	{
+	public void enterPre_command(FunctionParser.Pre_commandContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreCommand(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_command(FunctionParser.Pre_commandContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreCommand(ctx);
+	}
+	//Preprocessor handling
+	@Override
+	public void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx){
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterPreElse(ctx);
 	}
 	
 	//Preprocessor handling
 	@Override
-	public void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx)
-	{
+	public void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx){
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitPreElse(ctx);
 	}
 	
 	//Preprocessor handling
 	@Override
-	public void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx)
-	{
+	public void enterPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx){
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterPreElIf(ctx);
 	}
@@ -103,14 +111,14 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	
 	//Preprocessor if handling
 	@Override
-	public void enterPre_if_statement(FunctionParser.Pre_if_statementContext ctx)	{
+	public void enterPre_if_statement(FunctionParser.Pre_if_statementContext ctx){
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterPreIf(ctx);
 	}
 	
 	//Preprocessor if handling
 	@Override
-	public void exitPre_if_statement(FunctionParser.Pre_if_statementContext ctx)	{
+	public void exitPre_if_statement(FunctionParser.Pre_if_statementContext ctx){
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitPreIf(ctx);
 	}
@@ -132,13 +140,13 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	@Override
 	public void enterPre_if_condition(FunctionParser.Pre_if_conditionContext ctx) {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterPre_if_condition(ctx);
+		builder.enterPreIfCondition(ctx);
 	}
 
 	@Override
 	public void exitPre_if_condition(FunctionParser.Pre_if_conditionContext ctx){
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.exitPre_if_condition(ctx);
+		builder.exitPreIfConditionn(ctx);
 	}
 //---------------------------------------------------------------------------------------------------------------
 	
@@ -654,8 +662,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void enterSizeof_expression(
-			@NotNull FunctionParser.Sizeof_expressionContext ctx)
+	public void enterSizeof_expression(FunctionParser.Sizeof_expressionContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -663,8 +670,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void exitSizeof_expression(
-			@NotNull FunctionParser.Sizeof_expressionContext ctx)
+	public void exitSizeof_expression(FunctionParser.Sizeof_expressionContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -672,7 +678,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void enterSizeof(@NotNull FunctionParser.SizeofContext ctx)
+	public void enterSizeof(FunctionParser.SizeofContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -680,7 +686,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void exitSizeof(@NotNull FunctionParser.SizeofContext ctx)
+	public void exitSizeof(FunctionParser.SizeofContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -688,8 +694,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void enterUnary_op_and_cast_expr(
-			@NotNull FunctionParser.Unary_op_and_cast_exprContext ctx)
+	public void enterUnary_op_and_cast_expr(FunctionParser.Unary_op_and_cast_exprContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -697,8 +702,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void exitUnary_op_and_cast_expr(
-			@NotNull FunctionParser.Unary_op_and_cast_exprContext ctx)
+	public void exitUnary_op_and_cast_expr(FunctionParser.Unary_op_and_cast_exprContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -706,8 +710,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void enterUnary_operator(
-			@NotNull FunctionParser.Unary_operatorContext ctx)
+	public void enterUnary_operator(FunctionParser.Unary_operatorContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -715,8 +718,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void exitUnary_operator(
-			@NotNull FunctionParser.Unary_operatorContext ctx)
+	public void exitUnary_operator(FunctionParser.Unary_operatorContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -909,8 +911,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void enterSizeof_operand2(
-			@NotNull FunctionParser.Sizeof_operand2Context ctx)
+	public void enterSizeof_operand2(FunctionParser.Sizeof_operand2Context ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -918,8 +919,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void exitSizeof_operand2(
-			@NotNull FunctionParser.Sizeof_operand2Context ctx)
+	public void exitSizeof_operand2(FunctionParser.Sizeof_operand2Context ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -927,8 +927,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void enterSizeof_operand(
-			@NotNull FunctionParser.Sizeof_operandContext ctx)
+	public void enterSizeof_operand(FunctionParser.Sizeof_operandContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
@@ -936,8 +935,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}
 
 	@Override
-	public void exitSizeof_operand(
-			@NotNull FunctionParser.Sizeof_operandContext ctx)
+	public void exitSizeof_operand(FunctionParser.Sizeof_operandContext ctx)
 	{
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack
 				.peek();
