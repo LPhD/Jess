@@ -20,7 +20,7 @@ public abstract class ASTExporter {
 		currentFunction = func;
 	}
 
-	public void addASTChildren(ASTNode node) {
+	protected void addASTChildren(ASTNode node) {
 
 		final int nChildren = node.getChildCount();
 
