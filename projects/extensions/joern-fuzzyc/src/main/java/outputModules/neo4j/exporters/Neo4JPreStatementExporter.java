@@ -5,8 +5,6 @@ import java.util.Map;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.RelationshipType;
 
-import ast.ASTNode;
-import databaseNodes.ASTDatabaseNode;
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.FileDatabaseNode;
@@ -42,7 +40,7 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 	}
 
 	@Override
-	protected void addASTNode(DatabaseNode dbNode) {
+	protected void addCondition(PreConditionDatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		nodeStore.addNeo4jNode(dbNode, properties);
 		// index, but do not index location

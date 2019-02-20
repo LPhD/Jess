@@ -41,7 +41,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			PreConditionDatabaseNode conditionDBNode = new PreConditionDatabaseNode();		
 			//Initialize condition as DB node
 			conditionDBNode.initialize(preASTNode.getChild(0));
-			addASTNode(conditionDBNode);
+			addCondition(conditionDBNode);
 			//Link condition DB node with parent pre statement db node
 			addASTLink(preDBNode, conditionDBNode);		
 		} catch (RuntimeException ex)	{
@@ -53,7 +53,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	
 	
 	protected abstract void addASTLink(PreStatementDatabaseNode parent, PreConditionDatabaseNode child);
-	protected abstract void addASTNode(DatabaseNode dbNode);
+	protected abstract void addCondition(PreConditionDatabaseNode dbNode);
 	protected abstract void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode);
 	
 //	/**

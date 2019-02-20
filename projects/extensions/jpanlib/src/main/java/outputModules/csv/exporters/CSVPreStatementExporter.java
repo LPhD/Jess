@@ -41,7 +41,7 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	}
 
 	@Override
-	protected void addASTNode(DatabaseNode dbNode) {
+	protected void addCondition(PreConditionDatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		Writer.addNode(dbNode, properties);
 	}
