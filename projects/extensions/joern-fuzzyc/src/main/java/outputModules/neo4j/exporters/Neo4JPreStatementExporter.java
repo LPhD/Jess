@@ -13,7 +13,6 @@ import databaseNodes.PreStatementDatabaseNode;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.PreStatementExporter;
-import outputModules.common.Writer;
 
 public class Neo4JPreStatementExporter extends PreStatementExporter {
 
@@ -23,17 +22,6 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		astImporter = new Neo4JASTExporter(nodeStore);
 	}
 
-	
-	protected void addMainNode(PreStatementDatabaseNode dbNode) {
-		
-		Map<String, Object> properties = dbNode.createProperties();
-		Writer.addNode(dbNode, properties);
-		mainNodeId = Writer.getIdForObject(dbNode);
-		
-		System.out.println("mainNodeId: " +mainNodeId);
-		
-
-	}
 	
 	@Override
 	protected void addMainNode(DatabaseNode dbNode) {
