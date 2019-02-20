@@ -352,8 +352,8 @@ public class FunctionParser extends Parser {
 		public Closing_curlyContext closing_curly() {
 			return getRuleContext(Closing_curlyContext.class,0);
 		}
-		public Pre_blockstarterContext pre_blockstarter() {
-			return getRuleContext(Pre_blockstarterContext.class,0);
+		public Pre_statementContext pre_statement() {
+			return getRuleContext(Pre_statementContext.class,0);
 		}
 		public Block_starterContext block_starter() {
 			return getRuleContext(Block_starterContext.class,0);
@@ -412,7 +412,7 @@ public class FunctionParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(214);
-				pre_blockstarter();
+				pre_statement();
 				}
 				break;
 			case 4:
@@ -2579,8 +2579,8 @@ public class FunctionParser extends Parser {
 	public final Pre_pragmaContext pre_pragma() throws RecognitionException {
 		Pre_pragmaContext _localctx = new Pre_pragmaContext(_ctx, getState());
 		enterRule(_localctx, 60, RULE_pre_pragma);
-		int _la;
 		try {
+			int _alt;
 			setState(476);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,31,_ctx) ) {
@@ -2600,18 +2600,24 @@ public class FunctionParser extends Parser {
 				match(PRE_PRAGMA);
 				setState(471); 
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = 1;
 				do {
-					{
-					{
-					setState(470);
-					identifier();
-					}
+					switch (_alt) {
+					case 1:
+						{
+						{
+						setState(470);
+						identifier();
+						}
+						}
+						break;
+					default:
+						throw new NoViableAltException(this);
 					}
 					setState(473); 
 					_errHandler.sync(this);
-					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__24) | (1L << T__25) | (1L << T__26))) != 0) || _la==ALPHA_NUMERIC );
+					_alt = getInterpreter().adaptivePredict(_input,30,_ctx);
+				} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 				}
 				break;
 			case 3:
@@ -7627,7 +7633,7 @@ public class FunctionParser extends Parser {
 		"\u03dd\3\2\2\2\u00cc\u03e3\3\2\2\2\u00ce\u03e7\3\2\2\2\u00d0\u00d2\5\4"+
 		"\3\2\u00d1\u00d0\3\2\2\2\u00d2\u00d5\3\2\2\2\u00d3\u00d1\3\2\2\2\u00d3"+
 		"\u00d4\3\2\2\2\u00d4\3\3\2\2\2\u00d5\u00d3\3\2\2\2\u00d6\u00e0\5\6\4\2"+
-		"\u00d7\u00e0\5\b\5\2\u00d8\u00e0\5\32\16\2\u00d9\u00e0\5\n\6\2\u00da\u00e0"+
+		"\u00d7\u00e0\5\b\5\2\u00d8\u00e0\5\30\r\2\u00d9\u00e0\5\n\6\2\u00da\u00e0"+
 		"\5\20\t\2\u00db\u00e0\5\22\n\2\u00dc\u00e0\5\u00a8U\2\u00dd\u00e0\5\24"+
 		"\13\2\u00de\u00e0\5j\66\2\u00df\u00d6\3\2\2\2\u00df\u00d7\3\2\2\2\u00df"+
 		"\u00d8\3\2\2\2\u00df\u00d9\3\2\2\2\u00df\u00da\3\2\2\2\u00df\u00db\3\2"+
