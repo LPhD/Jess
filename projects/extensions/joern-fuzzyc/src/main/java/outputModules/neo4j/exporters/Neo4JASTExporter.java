@@ -52,9 +52,9 @@ public class Neo4JASTExporter extends ASTExporter
 		astDatabaseNode.initialize(node);
 		astDatabaseNode.setCurrentFunction(currentFunction);
 		Map<String, Object> properties = astDatabaseNode.createProperties();
-		//TODO: currentFunction can be empty if we are inside a pre statement
-		if(currentFunction != null)
-			properties.put(NodeKeys.FUNCTION_ID, nodeStore.getIdForObject(currentFunction));
+
+		properties.put(NodeKeys.FUNCTION_ID,
+				nodeStore.getIdForObject(currentFunction));
 		nodeStore.addNeo4jNode(node, properties);
 
 		indexASTNode(node, properties);
