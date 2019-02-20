@@ -10,16 +10,13 @@ import outputModules.common.PreStatementExporter;
 import outputModules.common.Writer;
 
 public class CSVPreStatementExporter extends PreStatementExporter {
-	
-	public CSVPreStatementExporter() {
-		astImporter = new CSVASTExporter();
-	}
 
 	@Override
 	protected void addMainNode(DatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		Writer.addNode(dbNode, properties);
 		mainNodeId = Writer.getIdForObject(dbNode);
+		astImporter = new CSVASTExporter();
 	}
 
 	protected void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode) {
