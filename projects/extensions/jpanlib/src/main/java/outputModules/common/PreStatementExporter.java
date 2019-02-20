@@ -21,12 +21,13 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		try	{			
 			preDBNode.initialize(preASTNode);
 			addMainNode(preDBNode);
-			//Connect with parent
-			linkPreStatementToFileNode(preDBNode, curFile);	
 			
 			//new
 			astImporter.addASTChildren(preASTNode);
-						
+			
+			//Connect with parent
+			linkPreStatementToFileNode(preDBNode, curFile);	
+			
 //			//Add condition for pre-if and -elif statements
 //			String type = preASTNode.getTypeAsString();
 //			if (type.equals("PreIfStatement") || type.equals("PreElIfStatement"))
