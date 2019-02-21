@@ -8,6 +8,9 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import antlr.FunctionParser.Pre_if_statementContext;
+import antlr.ModuleParser;
+import antlr.ModuleParser.Compound_statementContext;
 import antlr.ModuleParser.Pre_if_conditionContext;
 import ast.ASTNodeBuilder;
 import ast.c.preprocessor.PreCommand;
@@ -37,7 +40,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 		this.createNew(ctx);
 	}
 	
-	public void createIf(ParserRuleContext ctx) {
+	public void createIf(ModuleParser.Pre_if_statementContext ctx) {
 		thisItem = new PreIfStatement();
 		
 
@@ -47,12 +50,31 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 		System.out.println("stop: " +ctx.stop);
 		System.out.println("childs: " +ctx.children);
 		System.out.println("ctx: " +ctx);
+		System.out.println("ctx cond: " +ctx.pre_if_condition());
 		
+		Pre_if_conditionContext preIfCond = ctx.pre_if_condition();
+		CharStream inputStream = preIfCond.start.getInputStream();
+		int startIndex = preIfCond.start.getStopIndex();
+		int stopIndex = preIfCond.stop.getStopIndex();
+		String text = inputStream.getText(new Interval(startIndex + 1, stopIndex - 1));
+		
+		System.out.println("Text: "+text);
+		
+
+//		Compound_statementContext compound_statement = ctx.compound_statement();
+//
+//		CharStream inputStream = compound_statement.start.getInputStream();
+//		int startIndex = compound_statement.start.getStopIndex();
+//		int stopIndex = compound_statement.stop.getStopIndex();
+//		return inputStream.getText(new Interval(startIndex + 1, stopIndex - 1));
+//			
 		ANTLRCFunctionParserDriver driver = new ANTLRCFunctionParserDriver();
-		List <ParseTree> list = ctx.children;
-		for (ParseTree parseTree : list) {
-			driver.walkTree(parseTree);
-		}
+//		List <ParseTree> list = ctx.children;
+//		for (ParseTree parseTree : list) {
+//			driver.walkTree(parseTree);
+//		}
+//		
+		driver.parseAndWalkString(text);
 		
 		
 		
