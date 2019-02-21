@@ -56,7 +56,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 		CharStream inputStream = preIfCond.start.getInputStream();
 		int startIndex = preIfCond.start.getStopIndex();
 		int stopIndex = preIfCond.stop.getStopIndex();
-		String text = inputStream.getText(new Interval(startIndex + 1, stopIndex - 1));
+		String text = inputStream.getText(new Interval(startIndex, stopIndex));
 		
 		System.out.println("Text: "+text);
 		
