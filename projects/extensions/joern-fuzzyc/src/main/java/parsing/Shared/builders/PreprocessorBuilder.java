@@ -42,8 +42,10 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 	
 	public void createIf(ModuleParser.Pre_if_statementContext ctx) {
 		thisItem = new PreIfStatement();
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		this.createNew(ctx);
+		String text = thisItem.getEscapedCodeStr();
 		
-
 		//String text = input.getText(new Interval(startIndex, stopIndex));
 		
 		System.out.println("start: " +ctx.start);
@@ -52,11 +54,11 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 		System.out.println("ctx: " +ctx);
 		System.out.println("ctx cond: " +ctx.pre_if_condition());
 		
-		Pre_if_conditionContext preIfCond = ctx.pre_if_condition();
-		CharStream inputStream = preIfCond.start.getInputStream();
-		int startIndex = preIfCond.start.getStopIndex();
-		int stopIndex = preIfCond.stop.getStopIndex();
-		String text = inputStream.getText(new Interval(startIndex, stopIndex));
+//		Pre_if_conditionContext preIfCond = ctx.pre_if_condition();
+//		CharStream inputStream = preIfCond.start.getInputStream();
+//		int startIndex = preIfCond.start.getStopIndex();
+//		int stopIndex = preIfCond.stop.getStopIndex();
+//		String text = inputStream.getText(new Interval(startIndex, stopIndex));
 		
 		System.out.println("Text: "+text);
 		
@@ -75,13 +77,14 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 //		}
 //		
 		driver.parseAndWalkString(text);
+		System.out.println(driver.builderStack.toString());
+		System.out.println(driver.builderStack.peek());
+		System.out.println(driver.builderStack.elementAt(0));
+		System.out.println(driver.builderStack.peek().getItem());
+		System.out.println(driver.builderStack.peek().getItem().getChild(0));
 		
-		
-		
-		ASTNodeFactory.initializeFromContext(thisItem, ctx);
-		this.createNew(ctx);
-		
-		
+		thisItem = (PreIfStatement) driver.builderStack.peek().getItem().getChild(0);
+				
 	}
 	
 	public void createElIf(ParserRuleContext ctx) {
