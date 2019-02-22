@@ -1,5 +1,6 @@
-package ast.c.preprocessor;
+package ast.c.preprocessor.blockstarter;
 
+import ast.c.preprocessor.PreStatement;
 import ast.walking.ASTNodeVisitor;
 
 public class PreEndIfStatement extends PreStatement {

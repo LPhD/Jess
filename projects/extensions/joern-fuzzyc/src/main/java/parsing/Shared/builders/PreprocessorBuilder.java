@@ -4,12 +4,12 @@ import org.antlr.v4.runtime.ParserRuleContext;
 
 import antlr.ModuleParser;
 import ast.ASTNodeBuilder;
-import ast.c.preprocessor.PreCommand;
-import ast.c.preprocessor.PreElIfStatement;
-import ast.c.preprocessor.PreElseStatement;
-import ast.c.preprocessor.PreEndIfStatement;
-import ast.c.preprocessor.PreIfStatement;
 import ast.c.preprocessor.PreStatement;
+import ast.c.preprocessor.blockstarter.PreElIfStatement;
+import ast.c.preprocessor.blockstarter.PreElseStatement;
+import ast.c.preprocessor.blockstarter.PreEndIfStatement;
+import ast.c.preprocessor.blockstarter.PreIfStatement;
+import ast.c.preprocessor.commands.PreCommand;
 import parsing.ASTNodeFactory;
 import parsing.Functions.ANTLRCFunctionParserDriver;
 

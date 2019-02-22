@@ -3,9 +3,9 @@ package parsing.Functions.builder;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import ast.ASTNode;
-import ast.c.preprocessor.PreElIfStatement;
-import ast.c.preprocessor.PreElseStatement;
-import ast.c.preprocessor.PreIfStatement;
+import ast.c.preprocessor.blockstarter.PreElIfStatement;
+import ast.c.preprocessor.blockstarter.PreElseStatement;
+import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
 import ast.expressions.Expression;

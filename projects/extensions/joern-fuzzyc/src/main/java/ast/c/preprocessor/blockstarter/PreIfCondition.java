@@ -1,17 +1,13 @@
-package ast.c.preprocessor;
+package ast.c.preprocessor.blockstarter;
 
+import ast.logical.statements.Condition;
 import ast.walking.ASTNodeVisitor;
 
-/**
- * Placeholder class
- *
- */
-public class PreCommand extends PreStatement{
+public class PreIfCondition extends Condition{
 
 	@Override
 	public void accept(ASTNodeVisitor visitor) {
 		visitor.visit(this);
 	}
-
 
 }
