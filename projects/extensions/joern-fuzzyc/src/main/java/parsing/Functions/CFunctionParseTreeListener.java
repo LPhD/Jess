@@ -66,8 +66,78 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 				.peek();
 		builder.enterIf(ctx);
 	}
+//----------------------------------Preprocessor macro handling--------------------------------------------------------------	
+	//Preprocessor handling
+	@Override
+	public void enterPre_define(FunctionParser.Pre_defineContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreDefine(ctx);
+	}
 	
-//-------------------------------------------------------------------------------------------------	
+	//Preprocessor handling
+	@Override
+	public void exitPre_define(FunctionParser.Pre_defineContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreDefine(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_macro(FunctionParser.Pre_macroContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreMacro(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_macro(FunctionParser.Pre_macroContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreMacro(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_macro_identifier(FunctionParser.Pre_macro_identifierContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreMacroIdentifier(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_macro_identifier(FunctionParser.Pre_macro_identifierContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreMacroIdentifier(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_macro_parameters(FunctionParser.Pre_macro_parametersContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreMacroParameters(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_macro_parameters(FunctionParser.Pre_macro_parametersContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreMacroParameters(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_undef(FunctionParser.Pre_undefContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreUndef(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_undef(FunctionParser.Pre_undefContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreUndef(ctx);
+	}	
+	
+//----------------------------------Preprocessor command handling--------------------------------------------------------------	
 	//Preprocessor handling
 	@Override
 	public void enterPre_command(FunctionParser.Pre_commandContext ctx){
@@ -81,6 +151,93 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitPreCommand(ctx);
 	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_diagnostic(FunctionParser.Pre_diagnosticContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreDiagnostic(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_diagnostic(FunctionParser.Pre_diagnosticContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreDiagnostic(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_include(FunctionParser.Pre_includeContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreInclude(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_include(FunctionParser.Pre_includeContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreInclude(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_include_next(FunctionParser.Pre_include_nextContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreIncludeNext(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_include_next(FunctionParser.Pre_include_nextContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreIncludeNext(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_line(FunctionParser.Pre_lineContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreLine(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_line(FunctionParser.Pre_lineContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreLine(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_other(FunctionParser.Pre_otherContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreOther(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_other(FunctionParser.Pre_otherContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreOther(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void enterPre_pragma(FunctionParser.Pre_pragmaContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPrePragma(ctx);
+	}
+	
+	//Preprocessor handling
+	@Override
+	public void exitPre_pragma(FunctionParser.Pre_pragmaContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPrePragma(ctx);
+	}
+	
+	
+	//----------------------------------Preprocessor blockstarter handling------------------------------------------------------		
 	//Preprocessor handling
 	@Override
 	public void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx){
