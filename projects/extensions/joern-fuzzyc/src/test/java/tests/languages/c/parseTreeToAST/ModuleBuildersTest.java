@@ -11,6 +11,7 @@ import antlr.ModuleLexer;
 import ast.ASTNode;
 import ast.c.functionDef.ParameterType;
 import ast.c.preprocessor.PreIfStatement;
+import ast.c.preprocessor.PreStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
@@ -214,10 +215,14 @@ public class ModuleBuildersTest {
 	
 	@Test
 	public void preprocessorModuleBuilderTest() {
-		String input = "#if (modulefoo < 5) \n int modulei; \n #endif";
+		String input = "#if (modulefoo < 5) \n int modulei; \n #elif (modulefoo > 5) \n double modulei; \n #else \n long modulei; \n #endif";
 		List<ASTNode> codeItems = parseInput(input);
-		PreIfStatement codeItem = (PreIfStatement) codeItems.get(0);	
+		PreStatement codeItem = (PreStatement) codeItems.get(0);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
+		codeItem = (PreStatement) codeItems.get(2);	
+		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
+		codeItem = (PreStatement) codeItems.get(4);	
+		assertEquals("PreElseStatement", codeItem.getTypeAsString());
 	}
 
 	private List<ASTNode> parseInput(String input) {

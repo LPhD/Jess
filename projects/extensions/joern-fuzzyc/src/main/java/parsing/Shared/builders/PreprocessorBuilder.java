@@ -1,6 +1,5 @@
 package parsing.Shared.builders;
 
-
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import antlr.ModuleParser;
@@ -14,65 +13,81 @@ import ast.c.preprocessor.PreStatement;
 import parsing.ASTNodeFactory;
 import parsing.Functions.ANTLRCFunctionParserDriver;
 
-public class PreprocessorBuilder extends ASTNodeBuilder{
-	
+public class PreprocessorBuilder extends ASTNodeBuilder {
+
 	PreStatement thisItem;
 	ANTLRCFunctionParserDriver driver;
-	
-//	public void createPreStatement(ParserRuleContext ctx) {
-//		thisItem = new PreStatement();
-//		ASTNodeFactory.initializeFromContext(thisItem, ctx);
-//		this.createNew(ctx);
-//	}
-	
+
+	// public void createPreStatement(ParserRuleContext ctx) {
+	// thisItem = new PreStatement();
+	// ASTNodeFactory.initializeFromContext(thisItem, ctx);
+	// this.createNew(ctx);
+	// }
+
 	public void createPreCommand(ParserRuleContext ctx) {
-		//Driver for calling function parser
-		driver = new ANTLRCFunctionParserDriver();
-		//Get code of PreElIfStatement
-		thisItem = new PreCommand();
-		ASTNodeFactory.initializeFromContext(thisItem, ctx);
-		String text = thisItem.getEscapedCodeStr();
-		//Parse code in function parser
-		driver.parseAndWalkString(text);	
-		//Exchange current node with newly parsed node (from function level with more details like condition)
-		thisItem = (PreCommand) driver.builderStack.peek().getItem().getChild(0);
-		this.createNew(ctx);	
+		try {
+			// Driver for calling function parser
+			driver = new ANTLRCFunctionParserDriver();
+			// Get code of PreElIfStatement
+			thisItem = new PreCommand();
+			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+			String text = thisItem.getEscapedCodeStr();
+			// Parse code in function parser
+			driver.parseAndWalkString(text);
+			// Exchange current node with newly parsed node (from function level with more details like condition)
+			System.out.println("Code: " +driver.builderStack.peek().getItem().getChild(0).getEscapedCodeStr());
+			thisItem = (PreCommand) driver.builderStack.peek().getItem().getChild(0);
+			this.createNew(ctx);
+		} catch (Exception e) {
+			System.err.println("Cannot create PreCommand in ModuleParser");
+			e.printStackTrace();
+		}
 	}
-	
+
 	public void createIf(ModuleParser.Pre_if_statementContext ctx) {
-		//Driver for calling function parser
-		driver = new ANTLRCFunctionParserDriver();
-		//Get code of PreIfStatement
-		thisItem = new PreIfStatement();
-		ASTNodeFactory.initializeFromContext(thisItem, ctx);
-		String text = thisItem.getEscapedCodeStr();
-		//Parse code in function parser
-		driver.parseAndWalkString(text);	
-		//Exchange current node with newly parsed node (from function level with more details like condition)
-		thisItem = (PreIfStatement) driver.builderStack.peek().getItem().getChild(0);
-		this.createNew(ctx);				
+		try {
+			// Driver for calling function parser
+			driver = new ANTLRCFunctionParserDriver();
+			// Get code of PreIfStatement
+			thisItem = new PreIfStatement();
+			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+			String text = thisItem.getEscapedCodeStr();
+			// Parse code in function parser
+			driver.parseAndWalkString(text);
+			// Exchange current node with newly parsed node (from function level with more details like condition)
+			thisItem = (PreIfStatement) driver.builderStack.peek().getItem().getChild(0);
+			this.createNew(ctx);
+		} catch (Exception e) {
+			System.err.println("Cannot create PreIf in ModuleParser");
+			e.printStackTrace();
+		}
 	}
-	
+
 	public void createElIf(ParserRuleContext ctx) {
-		//Driver for calling function parser
-		driver = new ANTLRCFunctionParserDriver();
-		//Get code of PreElIfStatement
-		thisItem = new PreElIfStatement();
-		ASTNodeFactory.initializeFromContext(thisItem, ctx);
-		String text = thisItem.getEscapedCodeStr();
-		//Parse code in function parser
-		driver.parseAndWalkString(text);	
-		//Exchange current node with newly parsed node (from function level with more details like condition)
-		thisItem = (PreElIfStatement) driver.builderStack.peek().getItem().getChild(0);
-		this.createNew(ctx);	
+		try {
+			// Driver for calling function parser
+			driver = new ANTLRCFunctionParserDriver();
+			// Get code of PreElIfStatement
+			thisItem = new PreElIfStatement();
+			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+			String text = thisItem.getEscapedCodeStr();
+			// Parse code in function parser
+			driver.parseAndWalkString(text);
+			// Exchange current node with newly parsed node (from function level with more details like condition)
+			thisItem = (PreElIfStatement) driver.builderStack.peek().getItem().getChild(0);
+			this.createNew(ctx);
+		} catch (Exception e) {
+			System.err.println("Cannot create PreElIf in ModuleParser");
+			e.printStackTrace();
+		}
 	}
-	
+
 	public void createElse(ParserRuleContext ctx) {
 		thisItem = new PreElseStatement();
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
 		this.createNew(ctx);
 	}
-	
+
 	public void createEndIf(ParserRuleContext ctx) {
 		thisItem = new PreEndIfStatement();
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
@@ -81,7 +96,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 
 	@Override
 	public void createNew(ParserRuleContext ctx) {
-		item = thisItem;		
+		item = thisItem;
 	}
-	
+
 }
