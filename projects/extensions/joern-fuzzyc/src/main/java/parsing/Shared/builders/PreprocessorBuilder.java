@@ -43,7 +43,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder {
 			// Exchange current node with newly parsed node 
 			thisItem = (PreCommand) driver.builderStack.peek().getItem().getChild(0);
 		} catch (Exception e) {
-			System.err.println("Cannot create PreCommand in ModuleParser");
+			System.err.println("Cannot create PreCommand " +text+" in ModuleParser");
 			e.printStackTrace();
 		}
 		this.createNew(ctx);
@@ -62,7 +62,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder {
 			// Exchange current node with newly parsed node 
 			thisItem = (PreIfStatement) driver.builderStack.peek().getItem().getChild(0);
 		} catch (Exception e) {
-			System.err.println("Cannot create PreIf in ModuleParser");
+			System.err.println("Cannot create PreIf " +text+" in ModuleParser");
 			e.printStackTrace();
 		}
 		this.createNew(ctx);
@@ -82,7 +82,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder {
 			thisItem = (PreElIfStatement) driver.builderStack.peek().getItem().getChild(0);
 			this.createNew(ctx);
 		} catch (Exception e) {
-			System.err.println("Cannot create PreElIf in ModuleParser");
+			System.err.println("Cannot create PreElIf " +text+" in ModuleParser");
 			e.printStackTrace();
 		}
 		this.createNew(ctx);
