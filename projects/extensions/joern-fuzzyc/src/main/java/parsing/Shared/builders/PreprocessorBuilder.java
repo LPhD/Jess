@@ -35,7 +35,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 		//Parse code in function parser
 		driver.parseAndWalkString(text);	
 		//Exchange current node with newly parsed node (from function level with more details like condition)
-		thisItem = (PreIfStatement) driver.builderStack.peek().getItem().getChild(0);
+		thisItem = (PreCommand) driver.builderStack.peek().getItem().getChild(0);
 		this.createNew(ctx);	
 	}
 	
@@ -63,7 +63,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder{
 		//Parse code in function parser
 		driver.parseAndWalkString(text);	
 		//Exchange current node with newly parsed node (from function level with more details like condition)
-		thisItem = (PreIfStatement) driver.builderStack.peek().getItem().getChild(0);
+		thisItem = (PreElIfStatement) driver.builderStack.peek().getItem().getChild(0);
 		this.createNew(ctx);	
 	}
 	
