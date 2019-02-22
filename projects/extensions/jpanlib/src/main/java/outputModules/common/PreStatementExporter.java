@@ -1,34 +1,23 @@
 package outputModules.common;
 
 import ast.ASTNode;
-import ast.logical.statements.Condition;
-import ast.preprocessor.PreStatementBase;
-import databaseNodes.DatabaseNode;
+import databaseNodes.ASTDatabaseNode;
 import databaseNodes.FileDatabaseNode;
-import databaseNodes.PreConditionDatabaseNode;
-import databaseNodes.PreStatementDatabaseNode;
 
 public abstract class PreStatementExporter extends ASTNodeExporter{
 	
-	
+	/**
+	 * Add the main node and its children to the Database.
+	 */
 	@Override
-	public void addToDatabaseSafe(ASTNode node)	{
-		addPreStatementToDatabaseSafe((PreStatementBase) node);
-	}
-	
-	public void addPreStatementToDatabaseSafe(PreStatementBase preASTNode)	{
-		PreStatementDatabaseNode preDBNode = new PreStatementDatabaseNode();
+	public void addToDatabaseSafe(ASTNode astNode)	{
+		ASTDatabaseNode preDBNode = new ASTDatabaseNode();
 		try	{			
-			preDBNode.initialize(preASTNode);
+			preDBNode.initialize(astNode);
 			addMainNode(preDBNode);
 			linkPreStatementToFileNode(preDBNode, curFile);	
-			
-			//Add condition for pre-if and -elif statements
-			String type = preASTNode.getTypeAsString();
-			if (type.equals("PreIfStatement") || type.equals("PreElIfStatement"))
-				addCondition(preDBNode, preASTNode);
-			//addASTChildren(node);
-			
+			//Look for AST children and add them
+			addASTChildren(preDBNode, astNode);						
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
 			System.err.println("Error adding pre-statement to database: "+ preDBNode.toString());
@@ -37,58 +26,41 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	}
 	
 	
-	public void addCondition(PreStatementDatabaseNode preDBNode, PreStatementBase preASTNode) {
-		try	{			
-			PreConditionDatabaseNode conditionDBNode = new PreConditionDatabaseNode();		
-			Condition condition = (Condition) preASTNode.getCondition();
-			System.out.println("Condition: "+condition);
-			System.out.println("Condition code: "+condition.getEscapedCodeStr());
-			//Initialize condition as DB node
-			conditionDBNode.initialize(condition);
-			addCondition(conditionDBNode);
-			//Link condition DB node with parent pre statement db node
-			addASTLink(preDBNode, conditionDBNode);		
+	/**
+	 * Look for child nodes of the current node and add them to the db.
+	 * @param parent The current node.
+	 * @param astNodeParent 
+	 */
+	protected void addASTChildren(ASTDatabaseNode dbNodeParent, ASTNode astNodeParent) {
+		final int nChildren = astNodeParent.getChildCount();
+		for (int i = 0; i < nChildren; i++) {
+			ASTNode child = astNodeParent.getChild(i);
+			addASTToDatabase(dbNodeParent, astNodeParent, child);			
+		}
+	}
+	
+	/**
+	 * Add current ASTNode to database and look for its children
+	 * @param preDBNodeparent 
+	 * @param currentNode The current node.
+	 * @param parent The parent node of the current node.
+	 */
+	public void addASTToDatabase(ASTDatabaseNode dbNodeParent, ASTNode astNodeParent, ASTNode currentASTNode) {
+		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
+		try	{
+			astDatabaseNode.initialize(currentASTNode);
+			addASTNode(astDatabaseNode);
+			addASTLink(dbNodeParent, astDatabaseNode);
+			addASTChildren(astDatabaseNode, currentASTNode);		
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
-			System.err.println("Error adding pre-statement condition to database: "+ preDBNode.toString());
+			System.err.println("Error adding pre-statement children to database: "+ astDatabaseNode.toString());
 			return;
-		}	
+		}		
 	}
 	
 	
-	protected abstract void addASTLink(PreStatementDatabaseNode parent, PreConditionDatabaseNode child);
-	protected abstract void addCondition(PreConditionDatabaseNode dbNode);
-	protected abstract void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode);
-	
-//	/**
-//	 * Add current ASTNode to database and look for its children
-//	 * @param currentNode The current node.
-//	 * @param parent The parent node of the current node.
-//	 */
-//	public void addASTToDatabase(ASTNode parent, ASTNode currentNode) {
-//		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
-//		try	{
-//			astDatabaseNode.initialize(currentNode);
-//			addASTNode(astDatabaseNode);
-//			addASTLink(parent, astDatabaseNode);
-//			addASTChildren(astDatabaseNode);
-//		
-//		} catch (RuntimeException ex)	{
-//			ex.printStackTrace();
-//			System.err.println("Error adding pre-statement children to database: "+ astDatabaseNode.toString());
-//			return;
-//		}		
-//	}
-//	
-//	/**
-//	 * Look for child nodes of the current node.
-//	 * @param parent The current node.
-//	 */
-//	protected void addASTChildren(ASTNode parent) {
-//		final int nChildren = parent.getChildCount();
-//		for (int i = 0; i < nChildren; i++) {
-//			ASTNode child = parent.getChild(i);
-//			addASTToDatabase(parent, child);			
-//		}
-//	}
+	protected abstract void addASTNode(ASTDatabaseNode astDatabaseNode);
+	protected abstract void addASTLink(ASTDatabaseNode parent, ASTDatabaseNode child);
+	protected abstract void linkPreStatementToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode fileNode);
 }

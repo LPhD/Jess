@@ -2,48 +2,60 @@ package outputModules.csv.exporters;
 
 import java.util.Map;
 
-import ast.ASTNode;
 import databaseNodes.ASTDatabaseNode;
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.FileDatabaseNode;
-import databaseNodes.PreConditionDatabaseNode;
-import databaseNodes.PreStatementDatabaseNode;
 import outputModules.common.PreStatementExporter;
 import outputModules.common.Writer;
 
 public class CSVPreStatementExporter extends PreStatementExporter {
 
+	/**
+	 * Add the root node to the Database
+	 */
 	@Override
 	protected void addMainNode(DatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		Writer.addNode(dbNode, properties);
 		mainNodeId = Writer.getIdForObject(dbNode);
 	}
-
-	protected void linkPreStatementToFileNode(PreStatementDatabaseNode classDefNode, FileDatabaseNode fileNode) {
+	
+	/**
+	 * Add an ASTNode to the Database
+	 * @param node
+	 */
+	@Override
+	protected void addASTNode(ASTDatabaseNode astDatabaseNode)	{
+		Map<String, Object> properties = astDatabaseNode.createProperties();
+		Writer.addNode(astDatabaseNode, properties);
+	}
+		
+	/**
+	 * Link the given preStatementDatabaseNode (the root node) with its FileDatabaseNode
+	 */
+	@Override
+	protected void linkPreStatementToFileNode(ASTDatabaseNode preNode, FileDatabaseNode fileNode) {
 		long fileId = fileNode.getId();
-		long functionId = Writer.getIdForObject(classDefNode);
+		long functionId = Writer.getIdForObject(preNode);
 		Writer.addEdge(fileId, functionId, null, EdgeTypes.IS_FILE_OF);
 	}
 
+	
+	/**
+	 * Connect AST parent with its child
+	 * @param parent The parent ASTNode
+	 * @param child The child ASTNode
+	 */
 	@Override
-	protected void addASTLink(PreStatementDatabaseNode parent, PreConditionDatabaseNode child) {
+	protected void addASTLink(ASTDatabaseNode parent, ASTDatabaseNode child) {
 		System.out.println("Parent node: "+parent);
 		System.out.println("child node: "+child);
 		System.out.println("Parent node id: "+ Writer.getIdForObject(parent));
 		System.out.println("child node id: "+ Writer.getIdForObject(child));
-		System.out.println("Parent node code: "+parent.preStatement.getEscapedCodeStr());
-		System.out.println("child node code: "+child.condition.getEscapedCodeStr());
 		long srcId = Writer.getIdForObject(parent);
 		long dstId = Writer.getIdForObject(child);
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);
-	}
-
-	@Override
-	protected void addCondition(PreConditionDatabaseNode dbNode) {
-		Map<String, Object> properties = dbNode.createProperties();
-		Writer.addNode(dbNode, properties);
 	}
 
 }
