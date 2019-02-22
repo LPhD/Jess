@@ -162,14 +162,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 		public void exitPre_command(ModuleParser.Pre_commandContext ctx){
 			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
 			p.notifyObserversOfItem(builder.getItem());
-		}
-		
-		//Preprocessor condition handling
-		@Override
-		public void enterPre_if_condition(ModuleParser.Pre_if_conditionContext ctx){
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.peek();
-			builder.setCondition(ctx);
-		}
+		}		
 
 	//---------------------------------------------------------------------------------------------------------------
 	
