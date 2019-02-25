@@ -55,5 +55,19 @@ public class PreprocessorTests {
 		assertEquals(3, contentItem.getStatements().size());
 	}
 	
+	@Test
+	public void testPreIncludeStatement() {
+		String input = "#include <file.h> \n #include \"something\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		System.out.println(contentItem.getStatement(0).getTypeAsString());
+		System.out.println(contentItem.getStatement(0).getEscapedCodeStr());
+		System.out.println(contentItem.getStatement(1).getTypeAsString());
+		System.out.println(contentItem.getStatement(1).getEscapedCodeStr());
+		System.out.println(contentItem.getStatement(2).getTypeAsString());
+		System.out.println(contentItem.getStatement(2).getEscapedCodeStr());
+		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("PreInclude", contentItem.getStatement(1).getTypeAsString());
+	}
+	
 
 }

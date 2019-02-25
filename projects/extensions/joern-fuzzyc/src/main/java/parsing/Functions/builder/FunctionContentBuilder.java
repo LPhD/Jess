@@ -376,13 +376,15 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	/**
-	 * Pushes the item on the stack
+	 * Replace top of stack with the current item, as the parent item is only a placeholder
+	 * This makes the element appear as a {@link PreInclude}, rather than a {@link PreStatement}
 	 * @param ctx
 	 */
 	public void enterPreInclude(Pre_includeContext ctx) {
-		PreInclude expr = new PreInclude();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);	
+		replaceTopOfStack(new PreInclude(), ctx);
+//		PreInclude expr = new PreInclude();
+//		nodeToRuleContext.put(expr, ctx);
+//		stack.push(expr);	
 	}
 	
 	/**
@@ -578,9 +580,9 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPreCommand(Pre_commandContext ctx)	{
-		PreCommand expr = new PreCommand();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);
+//		PreCommand expr = new PreCommand();
+//		nodeToRuleContext.put(expr, ctx);
+//		stack.push(expr);
 	}
 	
 	/**
@@ -588,9 +590,9 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void exitPreCommand(Pre_commandContext ctx)	{
-		PreCommand expr = (PreCommand) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);
+//		PreCommand expr = (PreCommand) stack.pop();
+//		ASTNodeFactory.initializeFromContext(expr, ctx);
+//		nesting.addItemToParent(expr);
 	}
 	
 //----------------------------------Preprocessor handling end-------------------------------------------------------------

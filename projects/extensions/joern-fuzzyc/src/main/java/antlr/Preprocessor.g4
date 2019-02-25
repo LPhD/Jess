@@ -57,14 +57,14 @@ pre_diagnostic: PRE_DIAGNOSTIC STRING;
 pre_other: PRE_OTHER STRING;
 
 pre_include: PRE_INCLUDE '<' pre_include_filename '>'
-            | PRE_INCLUDE '"' pre_include_filename '"'
+            | PRE_INCLUDE '\"' pre_include_filename '\"'
             | PRE_INCLUDE pre_macro_identifier;
 
 pre_include_next: PRE_INCLUDE_NEXT '<' pre_include_filename '>'
-            | PRE_INCLUDE_NEXT '"' pre_include_filename '"'
+            | PRE_INCLUDE_NEXT QUOTE pre_include_filename QUOTE
             | PRE_INCLUDE_NEXT pre_macro_identifier;
 
-pre_include_filename: ALPHA_NUMERIC* ('.' | '-' | '/' | ALPHA_NUMERIC)*;
+pre_include_filename: ('.' | '-' | '/' | ALPHA_NUMERIC)+;
 
 pre_line: PRE_LINE DECIMAL_LITERAL
         | PRE_LINE DECIMAL_LITERAL STRING
