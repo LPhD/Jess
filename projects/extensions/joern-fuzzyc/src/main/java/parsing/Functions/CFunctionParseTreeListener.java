@@ -235,9 +235,9 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitPrePragma(ctx);
 	}
+		
+//----------------------------------Preprocessor blockstarter handling------------------------------------------------------	
 	
-	
-	//----------------------------------Preprocessor blockstarter handling------------------------------------------------------		
 	//Preprocessor handling
 	@Override
 	public void enterPre_else_statement(FunctionParser.Pre_else_statementContext ctx){
