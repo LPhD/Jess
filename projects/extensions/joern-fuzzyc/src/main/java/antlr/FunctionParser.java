@@ -1870,11 +1870,11 @@ public class FunctionParser extends Parser {
 		public Pre_macro_identifierContext pre_macro_identifier() {
 			return getRuleContext(Pre_macro_identifierContext.class,0);
 		}
-		public Pre_macroContext pre_macro() {
-			return getRuleContext(Pre_macroContext.class,0);
-		}
 		public Pre_macro_parametersContext pre_macro_parameters() {
 			return getRuleContext(Pre_macro_parametersContext.class,0);
+		}
+		public Pre_macroContext pre_macro() {
+			return getRuleContext(Pre_macroContext.class,0);
 		}
 		public Pre_defineContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1904,34 +1904,34 @@ public class FunctionParser extends Parser {
 				match(PRE_DEFINE);
 				setState(372);
 				pre_macro_identifier();
+				setState(373);
+				match(T__0);
+				setState(374);
+				pre_macro_parameters();
+				setState(375);
+				match(T__1);
+				setState(376);
+				pre_macro();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(373);
+				setState(378);
 				match(PRE_DEFINE);
-				setState(374);
+				setState(379);
 				pre_macro_identifier();
-				setState(375);
+				setState(380);
 				pre_macro();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(377);
-				match(PRE_DEFINE);
-				setState(378);
-				pre_macro_identifier();
-				setState(379);
-				match(T__0);
-				setState(380);
-				pre_macro_parameters();
-				setState(381);
-				match(T__1);
 				setState(382);
-				pre_macro();
+				match(PRE_DEFINE);
+				setState(383);
+				pre_macro_identifier();
 				}
 				break;
 			}
@@ -7702,11 +7702,11 @@ public class FunctionParser extends Parser {
 		"\u0174\5<\37\2\u0172\u0174\5> \2\u0173\u016b\3\2\2\2\u0173\u016c\3\2\2"+
 		"\2\u0173\u016d\3\2\2\2\u0173\u016e\3\2\2\2\u0173\u016f\3\2\2\2\u0173\u0170"+
 		"\3\2\2\2\u0173\u0171\3\2\2\2\u0173\u0172\3\2\2\2\u0174\'\3\2\2\2\u0175"+
-		"\u0176\7X\2\2\u0176\u0183\5,\27\2\u0177\u0178\7X\2\2\u0178\u0179\5,\27"+
-		"\2\u0179\u017a\5\60\31\2\u017a\u0183\3\2\2\2\u017b\u017c\7X\2\2\u017c"+
-		"\u017d\5,\27\2\u017d\u017e\7\3\2\2\u017e\u017f\5.\30\2\u017f\u0180\7\4"+
-		"\2\2\u0180\u0181\5\60\31\2\u0181\u0183\3\2\2\2\u0182\u0175\3\2\2\2\u0182"+
-		"\u0177\3\2\2\2\u0182\u017b\3\2\2\2\u0183)\3\2\2\2\u0184\u0185\7Y\2\2\u0185"+
+		"\u0176\7X\2\2\u0176\u0177\5,\27\2\u0177\u0178\7\3\2\2\u0178\u0179\5.\30"+
+		"\2\u0179\u017a\7\4\2\2\u017a\u017b\5\60\31\2\u017b\u0183\3\2\2\2\u017c"+
+		"\u017d\7X\2\2\u017d\u017e\5,\27\2\u017e\u017f\5\60\31\2\u017f\u0183\3"+
+		"\2\2\2\u0180\u0181\7X\2\2\u0181\u0183\5,\27\2\u0182\u0175\3\2\2\2\u0182"+
+		"\u017c\3\2\2\2\u0182\u0180\3\2\2\2\u0183)\3\2\2\2\u0184\u0185\7Y\2\2\u0185"+
 		"\u0186\5,\27\2\u0186+\3\2\2\2\u0187\u0188\5\u00c8e\2\u0188-\3\2\2\2\u0189"+
 		"\u018c\5\u00c8e\2\u018a\u018c\7p\2\2\u018b\u0189\3\2\2\2\u018b\u018a\3"+
 		"\2\2\2\u018b\u018c\3\2\2\2\u018c\u0194\3\2\2\2\u018d\u0190\7\t\2\2\u018e"+

@@ -260,9 +260,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPreDefine(Pre_defineContext ctx) {
-		PreDefine expr = new PreDefine();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);	
+		replaceTopOfStack(new PreDefine(), ctx);	
 	}
 	
 	/**

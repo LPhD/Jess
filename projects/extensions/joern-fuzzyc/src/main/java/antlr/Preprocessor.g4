@@ -40,9 +40,9 @@ pre_command: pre_define
             | pre_line
             | pre_pragma;
 
-pre_define: PRE_DEFINE pre_macro_identifier
+pre_define: PRE_DEFINE pre_macro_identifier '(' pre_macro_parameters ')' pre_macro 
  			| PRE_DEFINE pre_macro_identifier pre_macro
-            | PRE_DEFINE pre_macro_identifier '(' pre_macro_parameters ')' pre_macro;     
+            | PRE_DEFINE pre_macro_identifier;     
 
 pre_undef: PRE_UNDEF pre_macro_identifier;
 

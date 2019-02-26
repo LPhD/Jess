@@ -71,10 +71,46 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreIncludeStatementWithMacro() {
-		String input = "#include MAKRO";
+		String input = "#include MACRO";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
 	}
 	
+	@Test
+	public void testPreDefineWithoutValue() {
+		String input = "#define MACRO";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreDefineWithValue() {
+		String input = "#define MACRO 5";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreDefineWithValueAndParameters() {
+		String input = "#define MACRO(a) a + 5 \n";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreDefineWithComplexValueAndParameters() {
+		String input = "#define ___config_enabled(__ignored, val, ...) val \n";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreDefineWithComplexValueAndParametersAndLineBreak() {
+		String input = "#define IS_ENABLED(option) \\\n" + 
+				"	(config_enabled(option) || config_enabled(option##_MODULE))";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		System.out.println(contentItem.getStatement(0).getTypeAsString());
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+	}
 
 }
