@@ -780,6 +780,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitNo_comma_or_semicolon(ModuleParser.No_comma_or_semicolonContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewline(ModuleParser.NewlineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewline(ModuleParser.NewlineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#assign_water}.
 	 * @param ctx the parse tree
 	 */
