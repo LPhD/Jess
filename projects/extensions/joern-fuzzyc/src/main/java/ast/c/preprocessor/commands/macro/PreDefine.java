@@ -2,11 +2,21 @@ package ast.c.preprocessor.commands.macro;
 
 public class PreDefine extends PreUndef{
 
-	PreMacro macro;
-	PreMacroParameters macroParameters;
+	PreMacro macro = null;
+	PreMacroParameters macroParameters = null;
 	
-	public PreDefine() {
-		// TODO Auto-generated constructor stub
+	public PreMacro getMacro() {
+		return macro;
 	}
+	public void setMacro(PreMacro macro) {
+		this.macro = macro;
+	}
+	public PreMacroParameters getMacroParameters() {
+		return macroParameters;
+	}
+	public void setMacroParameters(PreMacroParameters macroParameters) {
+		this.macroParameters = macroParameters;
+	}
+	
 
 }

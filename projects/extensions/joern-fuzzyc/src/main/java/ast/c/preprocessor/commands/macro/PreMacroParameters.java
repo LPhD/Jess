@@ -7,10 +7,7 @@ import ast.expressions.Identifier;
 
 public class PreMacroParameters extends ASTNode{
 	
-	List <Identifier> parameterList;
+	List <Identifier> parameterList = null;
 
-	public PreMacroParameters() {
-		// TODO Auto-generated constructor stub
-	}
 
 }

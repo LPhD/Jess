@@ -4,10 +4,16 @@ import ast.c.preprocessor.commands.PreCommand;
 
 public class PreUndef extends PreCommand{
 	
-	PreMacroIdentifier macroID;
+	PreMacroIdentifier macroID = null;
 
-	public PreUndef() {
-		// TODO Auto-generated constructor stub
+	public PreMacroIdentifier getMacroID() {
+		return macroID;
 	}
+
+	public void setMacroID(PreMacroIdentifier macroID) {
+		this.macroID = macroID;
+	}
+
+
 
 }
