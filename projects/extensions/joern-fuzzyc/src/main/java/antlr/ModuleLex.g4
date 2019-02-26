@@ -110,10 +110,15 @@ UnicodeEscape
 fragment
 HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
+NEWLINE: [\r\n]+;
+
+ESCAPE: '\\';
+
 COMMENT
     :   '/*' .*? '*/'    -> skip 
     ;
-WHITESPACE  :   [ \r\t\u000C\n]+ -> skip
+    
+WHITESPACE  :   [ \t\u000C]+ -> skip
     ;
 
 CPPCOMMENT

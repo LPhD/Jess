@@ -39,8 +39,8 @@ public class FunctionParser extends Parser {
 		PRE_LINE=92, PRE_PRAGMA=93, OPERATOR=94, TEMPLATE=95, NEW=96, CLASS_KEY=97, 
 		ALPHA_NUMERIC=98, OPENING_CURLY=99, CLOSING_CURLY=100, HEX_LITERAL=101, 
 		DECIMAL_LITERAL=102, OCTAL_LITERAL=103, FLOATING_POINT_LITERAL=104, CHAR=105, 
-		STRING=106, COMMENT=107, WHITESPACE=108, CPPCOMMENT=109, ELLIPSIS=110, 
-		OTHER=111;
+		STRING=106, NEWLINE=107, ESCAPE=108, COMMENT=109, WHITESPACE=110, CPPCOMMENT=111, 
+		ELLIPSIS=112, OTHER=113;
 	public static final int
 		RULE_statements = 0, RULE_statement = 1, RULE_opening_curly = 2, RULE_closing_curly = 3, 
 		RULE_block_starter = 4, RULE_selection_or_iteration = 5, RULE_for_init_statement = 6, 
@@ -116,7 +116,7 @@ public class FunctionParser extends Parser {
 		"'auto'", "'register'", null, "'#elif'", "'#else'", "'#endif'", "'#define'", 
 		"'#undef'", null, null, null, "'#include_next'", "'#line'", null, "'operator'", 
 		"'template'", "'new'", null, null, "'{'", "'}'", null, null, null, null, 
-		null, null, null, null, null, "'...'"
+		null, null, null, "'\\'", null, null, null, "'...'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
@@ -131,7 +131,8 @@ public class FunctionParser extends Parser {
 		"PRE_OTHER", "PRE_INCLUDE", "PRE_INCLUDE_NEXT", "PRE_LINE", "PRE_PRAGMA", 
 		"OPERATOR", "TEMPLATE", "NEW", "CLASS_KEY", "ALPHA_NUMERIC", "OPENING_CURLY", 
 		"CLOSING_CURLY", "HEX_LITERAL", "DECIMAL_LITERAL", "OCTAL_LITERAL", "FLOATING_POINT_LITERAL", 
-		"CHAR", "STRING", "COMMENT", "WHITESPACE", "CPPCOMMENT", "ELLIPSIS", "OTHER"
+		"CHAR", "STRING", "NEWLINE", "ESCAPE", "COMMENT", "WHITESPACE", "CPPCOMMENT", 
+		"ELLIPSIS", "OTHER"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -179,58 +180,66 @@ public class FunctionParser extends Parser {
 	public ATN getATN() { return _ATN; }
 
 
-	//Find the closing bracket to the opening bracket (and then return true), skip everything that is in between
-	            public boolean skipToEndOfObject() {
-	                //Stack of curly brackets
-	                Stack<Object> CurlyStack = new Stack<Object>();
-	                //Object for the brackets
-	                Object o = new Object();
-	                //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
-	                int t = _input.LA(1);
+		// Find the closing bracket to the opening bracket (and then return true), skip
+		// everything that is in between
+		public boolean skipToEndOfObject() {
+			// Stack of curly brackets
+			Stack<Object> CurlyStack = new Stack<Object>();
+			// Object for the brackets
+			Object o = new Object();
+			// returns the value of the current symbol in the stream (which is the next
+			// symbol to be consumed)
+			int t = _input.LA(1);
 
-	                //Find the closing bracket to the opening bracket, skip everything that is in between
-	                while(t != EOF && !(CurlyStack.empty() && t == CLOSING_CURLY)){
-	                    
-	                    //If there is an #else inside a method or class
-	                    if(t == PRE_ELSE || t == PRE_ELIF){
-	                        //Stack for collecting #ifs
-	                        Stack<Object> ifdefStack = new Stack<Object>();
-	                        //Return and parse #else, skip to next input
-	                        consume();
-	                        t = _input.LA(1);
-	                        
-	                        //Find the closing #endif to the opening #else, skip everything that is in between (#else/#endif included)
-	                        while(t != EOF && !(ifdefStack.empty() && (t == PRE_ENDIF))){
-	                            //Collect all found opening #ifs. If a #endif is found, remove one #if/#else from stack
-	                            if(t == PRE_IF)
-	                                ifdefStack.push(o);
-	                            else if(t == PRE_ENDIF)
-	                                ifdefStack.pop();
+			// Find the closing bracket to the opening bracket, skip everything that is in
+			// between
+			while (t != EOF && !(CurlyStack.empty() && t == CLOSING_CURLY)) {
 
-	                            //Return and parse current t, skip to next input
-	                            consume();
-	                            t = _input.LA(1);
-	                        }
-	                    }
-	                    
-	                    //Collect all found opening brackets. If a closing bracket is found, remove one opening bracket from stack
-	                    if(t == OPENING_CURLY)
-	                        CurlyStack.push(o);
-	                    else if(t == CLOSING_CURLY)
-	                        CurlyStack.pop();
-	                        
-	                    //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
-	                    consume();
-	                    t = _input.LA(1);
-	                }
-	                
-	                if(t != EOF){
-	                    //Return the closing bracket (if there is one)
-	                    consume();
-	                 }   
-	                 
-	                return true;
-	            }
+				// If there is an #else inside a method or class
+				if (t == PRE_ELSE || t == PRE_ELIF) {
+					// Stack for collecting #ifs
+					Stack<Object> ifdefStack = new Stack<Object>();
+					// Return and parse #else, skip to next input
+					consume();
+					t = _input.LA(1);
+
+					// Find the closing #endif to the opening #else, skip everything that is in
+					// between (#else/#endif included)
+					while (t != EOF && !(ifdefStack.empty() && (t == PRE_ENDIF))) {
+						// Collect all found opening #ifs. If a #endif is found, remove one #if/#else
+						// from stack
+						if (t == PRE_IF)
+							ifdefStack.push(o);
+						else if (t == PRE_ENDIF)
+							ifdefStack.pop();
+
+						// Return and parse current t, skip to next input
+						consume();
+						t = _input.LA(1);
+					}
+				}
+
+				// Collect all found opening brackets. If a closing bracket is found, remove one
+				// opening bracket from stack
+				if (t == OPENING_CURLY)
+					CurlyStack.push(o);
+				else if (t == CLOSING_CURLY)
+					CurlyStack.pop();
+
+				// Consume and return the current symbol, move cursor to next symbol, the
+				// consumed symbol is added to the parse tree
+				consume();
+				t = _input.LA(1);
+			}
+
+			if (t != EOF) {
+				// Return the closing bracket (if there is one)
+				consume();
+			}
+
+			return true;
+		}
+	            
 	       // this should go into FunctionGrammar but ANTLR fails
 	       // to join the parser::members-section on inclusion
 	       
@@ -261,29 +270,33 @@ public class FunctionParser extends Parser {
 	                return true;
 	       }
 	       
-	           //Find the end of a preprocessor macro
-	           public boolean preProcFindMacroEnd()  {
-	                //Stack for backslashes
-	                Stack<Object> slashStack = new Stack<Object>();
-	                //Object for the  slashes
-	                Object o = new Object();
-	                //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
-	                int t = _input.LA(1);
+	      //Find the end of a preprocessor macro
+	     public boolean preProcFindMacroEnd()  {
+	          //Stack for backslashes
+	          Stack<Object> slashStack = new Stack<Object>();
+	          //Object for the  slashes
+	          Object o = new Object();
+	          //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
+	          int t = _input.LA(1);
 
-	                //Look for end of the macro where a newline appears without a previous backslash
-	                while(t != EOF && !(slashStack.empty() && t == '\n')){
+	            //Look for end of the macro where a newline appears without a previous backslash
+	            while(t != EOF && !(slashStack.empty() && t == NEWLINE)){
 	                                       
-	                      if(t == '\\')
-	                            slashStack.push(o);
-	                      else if(t == '\n')
-	                            slashStack.pop();
+	                  if(t == ESCAPE)
+	                        slashStack.push(o);
+	                  else if(t == NEWLINE)
+	                        slashStack.pop();
 	                                
-	                      //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
-	                      consume();
-	                      t = _input.LA(1);
-	                }
-	                    return true;
-	           }
+	                  //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
+	                  consume();
+	                  t = _input.LA(1);
+	             }                
+	        if (t != EOF) {
+				// Return the closing bracket (if there is one)
+				consume();
+			}                              
+	   	return true;
+		}
 
 
 	public FunctionParser(TokenStream input) {
@@ -321,7 +334,7 @@ public class FunctionParser extends Parser {
 			setState(209);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << T__13) | (1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__25) | (1L << T__26) | (1L << T__27) | (1L << T__28) | (1L << T__29) | (1L << T__30) | (1L << T__31) | (1L << T__32) | (1L << T__33) | (1L << T__34) | (1L << T__35) | (1L << T__36) | (1L << T__37) | (1L << T__38) | (1L << T__39) | (1L << T__40) | (1L << T__41) | (1L << T__42) | (1L << T__43) | (1L << T__44) | (1L << T__45) | (1L << T__46) | (1L << T__47) | (1L << T__48) | (1L << T__49) | (1L << T__50) | (1L << T__51) | (1L << T__52) | (1L << T__53) | (1L << T__54) | (1L << T__55) | (1L << IF) | (1L << ELSE) | (1L << FOR) | (1L << WHILE) | (1L << BREAK) | (1L << CASE) | (1L << CONTINUE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SWITCH - 64)) | (1L << (DO - 64)) | (1L << (GOTO - 64)) | (1L << (RETURN - 64)) | (1L << (TYPEDEF - 64)) | (1L << (VOID - 64)) | (1L << (UNSIGNED - 64)) | (1L << (SIGNED - 64)) | (1L << (LONG - 64)) | (1L << (CV_QUALIFIER - 64)) | (1L << (VIRTUAL - 64)) | (1L << (TRY - 64)) | (1L << (CATCH - 64)) | (1L << (THROW - 64)) | (1L << (USING - 64)) | (1L << (NAMESPACE - 64)) | (1L << (AUTO - 64)) | (1L << (REGISTER - 64)) | (1L << (PRE_IF - 64)) | (1L << (PRE_ELIF - 64)) | (1L << (PRE_ELSE - 64)) | (1L << (PRE_ENDIF - 64)) | (1L << (PRE_DEFINE - 64)) | (1L << (PRE_UNDEF - 64)) | (1L << (PRE_DIAGNOSTIC - 64)) | (1L << (PRE_OTHER - 64)) | (1L << (PRE_INCLUDE - 64)) | (1L << (PRE_INCLUDE_NEXT - 64)) | (1L << (PRE_LINE - 64)) | (1L << (PRE_PRAGMA - 64)) | (1L << (OPERATOR - 64)) | (1L << (TEMPLATE - 64)) | (1L << (NEW - 64)) | (1L << (CLASS_KEY - 64)) | (1L << (ALPHA_NUMERIC - 64)) | (1L << (OPENING_CURLY - 64)) | (1L << (CLOSING_CURLY - 64)) | (1L << (HEX_LITERAL - 64)) | (1L << (DECIMAL_LITERAL - 64)) | (1L << (OCTAL_LITERAL - 64)) | (1L << (FLOATING_POINT_LITERAL - 64)) | (1L << (CHAR - 64)) | (1L << (STRING - 64)) | (1L << (COMMENT - 64)) | (1L << (WHITESPACE - 64)) | (1L << (CPPCOMMENT - 64)) | (1L << (ELLIPSIS - 64)) | (1L << (OTHER - 64)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__1) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << T__13) | (1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__25) | (1L << T__26) | (1L << T__27) | (1L << T__28) | (1L << T__29) | (1L << T__30) | (1L << T__31) | (1L << T__32) | (1L << T__33) | (1L << T__34) | (1L << T__35) | (1L << T__36) | (1L << T__37) | (1L << T__38) | (1L << T__39) | (1L << T__40) | (1L << T__41) | (1L << T__42) | (1L << T__43) | (1L << T__44) | (1L << T__45) | (1L << T__46) | (1L << T__47) | (1L << T__48) | (1L << T__49) | (1L << T__50) | (1L << T__51) | (1L << T__52) | (1L << T__53) | (1L << T__54) | (1L << T__55) | (1L << IF) | (1L << ELSE) | (1L << FOR) | (1L << WHILE) | (1L << BREAK) | (1L << CASE) | (1L << CONTINUE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SWITCH - 64)) | (1L << (DO - 64)) | (1L << (GOTO - 64)) | (1L << (RETURN - 64)) | (1L << (TYPEDEF - 64)) | (1L << (VOID - 64)) | (1L << (UNSIGNED - 64)) | (1L << (SIGNED - 64)) | (1L << (LONG - 64)) | (1L << (CV_QUALIFIER - 64)) | (1L << (VIRTUAL - 64)) | (1L << (TRY - 64)) | (1L << (CATCH - 64)) | (1L << (THROW - 64)) | (1L << (USING - 64)) | (1L << (NAMESPACE - 64)) | (1L << (AUTO - 64)) | (1L << (REGISTER - 64)) | (1L << (PRE_IF - 64)) | (1L << (PRE_ELIF - 64)) | (1L << (PRE_ELSE - 64)) | (1L << (PRE_ENDIF - 64)) | (1L << (PRE_DEFINE - 64)) | (1L << (PRE_UNDEF - 64)) | (1L << (PRE_DIAGNOSTIC - 64)) | (1L << (PRE_OTHER - 64)) | (1L << (PRE_INCLUDE - 64)) | (1L << (PRE_INCLUDE_NEXT - 64)) | (1L << (PRE_LINE - 64)) | (1L << (PRE_PRAGMA - 64)) | (1L << (OPERATOR - 64)) | (1L << (TEMPLATE - 64)) | (1L << (NEW - 64)) | (1L << (CLASS_KEY - 64)) | (1L << (ALPHA_NUMERIC - 64)) | (1L << (OPENING_CURLY - 64)) | (1L << (CLOSING_CURLY - 64)) | (1L << (HEX_LITERAL - 64)) | (1L << (DECIMAL_LITERAL - 64)) | (1L << (OCTAL_LITERAL - 64)) | (1L << (FLOATING_POINT_LITERAL - 64)) | (1L << (CHAR - 64)) | (1L << (STRING - 64)) | (1L << (NEWLINE - 64)) | (1L << (ESCAPE - 64)) | (1L << (COMMENT - 64)) | (1L << (WHITESPACE - 64)) | (1L << (CPPCOMMENT - 64)) | (1L << (ELLIPSIS - 64)) | (1L << (OTHER - 64)))) != 0)) {
 				{
 				{
 				setState(206);
@@ -3542,6 +3555,8 @@ public class FunctionParser extends Parser {
 				case FLOATING_POINT_LITERAL:
 				case CHAR:
 				case STRING:
+				case NEWLINE:
+				case ESCAPE:
 				case COMMENT:
 				case WHITESPACE:
 				case CPPCOMMENT:
@@ -3559,7 +3574,7 @@ public class FunctionParser extends Parser {
 				setState(549); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << T__13) | (1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__25) | (1L << T__26) | (1L << T__27) | (1L << T__28) | (1L << T__29) | (1L << T__30) | (1L << T__31) | (1L << T__32) | (1L << T__33) | (1L << T__34) | (1L << T__35) | (1L << T__36) | (1L << T__37) | (1L << T__38) | (1L << T__39) | (1L << T__40) | (1L << T__41) | (1L << T__42) | (1L << T__43) | (1L << T__44) | (1L << T__45) | (1L << T__46) | (1L << T__47) | (1L << T__48) | (1L << T__49) | (1L << T__50) | (1L << T__51) | (1L << T__52) | (1L << T__53) | (1L << T__54) | (1L << T__55) | (1L << IF) | (1L << ELSE) | (1L << FOR) | (1L << WHILE) | (1L << BREAK) | (1L << CASE) | (1L << CONTINUE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SWITCH - 64)) | (1L << (DO - 64)) | (1L << (GOTO - 64)) | (1L << (RETURN - 64)) | (1L << (TYPEDEF - 64)) | (1L << (VOID - 64)) | (1L << (UNSIGNED - 64)) | (1L << (SIGNED - 64)) | (1L << (LONG - 64)) | (1L << (CV_QUALIFIER - 64)) | (1L << (VIRTUAL - 64)) | (1L << (TRY - 64)) | (1L << (CATCH - 64)) | (1L << (THROW - 64)) | (1L << (USING - 64)) | (1L << (NAMESPACE - 64)) | (1L << (AUTO - 64)) | (1L << (REGISTER - 64)) | (1L << (PRE_IF - 64)) | (1L << (PRE_ELIF - 64)) | (1L << (PRE_ELSE - 64)) | (1L << (PRE_ENDIF - 64)) | (1L << (PRE_DEFINE - 64)) | (1L << (PRE_UNDEF - 64)) | (1L << (PRE_DIAGNOSTIC - 64)) | (1L << (PRE_OTHER - 64)) | (1L << (PRE_INCLUDE - 64)) | (1L << (PRE_INCLUDE_NEXT - 64)) | (1L << (PRE_LINE - 64)) | (1L << (PRE_PRAGMA - 64)) | (1L << (OPERATOR - 64)) | (1L << (TEMPLATE - 64)) | (1L << (NEW - 64)) | (1L << (CLASS_KEY - 64)) | (1L << (ALPHA_NUMERIC - 64)) | (1L << (OPENING_CURLY - 64)) | (1L << (CLOSING_CURLY - 64)) | (1L << (HEX_LITERAL - 64)) | (1L << (DECIMAL_LITERAL - 64)) | (1L << (OCTAL_LITERAL - 64)) | (1L << (FLOATING_POINT_LITERAL - 64)) | (1L << (CHAR - 64)) | (1L << (STRING - 64)) | (1L << (COMMENT - 64)) | (1L << (WHITESPACE - 64)) | (1L << (CPPCOMMENT - 64)) | (1L << (ELLIPSIS - 64)) | (1L << (OTHER - 64)))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__2) | (1L << T__3) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__12) | (1L << T__13) | (1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__25) | (1L << T__26) | (1L << T__27) | (1L << T__28) | (1L << T__29) | (1L << T__30) | (1L << T__31) | (1L << T__32) | (1L << T__33) | (1L << T__34) | (1L << T__35) | (1L << T__36) | (1L << T__37) | (1L << T__38) | (1L << T__39) | (1L << T__40) | (1L << T__41) | (1L << T__42) | (1L << T__43) | (1L << T__44) | (1L << T__45) | (1L << T__46) | (1L << T__47) | (1L << T__48) | (1L << T__49) | (1L << T__50) | (1L << T__51) | (1L << T__52) | (1L << T__53) | (1L << T__54) | (1L << T__55) | (1L << IF) | (1L << ELSE) | (1L << FOR) | (1L << WHILE) | (1L << BREAK) | (1L << CASE) | (1L << CONTINUE))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (SWITCH - 64)) | (1L << (DO - 64)) | (1L << (GOTO - 64)) | (1L << (RETURN - 64)) | (1L << (TYPEDEF - 64)) | (1L << (VOID - 64)) | (1L << (UNSIGNED - 64)) | (1L << (SIGNED - 64)) | (1L << (LONG - 64)) | (1L << (CV_QUALIFIER - 64)) | (1L << (VIRTUAL - 64)) | (1L << (TRY - 64)) | (1L << (CATCH - 64)) | (1L << (THROW - 64)) | (1L << (USING - 64)) | (1L << (NAMESPACE - 64)) | (1L << (AUTO - 64)) | (1L << (REGISTER - 64)) | (1L << (PRE_IF - 64)) | (1L << (PRE_ELIF - 64)) | (1L << (PRE_ELSE - 64)) | (1L << (PRE_ENDIF - 64)) | (1L << (PRE_DEFINE - 64)) | (1L << (PRE_UNDEF - 64)) | (1L << (PRE_DIAGNOSTIC - 64)) | (1L << (PRE_OTHER - 64)) | (1L << (PRE_INCLUDE - 64)) | (1L << (PRE_INCLUDE_NEXT - 64)) | (1L << (PRE_LINE - 64)) | (1L << (PRE_PRAGMA - 64)) | (1L << (OPERATOR - 64)) | (1L << (TEMPLATE - 64)) | (1L << (NEW - 64)) | (1L << (CLASS_KEY - 64)) | (1L << (ALPHA_NUMERIC - 64)) | (1L << (OPENING_CURLY - 64)) | (1L << (CLOSING_CURLY - 64)) | (1L << (HEX_LITERAL - 64)) | (1L << (DECIMAL_LITERAL - 64)) | (1L << (OCTAL_LITERAL - 64)) | (1L << (FLOATING_POINT_LITERAL - 64)) | (1L << (CHAR - 64)) | (1L << (STRING - 64)) | (1L << (NEWLINE - 64)) | (1L << (ESCAPE - 64)) | (1L << (COMMENT - 64)) | (1L << (WHITESPACE - 64)) | (1L << (CPPCOMMENT - 64)) | (1L << (ELLIPSIS - 64)) | (1L << (OTHER - 64)))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -7545,7 +7560,7 @@ public class FunctionParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3q\u03e2\4\2\t\2\4"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3s\u03e2\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -7653,7 +7668,7 @@ public class FunctionParser extends Parser {
 		"\5\3\2\2\2\u00e1\u00e2\7e\2\2\u00e2\7\3\2\2\2\u00e3\u00e4\7f\2\2\u00e4"+
 		"\t\3\2\2\2\u00e5\u00e6\5\f\7\2\u00e6\13\3\2\2\2\u00e7\u010f\7M\2\2\u00e8"+
 		"\u00e9\7N\2\2\u00e9\u00ec\7\3\2\2\u00ea\u00ed\5\u00c4c\2\u00eb\u00ed\7"+
-		"p\2\2\u00ec\u00ea\3\2\2\2\u00ec\u00eb\3\2\2\2\u00ed\u00ee\3\2\2\2\u00ee"+
+		"r\2\2\u00ec\u00ea\3\2\2\2\u00ec\u00eb\3\2\2\2\u00ed\u00ee\3\2\2\2\u00ee"+
 		"\u010f\7\4\2\2\u00ef\u00f0\7;\2\2\u00f0\u00f1\7\3\2\2\u00f1\u00f2\5\26"+
 		"\f\2\u00f2\u00f3\7\4\2\2\u00f3\u010f\3\2\2\2\u00f4\u010f\7<\2\2\u00f5"+
 		"\u00f6\7B\2\2\u00f6\u00f7\7\3\2\2\u00f7\u00f8\5\26\f\2\u00f8\u00f9\7\4"+
@@ -7708,9 +7723,9 @@ public class FunctionParser extends Parser {
 		"\2\2\2\u0180\u0181\7X\2\2\u0181\u0183\5,\27\2\u0182\u0175\3\2\2\2\u0182"+
 		"\u017c\3\2\2\2\u0182\u0180\3\2\2\2\u0183)\3\2\2\2\u0184\u0185\7Y\2\2\u0185"+
 		"\u0186\5,\27\2\u0186+\3\2\2\2\u0187\u0188\5\u00c8e\2\u0188-\3\2\2\2\u0189"+
-		"\u018c\5\u00c8e\2\u018a\u018c\7p\2\2\u018b\u0189\3\2\2\2\u018b\u018a\3"+
+		"\u018c\5\u00c8e\2\u018a\u018c\7r\2\2\u018b\u0189\3\2\2\2\u018b\u018a\3"+
 		"\2\2\2\u018b\u018c\3\2\2\2\u018c\u0194\3\2\2\2\u018d\u0190\7\t\2\2\u018e"+
-		"\u0191\5\u00c8e\2\u018f\u0191\7p\2\2\u0190\u018e\3\2\2\2\u0190\u018f\3"+
+		"\u0191\5\u00c8e\2\u018f\u0191\7r\2\2\u0190\u018e\3\2\2\2\u0190\u018f\3"+
 		"\2\2\2\u0191\u0193\3\2\2\2\u0192\u018d\3\2\2\2\u0193\u0196\3\2\2\2\u0194"+
 		"\u0192\3\2\2\2\u0194\u0195\3\2\2\2\u0195/\3\2\2\2\u0196\u0194\3\2\2\2"+
 		"\u0197\u0198\b\31\1\2\u0198\61\3\2\2\2\u0199\u019a\7Z\2\2\u019a\u019b"+

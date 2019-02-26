@@ -10,7 +10,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 
 	@Test
 	public void testPreprocessorIfs() {
-		String input = "int foo(){ #if bar\n int i;\n #endif\n }";
+		String input = "int foo(){ #if bar int i; #endif}";
 
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
@@ -20,7 +20,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 
 	@Test
 	public void testNestedPreprocessorIfs() {
-		String input = "int foo(){ #if bar\n #if bar2\n #endif\n #endif\n}";
+		String input = "int foo(){ #if bar #if bar2 #endif #endif}";
 
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
@@ -30,7 +30,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 
 	@Test
 	public void testPreprocIfBeforeFunc() {
-		String input = "#ifdef foo\n int foo(){ #if x\n foo();\n #else\n #endif\n } abc\n #endif\n";
+		String input = "#ifdef foo int foo(){ #if x foo(); #else #endif } abc #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
 		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))))))) "
@@ -40,7 +40,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 
 	@Test
 	public void testPreprocIfNesting() {
-		String input = "int foo(){ #ifdef x\n #ifdef y\n #else\n #endif\n #endif\n abc(); } foo();";
+		String input = "int foo(){ #ifdef x #ifdef y #else #endif #endif abc(); } foo();";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
 		String outputExpected = "(code (function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #ifdef x #ifdef y #else #endif #endif abc ( ) ; })) (water foo) (water () (water )) (water ;))";
@@ -49,7 +49,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 
 	@Test
 	public void testPreprocInCode() {
-		String input = "#ifdef x\n int i;  #else\n int x; #endif\n ";
+		String input = "#ifdef x int i;  #else int x; #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
 		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier x))))))))))))))))))))))) "
@@ -59,7 +59,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 
 	@Test
 	public void testPreprocIfInElse() {
-		String input = "foo(){ #ifdef x\n #else\n #ifdef y\n #endif\n #endif\n abc(); } foo();";
+		String input = "foo(){ #ifdef x #else #ifdef y #endif #endif abc(); } foo();";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
 		String outputExpected = "(code (function_def (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #ifdef x #else #ifdef y #endif #endif abc ( ) ; })) (water foo) (water () (water )) (water ;))";
@@ -68,7 +68,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 
 	@Test
 	public void testScatteredPreProc() {
-		String input = "#ifdef foo\n int foo(){ #else\n {\n #endif\n } abc\n #endif\n";
+		String input = "#ifdef foo int foo(){ #else { #endif } abc #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
 		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))))))) (function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #else { #endif })) (water abc) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
