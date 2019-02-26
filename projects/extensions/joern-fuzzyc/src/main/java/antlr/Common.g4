@@ -168,7 +168,7 @@ template_param_list : (('<' template_param_list '>') |
 ;
 
 // water
-
+newline: NEWLINE;
 no_brackets: ~('(' | ')');
 no_brackets_curlies_or_squares: ~('(' | ')' | '{' | '}' | '[' | ']');
 no_brackets_or_semicolon: ~('(' | ')' | ';');
@@ -177,9 +177,9 @@ no_curlies: ~('{' | '}');
 no_squares: ~('[' | ']');
 no_squares_or_semicolon: ~('[' | ']' | ';');
 no_comma_or_semicolon: ~(',' | ';');
-newline: NEWLINE;
+
 
 assign_water: ~('(' | ')' | '{' | '}' | '[' | ']' | ';' | ',');
 assign_water_l2: ~('(' | ')' | '{' | '}' | '[' | ']');
 
-water: newline | .;
+water: .;

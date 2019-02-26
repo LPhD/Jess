@@ -658,6 +658,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNewline(FunctionParser.NewlineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNewline(FunctionParser.NewlineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNo_brackets(FunctionParser.No_bracketsContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -749,18 +761,6 @@ public class FunctionBaseListener implements FunctionListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNo_comma_or_semicolon(FunctionParser.No_comma_or_semicolonContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNewline(FunctionParser.NewlineContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNewline(FunctionParser.NewlineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -826,6 +826,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNewline(ModuleParser.NewlineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNewline(ModuleParser.NewlineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNo_brackets(ModuleParser.No_bracketsContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -917,18 +929,6 @@ public class ModuleBaseListener implements ModuleListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNo_comma_or_semicolon(ModuleParser.No_comma_or_semicolonContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNewline(ModuleParser.NewlineContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNewline(ModuleParser.NewlineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

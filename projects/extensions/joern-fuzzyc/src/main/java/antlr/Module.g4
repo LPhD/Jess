@@ -22,7 +22,7 @@ import ModuleLex, Preprocessor, Expressions, Common, FunctionDef, CoarseSimpleDe
 	package antlr;
 }
 
-code : (pre_statement | function_def | simple_decl | using_directive | water )*;
+code : (pre_statement | newline | function_def | simple_decl | using_directive | water )*;
 
 
 using_directive: USING NAMESPACE identifier ';';

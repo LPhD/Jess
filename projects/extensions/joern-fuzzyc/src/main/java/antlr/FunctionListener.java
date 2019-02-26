@@ -570,6 +570,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitTemplate_param_list(FunctionParser.Template_param_listContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewline(FunctionParser.NewlineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewline(FunctionParser.NewlineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#no_brackets}.
 	 * @param ctx the parse tree
 	 */
@@ -649,16 +659,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNo_comma_or_semicolon(FunctionParser.No_comma_or_semicolonContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#newline}.
-	 * @param ctx the parse tree
-	 */
-	void enterNewline(FunctionParser.NewlineContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#newline}.
-	 * @param ctx the parse tree
-	 */
-	void exitNewline(FunctionParser.NewlineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#assign_water}.
 	 * @param ctx the parse tree

@@ -44,6 +44,7 @@ import antlr.FunctionParser.Initializer_listContext;
 import antlr.FunctionParser.LabelContext;
 import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
+import antlr.FunctionParser.NewlineContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
 import antlr.FunctionParser.Pre_commandContext;
@@ -1316,6 +1317,15 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void enterThrowStatement(ThrowStatementContext ctx)
 	{
 		replaceTopOfStack(new ThrowStatement(), ctx);
+	}
+
+	/**
+	 * Pop newline parnet statement from the stack, as we dont need it as a node.
+	 * @param ctx
+	 */
+	public void enterNewline(NewlineContext ctx) {
+		stack.pop();
+		
 	}
 
 

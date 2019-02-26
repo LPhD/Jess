@@ -700,6 +700,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitTemplate_param_list(ModuleParser.Template_param_listContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewline(ModuleParser.NewlineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewline(ModuleParser.NewlineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#no_brackets}.
 	 * @param ctx the parse tree
 	 */
@@ -779,16 +789,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNo_comma_or_semicolon(ModuleParser.No_comma_or_semicolonContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#newline}.
-	 * @param ctx the parse tree
-	 */
-	void enterNewline(ModuleParser.NewlineContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#newline}.
-	 * @param ctx the parse tree
-	 */
-	void exitNewline(ModuleParser.NewlineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#assign_water}.
 	 * @param ctx the parse tree

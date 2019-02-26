@@ -49,6 +49,13 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 				.peek();
 		builder.exitStatement(ctx);
 	}
+	
+	@Override
+	public void enterNewline(FunctionParser.NewlineContext ctx)
+	{
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterNewline(ctx);
+	}
 
 	@Override
 	public void enterElse_statement(FunctionParser.Else_statementContext ctx)
