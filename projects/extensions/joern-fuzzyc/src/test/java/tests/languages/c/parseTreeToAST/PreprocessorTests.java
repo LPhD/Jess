@@ -50,6 +50,13 @@ public class PreprocessorTests {
 	}
 	
 	@Test
+	public void preIfWithDefined() {
+		String input = "#if defined (foo) int i; #endif";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreIfStatement", contentItem.getStatement(0).getEscapedCodeStr());
+	}
+	
+	@Test
 	public void preIfWithNestedCondition() {
 		String input = "#if (foo < 5 && ( x < 1 || x > 5 ))  int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
@@ -95,8 +102,6 @@ public class PreprocessorTests {
 	public void testTwoPreDefines() {
 		String input = "#define MACROA \n #define MACROB \n";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		System.out.println(contentItem.getStatement(0).getTypeAsString());
-		System.out.println(contentItem.getStatement(0).getEscapedCodeStr());
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("PreDefine", contentItem.getStatement(1).getTypeAsString());
 	}
@@ -121,6 +126,27 @@ public class PreprocessorTests {
 				"	(config_enabled(option) || config_enabled(option##_MODULE))";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreUndef() {
+		String input = "#undef ___config_enabled";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreUndef", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreLineWithNum() {
+		String input = "#line 5";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreLine", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreLineWithNumAndFile() {
+		String input = "#line 5 Filename";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreLine", contentItem.getStatement(0).getTypeAsString());
 	}
 
 }
