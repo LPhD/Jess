@@ -1,9 +1,31 @@
 package ast.c.preprocessor.commands;
 
-public class PreInclude extends PreCommand{
+import ast.c.preprocessor.commands.macro.PreMacroIdentifier;
+import ast.walking.ASTNodeVisitor;
 
-	public PreInclude() {
-		// TODO Auto-generated constructor stub
+public class PreInclude extends PreCommand {
+
+	PreIncludeFilename fileName = null;
+	PreMacroIdentifier macroName = null;
+
+	public PreMacroIdentifier getMacroName() {
+		return macroName;
+	}
+
+	public void setMacroName(PreMacroIdentifier macroName) {
+		this.macroName = macroName;
+	}
+
+	public void setFilename(PreIncludeFilename fileName) {
+		this.fileName = fileName;
+	}
+
+	public PreIncludeFilename getFilepname() {
+		return fileName;
+	}
+
+	public void accept(ASTNodeVisitor visitor) {
+		visitor.visit(this);
 	}
 
 }

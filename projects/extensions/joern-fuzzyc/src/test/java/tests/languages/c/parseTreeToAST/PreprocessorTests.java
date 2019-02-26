@@ -56,17 +56,24 @@ public class PreprocessorTests {
 	}
 	
 	@Test
-	public void testPreIncludeStatement() {
-		String input = "#include <file.h> \n #include \"something\"";
+	public void testPreIncludeStatementWithBrackets() {
+		String input = "#include <file.h>";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		System.out.println(contentItem.getStatement(0).getTypeAsString());
-		System.out.println(contentItem.getStatement(0).getEscapedCodeStr());
-		System.out.println(contentItem.getStatement(1).getTypeAsString());
-		System.out.println(contentItem.getStatement(1).getEscapedCodeStr());
-		System.out.println(contentItem.getStatement(2).getTypeAsString());
-		System.out.println(contentItem.getStatement(2).getEscapedCodeStr());
 		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
-		assertEquals("PreInclude", contentItem.getStatement(1).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreIncludeStatementWithQuotes() {
+		String input = "#include \"something\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreIncludeStatementWithMacro() {
+		String input = "#include MAKRO";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
 	}
 	
 

@@ -65,7 +65,6 @@ FLOATING_POINT_LITERAL
     |   ('0'..'9')+ Exponent? FloatTypeSuffix
 	;
 	
-QUOTE: '\"';
 
 CHAR
     :   '\'' ( EscapeSequence | ~('\''|'\\') ) '\''
