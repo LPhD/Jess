@@ -177,6 +177,7 @@ no_curlies: ~('{' | '}');
 no_squares: ~('[' | ']');
 no_squares_or_semicolon: ~('[' | ']' | ';');
 no_comma_or_semicolon: ~(',' | ';');
+newline: NEWLINE;
 
 assign_water: ~('(' | ')' | '{' | '}' | '[' | ']' | ';' | ',');
 assign_water_l2: ~('(' | ')' | '{' | '}' | '[' | ']');
