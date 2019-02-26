@@ -182,4 +182,4 @@ newline: NEWLINE;
 assign_water: ~('(' | ')' | '{' | '}' | '[' | ']' | ';' | ',');
 assign_water_l2: ~('(' | ')' | '{' | '}' | '[' | ']');
 
-water: .;
+water: newline | .;
