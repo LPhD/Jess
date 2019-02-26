@@ -1320,7 +1320,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 
 	/**
-	 * Pop newline parnet statement from the stack, as we dont need it as a node.
+	 * Pop newline parent statement from the stack, as we dont need it as a node.
 	 * @param ctx
 	 */
 	public void enterNewline(NewlineContext ctx) {
