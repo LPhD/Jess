@@ -288,20 +288,20 @@ public class ModuleParser extends Parser {
 
 	            //Look for end of the macro where a newline appears without a previous backslash
 	            while(t != EOF && !(slashStack.empty() && t == NEWLINE)){
-	                                       
-	                  if(t == ESCAPE)
+	                
+	                   //Count escape and newline characters, but dont parse them                    
+	                  if(t == ESCAPE){
 	                        slashStack.push(o);
-	                  else if(t == NEWLINE)
+	                        t = WHITESPACE; 
+	                  } else if(t == NEWLINE) {
 	                        slashStack.pop();
-	                                
+	                        t = WHITESPACE;
+	                  }
+	                                   
 	                  //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
 	                  consume();
 	                  t = _input.LA(1);
-	             }                
-	        if (t != EOF) {
-				// Return the closing bracket (if there is one)
-				consume();
-			}                              
+	             }                                             
 	   	return true;
 		}
 
