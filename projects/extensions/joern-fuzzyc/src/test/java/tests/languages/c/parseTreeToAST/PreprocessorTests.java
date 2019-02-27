@@ -30,7 +30,7 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreElIfStatements() {
-		String input = "#if foo  bar();  #elif  foo();  foo();  #endif";
+		String input = "#if foo  bar();  #elif bar  foo();  foo();  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreElIfStatement", contentItem.getStatement(2).getTypeAsString());
 	}
