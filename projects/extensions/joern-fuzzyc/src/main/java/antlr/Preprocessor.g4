@@ -1,5 +1,6 @@
 grammar Preprocessor;
 
+//Angelehnt an ISO/IEC 9899:TC3 sowie GCC Manual 2019
 
 pre_statement: pre_blockstarter
 				| pre_command;
@@ -54,7 +55,8 @@ pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
 
 pre_macro: { preProcFindMacroEnd(); };
 
-pre_diagnostic: PRE_DIAGNOSTIC STRING;
+pre_diagnostic: PRE_DIAGNOSTIC STRING
+            | PRE_DIAGNOSTIC;
 
 pre_other: PRE_OTHER STRING;
 
@@ -75,7 +77,8 @@ pre_line: PRE_LINE DECIMAL_LITERAL STRING
         | PRE_LINE DECIMAL_LITERAL;
         
 
-pre_pragma: PRE_PRAGMA STRING { preProcFindMacroEnd(); }
-            | PRE_PRAGMA identifier+
-            | PRE_PRAGMA;    
+pre_pragma: PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS STRING { preProcFindMacroEnd(); }
+            | PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS identifier+ 
+            | PRE_PRAGMA GCC? PRE_PRAGMA_KEYWORDS
+            | PRE_PRAGMA { preProcFindMacroEnd(); };             
     
