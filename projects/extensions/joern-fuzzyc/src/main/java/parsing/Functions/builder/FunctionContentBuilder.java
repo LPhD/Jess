@@ -339,9 +339,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPreUndef(Pre_undefContext ctx) {
-		PreUndef expr = new PreUndef();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);	
+		replaceTopOfStack(new PreUndef(), ctx);
 	}
 	
 	/**
@@ -361,9 +359,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPreDiagnostic(Pre_diagnosticContext ctx) {
-		PreDiagnostic expr = new PreDiagnostic();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);	
+		replaceTopOfStack(new PreDiagnostic(), ctx);
 	}
 	
 	/**
@@ -382,10 +378,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPreInclude(Pre_includeContext ctx) {
-		replaceTopOfStack(new PreInclude(), ctx);
-//		PreInclude expr = new PreInclude();
-//		nodeToRuleContext.put(expr, ctx);
-//		stack.push(expr);	
+		replaceTopOfStack(new PreInclude(), ctx);	
 	}
 	
 	/**
@@ -403,9 +396,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPreIncludeNext(Pre_include_nextContext ctx) {
-		PreIncludeNext expr = new PreIncludeNext();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);
+		replaceTopOfStack(new PreIncludeNext(), ctx);	
 	}
 	
 	/**
@@ -423,9 +414,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPreLine(Pre_lineContext ctx) {
-		PreLine expr = new PreLine();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);
+		replaceTopOfStack(new PreLine(), ctx);
 	}
 	
 	/**
@@ -443,9 +432,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPreOther(Pre_otherContext ctx) {
-		PreOther expr = new PreOther();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);	
+		replaceTopOfStack(new PreOther(), ctx);
 	}
 	
 	/**
@@ -463,9 +450,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void enterPrePragma(Pre_pragmaContext ctx) {
-		PrePragma expr = new PrePragma();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);	
+		replaceTopOfStack(new PrePragma(), ctx);	
 	}
 	
 	/**

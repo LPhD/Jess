@@ -53,7 +53,7 @@ public class PreprocessorTests {
 	public void preIfWithDefined() {
 		String input = "#if defined (foo) int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreIfStatement", contentItem.getStatement(0).getEscapedCodeStr());
+		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
 	}
 	
 	@Test
@@ -144,7 +144,7 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreLineWithNumAndFile() {
-		String input = "#line 5 Filename";
+		String input = "#line 5 \"Filename\"";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreLine", contentItem.getStatement(0).getTypeAsString());
 	}
