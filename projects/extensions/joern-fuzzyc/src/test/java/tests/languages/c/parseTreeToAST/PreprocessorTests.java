@@ -85,6 +85,48 @@ public class PreprocessorTests {
 	}
 	
 	@Test
+	public void testPreImportStatementWithBrackets() {
+		String input = "#import <file.h> ";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreImportStatementWithQuotes() {
+		String input = "#import \"something\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreImportStatementWithMacro() {
+		String input = "#import MACRO";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreIncludeNextStatementWithBrackets() {
+		String input = "#include_next <file.h> ";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreIncludeNext", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreIncludeNextStatementWithQuotes() {
+		String input = "#include_next \"something\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreIncludeNext", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreIncludeNextStatementWithMacro() {
+		String input = "#include_next MACRO";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreIncludeNext", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
 	public void testPreDefineWithoutValue() {
 		String input = "#define MACRO \n";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
