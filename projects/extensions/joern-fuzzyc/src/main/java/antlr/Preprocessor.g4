@@ -73,7 +73,7 @@ pre_line: PRE_LINE DECIMAL_LITERAL
         | PRE_LINE pre_macro_identifier STRING
         | PRE_LINE pre_macro_identifier;
 
-pre_pragma: PRE_PRAGMA STRING
+pre_pragma: PRE_PRAGMA STRING { preProcFindMacroEnd(); }
             | PRE_PRAGMA identifier+
             | PRE_PRAGMA;    
     

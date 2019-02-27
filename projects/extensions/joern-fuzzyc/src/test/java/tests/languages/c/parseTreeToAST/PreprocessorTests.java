@@ -218,5 +218,54 @@ public class PreprocessorTests {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreOther", contentItem.getStatement(0).getTypeAsString());
 	}
+	
+	@Test
+	public void testPrePragmaDependency() {
+		String input = "#pragma GCC dependency \"parse.y\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PrePragma", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPrePragmaDependencyWithExplanationText() {
+		String input = "#pragma GCC dependency \"parse.y\" This is a test case \n";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PrePragma", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPrePragmaPoison() {
+		String input = "#pragma GCC poison printf sprintf fprintf";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PrePragma", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPrePragmaSystemHeader() {
+		String input = "#pragma GCC system_header";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PrePragma", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPrePragmaWarning() {
+		String input = "#pragma GCC warning \"This is a test warning\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PrePragma", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPrePragmaError() {
+		String input = "#pragma GCC error \"This is a test error\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PrePragma", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPrePragmaOnce() {
+		String input = "#pragma once";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PrePragma", contentItem.getStatement(0).getTypeAsString());
+	}
 
 }
