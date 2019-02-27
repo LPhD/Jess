@@ -148,5 +148,33 @@ public class PreprocessorTests {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreLine", contentItem.getStatement(0).getTypeAsString());
 	}
+	
+	@Test
+	public void testPreDiagnosticError() {
+		String input = "#error  \"This is a test error\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreDiagnostic", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreDiagnosticWarning() {
+		String input = "#warning  \"This is a test warning\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreDiagnostic", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreOtherIdent() {
+		String input = "#ident  \"This is a test ident\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreOther", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testPreOtherSccs() {
+		String input = "#sccs  \"This is a test sccs\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreOther", contentItem.getStatement(0).getTypeAsString());
+	}
 
 }
