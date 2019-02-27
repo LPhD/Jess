@@ -1734,29 +1734,29 @@ public class FunctionParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(354);
+				match(T__5);
+				setState(355);
+				match(T__0);
+				setState(356);
 				condition();
+				setState(357);
+				match(T__1);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(355);
+				setState(359);
 				match(T__5);
-				setState(356);
+				setState(360);
 				condition();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(357);
-				match(T__5);
-				setState(358);
-				match(T__0);
-				setState(359);
+				setState(361);
 				condition();
-				setState(360);
-				match(T__1);
 				}
 				break;
 			}
@@ -2533,39 +2533,39 @@ public class FunctionParser extends Parser {
 				match(PRE_LINE);
 				setState(447);
 				match(DECIMAL_LITERAL);
+				setState(448);
+				match(STRING);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(448);
-				match(PRE_LINE);
 				setState(449);
-				match(DECIMAL_LITERAL);
+				match(PRE_LINE);
 				setState(450);
-				match(STRING);
+				match(DECIMAL_LITERAL);
+				setState(451);
+				pre_macro_identifier();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(451);
-				match(PRE_LINE);
 				setState(452);
-				match(DECIMAL_LITERAL);
+				match(PRE_LINE);
 				setState(453);
 				pre_macro_identifier();
+				setState(454);
+				match(STRING);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(454);
-				match(PRE_LINE);
-				setState(455);
-				pre_macro_identifier();
 				setState(456);
-				match(STRING);
+				match(PRE_LINE);
+				setState(457);
+				pre_macro_identifier();
 				}
 				break;
 			case 5:
@@ -2574,7 +2574,7 @@ public class FunctionParser extends Parser {
 				setState(458);
 				match(PRE_LINE);
 				setState(459);
-				pre_macro_identifier();
+				match(DECIMAL_LITERAL);
 				}
 				break;
 			}
@@ -7757,10 +7757,10 @@ public class FunctionParser extends Parser {
 		"\2\u0157\u0158\7U\2\2\u0158\u015f\5$\23\2\u0159\u015a\7U\2\2\u015a\u015b"+
 		"\7\3\2\2\u015b\u015c\5$\23\2\u015c\u015d\7\4\2\2\u015d\u015f\3\2\2\2\u015e"+
 		"\u0157\3\2\2\2\u015e\u0159\3\2\2\2\u015f\37\3\2\2\2\u0160\u0161\7V\2\2"+
-		"\u0161!\3\2\2\2\u0162\u0163\7W\2\2\u0163#\3\2\2\2\u0164\u016d\5\26\f\2"+
-		"\u0165\u0166\7\b\2\2\u0166\u016d\5\26\f\2\u0167\u0168\7\b\2\2\u0168\u0169"+
-		"\7\3\2\2\u0169\u016a\5\26\f\2\u016a\u016b\7\4\2\2\u016b\u016d\3\2\2\2"+
-		"\u016c\u0164\3\2\2\2\u016c\u0165\3\2\2\2\u016c\u0167\3\2\2\2\u016d%\3"+
+		"\u0161!\3\2\2\2\u0162\u0163\7W\2\2\u0163#\3\2\2\2\u0164\u0165\7\b\2\2"+
+		"\u0165\u0166\7\3\2\2\u0166\u0167\5\26\f\2\u0167\u0168\7\4\2\2\u0168\u016d"+
+		"\3\2\2\2\u0169\u016a\7\b\2\2\u016a\u016d\5\26\f\2\u016b\u016d\5\26\f\2"+
+		"\u016c\u0164\3\2\2\2\u016c\u0169\3\2\2\2\u016c\u016b\3\2\2\2\u016d%\3"+
 		"\2\2\2\u016e\u0177\5(\25\2\u016f\u0177\5*\26\2\u0170\u0177\5\62\32\2\u0171"+
 		"\u0177\5\64\33\2\u0172\u0177\5\66\34\2\u0173\u0177\58\35\2\u0174\u0177"+
 		"\5<\37\2\u0175\u0177\5> \2\u0176\u016e\3\2\2\2\u0176\u016f\3\2\2\2\u0176"+
@@ -7789,11 +7789,11 @@ public class FunctionParser extends Parser {
 		"\2\2\u01b79\3\2\2\2\u01b8\u01bf\7l\2\2\u01b9\u01bb\t\2\2\2\u01ba\u01b9"+
 		"\3\2\2\2\u01bb\u01bc\3\2\2\2\u01bc\u01ba\3\2\2\2\u01bc\u01bd\3\2\2\2\u01bd"+
 		"\u01bf\3\2\2\2\u01be\u01b8\3\2\2\2\u01be\u01ba\3\2\2\2\u01bf;\3\2\2\2"+
-		"\u01c0\u01c1\7^\2\2\u01c1\u01cf\7h\2\2\u01c2\u01c3\7^\2\2\u01c3\u01c4"+
-		"\7h\2\2\u01c4\u01cf\7l\2\2\u01c5\u01c6\7^\2\2\u01c6\u01c7\7h\2\2\u01c7"+
-		"\u01cf\5,\27\2\u01c8\u01c9\7^\2\2\u01c9\u01ca\5,\27\2\u01ca\u01cb\7l\2"+
-		"\2\u01cb\u01cf\3\2\2\2\u01cc\u01cd\7^\2\2\u01cd\u01cf\5,\27\2\u01ce\u01c0"+
-		"\3\2\2\2\u01ce\u01c2\3\2\2\2\u01ce\u01c5\3\2\2\2\u01ce\u01c8\3\2\2\2\u01ce"+
+		"\u01c0\u01c1\7^\2\2\u01c1\u01c2\7h\2\2\u01c2\u01cf\7l\2\2\u01c3\u01c4"+
+		"\7^\2\2\u01c4\u01c5\7h\2\2\u01c5\u01cf\5,\27\2\u01c6\u01c7\7^\2\2\u01c7"+
+		"\u01c8\5,\27\2\u01c8\u01c9\7l\2\2\u01c9\u01cf\3\2\2\2\u01ca\u01cb\7^\2"+
+		"\2\u01cb\u01cf\5,\27\2\u01cc\u01cd\7^\2\2\u01cd\u01cf\7h\2\2\u01ce\u01c0"+
+		"\3\2\2\2\u01ce\u01c3\3\2\2\2\u01ce\u01c6\3\2\2\2\u01ce\u01ca\3\2\2\2\u01ce"+
 		"\u01cc\3\2\2\2\u01cf=\3\2\2\2\u01d0\u01d1\7_\2\2\u01d1\u01d2\7l\2\2\u01d2"+
 		"\u01db\b \1\2\u01d3\u01d5\7_\2\2\u01d4\u01d6\5\u00caf\2\u01d5\u01d4\3"+
 		"\2\2\2\u01d6\u01d7\3\2\2\2\u01d7\u01d5\3\2\2\2\u01d7\u01d8\3\2\2\2\u01d8"+

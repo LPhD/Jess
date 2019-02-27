@@ -21,9 +21,10 @@ pre_else_statement: PRE_ELSE;
 
 pre_endif_statement: PRE_ENDIF;
 
-pre_if_condition: condition
+pre_if_condition: 'defined' '(' condition ')'
                | 'defined' condition
-               | 'defined' '(' condition ')';
+               | condition;
+               
                
 condition: expr
      | type_name declarator '=' assign_expr;
@@ -67,11 +68,12 @@ pre_include_next: PRE_INCLUDE_NEXT '<' pre_include_filename '>'
 
 pre_include_filename: (STRING | ('.' | '-' | '/' | ALPHA_NUMERIC)+);
 
-pre_line: PRE_LINE DECIMAL_LITERAL
-        | PRE_LINE DECIMAL_LITERAL STRING
+pre_line: PRE_LINE DECIMAL_LITERAL STRING
         | PRE_LINE DECIMAL_LITERAL pre_macro_identifier
         | PRE_LINE pre_macro_identifier STRING
-        | PRE_LINE pre_macro_identifier;
+        | PRE_LINE pre_macro_identifier
+        | PRE_LINE DECIMAL_LITERAL;
+        
 
 pre_pragma: PRE_PRAGMA STRING { preProcFindMacroEnd(); }
             | PRE_PRAGMA identifier+

@@ -49,7 +49,8 @@ int i;
 
 #define MACRO
 #define MACRO 5
-#define MACROA  #define MACROB
+#define MACROA
+#define MACROB
 #define MACRO(a) a + 5
 #define ___config_enabled(__ignored, val, ...) val
 #define IS_ENABLED(option) \
@@ -125,7 +126,8 @@ int i;
 
 #define MACRO
 #define MACRO 5
-#define MACROA  #define MACROB
+#define MACROA
+#define MACROB
 #define MACRO(a) a + 5
 #define ___config_enabled(__ignored, val, ...) val
 #define IS_ENABLED(option) \
