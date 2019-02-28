@@ -145,19 +145,6 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 	}	
 	
 //----------------------------------Preprocessor command handling--------------------------------------------------------------	
-	//Preprocessor handling
-	@Override
-	public void enterPre_command(FunctionParser.Pre_commandContext ctx){
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterPreCommand(ctx);
-	}
-	
-	//Preprocessor handling
-	@Override
-	public void exitPre_command(FunctionParser.Pre_commandContext ctx){
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.exitPreCommand(ctx);
-	}
 	
 	//Preprocessor handling
 	@Override

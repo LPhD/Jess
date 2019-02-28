@@ -581,26 +581,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		nesting.addItemToParent(cond);
 	}
 	
-	/**
-	 * Pushes the item on the stack
-	 * @param ctx
-	 */
-	public void enterPreCommand(Pre_commandContext ctx)	{
-//		PreCommand expr = new PreCommand();
-//		nodeToRuleContext.put(expr, ctx);
-//		stack.push(expr);
-	}
-	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreCommand(Pre_commandContext ctx)	{
-//		PreCommand expr = (PreCommand) stack.pop();
-//		ASTNodeFactory.initializeFromContext(expr, ctx);
-//		nesting.addItemToParent(expr);
-	}
-	
 //----------------------------------Preprocessor handling end-------------------------------------------------------------
 	
 	
