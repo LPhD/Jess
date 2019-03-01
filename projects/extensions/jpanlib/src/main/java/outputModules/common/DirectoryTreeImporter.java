@@ -3,11 +3,12 @@ package outputModules.common;
 import java.nio.file.Path;
 import java.util.Stack;
 
+import databaseNodes.ASTDatabaseNode;
 import databaseNodes.FileDatabaseNode;
+import includeAnalysis.IncludeAnalyzer;
 import outputModules.parser.ParserState;
 
-public abstract class DirectoryTreeImporter
-{
+public abstract class DirectoryTreeImporter {
 	protected ParserState state;
 	protected Stack<FileDatabaseNode> directoryStack = new Stack<FileDatabaseNode>();
 
@@ -17,13 +18,11 @@ public abstract class DirectoryTreeImporter
 
 	protected String outputDir;
 
-	public void setState(ParserState aState)
-	{
+	public void setState(ParserState aState) {
 		state = aState;
 	}
 
-	public void enterDir(Path dir)
-	{
+	public void enterDir(Path dir) {
 		FileDatabaseNode node = new FileDatabaseNode();
 		insertDirectoryNode(dir, node);
 		linkWithParentDirectory(node);
@@ -31,35 +30,44 @@ public abstract class DirectoryTreeImporter
 		directoryStack.push(node);
 	}
 
-	public void exitDir(Path dir)
-	{
+	public void exitDir(Path dir) {
+		//Test outputs
+		System.out.println("Current files: ");		
+		for (FileDatabaseNode node : IncludeAnalyzer.fileNodeList) {
+			System.out.println(node.getFileName());			
+		}
+		System.out.println("Current includes: ");		
+		for (ASTDatabaseNode node : IncludeAnalyzer.includeNodeList) {
+			System.out.println(node.toString());			
+		}
+		//Clears list of include statements and files in this directory
+		IncludeAnalyzer.includeNodeList.clear();
+		IncludeAnalyzer.fileNodeList.clear();
 		directoryStack.pop();
 	}
 
-	public void enterFile(Path pathToFile)
-	{
+	public void enterFile(Path pathToFile) {
 		FileDatabaseNode node = new FileDatabaseNode();
 		insertFileNode(pathToFile, node);
 		linkWithParentDirectory(node);
 		state.setCurrentFileNode(node);
+		//Adds file to list of files for this directory
+		IncludeAnalyzer.fileNodeList.add(node);
 	}
 
-	protected void insertDirectoryNode(Path dir, FileDatabaseNode node)
-	{
+	protected void insertDirectoryNode(Path dir, FileDatabaseNode node) {
 		node.initialize(dir);
 		node.setType("Directory");
 		insertNode(node);
 	}
 
-	protected void insertFileNode(Path dir, FileDatabaseNode node)
-	{
+	protected void insertFileNode(Path dir, FileDatabaseNode node) {
 		node.initialize(dir);
 		node.setType("File");
 		insertNode(node);
 	}
 
-	protected long getSourceIdFromStack()
-	{
+	protected long getSourceIdFromStack() {
 		long srcId;
 		if (directoryStack.size() == 0)
 			srcId = 0; // reference node
@@ -68,14 +76,14 @@ public abstract class DirectoryTreeImporter
 		return srcId;
 	}
 
-	public String getOutputDir()
-	{
+	public String getOutputDir() {
 		return outputDir;
 	}
 
-	public void setOutputDir(String outputDir)
-	{
+	public void setOutputDir(String outputDir) {
 		this.outputDir = outputDir;
 	}
+
+	protected abstract void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node);
 
 }

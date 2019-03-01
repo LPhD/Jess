@@ -3,6 +3,7 @@ package outputModules.csv;
 import java.io.File;
 import java.util.Map;
 
+import databaseNodes.ASTDatabaseNode;
 import databaseNodes.FileDatabaseNode;
 import outputModules.common.DirectoryTreeImporter;
 import outputModules.common.Writer;
@@ -44,6 +45,12 @@ public class MultiDirCSVDirectoryTreeImporter extends DirectoryTreeImporter
 		// stack of directories traversed to reach this file
 		// via the protected member 'directoryStack' of the
 		// base class.
+	}
+
+	@Override
+	protected void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -45,10 +45,8 @@ public abstract class Parser extends SourceFileListener {
 	}
 
 	@Override
-	public void postVisitDirectory(Path dir) {
-		
+	public void postVisitDirectory(Path dir) {		
 		dirTreeImporter.exitDir(dir);
-		IncludeAnalyzer.nodeList.clear();
 	}
 
 	private void connectComponents() {

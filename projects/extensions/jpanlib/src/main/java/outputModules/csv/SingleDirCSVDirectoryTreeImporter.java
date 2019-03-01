@@ -2,6 +2,7 @@ package outputModules.csv;
 
 import java.util.Map;
 
+import databaseNodes.ASTDatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.FileDatabaseNode;
 import outputModules.common.DirectoryTreeImporter;
@@ -25,6 +26,17 @@ public class SingleDirCSVDirectoryTreeImporter extends DirectoryTreeImporter {
 		long srcId = getSourceIdFromStack();
 		long dstId = node.getId();
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_PARENT_DIR_OF);
+	}
+	
+	
+	/**
+	 * Connect include statement with included file
+	 */
+	@Override
+	protected void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node) {
+		long srcId = Writer.getIdForObject(preDBNode);
+		long dstId = node.getId();
+		Writer.addEdge(srcId, dstId, null, EdgeTypes.INCLUDES);		
 	}
 
 }
