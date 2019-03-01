@@ -1,7 +1,6 @@
 package outputModules.csv;
 
 import java.io.File;
-import java.nio.file.Files;
 
 import outputModules.CSVASTWalker;
 import outputModules.common.Writer;
@@ -37,7 +36,9 @@ public abstract class ParserCSVOutput extends Parser {
 		if (outputDirectory.exists()) {
 			try {
 				System.out.println("Output directory already exists, trying to overwrite...");
+				shutdownDatabase();
 				deleteDir(outputDirectory);
+				initialize();
 			} catch (Exception e) {
 				throw new RuntimeException("Output directory already exists and cant be removed");
 			}
