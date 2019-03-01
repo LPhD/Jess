@@ -3,10 +3,10 @@ package outputModules.parser;
 import java.nio.file.Path;
 
 import fileWalker.SourceFileListener;
+import includeAnalysis.IncludeAnalyzer;
 import outputModules.common.DirectoryTreeImporter;
 
-public abstract class Parser extends SourceFileListener
-{
+public abstract class Parser extends SourceFileListener {
 
 	protected ParserState state;
 	protected ParserASTWalker astWalker;
@@ -22,19 +22,16 @@ public abstract class Parser extends SourceFileListener
 
 	protected abstract void shutdownDatabase();
 
-	protected void initializeIndexerState()
-	{
+	protected void initializeIndexerState() {
 		state = new ParserState();
 	}
 
-	public void setOutputDir(String anOutputDir)
-	{
+	public void setOutputDir(String anOutputDir) {
 		outputDir = anOutputDir;
 	}
 
 	@Override
-	public void initialize()
-	{
+	public void initialize() {
 		initializeIndexerState();
 		initializeDirectoryImporter();
 		initializeWalker();
@@ -43,30 +40,26 @@ public abstract class Parser extends SourceFileListener
 	}
 
 	@Override
-	public void preVisitDirectory(Path dir)
-	{
+	public void preVisitDirectory(Path dir) {
 		dirTreeImporter.enterDir(dir);
 	}
 
 	@Override
-	public void postVisitDirectory(Path dir)
-	{
+	public void postVisitDirectory(Path dir) {
+		
 		dirTreeImporter.exitDir(dir);
+		IncludeAnalyzer.nodeList.clear();
 	}
 
-
-	private void connectComponents()
-	{
+	private void connectComponents() {
 		astWalker.setIndexerState(state);
 		dirTreeImporter.setState(state);
 		dirTreeImporter.setOutputDir(outputDir);
 	}
 
 	@Override
-	public void shutdown()
-	{
+	public void shutdown() {
 		shutdownDatabase();
 	}
-
 
 }
