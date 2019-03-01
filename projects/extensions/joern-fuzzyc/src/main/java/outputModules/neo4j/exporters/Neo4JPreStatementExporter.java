@@ -13,6 +13,7 @@ import databaseNodes.NodeKeys;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.PreStatementExporter;
+import outputModules.common.Writer;
 
 public class Neo4JPreStatementExporter extends PreStatementExporter {
 
@@ -74,5 +75,18 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		Map<String, Object> properties = null;
 
 		Neo4JBatchInserter.addRelationship(parentId, childId, rel, properties);
+	}
+
+	/**
+	 * Connect include statement with included file
+	 */
+	@Override
+	protected void linkIncludeToFileNode(ASTDatabaseNode preDBNode) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.INCLUDES);
+
+		long id = nodeStore.getIdForObject(preDBNode);
+		Map<String, Object> properties = null;
+		//TODO get destination
+		Neo4JBatchInserter.addRelationship(id, id, rel, properties);;		
 	}
 }

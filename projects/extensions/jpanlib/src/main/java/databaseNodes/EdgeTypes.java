@@ -49,5 +49,10 @@ public class EdgeTypes
 	 * Links call expressions to the definitions of the called functions.
 	 */
 	public static final String CALLS = "CALLS";
+	
+	/**
+	 * Links an include statement with the included file
+	 */
+	public static final String INCLUDES = "INCLUDES";
 
 }
