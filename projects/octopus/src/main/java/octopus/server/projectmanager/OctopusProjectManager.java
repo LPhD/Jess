@@ -19,19 +19,16 @@ import octopus.api.projects.OctopusProject;
 import octopus.api.projects.ProjectManager;
 import octopus.server.database.titan.TitanLocalDatabaseManager;
 
-public class OctopusProjectManager
-{
+public class OctopusProjectManager {
 
 	private static Path projectsDir;
 	private static Map<String, OctopusProject> nameToProject = new HashMap<String, OctopusProject>();
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(OctopusProjectManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(OctopusProjectManager.class);
 
 	private static boolean initialized = false;
 
-	static
-	{
+	static {
 		try {
 			initialize(OctopusEnvironment.PROJECTS_DIR);
 		} catch (IOException e) {
@@ -39,19 +36,16 @@ public class OctopusProjectManager
 		}
 	}
 
-	public static void initialize(Path projectDir) throws IOException
-	{
-		if(initialized)
+	public static void initialize(Path projectDir) throws IOException {
+		if (initialized)
 			return;
 
 		setProjectDir(projectDir);
 		initialized = true;
 	}
 
-	public static void setProjectDir(Path newProjectsDir) throws IOException
-	{
-		if (!newProjectsDir.isAbsolute())
-		{
+	public static void setProjectDir(Path newProjectsDir) throws IOException {
+		if (!newProjectsDir.isAbsolute()) {
 			newProjectsDir = newProjectsDir.toAbsolutePath();
 		}
 		projectsDir = newProjectsDir.normalize();
@@ -59,62 +53,53 @@ public class OctopusProjectManager
 		loadProjects();
 	}
 
-	private static void openProjectsDir() throws IOException
-	{
-		if (Files.notExists(projectsDir))
-		{
+	private static void openProjectsDir() throws IOException {
+		if (Files.notExists(projectsDir)) {
 			Files.createDirectories(projectsDir);
 		}
 	}
 
-	private static void loadProjects() throws IOException
-	{
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(projectsDir))
-		{
-			for (Path path : stream)
-			{
-				if (Files.isDirectory(path))
-				{
+	private static void loadProjects() throws IOException {
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(projectsDir)) {
+			for (Path path : stream) {
+				if (Files.isDirectory(path)) {
 					loadProject(path);
 				}
 			}
 		}
 	}
 
-	private static void loadProject(Path projectDir) throws IOException
-	{
+	private static void loadProject(Path projectDir) throws IOException {
 		String projectName = projectDir.getFileName().toString();
 		OctopusProject newProject = createOctopusProjectForName(projectName);
 		logger.debug("Adding project to map: " + projectName);
 		nameToProject.put(projectName, newProject);
 	}
 
-	public static boolean doesProjectExist(String name)
-	{
+	public static boolean doesProjectExist(String name) {
 		return nameToProject.containsKey(name);
 	}
 
-	public static OctopusProject getProjectByName(String name)
-	{
+	public static OctopusProject getProjectByName(String name) {
 		logger.debug("requesting project: " + name);
 		return nameToProject.get(name);
 	}
 
-	public static Path getPathToProject(String name)
-	{
+	public static Path getPathToProject(String name) {
 		if (projectsDir == null)
 			throw new IllegalStateException("Error: projectDir not set");
 
 		return Paths.get(projectsDir.toString(), name);
 	}
 
-	public static void create(String name) throws IOException
-	{
+	public static void create(String name) throws IOException {
 		if (projectsDir == null)
 			throw new IllegalStateException("Error: projectDir not set");
 
-		if (doesProjectExist(name))
-			throw new RuntimeException("Project already exists");
+		if (doesProjectExist(name)) {
+			System.out.println("Project already exists, trying to remove it");
+			delete(name);
+		}
 
 		OctopusProject project = createOctopusProjectForName(name);
 		TitanLocalDatabaseManager databaseManager = new TitanLocalDatabaseManager();
@@ -123,21 +108,18 @@ public class OctopusProjectManager
 		nameToProject.put(name, project);
 	}
 
-	public static void delete(String name) throws IOException
-	{
+	public static void delete(String name) throws IOException {
 		if (projectsDir == null)
 			throw new IllegalStateException("Error: projectDir not set");
 
 		deleteProjectWithName(name);
 	}
 
-	public static Iterable<String> listProjects()
-	{
+	public static Iterable<String> listProjects() {
 		return nameToProject.keySet();
 	}
 
-	private static OctopusProject createOctopusProjectForName(String name) throws IOException
-	{
+	private static OctopusProject createOctopusProjectForName(String name) throws IOException {
 		Path pathToProject = getPathToProject(name);
 		Files.createDirectories(pathToProject);
 
@@ -146,36 +128,31 @@ public class OctopusProjectManager
 		return newProject;
 	}
 
-	private static void deleteProjectWithName(String name) throws IOException
-	{
+	private static void deleteProjectWithName(String name) throws IOException {
+
 		removeDatabaseIfExists(name);
 		deleteProjectFiles(name);
 		nameToProject.remove(name);
 	}
 
-	private static void deleteProjectFiles(String name) throws IOException
-	{
+	private static void deleteProjectFiles(String name) throws IOException {
 		Path pathToProject = getPathToProject(name);
-		Files.walkFileTree(pathToProject, new SimpleFileVisitor<Path>()
-		{
+		Files.walkFileTree(pathToProject, new SimpleFileVisitor<Path>() {
 			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
-			{
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				Files.delete(file);
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-			{
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 				Files.delete(dir);
 				return FileVisitResult.CONTINUE;
 			}
 		});
 	}
 
-	private static void removeDatabaseIfExists(String name) throws IOException
-	{
+	private static void removeDatabaseIfExists(String name) throws IOException {
 		OctopusProject project = new ProjectManager().getProjectByName(name);
 
 		TitanLocalDatabaseManager dbManager = new TitanLocalDatabaseManager();
