@@ -12,8 +12,6 @@ public class CreateProjectHandler implements OctopusRestHandler {
 	{
 		String projectName = req.params(":projectName");
 		ProjectManager manager = new ProjectManager();
-		if(manager.doesProjectExist(projectName))
-			return "Project already exists.";
 		manager.create(projectName);
 		return "Project created.";
 	}
