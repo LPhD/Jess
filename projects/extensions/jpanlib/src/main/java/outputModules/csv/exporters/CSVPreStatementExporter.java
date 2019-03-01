@@ -53,15 +53,4 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 		long dstId = Writer.getIdForObject(child);
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);
 	}
-	
-	/**
-	 * Connect include statement with included file
-	 */
-	@Override
-	protected void linkIncludeToFileNode(ASTDatabaseNode preDBNode) {
-		long srcId = Writer.getIdForObject(preDBNode);
-		//TODO get destination
-		Writer.addEdge(srcId, srcId, null, EdgeTypes.INCLUDES);		
-	}
-
 }
