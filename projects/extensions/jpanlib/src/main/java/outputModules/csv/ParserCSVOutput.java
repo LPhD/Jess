@@ -42,12 +42,12 @@ public abstract class ParserCSVOutput extends Parser {
 			} catch (Exception e) {
 				throw new RuntimeException("Output directory already exists and cant be removed");
 			}
-		}
-
-		try {
-			outputDirectory.mkdirs();
-		} catch (SecurityException ex) {
-			throw new RuntimeException("Cannot create output directory, permission denied.");
+		} else {
+			try {
+				outputDirectory.mkdirs();
+			} catch (SecurityException ex) {
+				throw new RuntimeException("Cannot create output directory, permission denied.");
+			}
 		}
 	}
 
