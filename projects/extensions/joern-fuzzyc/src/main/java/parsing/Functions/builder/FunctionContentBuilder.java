@@ -58,6 +58,7 @@ import antlr.FunctionParser.Pre_if_statementContext;
 import antlr.FunctionParser.Pre_includeContext;
 import antlr.FunctionParser.Pre_include_filenameContext;
 import antlr.FunctionParser.Pre_include_nextContext;
+import antlr.FunctionParser.Pre_include_system_headerContext;
 import antlr.FunctionParser.Pre_lineContext;
 import antlr.FunctionParser.Pre_macroContext;
 import antlr.FunctionParser.Pre_macro_identifierContext;
@@ -99,6 +100,7 @@ import ast.c.preprocessor.commands.PreDiagnostic;
 import ast.c.preprocessor.commands.PreInclude;
 import ast.c.preprocessor.commands.PreIncludeFilename;
 import ast.c.preprocessor.commands.PreIncludeNext;
+import ast.c.preprocessor.commands.PreIncludeSystemHeader;
 import ast.c.preprocessor.commands.PreLine;
 import ast.c.preprocessor.commands.PreOther;
 import ast.c.preprocessor.commands.PrePragma;
@@ -481,6 +483,26 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		PreIncludeFilename expr = (PreIncludeFilename) stack.pop();
 		ASTNodeFactory.initializeFromContext(expr, ctx);
 		nesting.addItemToParent(expr);
+	}
+	
+	/**
+	 * Pushes the item on the stack
+	 * @param ctx
+	 */
+	public void enterPreIncludeSystemHeader(Pre_include_system_headerContext ctx) {
+		PreIncludeSystemHeader expr = new PreIncludeSystemHeader();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);		
+	}
+	
+	/**
+	 * Pops the item from the stack and adds it to its parents
+	 * @param ctx
+	 */
+	public void exitPreIncludeSystemHeader(Pre_include_system_headerContext ctx) {
+		PreIncludeSystemHeader expr = (PreIncludeSystemHeader) stack.pop();
+		ASTNodeFactory.initializeFromContext(expr, ctx);
+		nesting.addItemToParent(expr);	
 	}
 
 //----------------------------------Preprocessor blockstarter handling------------------------------------------------------	
@@ -1292,9 +1314,5 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		stack.pop();
 		
 	}
-
-
-
-
 
 }

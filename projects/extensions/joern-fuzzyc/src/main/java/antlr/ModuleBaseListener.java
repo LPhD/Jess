@@ -262,6 +262,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPre_include_system_header(ModuleParser.Pre_include_system_headerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_include_system_header(ModuleParser.Pre_include_system_headerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_include_filename(ModuleParser.Pre_include_filenameContext ctx) { }
 	/**
 	 * {@inheritDoc}
