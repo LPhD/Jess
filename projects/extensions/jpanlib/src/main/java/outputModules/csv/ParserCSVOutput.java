@@ -37,12 +37,12 @@ public abstract class ParserCSVOutput extends Parser {
 		if (outputDirectory.exists()) {
 			try {
 				System.out.println("Output directory already exists, trying to overwrite...");
-				 deleteDir(outputDirectory);
+				deleteDir(outputDirectory);
 			} catch (Exception e) {
 				throw new RuntimeException("Output directory already exists and cant be removed");
-			}			
+			}
 		}
-		
+
 		try {
 			outputDirectory.mkdirs();
 		} catch (SecurityException ex) {
@@ -75,17 +75,15 @@ public abstract class ParserCSVOutput extends Parser {
 	public void setFunctionExporter(CSVFunctionExporter functionExporter) {
 		this.functionExporter = functionExporter;
 	}
-	
+
 	private void deleteDir(File file) {
-	    File[] contents = file.listFiles();
-	    if (contents != null) {
-	        for (File f : contents) {
-	            if (! Files.isSymbolicLink(f.toPath())) {
-	                deleteDir(f);
-	            }
-	        }
-	    }
-	    file.delete();
+		File[] contents = file.listFiles();
+		if (contents != null) {
+			for (File f : contents) {
+				deleteDir(f);
+			}
+		}
+		file.delete();
 	}
 
 }
