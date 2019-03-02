@@ -103,11 +103,13 @@ public abstract class DirectoryTreeImporter {
 					linkIncludeToFileNode(includeNode, fileDatabaseNode);
 					 //Remove the include node as it can only include one file
 					IncludeAnalyzer.includeNodeList.remove(includeNode);
-					System.out.println("Rermoved node");
-				}				
-			}
-			
+					System.out.println("Removed node");
+				}	
+				System.out.println("After if");
+			}	
+			System.out.println("After for inside");
 		}
+		System.out.println("After for outside");
 	}
 
 	protected abstract void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node);
