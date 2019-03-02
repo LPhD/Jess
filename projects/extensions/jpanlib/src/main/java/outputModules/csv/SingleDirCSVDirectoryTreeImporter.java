@@ -34,9 +34,13 @@ public class SingleDirCSVDirectoryTreeImporter extends DirectoryTreeImporter {
 	 */
 	@Override
 	protected void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node) {
+		System.out.println("1");
 		long srcId = Writer.getIdForObject(preDBNode);
+		System.out.println(srcId);
 		long dstId = node.getId();
+		System.out.println(dstId);
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.INCLUDES);		
+		System.out.println("add");
 	}
 
 }
