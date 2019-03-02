@@ -1469,8 +1469,8 @@ public class ModuleParser extends Parser {
 		public Pre_macro_identifierContext pre_macro_identifier() {
 			return getRuleContext(Pre_macro_identifierContext.class,0);
 		}
-		public Pre_include_filenameContext pre_include_filename() {
-			return getRuleContext(Pre_include_filenameContext.class,0);
+		public Pre_include_local_fileContext pre_include_local_file() {
+			return getRuleContext(Pre_include_local_fileContext.class,0);
 		}
 		public Pre_includeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1517,7 +1517,7 @@ public class ModuleParser extends Parser {
 				setState(354);
 				match(PRE_INCLUDE);
 				setState(355);
-				pre_include_filename();
+				pre_include_local_file();
 				}
 				break;
 			}
@@ -1541,8 +1541,8 @@ public class ModuleParser extends Parser {
 		public Pre_macro_identifierContext pre_macro_identifier() {
 			return getRuleContext(Pre_macro_identifierContext.class,0);
 		}
-		public Pre_include_filenameContext pre_include_filename() {
-			return getRuleContext(Pre_include_filenameContext.class,0);
+		public Pre_include_local_fileContext pre_include_local_file() {
+			return getRuleContext(Pre_include_local_fileContext.class,0);
 		}
 		public Pre_include_nextContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1589,7 +1589,7 @@ public class ModuleParser extends Parser {
 				setState(362);
 				match(PRE_INCLUDE_NEXT);
 				setState(363);
-				pre_include_filename();
+				pre_include_local_file();
 				}
 				break;
 			}
@@ -8303,10 +8303,10 @@ public class ModuleParser extends Parser {
 		"\u0159\7Z\2\2\u0159\u015c\7n\2\2\u015a\u015c\7Z\2\2\u015b\u0158\3\2\2"+
 		"\2\u015b\u015a\3\2\2\2\u015c#\3\2\2\2\u015d\u015e\7[\2\2\u015e\u015f\7"+
 		"n\2\2\u015f%\3\2\2\2\u0160\u0161\7\\\2\2\u0161\u0167\5*\26\2\u0162\u0163"+
-		"\7\\\2\2\u0163\u0167\5\34\17\2\u0164\u0165\7\\\2\2\u0165\u0167\5.\30\2"+
+		"\7\\\2\2\u0163\u0167\5\34\17\2\u0164\u0165\7\\\2\2\u0165\u0167\5,\27\2"+
 		"\u0166\u0160\3\2\2\2\u0166\u0162\3\2\2\2\u0166\u0164\3\2\2\2\u0167\'\3"+
 		"\2\2\2\u0168\u0169\7]\2\2\u0169\u016f\5*\26\2\u016a\u016b\7]\2\2\u016b"+
-		"\u016f\5\34\17\2\u016c\u016d\7]\2\2\u016d\u016f\5.\30\2\u016e\u0168\3"+
+		"\u016f\5\34\17\2\u016c\u016d\7]\2\2\u016d\u016f\5,\27\2\u016e\u0168\3"+
 		"\2\2\2\u016e\u016a\3\2\2\2\u016e\u016c\3\2\2\2\u016f)\3\2\2\2\u0170\u0171"+
 		"\7\t\2\2\u0171\u0172\5.\30\2\u0172\u0173\7\n\2\2\u0173+\3\2\2\2\u0174"+
 		"\u0175\5.\30\2\u0175-\3\2\2\2\u0176\u017d\7n\2\2\u0177\u0179\t\2\2\2\u0178"+

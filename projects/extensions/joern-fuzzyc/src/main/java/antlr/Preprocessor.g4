@@ -62,11 +62,11 @@ pre_other: PRE_OTHER STRING;
 
 pre_include: PRE_INCLUDE pre_include_system_header
             | PRE_INCLUDE pre_macro_identifier
-            | PRE_INCLUDE pre_include_filename;
+            | PRE_INCLUDE pre_include_local_file;
 
 pre_include_next: PRE_INCLUDE_NEXT pre_include_system_header
             | PRE_INCLUDE_NEXT  pre_macro_identifier
-            | PRE_INCLUDE_NEXT pre_include_filename;
+            | PRE_INCLUDE_NEXT pre_include_local_file;
             
 pre_include_system_header: '<' pre_include_filename '>';            
 
