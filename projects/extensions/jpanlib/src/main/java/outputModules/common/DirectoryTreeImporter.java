@@ -102,8 +102,7 @@ public abstract class DirectoryTreeImporter {
 					System.out.println(" with: "+includeNode.getAstNode().getEscapedCodeStr());	
 					linkIncludeToFileNode(includeNode, fileDatabaseNode);
 					 //Remove the include node as it can only include one file
-					IncludeAnalyzer.includeNodeList.remove(includeNode);
-					System.out.println("Removed node");
+					//IncludeAnalyzer.includeNodeList.remove(includeNode);
 				}	
 				System.out.println("After if");
 			}	
