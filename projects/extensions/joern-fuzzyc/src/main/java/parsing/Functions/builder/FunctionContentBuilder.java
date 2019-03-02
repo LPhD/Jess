@@ -57,6 +57,7 @@ import antlr.FunctionParser.Pre_if_conditionContext;
 import antlr.FunctionParser.Pre_if_statementContext;
 import antlr.FunctionParser.Pre_includeContext;
 import antlr.FunctionParser.Pre_include_filenameContext;
+import antlr.FunctionParser.Pre_include_local_fileContext;
 import antlr.FunctionParser.Pre_include_nextContext;
 import antlr.FunctionParser.Pre_include_system_headerContext;
 import antlr.FunctionParser.Pre_lineContext;
@@ -99,6 +100,7 @@ import ast.c.preprocessor.commands.PreCommand;
 import ast.c.preprocessor.commands.PreDiagnostic;
 import ast.c.preprocessor.commands.PreInclude;
 import ast.c.preprocessor.commands.PreIncludeFilename;
+import ast.c.preprocessor.commands.PreIncludeLocalFile;
 import ast.c.preprocessor.commands.PreIncludeNext;
 import ast.c.preprocessor.commands.PreIncludeSystemHeader;
 import ast.c.preprocessor.commands.PreLine;
@@ -504,6 +506,27 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		ASTNodeFactory.initializeFromContext(expr, ctx);
 		nesting.addItemToParent(expr);	
 	}
+	
+	/**
+	 * Pushes the item on the stack
+	 * @param ctx
+	 */
+	public void enterPreIncludeLocalFile(Pre_include_local_fileContext ctx) {
+		PreIncludeLocalFile expr = new PreIncludeLocalFile();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);
+	}
+	
+	/**
+	 * Pops the item from the stack and adds it to its parents
+	 * @param ctx
+	 */
+	public void exitPreIncludeLocalFile(Pre_include_local_fileContext ctx) {
+		PreIncludeLocalFile expr = (PreIncludeLocalFile) stack.pop();
+		ASTNodeFactory.initializeFromContext(expr, ctx);
+		nesting.addItemToParent(expr);	
+	}
+
 
 //----------------------------------Preprocessor blockstarter handling------------------------------------------------------	
 	
@@ -1314,5 +1337,4 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		stack.pop();
 		
 	}
-
 }

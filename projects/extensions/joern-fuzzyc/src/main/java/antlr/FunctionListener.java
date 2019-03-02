@@ -440,6 +440,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_include_system_header(FunctionParser.Pre_include_system_headerContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#pre_include_local_file}.
+	 * @param ctx the parse tree
+	 */
+	void enterPre_include_local_file(FunctionParser.Pre_include_local_fileContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#pre_include_local_file}.
+	 * @param ctx the parse tree
+	 */
+	void exitPre_include_local_file(FunctionParser.Pre_include_local_fileContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_include_filename}.
 	 * @param ctx the parse tree
 	 */

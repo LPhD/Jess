@@ -18,7 +18,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			addMainNode(preDBNode);
 			linkPreStatementToFileNode(preDBNode, curFile);	
 			//Look for file inclusions
-			if(astNode.getTypeAsString().equals("PreIncludeFilename")) {
+			if(astNode.getTypeAsString().equals("PreIncludeLocalFile")) {
 				IncludeAnalyzer.includeNodeList.add(preDBNode);
 			}
 			//Look for AST children and add them
@@ -57,7 +57,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			addASTNode(astDatabaseNode);
 			addASTLink(dbNodeParent, astDatabaseNode);
 			//Link include statement with included file
-			if(currentASTNode.getTypeAsString().equals("PreIncludeFilename")) {
+			if(currentASTNode.getTypeAsString().equals("PreIncludeLocalFile")) {
 				IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
 			}
 			addASTChildren(astDatabaseNode, currentASTNode);		

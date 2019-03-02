@@ -502,6 +502,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPre_include_local_file(FunctionParser.Pre_include_local_fileContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPre_include_local_file(FunctionParser.Pre_include_local_fileContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_include_filename(FunctionParser.Pre_include_filenameContext ctx) { }
 	/**
 	 * {@inheritDoc}
