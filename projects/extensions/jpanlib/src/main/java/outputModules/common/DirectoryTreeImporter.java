@@ -92,9 +92,12 @@ public abstract class DirectoryTreeImporter {
 	 * an include link. Them removes the includeNode from the list.
 	 */
 	public void matchIncludeToFile() {
+		String filename = "";
 		for (FileDatabaseNode fileDatabaseNode : IncludeAnalyzer.fileNodeList) {
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
-				if(includeNode.getAstNode().getEscapedCodeStr().equals(fileDatabaseNode.getFileName())) {
+				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("#include|\"", "");
+				System.out.println(filename);
+				if(filename.equals(fileDatabaseNode.getFileName())) {
 					System.out.println("Match: " +fileDatabaseNode.getFileName());	
 					System.out.println(" with: "+includeNode.getAstNode().getEscapedCodeStr());	
 					linkIncludeToFileNode(includeNode, fileDatabaseNode);
