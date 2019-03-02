@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Stack;
 
 import databaseNodes.ASTDatabaseNode;
+import databaseNodes.DatabaseNode;
 import databaseNodes.FileDatabaseNode;
 import includeAnalysis.IncludeAnalyzer;
 import outputModules.parser.ParserState;
@@ -40,6 +41,7 @@ public abstract class DirectoryTreeImporter {
 		for (ASTDatabaseNode node : IncludeAnalyzer.includeNodeList) {
 			System.out.println(node.toString());			
 		}
+		matchIncludeToFile();
 		//Clears list of include statements and files in this directory
 		IncludeAnalyzer.includeNodeList.clear();
 		IncludeAnalyzer.fileNodeList.clear();
@@ -82,6 +84,26 @@ public abstract class DirectoryTreeImporter {
 
 	public void setOutputDir(String outputDir) {
 		this.outputDir = outputDir;
+	}
+	
+	/**
+	 * Matches the fileDatabaseNodes in IncludeAnalyzer.fileNodeList with the
+	 * includeNodes in IncludeAnalyzer.includeNodeList and connects them with
+	 * an include link. Them removes the includeNode from the list.
+	 */
+	public void matchIncludeToFile() {
+		for (FileDatabaseNode fileDatabaseNode : IncludeAnalyzer.fileNodeList) {
+			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
+				if(includeNode.getAstNode().getEscapedCodeStr().equals(fileDatabaseNode.getFileName())) {
+					System.out.println("Match: " +fileDatabaseNode.getFileName());	
+					System.out.println(" with: "+includeNode.getAstNode().getEscapedCodeStr());	
+					linkIncludeToFileNode(includeNode, fileDatabaseNode);
+					 //Remove the include node as it can only include one file
+					IncludeAnalyzer.includeNodeList.remove(includeNode);
+				}				
+			}
+			
+		}
 	}
 
 	protected abstract void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node);

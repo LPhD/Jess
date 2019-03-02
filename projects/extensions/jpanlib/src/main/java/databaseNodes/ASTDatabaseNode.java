@@ -83,5 +83,9 @@ public class ASTDatabaseNode extends DatabaseNode {
 	public void setCurrentFunction(FunctionDatabaseNode currentFunction) {
 		this.currentFunction = currentFunction;
 	}
+	
+	public ASTNode getAstNode() {
+		return astNode;
+	}
 
 }
