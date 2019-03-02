@@ -95,7 +95,7 @@ public abstract class DirectoryTreeImporter {
 		String filename = "";
 		for (FileDatabaseNode fileDatabaseNode : IncludeAnalyzer.fileNodeList) {
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
-				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("#include|\"", "");
+				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("#include|\"|\\s", "");
 				System.out.println(filename);
 				if(filename.equals(fileDatabaseNode.getFileName())) {
 					System.out.println("Match: " +fileDatabaseNode.getFileName());	
