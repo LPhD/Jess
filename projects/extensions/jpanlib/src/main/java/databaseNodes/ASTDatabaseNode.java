@@ -12,9 +12,10 @@ import ast.logical.statements.CompoundStatement;
 
 public class ASTDatabaseNode extends DatabaseNode {
 
-	ASTNode astNode;
+	private ASTNode astNode;
 	private FunctionDatabaseNode currentFunction;
 	private boolean insideFunctionBlock;
+	private long nodeId;
 
 	@Override
 	public void initialize(Object node) {
@@ -86,6 +87,14 @@ public class ASTDatabaseNode extends DatabaseNode {
 	
 	public ASTNode getAstNode() {
 		return astNode;
+	}
+
+	public long getNodeId() {
+		return nodeId;
+	}
+
+	public void setNodeId(long nodeId) {
+		this.nodeId = nodeId;
 	}
 
 }

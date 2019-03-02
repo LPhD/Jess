@@ -29,6 +29,7 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	protected void addASTNode(ASTDatabaseNode astDatabaseNode)	{
 		Map<String, Object> properties = astDatabaseNode.createProperties();
 		Writer.addNode(astDatabaseNode, properties);
+		astDatabaseNode.setNodeId(Writer.getIdForObject(astDatabaseNode));
 	}
 		
 	/**

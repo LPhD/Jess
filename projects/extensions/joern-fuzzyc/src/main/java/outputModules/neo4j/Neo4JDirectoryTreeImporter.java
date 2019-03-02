@@ -38,7 +38,7 @@ public class Neo4JDirectoryTreeImporter extends DirectoryTreeImporter {
 	protected void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node) {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.INCLUDES);
 
-		long idSrc = nodeStore.getIdForObject(preDBNode);
+		long idSrc = preDBNode.getNodeId();
 		long idDst = node.getId();
 		Map<String, Object> properties = null;
 		Neo4JBatchInserter.addRelationship(idSrc, idDst, rel, properties);

@@ -45,6 +45,7 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		// index, but do not index location
 		properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(astDatabaseNode, properties);
+		astDatabaseNode.setNodeId(nodeStore.getIdForObject(astDatabaseNode));
 	}
 	
 	
