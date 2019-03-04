@@ -32,15 +32,15 @@ public abstract class DirectoryTreeImporter {
 	}
 
 	public void exitDir(Path dir) {
-		//Test outputs
-		System.out.println("Current files: ");		
-		for (FileDatabaseNode node : IncludeAnalyzer.fileNodeList) {
-			System.out.println(node.getFileName());			
-		}
-		System.out.println("Current includes: ");		
-		for (ASTDatabaseNode node : IncludeAnalyzer.includeNodeList) {
-			System.out.println(node.toString());			
-		}
+//		//Test outputs
+//		System.out.println("Current files: ");		
+//		for (FileDatabaseNode node : IncludeAnalyzer.fileNodeList) {
+//			System.out.println(node.getFileName());			
+//		}
+//		System.out.println("Current includes: ");		
+//		for (ASTDatabaseNode node : IncludeAnalyzer.includeNodeList) {
+//			System.out.println(node.toString());			
+//		}
 		matchIncludeToFile();
 		//Clears list of include statements and files in this directory
 		IncludeAnalyzer.includeNodeList.clear();
