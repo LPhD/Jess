@@ -540,14 +540,13 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	/**
-	 * Keeps item on the stack, it will be removed when all elif/else/endifs are connected
+	 * Pops the item from the stack and adds it to its parents
 	 * @param ctx
 	 */
 	public void exitPreIf(Pre_if_statementContext ctx)	{		
-		//TODO
-//		PreIfStatement preStatement = (PreIfStatement) stack.pop();
-//		ASTNodeFactory.initializeFromContext(preStatement, ctx);
-//		nesting.addItemToParent(preStatement);
+		PreIfStatement preStatement = (PreIfStatement) stack.pop();
+		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+		nesting.addItemToParent(preStatement);
 	}
 	
 	/**
@@ -564,7 +563,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void exitPreElse(Pre_else_statementContext ctx)	{
-		//TODO
 		PreElseStatement preStatement = (PreElseStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 		nesting.addItemToParent(preStatement);
@@ -584,7 +582,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 * @param ctx
 	 */
 	public void exitPreElIf(Pre_elif_statementContext ctx)	{
-		//TODO
 		PreElIfStatement preStatement = (PreElIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 		nesting.addItemToParent(preStatement);
@@ -606,9 +603,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void exitPreEndIf(Pre_endif_statementContext ctx)	{
 		PreEndIfStatement preStatement = (PreEndIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
-		//nesting.addItemToParent(preStatement);
-		//TODO
-		nesting.consolidatePreBlockStarters(preStatement);
+		nesting.addItemToParent(preStatement);
 	}	
 	
 	/**

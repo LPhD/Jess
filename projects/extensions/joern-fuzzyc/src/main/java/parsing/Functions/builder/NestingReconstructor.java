@@ -3,9 +3,8 @@ package parsing.Functions.builder;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import ast.ASTNode;
-import ast.c.preprocessor.blockstarter.PreBlockstarter;
+import ast.c.preprocessor.blockstarter.PreElIfStatement;
 import ast.c.preprocessor.blockstarter.PreElseStatement;
-import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
@@ -71,66 +70,9 @@ public class NestingReconstructor
 		}
 
 	}
-	
-	/**
-	 * Joins consecutive PreBlockStarters on the stack
-	 * @param preNode EndIfStatement that is no longer on the stack
-	 */
-	protected void consolidatePreBlockStarters(PreEndIfStatement preNode)	{
-		//PreNode is an endIf statement that is no longer on the stack
-		//PreEndIfStatement preEndif = preNode;
-		while (true){
-			try	{
-				//Try to get the previous blockstarter on the stack
-				PreBlockstarter curBlockStarter = (PreBlockstarter) stack.peek();
-				curBlockStarter = (PreBlockstarter) stack.pop();
-				//Add the #endIf node to this blockstarter (can be an #if/#else/#endif)
-				curBlockStarter.addChild(preNode);
-				//preNode = curBlockStarter;
-				
-				//#If statements
-				if (curBlockStarter instanceof PreIfStatement){					
-//					// This is an if inside an else, e.g., 'else if' handling
-//					if (stack.size() > 0 ) {												
-//						//Normal Else
-//						if (stack.peek() instanceof ElseStatement)	{	
-//							BlockStarter elseItem = (BlockStarter) stack.pop();
-//							elseItem.addChild(curBlockStarter);
-//							
-//							IfStatement lastIf = (IfStatement) stack.getIfInElseCase();
-//							if (lastIf != null) {
-//								lastIf.setElseNode((ElseStatement) elseItem);
-//							}
-//							return;							
-//						}
-//					}
-					
-				// add else statement to the previous if-statement, which has already been consolidated so we can return	
-				} else if (curBlockStarter instanceof PreElseStatement){
-//				
-//					IfStatement lastIf = (IfStatement) stack.getIf();
-//					if (lastIf != null)
-//						lastIf.setElseNode((ElseStatement) curBlockStarter);
-//					else
-//						throw new RuntimeException("Warning: cannot find #if for #else");
-//
-//					return;
-				} 
-			} catch (ClassCastException ex)	{
-				break;
-			}
-		}
-		// Finally, add chain to top compound-item
-		//TODO not needed?
-//		ASTNode root = stack.peek();
-//		root.addChild(preNode);
-	}
 
+	// Joins consecutive BlockStarters on the stack
 
-	/**
-	 * Joins consecutive BlockStarters on the stack
-	 * @param node
-	 */
 	protected void consolidateBlockStarters(ASTNode node)	{
 		while (true){
 			try	{
@@ -139,7 +81,7 @@ public class NestingReconstructor
 				curBlockStarter.addChild(node);
 				node = curBlockStarter;
 				
-				//If statements
+				//If and preprocessor if statements
 				if (curBlockStarter instanceof IfStatement){
 					
 					// This is an if inside an else, e.g., 'else if' handling
