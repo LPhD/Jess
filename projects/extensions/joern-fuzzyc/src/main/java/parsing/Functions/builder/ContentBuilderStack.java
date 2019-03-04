@@ -9,7 +9,7 @@ import ast.statements.blockstarters.TryStatement;
 
 public class ContentBuilderStack
 {
-	private Stack<ASTNode> itemStack = new Stack<ASTNode>();
+	Stack<ASTNode> itemStack = new Stack<ASTNode>();
 	private ShadowStack shadowStack = new ShadowStack(itemStack);
 
 	public void push(ASTNode statementItem)
