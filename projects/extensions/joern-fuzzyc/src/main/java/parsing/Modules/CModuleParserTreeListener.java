@@ -56,82 +56,22 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 	// ////////////////////////////////////////////////////////////////
 	
 	
-	//TODO Currently very similar code as in function listener... rework!
-	//-------------------------------------------------------------------------------------------------	
-		//Preprocessor handling	
-		@Override
-		public void enterPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{			
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createElse(ctx);
-			p.builderStack.push(builder);
-		}
-		
-		//Preprocessor handling
-		@Override
-		public void exitPre_else_statement(ModuleParser.Pre_else_statementContext ctx)	{
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
-		}
-		
-		//Preprocessor handling
-		@Override
-		public void enterPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx)	{
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createElIf(ctx);
-			p.builderStack.push(builder);
-		}
-		
-		//Preprocessor handling
-		@Override
-		public void exitPre_elif_statement(ModuleParser.Pre_elif_statementContext ctx) {
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
-		}
-		
+
+	//-------------------------------------------------------------------------------------------------			
 		//Preprocessor if handling
 		@Override
-		public void enterPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
+		public void enterPre_statement(ModuleParser.Pre_statementContext ctx){
 			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createIf(ctx);
-			p.builderStack.push(builder);
-		}	
-		
-		//Preprocessor if handling
-		@Override
-		public void exitPre_if_statement(ModuleParser.Pre_if_statementContext ctx)	{
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
-		}
-		
-		//Preprocessor if handling
-		@Override
-		public void enterPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createEndIf(ctx);
+			builder.createPreStatement(ctx);
 			p.builderStack.push(builder);
 		}
 		
 		//Preprocessor if handling
 		@Override
-		public void exitPre_endif_statement(ModuleParser.Pre_endif_statementContext ctx){
+		public void exitPre_statement(ModuleParser.Pre_statementContext ctx){
 			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
 			p.notifyObserversOfItem(builder.getItem());
 		}
-		
-		//Preprocessor if handling
-		@Override
-		public void enterPre_command(ModuleParser.Pre_commandContext ctx){
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createPreCommand(ctx);
-			p.builderStack.push(builder);
-		}
-		
-		//Preprocessor if handling
-		@Override
-		public void exitPre_command(ModuleParser.Pre_commandContext ctx){
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
-		}		
 
 	//---------------------------------------------------------------------------------------------------------------
 	
