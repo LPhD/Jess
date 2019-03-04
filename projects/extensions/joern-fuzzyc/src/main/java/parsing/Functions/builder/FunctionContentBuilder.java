@@ -525,9 +525,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		}
 		
 		if (itemToRemove instanceof PreStatement){
-			System.out.println("PreStatement");
-			nesting.addItemToParent(itemToRemove);	
+			System.out.println("PreStatement "+itemToRemove.getEscapedCodeStr());
 			nesting.consolidate();
+			nesting.addItemToParent(itemToRemove);	
+
 			return;
 		}
 		
