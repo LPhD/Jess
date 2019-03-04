@@ -91,6 +91,7 @@ import ast.ASTNodeBuilder;
 import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
 import ast.c.preprocessor.PreStatement;
+import ast.c.preprocessor.blockstarter.PreBlockstarter;
 import ast.c.preprocessor.blockstarter.PreElIfStatement;
 import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
@@ -266,17 +267,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 */
 	public void enterPreDefine(Pre_defineContext ctx) {
 		replaceTopOfStack(new PreDefine(), ctx);	
-	}
-	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreDefine(Pre_defineContext ctx) {
-		PreDefine expr = (PreDefine) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);	
-	}
+	}	
 	
 	/**
 	 * Pushes the item on the stack
@@ -346,15 +337,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		replaceTopOfStack(new PreUndef(), ctx);
 	}
 	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreUndef(Pre_undefContext ctx) {
-		PreUndef expr = (PreUndef) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);	
-	}
 
 //----------------------------------Preprocessor command handling--------------------------------------------------------------		
 	
@@ -367,32 +349,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreDiagnostic(Pre_diagnosticContext ctx) {
-		PreDiagnostic expr = (PreDiagnostic) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);
-	}
-	
-	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
 	 * This makes the element appear as a {@link PreInclude}, rather than a {@link PreStatement}
 	 * @param ctx
 	 */
 	public void enterPreInclude(Pre_includeContext ctx) {
 		replaceTopOfStack(new PreInclude(), ctx);	
-	}
-	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreInclude(Pre_includeContext ctx) {
-		PreInclude expr = (PreInclude) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);
 	}
 	
 	/**
@@ -404,31 +366,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreIncludeNext(Pre_include_nextContext ctx) {
-		PreIncludeNext expr = (PreIncludeNext) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);
-	}
-	
-	/**
 	 * Pushes the item on the stack
 	 * @param ctx
 	 */
 	public void enterPreLine(Pre_lineContext ctx) {
 		replaceTopOfStack(new PreLine(), ctx);
-	}
-	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreLine(Pre_lineContext ctx) {
-		PreLine expr = (PreLine) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);
 	}
 	
 	/**
@@ -440,31 +382,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreOther(Pre_otherContext ctx) {
-		PreOther expr = (PreOther) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);
-	}
-	
-	/**
 	 * Pushes the item on the stack
 	 * @param ctx
 	 */
 	public void enterPrePragma(Pre_pragmaContext ctx) {
 		replaceTopOfStack(new PrePragma(), ctx);	
-	}
-	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPrePragma(Pre_pragmaContext ctx) {
-		PrePragma expr = (PrePragma) stack.pop();
-		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);
 	}
 	
 	/**
@@ -540,32 +462,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreIf(Pre_if_statementContext ctx)	{		
-		PreIfStatement preStatement = (PreIfStatement) stack.pop();
-		ASTNodeFactory.initializeFromContext(preStatement, ctx);
-		nesting.addItemToParent(preStatement);
-	}
-	
-	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
 	 * This makes the element appear as a {@link PreElseStatement}, rather than a {@link PreStatement}
 	 * @param ctx
 	 */
 	public void enterPreElse(Pre_else_statementContext ctx)	{
 		replaceTopOfStack(new PreElseStatement(), ctx);
-	}
-	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreElse(Pre_else_statementContext ctx)	{
-		PreElseStatement preStatement = (PreElseStatement) stack.pop();
-		ASTNodeFactory.initializeFromContext(preStatement, ctx);
-		nesting.addItemToParent(preStatement);
 	}
 	
 	/**
@@ -578,16 +480,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	}
 	
 	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreElIf(Pre_elif_statementContext ctx)	{
-		PreElIfStatement preStatement = (PreElIfStatement) stack.pop();
-		ASTNodeFactory.initializeFromContext(preStatement, ctx);
-		nesting.addItemToParent(preStatement);
-	}
-	
-	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
 	 * This makes the element appear as a {@link PreEndIfStatement}, rather than a {@link PreStatement}
 	 * @param ctx
@@ -595,16 +487,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
 		replaceTopOfStack(new PreEndIfStatement(), ctx);		
 	}
-	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreEndIf(Pre_endif_statementContext ctx)	{
-		PreEndIfStatement preStatement = (PreEndIfStatement) stack.pop();
-		ASTNodeFactory.initializeFromContext(preStatement, ctx);
-		nesting.addItemToParent(preStatement);
-	}	
 	
 	/**
 	 * Pushes the item on the stack
@@ -641,6 +523,20 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 			closeCompoundStatement();
 			return;
 		}
+		
+		if (itemToRemove instanceof PreStatement){
+			System.out.println("PreStatement");
+			nesting.addItemToParent(itemToRemove);	
+			nesting.consolidate();
+			return;
+		}
+		
+//		if (itemToRemove instanceof PreBlockstarter){
+//			System.out.println("PreBlockstarter");
+//			nesting.addItemToParent(itemToRemove);	
+//			nesting.consolidate();
+//			return;
+//		}
 
 		// We keep Block-starters and compound items
 		// on the stack. They are removed by following
