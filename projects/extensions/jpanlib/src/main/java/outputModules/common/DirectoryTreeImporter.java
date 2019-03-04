@@ -95,20 +95,16 @@ public abstract class DirectoryTreeImporter {
 		String filename = "";
 		for (FileDatabaseNode fileDatabaseNode : IncludeAnalyzer.fileNodeList) {
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
+				//Remove whitespaces and quotes from filename
 				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s", "");
-				System.out.println(filename);
+				//Draw includes-connection if filename and included filename match
 				if(filename.equals(fileDatabaseNode.getFileName())) {
-					System.out.println("Match: " +fileDatabaseNode.getFileName());	
-					System.out.println(" with: "+includeNode.getAstNode().getEscapedCodeStr());	
 					linkIncludeToFileNode(includeNode, fileDatabaseNode);
-					 //Remove the include node as it can only include one file
+					 //Remove the include node as it can only include one file (does not work -> breaks for/each loop)
 					//IncludeAnalyzer.includeNodeList.remove(includeNode);
 				}	
-				System.out.println("After if");
 			}	
-			System.out.println("After for inside");
 		}
-		System.out.println("After for outside");
 	}
 
 	protected abstract void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node);
