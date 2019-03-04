@@ -1,7 +1,7 @@
 package ast.c.preprocessor.commands;
 
-import ast.c.preprocessor.PreStatement;
+import ast.logical.statements.Statement;
 
-public class PreIncludeFilename extends PreStatement{
+public class PreIncludeFilename extends Statement{
 
 }
