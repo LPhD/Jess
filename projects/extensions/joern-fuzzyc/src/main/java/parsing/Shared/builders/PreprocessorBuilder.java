@@ -29,7 +29,7 @@ public class PreprocessorBuilder extends ASTNodeBuilder {
 				// Parse code in function parser
 				driver.parseAndWalkString(text);
 				// Exchange current node with newly parsed node 
-				thisItem = (PreStatement) driver.builderStack.peek().getItem().getChild(0);
+				thisItem = (PreStatement) driver.builderStack.pop().getItem().getChild(0);
 			} catch (Exception e) {
 				System.err.println("Cannot create PreStatement " +text+" in ModuleParser");
 				e.printStackTrace();
