@@ -13,7 +13,6 @@ import databaseNodes.NodeKeys;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.PreStatementExporter;
-import outputModules.common.Writer;
 
 public class Neo4JPreStatementExporter extends PreStatementExporter {
 
