@@ -91,7 +91,6 @@ import ast.ASTNodeBuilder;
 import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
 import ast.c.preprocessor.PreStatement;
-import ast.c.preprocessor.blockstarter.PreBlockstarter;
 import ast.c.preprocessor.blockstarter.PreElIfStatement;
 import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
@@ -538,21 +537,19 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 */
 	public void enterPreIf(Pre_if_statementContext ctx)	{
 		replaceTopOfStack(new PreIfStatement(), ctx);
-//		PreIfStatement preStatement = (PreIfStatement) stack.peek();
+	}
+	
+	/**
+	 * Keeps item on the stack, it will be removed when all elif/else/endifs are connected
+	 * @param ctx
+	 */
+	public void exitPreIf(Pre_if_statementContext ctx)	{		
+		//TODO
+//		PreIfStatement preStatement = (PreIfStatement) stack.pop();
 //		ASTNodeFactory.initializeFromContext(preStatement, ctx);
 //		nesting.addItemToParent(preStatement);
 	}
 	
-	/**
-	 * Pops the item from the stack and adds it to its parents
-	 * @param ctx
-	 */
-	public void exitPreIf(Pre_if_statementContext ctx)	{
-		PreIfStatement preStatement = (PreIfStatement) stack.peek();
-		ASTNodeFactory.initializeFromContext(preStatement, ctx);
-		nesting.addItemToParent(preStatement);
-	}
-		
 	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
 	 * This makes the element appear as a {@link PreElseStatement}, rather than a {@link PreStatement}
@@ -560,7 +557,18 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	 */
 	public void enterPreElse(Pre_else_statementContext ctx)	{
 		replaceTopOfStack(new PreElseStatement(), ctx);
-	}	
+	}
+	
+	/**
+	 * Pops the item from the stack and adds it to its parents
+	 * @param ctx
+	 */
+	public void exitPreElse(Pre_else_statementContext ctx)	{
+		//TODO
+		PreElseStatement preStatement = (PreElseStatement) stack.pop();
+		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+		nesting.addItemToParent(preStatement);
+	}
 	
 	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
@@ -570,7 +578,18 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void enterPreElIf(Pre_elif_statementContext ctx)	{
 		replaceTopOfStack(new PreElIfStatement(), ctx);
 	}
-		
+	
+	/**
+	 * Pops the item from the stack and adds it to its parents
+	 * @param ctx
+	 */
+	public void exitPreElIf(Pre_elif_statementContext ctx)	{
+		//TODO
+		PreElIfStatement preStatement = (PreElIfStatement) stack.pop();
+		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+		nesting.addItemToParent(preStatement);
+	}
+	
 	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
 	 * This makes the element appear as a {@link PreEndIfStatement}, rather than a {@link PreStatement}
@@ -587,6 +606,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	public void exitPreEndIf(Pre_endif_statementContext ctx)	{
 		PreEndIfStatement preStatement = (PreEndIfStatement) stack.pop();
 		ASTNodeFactory.initializeFromContext(preStatement, ctx);
+		//nesting.addItemToParent(preStatement);
+		//TODO
 		nesting.consolidatePreBlockStarters(preStatement);
 	}	
 	
@@ -618,8 +639,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
 		}
 
-		
-		//This is where nodes are initialized that dont have an exit listener (e.g. if/else nodes)
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 
@@ -627,16 +646,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 			closeCompoundStatement();
 			return;
 		}
-		
-		//Dont consolidate for #endif, this is done in the exit listener
-		if (itemToRemove instanceof PreEndIfStatement) {
-			//Remove last compound statement from stack
-			stack.pop();
-			return;
-		}
 
-		// We keep Block-starters and compound items on the stack. They are removed by following statements.
-		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement|| itemToRemove instanceof PreBlockstarter)
+		// We keep Block-starters and compound items
+		// on the stack. They are removed by following
+		// statements.
+		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement)
 			return;
 
 		nesting.consolidate();

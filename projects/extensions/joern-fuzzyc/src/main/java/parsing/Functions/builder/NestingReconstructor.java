@@ -12,7 +12,6 @@ import ast.c.statements.blockstarters.IfStatement;
 import ast.expressions.Expression;
 import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
-import ast.logical.statements.Statement;
 import ast.statements.ExpressionHolder;
 import ast.statements.blockstarters.CatchList;
 import ast.statements.blockstarters.CatchStatement;
@@ -77,27 +76,17 @@ public class NestingReconstructor
 	 * Joins consecutive PreBlockStarters on the stack
 	 * @param preNode EndIfStatement that is no longer on the stack
 	 */
-	protected void consolidatePreBlockStarters(ASTNode preNode)	{
-		PreBlockstarter curBlockStarter = null;
-
-		while (stack.size() > 0){
-			//Try to get the previous blockstarter on the stack
-			try	{					
-				System.out.println("Nesting stack: " +stack.peek().getTypeAsString());
-				System.out.println("Nesting stack: " +stack.itemStack.toString());
-				
-				//Is the top stack item a PreBlockstarter? Break here if not...
-				curBlockStarter = (PreBlockstarter) stack.peek();
-				
-
+	protected void consolidatePreBlockStarters(PreEndIfStatement preNode)	{
+		//PreNode is an endIf statement that is no longer on the stack
+		//PreEndIfStatement preEndif = preNode;
+		while (true){
+			try	{
+				//Try to get the previous blockstarter on the stack
+				PreBlockstarter curBlockStarter = (PreBlockstarter) stack.peek();
 				curBlockStarter = (PreBlockstarter) stack.pop();
-				System.out.println("Pre code string: " +curBlockStarter.getEscapedCodeStr());
-				//Add the previous node as child to the current node
-				curBlockStarter.addChild(preNode);				
-				//Set the current node as the previous node
-				preNode = (PreBlockstarter) curBlockStarter;					
-
-
+				//Add the #endIf node to this blockstarter (can be an #if/#else/#endif)
+				curBlockStarter.addChild(preNode);
+				//preNode = curBlockStarter;
 				
 				//#If statements
 				if (curBlockStarter instanceof PreIfStatement){					
@@ -127,18 +116,15 @@ public class NestingReconstructor
 //
 //					return;
 				} 
-			} catch (Exception ex)	{
-				System.out.println("Break in consolidatePreBlockStarters");
+			} catch (ClassCastException ex)	{
 				break;
 			}
 		}
-		
 		// Finally, add chain to top compound-item
 		//TODO not needed?
-		ASTNode root = stack.peek();
-		root.addChild(preNode);
+//		ASTNode root = stack.peek();
+//		root.addChild(preNode);
 	}
-	
 
 
 	/**

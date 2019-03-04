@@ -281,12 +281,12 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 		builder.enterPreElse(ctx);
 	}
 	
-//	//Preprocessor handling
-//	@Override
-//	public void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx){
-//		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-//		builder.exitPreElse(ctx);
-//	}
+	//Preprocessor handling
+	@Override
+	public void exitPre_else_statement(FunctionParser.Pre_else_statementContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreElse(ctx);
+	}
 	
 	//Preprocessor handling
 	@Override
@@ -295,12 +295,12 @@ public class CFunctionParseTreeListener extends FunctionBaseListener
 		builder.enterPreElIf(ctx);
 	}
 	
-//	//Preprocessor handling
-//	@Override
-//	public void exitPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx) {
-//		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-//		builder.exitPreElIf(ctx);
-//	}
+	//Preprocessor handling
+	@Override
+	public void exitPre_elif_statement(FunctionParser.Pre_elif_statementContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitPreElIf(ctx);
+	}
 	
 	//Preprocessor if handling
 	@Override
