@@ -568,15 +568,19 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 			System.out.println("Type "+itemToRemove.getTypeAsString());
 			//if an #endif is reached
 			if(itemToRemove instanceof PreEndIfStatement) {
-				//Connect all pre-blockstarters and compound items on the stack with their parent
+				//Connect pre-blockstarters and compound items on the stack with their parent that belong together
 				while(stack.size() > 1) {
 					System.out.println("Stack first: "+stack.peek().getEscapedCodeStr());
 					System.out.println("Stack first: "+stack.peek().getTypeAsString());
-					ASTNode currentNode = (ASTNode) stack.pop();
+
+					ASTNode currentNode = (ASTNode) stack.pop();					
 					nesting.addItemToParent(currentNode);	
+					
+					//Stop if the blockstarter #if is reached
+					if(currentNode instanceof PreIfStatement) {
+						break;
+					}
 				}
-				System.out.println("Stack last: "+stack.peek().getEscapedCodeStr());
-				System.out.println("Stack last: "+stack.peek().getTypeAsString());
 			//For if/else/elif
 			} else {
 				//Add a new (empty) compound statement to the stack, which will contain the children of the blockstarter

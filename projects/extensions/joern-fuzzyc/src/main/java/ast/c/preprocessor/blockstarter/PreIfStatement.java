@@ -2,9 +2,8 @@ package ast.c.preprocessor.blockstarter;
 
 import ast.walking.ASTNodeVisitor;
 
-public class PreIfStatement extends PreElseStatement {
+public class PreIfStatement extends PreElIfStatement {
 
-	private PreElseStatement elseNode = null;
 	private PreElIfStatement elIfNode = null;
 
 
@@ -42,14 +41,6 @@ public class PreIfStatement extends PreElseStatement {
 //			return getEndIfNode();
 //		throw new RuntimeException("Invalid IfItem");
 //	}
-
-	public PreElseStatement getElseNode() {
-		return elseNode;
-	}
-
-	public void setElseNode(PreElseStatement elseNode) {
-		this.elseNode = elseNode;
-	}
 	
 	public PreElIfStatement getElIfNode() {
 		return elIfNode;
