@@ -36,13 +36,6 @@ public class PreprocessorTests {
 	}
 	
 	@Test
-	public void testIfStatement() {
-		String input = "if (foo) {  int i; }";
-		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
-	}
-	
-	@Test
 	public void testPreIfStatementCode() {
 		String input = "#if foo  int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
