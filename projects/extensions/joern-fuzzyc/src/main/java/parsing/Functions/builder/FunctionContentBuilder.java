@@ -523,6 +523,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		}
 
 		//Gets called after exit simple decl etc, when item is no longer on the stack
+		//After normal if, top item is a compound statement with int i as child
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 		
@@ -567,15 +568,19 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 			System.out.println("Type "+itemToRemove.getTypeAsString());
 			//if an #endif is reached
 			if(itemToRemove instanceof PreEndIfStatement) {
-				//Connect all pre-blockstarters on the stack with their parent
+				//Connect all pre-blockstarters and compound items on the stack with their parent
 				while(stack.size() > 1) {
 					System.out.println("Stack first: "+stack.peek().getEscapedCodeStr());
 					System.out.println("Stack first: "+stack.peek().getTypeAsString());
-					PreStatement currentPre = (PreStatement) stack.pop();
-					nesting.addItemToParent(currentPre);	
+					ASTNode currentNode = (ASTNode) stack.pop();
+					nesting.addItemToParent(currentNode);	
 				}
 				System.out.println("Stack last: "+stack.peek().getEscapedCodeStr());
 				System.out.println("Stack last: "+stack.peek().getTypeAsString());
+			//For if/else/elif
+			} else {
+				//Add a new (empty) compound statement to the stack, which will contain the children of the blockstarter
+				stack.push(new CompoundStatement());
 			}
 			//Dont add blockstarters to their parents, this will be done when an #endif is reached
 			return;
@@ -1171,6 +1176,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 
 	public void exitDeclByType()
 	{
+		//TODO Here
 		nesting.consolidate();
 	}
 
