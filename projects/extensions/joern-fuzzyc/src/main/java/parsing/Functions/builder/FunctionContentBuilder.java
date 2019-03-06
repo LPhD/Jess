@@ -47,7 +47,6 @@ import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.NewlineContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
-import antlr.FunctionParser.Pre_commandContext;
 import antlr.FunctionParser.Pre_defineContext;
 import antlr.FunctionParser.Pre_diagnosticContext;
 import antlr.FunctionParser.Pre_elif_statementContext;
@@ -97,7 +96,6 @@ import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfCondition;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
-import ast.c.preprocessor.commands.PreCommand;
 import ast.c.preprocessor.commands.PreDiagnostic;
 import ast.c.preprocessor.commands.PreInclude;
 import ast.c.preprocessor.commands.PreIncludeFilename;
@@ -454,38 +452,46 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 	
 	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreIfStatement}, rather than a {@link PreStatement}
+	 * This makes the element appear as a {@link PreIfStatement}, rather than a {@link Statement}
 	 * @param ctx
 	 */
 	public void enterPreIf(Pre_if_statementContext ctx)	{
-		replaceTopOfStack(new PreIfStatement(), ctx);
+		PreIfStatement expr = new PreIfStatement();
+		nodeToRuleContext.put(expr, ctx);
+		replaceTopOfStack(expr, ctx);	
 	}
 	
 	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreElseStatement}, rather than a {@link PreStatement}
+	 * This makes the element appear as a {@link PreElseStatement}, rather than a {@link Statement}
 	 * @param ctx
 	 */
 	public void enterPreElse(Pre_else_statementContext ctx)	{
-		replaceTopOfStack(new PreElseStatement(), ctx);
+		PreElseStatement expr = new PreElseStatement();
+		nodeToRuleContext.put(expr, ctx);
+		replaceTopOfStack(expr, ctx);	
 	}
 	
 	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreElIfStatement}, rather than a {@link PreStatement}
+	 * This makes the element appear as a {@link PreElIfStatement}, rather than a {@link Statement}
 	 * @param ctx
 	 */
 	public void enterPreElIf(Pre_elif_statementContext ctx)	{
-		replaceTopOfStack(new PreElIfStatement(), ctx);
+		PreElIfStatement expr = new PreElIfStatement();
+		nodeToRuleContext.put(expr, ctx);
+		replaceTopOfStack(expr, ctx);	
 	}
 	
 	/**
 	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreEndIfStatement}, rather than a {@link PreStatement}
+	 * This makes the element appear as a {@link PreEndIfStatement}, rather than a {@link Statement}
 	 * @param ctx
 	 */
 	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
-		replaceTopOfStack(new PreEndIfStatement(), ctx);		
+		PreEndIfStatement expr = new PreEndIfStatement();
+		nodeToRuleContext.put(expr, ctx);
+		replaceTopOfStack(expr, ctx);		
 	}
 	
 	/**
@@ -516,43 +522,23 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
 		}
 
+		//Gets called after exit simple decl etc, when item is no longer on the stack
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
+		
 
+		//For all items that extend from PreStatements
+		if (itemToRemove instanceof PreStatement){
+			handlePreStatements(itemToRemove);
+			return;
+		}		
+	
 		if (itemToRemove instanceof BlockCloser){
 			closeCompoundStatement();
 			return;
 		}
-		
-		if (itemToRemove instanceof PreStatement){
-			System.out.println("PreStatement "+itemToRemove.getEscapedCodeStr());
-			//Leave blockstarter on the stack and only connect with parents if #endif is reached
-			if(!(itemToRemove instanceof PreBlockstarter)) {
-				stack.pop();
-			} else {
-				//Connect #if blocks if an #endif is reached
-				if(itemToRemove instanceof PreEndIfStatement) {
-					while(stack.size() > 1) {
-						PreStatement currentPre = (PreStatement) stack.pop();
-						nesting.addItemToParent(currentPre);	
-					}
-				}
-				return;
-			}
-			nesting.addItemToParent(itemToRemove);	
-			return;
-		}
-		
-//		if (itemToRemove instanceof PreBlockstarter){
-//			System.out.println("PreBlockstarter");
-//			nesting.addItemToParent(itemToRemove);	
-//			nesting.consolidate();
-//			return;
-//		}
 
-		// We keep Block-starters and compound items
-		// on the stack. They are removed by following
-		// statements.
+		// We keep Block-starters and compound items on the stack. They are removed by following statements.
 		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement)
 			return;
 
@@ -563,6 +549,38 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		stack.pop(); // remove 'CloseBlock'
 		CompoundStatement compoundItem = (CompoundStatement) stack.pop();
 		nesting.consolidateBlockStarters(compoundItem);
+	}
+	
+	//TODO
+	/**
+	 * Keep pre statement blockstarters on the stack, consolidate them if an {@link PreEndifStatement)is reached
+	 * Add all {@link PreStatement}s to their parent
+	 * @param itemToRemove
+	 */
+	private void handlePreStatements(ASTNode itemToRemove) {
+		//Leave blockstarter on the stack and only connect with parents if #endif is reached
+		if(!(itemToRemove instanceof PreBlockstarter)) {
+			//Remove non-blockstarter from stack
+			stack.pop();
+		} else {
+			System.out.println("Item_NOT_ToRemove "+itemToRemove.getEscapedCodeStr());
+			System.out.println("Type "+itemToRemove.getTypeAsString());
+			//if an #endif is reached
+			if(itemToRemove instanceof PreEndIfStatement) {
+				//Connect all pre-blockstarters on the stack with their parent
+				while(stack.size() > 1) {
+					System.out.println("Stack first: "+stack.peek().getEscapedCodeStr());
+					System.out.println("Stack first: "+stack.peek().getTypeAsString());
+					PreStatement currentPre = (PreStatement) stack.pop();
+					nesting.addItemToParent(currentPre);	
+				}
+				System.out.println("Stack last: "+stack.peek().getEscapedCodeStr());
+				System.out.println("Stack last: "+stack.peek().getTypeAsString());
+			}
+			//Dont add blockstarters to their parents, this will be done when an #endif is reached
+			return;
+		}
+		nesting.addItemToParent(itemToRemove);	
 	}
 
 	// Expression handling

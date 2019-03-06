@@ -1,6 +1,5 @@
 package ast.c.preprocessor.blockstarter;
 
-import ast.ASTNode;
 import ast.walking.ASTNodeVisitor;
 
 public class PreElseStatement extends PreBlockstarter {
