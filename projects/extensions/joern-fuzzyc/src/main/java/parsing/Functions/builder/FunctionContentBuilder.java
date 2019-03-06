@@ -522,8 +522,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
 		}
 
-		//Gets called after exit simple decl etc, when item is no longer on the stack
-		//After normal if, top item is a compound statement with int i as child
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 		
@@ -552,44 +550,39 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		nesting.consolidateBlockStarters(compoundItem);
 	}
 	
-	//TODO
 	/**
 	 * Keep pre statement blockstarters on the stack, consolidate them if an {@link PreEndifStatement)is reached
-	 * Add all {@link PreStatement}s to their parent
+	 * Add all {@link PreStatement}s and included compound statements to their respective parent
 	 * @param itemToRemove
 	 */
 	private void handlePreStatements(ASTNode itemToRemove) {
-		//Leave blockstarter on the stack and only connect with parents if #endif is reached
+
+		//Keep blockstarters on the stack
 		if(!(itemToRemove instanceof PreBlockstarter)) {
 			//Remove non-blockstarter from stack
 			stack.pop();
-		} else {
-			System.out.println("Item_NOT_ToRemove "+itemToRemove.getEscapedCodeStr());
-			System.out.println("Type "+itemToRemove.getTypeAsString());
-			//if an #endif is reached
-			if(itemToRemove instanceof PreEndIfStatement) {
-				//Connect pre-blockstarters and compound items on the stack with their parent that belong together
-				while(stack.size() > 1) {
-					System.out.println("Stack first: "+stack.peek().getEscapedCodeStr());
-					System.out.println("Stack first: "+stack.peek().getTypeAsString());
-
-					ASTNode currentNode = (ASTNode) stack.pop();					
-					nesting.addItemToParent(currentNode);	
-					
-					//Stop if the blockstarter #if is reached
-					if(currentNode instanceof PreIfStatement) {
-						break;
-					}
-				}
-			//For if/else/elif
-			} else {
-				//Add a new (empty) compound statement to the stack, which will contain the children of the blockstarter
-				stack.push(new CompoundStatement());
-			}
-			//Dont add blockstarters to their parents, this will be done when an #endif is reached
+			//Add them to their parent
+			nesting.addItemToParent(itemToRemove);
 			return;
-		}
-		nesting.addItemToParent(itemToRemove);	
+		} 
+		
+
+		//If an #endif is reached
+		if (itemToRemove instanceof PreEndIfStatement) {
+			// Connect pre-blockstarters and compound items on the stack that belong together
+			while (stack.size() > 1) {
+				ASTNode currentNode = (ASTNode) stack.pop();
+				nesting.addItemToParent(currentNode);
+				// Stop if the blockstarter #if is reached
+				if (currentNode instanceof PreIfStatement) {
+					break;
+				}
+			}
+		// For if/else/elif
+		} else {
+			// Add a new (empty) compound statement to the stack, which will contain the children of the blockstarter
+			stack.push(new CompoundStatement());
+		}		
 	}
 
 	// Expression handling
