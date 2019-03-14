@@ -11,13 +11,13 @@ import antlr.ModuleLexer;
 import ast.ASTNode;
 import ast.c.functionDef.ParameterType;
 import ast.c.preprocessor.PreStatement;
-import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.statements.IdentifierDeclStatement;
 import parsing.TokenSubStream;
+import parsing.Functions.ANTLRCFunctionParserDriver;
 import parsing.Modules.ANTLRCModuleParserDriver;
 
 public class ModuleBuildersTest {
@@ -227,8 +227,12 @@ public class ModuleBuildersTest {
 
 	private List<ASTNode> parseInput(String input) {
 		ANTLRCModuleParserDriver parser = new ANTLRCModuleParserDriver();
-		TestASTWalker testProcessor = new TestASTWalker();
+		TestASTWalker testProcessor = new TestASTWalker();		
 		parser.addObserver(testProcessor);
+		//For Preprocessor testing, this is normally done when you enter a file
+		ANTLRCFunctionParserDriver functionDriver = new ANTLRCFunctionParserDriver();
+		parser.functionDriver = functionDriver;
+
 
 		ANTLRInputStream inputStream = new ANTLRInputStream(input);
 		ModuleLexer lex = new ModuleLexer(inputStream);

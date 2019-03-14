@@ -21,6 +21,7 @@ import ast.ASTNode;
 import ast.ASTNodeBuilder;
 import ast.logical.statements.CompoundStatement;
 import ast.walking.ASTWalkerEvent;
+import parsing.Functions.ANTLRCFunctionParserDriver;
 
 abstract public class ANTLRParserDriver extends Observable
 {
@@ -35,10 +36,16 @@ abstract public class ANTLRParserDriver extends Observable
 	public Stack<ASTNodeBuilder> builderStack = new Stack<ASTNodeBuilder>();
 	public TokenSubStream stream;
 	public String filename;
-
+	/**
+	 * Preprocessor handling, return the functionParser for a specific file
+	 * This is needed for #if/#else nesting
+	 */
+	public ANTLRCFunctionParserDriver functionDriver;
+	
 	private Parser antlrParser;
 	private ParseTreeListener listener;
 	private CommonParserContext context = null;
+
 
 	abstract public ParseTree parseTokenStreamImpl(TokenSubStream tokens);
 
@@ -51,6 +58,8 @@ abstract public class ANTLRParserDriver extends Observable
 
 	public void parseAndWalkFile(String filename) throws ParserException
 	{
+		functionDriver = new ANTLRCFunctionParserDriver();
+		
 		TokenSubStream stream = createTokenStreamFromFile(filename);
 		initializeContextWithFile(filename, stream);
 

@@ -18,9 +18,9 @@ public class PreprocessorBuilder extends ASTNodeBuilder {
 	PreStatement thisItem;
 	ANTLRCFunctionParserDriver driver;
 
-	 public void createPreStatement(ParserRuleContext ctx) {
+	 public void createPreStatement(ParserRuleContext ctx, ANTLRCFunctionParserDriver functionDriver) {
 			// Driver for calling function parser
-			driver = new ANTLRCFunctionParserDriver();
+			driver = functionDriver;
 			// Get code of PreElIfStatement
 			thisItem = new PreStatement();
 			ASTNodeFactory.initializeFromContext(thisItem, ctx);
