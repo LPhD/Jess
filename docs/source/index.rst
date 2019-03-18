@@ -26,22 +26,16 @@ analysis tasks can be implemented as plugins for the platform.
   the fuzzy parser output and makes and stores them in a Titan DB graph
   database. For background information on code property graphs, we
   strongly encourage you to read the paper of Joern's authors on the topic
-  <http://user.informatik.uni-goettingen.de/~fyamagu/pdfs/2014-oakland.pdf>`_.
+  <http://user.informatik.uni-goettingen.de/~fyamagu/pdfs/2014-oakland.pdf>.
 
 - **Extensible Query Language.** Based on the graph traversal language
   Gremlin, Jess offers an extensible query language based on
   user-defined Gremlin steps that encode common traversals in the code
   property graph. These can be combined to create search queries easily.
   
-- **Variability-Awarness.** In contrast to Joern, Jess parses preprocessor
-statements and is therefore able to analyze variability in preprocessor-based
-product lines.
+- **Variability-Awarness.** In contrast to Joern, Jess parses preprocessor statements and is therefore able to analyze variability in preprocessor-based product lines.
 
-- **Semantic Slicing.** Jess uses queries to slice the imported source code
-in semantically related units. That means, you can select an entry point (a
-line of code) and Jess will give you all lines of code that have an behavioural
-impact on that entry point or are impacted by that entry point (forward and backward
-slicing).
+- **Semantic Slicing.** Jess uses queries to slice the imported source code in semantically related units. That means, you can select an entry point (a line of code) and Jess will give you all lines of code that have an behavioural impact on that entry point or are impacted by that entry point (forward and backward slicing).
 
 This is Jess' official documentation. It covers its installation and
 configuration, discusses how code can be imported and retrieved from
