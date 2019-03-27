@@ -62,7 +62,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 		@Override
 		public void enterPre_statement(ModuleParser.Pre_statementContext ctx){
 			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createPreStatement(ctx, p.functionDriver);
+			builder.createPreStatement(ctx);
 			p.builderStack.push(builder);
 		}
 		

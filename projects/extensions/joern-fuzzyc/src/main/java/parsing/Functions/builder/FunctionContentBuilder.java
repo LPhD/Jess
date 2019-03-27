@@ -194,11 +194,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 
 	public void exitStatements(StatementsContext ctx)
 	{
-		if (stack.size() != 1) {
-			System.out.println("Stack size: "+stack.size());
-			System.out.println("Top object: "+stack.peek().getEscapedCodeStr());
-			//throw new RuntimeException("Broken stack while parsing");
-		}
+		if (stack.size() != 1)
+			throw new RuntimeException("Broken stack while parsing");
 
 	}
 
