@@ -16,20 +16,20 @@ import parsing.Functions.ANTLRCFunctionParserDriver;
 public class PreprocessorBuilder extends ASTNodeBuilder {
 
 	PreStatement thisItem;
-	ANTLRCFunctionParserDriver driver;
+	
 
 	 public void createPreStatement(ParserRuleContext ctx) {
-			// Driver for calling function parser
-			driver = new ANTLRCFunctionParserDriver();
+
 			// Get code of PreElIfStatement
 			thisItem = new PreStatement();
 			ASTNodeFactory.initializeFromContext(thisItem, ctx);
 			String text = thisItem.getEscapedCodeStr();
 			try {
 				// Parse code in function parser
-				driver.parseAndWalkString(text);
+				//driver.parseAndWalkString(text);
 				// Exchange current node with newly parsed node 
-				thisItem = (PreStatement) driver.builderStack.pop().getItem().getChild(0);
+				//TODO Rework
+				//thisItem = (PreStatement) driver.builderStack.pop().getItem().getChild(0);
 			} catch (Exception e) {
 				System.err.println("Cannot create PreStatement " +text+" in ModuleParser");
 				e.printStackTrace();

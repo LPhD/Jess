@@ -11,12 +11,16 @@ import antlr.ModuleParser.Class_defContext;
 import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
 import antlr.ModuleParser.Type_nameContext;
+import ast.c.preprocessor.PreStatement;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
 import ast.statements.IdentifierDeclStatement;
 import parsing.ANTLRParserDriver;
+import parsing.ASTNodeFactory;
 import parsing.CompoundItemAssembler;
 import parsing.ModuleFunctionParserInterface;
+import parsing.Functions.ANTLRCFunctionParserDriver;
+import parsing.Functions.builder.FunctionContentBuilder;
 import parsing.Modules.builder.FunctionDefBuilder;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
@@ -28,22 +32,34 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 {
 
 	ANTLRParserDriver p;
+	//For variability analysis
+	ANTLRCFunctionParserDriver driver;
 
 	public CModuleParserTreeListener(ANTLRParserDriver aP)
 	{
 		p = aP;
+		// Driver for calling function parser
+		driver = new ANTLRCFunctionParserDriver();
 	}
 
 	@Override
 	public void enterCode(ModuleParser.CodeContext ctx)
 	{
 		p.notifyObserversOfUnitStart(ctx);
+		
+		FunctionContentBuilder builder = new FunctionContentBuilder();
+		builder.createNew(ctx);
+		driver.builderStack.push(builder);
 	}
 
 	@Override
 	public void exitCode(ModuleParser.CodeContext ctx)
 	{
 		p.notifyObserversOfUnitEnd(ctx);
+		
+		FunctionContentBuilder builder = (FunctionContentBuilder) driver.builderStack.peek();
+		//TODO
+		//builder.exitStatements(ctx);
 	}
 
 	// /////////////////////////////////////////////////////////////
@@ -61,16 +77,22 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 		//Preprocessor if handling
 		@Override
 		public void enterPre_statement(ModuleParser.Pre_statementContext ctx){
-			PreprocessorBuilder builder = new PreprocessorBuilder();
-			builder.createPreStatement(ctx);
-			p.builderStack.push(builder);
+			//PreprocessorBuilder builder = new PreprocessorBuilder();
+			//builder.createPreStatement(ctx);
+			//p.builderStack.push(builder);
+			
+			// Get code of PreStatement
+			PreStatement thisItem = new PreStatement();
+			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+			String text = thisItem.getEscapedCodeStr();
+			driver.parseAndWalkString(text);
 		}
 		
 		//Preprocessor if handling
 		@Override
 		public void exitPre_statement(ModuleParser.Pre_statementContext ctx){
-			PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-			p.notifyObserversOfItem(builder.getItem());
+			//PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+//			p.notifyObserversOfItem(builder.getItem());
 		}
 
 	//---------------------------------------------------------------------------------------------------------------
