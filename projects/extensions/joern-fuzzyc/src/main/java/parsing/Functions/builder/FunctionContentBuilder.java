@@ -183,37 +183,30 @@ import parsing.Shared.builders.IdentifierDeclBuilder;
  * correctly nested AST.
  */
 
-public class FunctionContentBuilder extends ASTNodeBuilder
-{
+public class FunctionContentBuilder extends ASTNodeBuilder {
 	ContentBuilderStack stack = new ContentBuilderStack();
 	NestingReconstructor nesting = new NestingReconstructor(stack);
 	HashMap<ASTNode, ParserRuleContext> nodeToRuleContext = new HashMap<ASTNode, ParserRuleContext>();
 
-	// exitStatements is called when the entire
-	// function-content has been walked
-
-	public void exitStatements(StatementsContext ctx)
-	{
+	// exitStatements is called when the entire function-content has been walked
+	public void exitStatements(StatementsContext ctx) {
 		if (stack.size() != 1) {
-			//TODO Implement handling of preprocessor blockstarters on module level
+			// TODO Implement handling of preprocessor blockstarters on module level
 			try {
-				while(stack.size() != 1) {
+				while (stack.size() != 1) {
 					ASTNode currentNode = (ASTNode) stack.pop();
 					nesting.addItemToParent(currentNode);
 				}
 			} catch (Exception e) {
 				System.out.println("Exception while removing items from stack!");
 			}
-			//throw new RuntimeException("Broken stack while parsing");
+			// throw new RuntimeException("Broken stack while parsing");
 		}
 
 	}
 
-	// For all statements, begin by pushing a Statement Object
-	// onto the stack.
-
-	public void enterStatement(StatementContext ctx)
-	{
+	// For all statements, begin by pushing a Statement Object onto the stack.
+	public void enterStatement(StatementContext ctx) {
 		ASTNode statementItem = ASTNodeFactory.create(ctx);
 		nodeToRuleContext.put(statementItem, ctx);
 		stack.push(statementItem);
@@ -221,184 +214,189 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 
 	// Mapping of grammar-rules to CodeItems.
 
-	public void enterOpeningCurly(Opening_curlyContext ctx)
-	{
+	public void enterOpeningCurly(Opening_curlyContext ctx) {
 		replaceTopOfStack(new CompoundStatement(), ctx);
 	}
 
-	public void enterClosingCurly(Closing_curlyContext ctx)
-	{
+	public void enterClosingCurly(Closing_curlyContext ctx) {
 		replaceTopOfStack(new BlockCloser(), ctx);
 	}
 
-	public void enterBlockStarter(Block_starterContext ctx)
-	{
+	public void enterBlockStarter(Block_starterContext ctx) {
 		replaceTopOfStack(new BlockStarter(), ctx);
 	}
 
-	public void enterExprStatement(Expr_statementContext ctx)
-	{
+	public void enterExprStatement(Expr_statementContext ctx) {
 		replaceTopOfStack(new ExpressionStatement(), ctx);
 	}
 
-	public void enterIf(If_statementContext ctx)
-	{
+	public void enterIf(If_statementContext ctx) {
 		replaceTopOfStack(new IfStatement(), ctx);
-	}	
+	}
 
-	public void enterFor(For_statementContext ctx)
-	{
+	public void enterFor(For_statementContext ctx) {
 		replaceTopOfStack(new ForStatement(), ctx);
 	}
 
-	public void enterWhile(While_statementContext ctx)
-	{
+	public void enterWhile(While_statementContext ctx) {
 		replaceTopOfStack(new WhileStatement(), ctx);
 	}
 
-	public void enterDo(Do_statementContext ctx)
-	{
+	public void enterDo(Do_statementContext ctx) {
 		replaceTopOfStack(new DoStatement(), ctx);
 	}
 
-	public void enterElse(Else_statementContext ctx)
-	{
+	public void enterElse(Else_statementContext ctx) {
 		replaceTopOfStack(new ElseStatement(), ctx);
 	}
 
-		
-//------------------------------------Preprocessor macro handling----------------------------------------------------------	
-	
+	// ------------------------------------Preprocessor macro  handling----------------------------------------------------------
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreDefine(Pre_defineContext ctx) {
-		replaceTopOfStack(new PreDefine(), ctx);	
-	}	
-	
+		replaceTopOfStack(new PreDefine(), ctx);
+	}
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreMacro(Pre_macroContext ctx) {
 		PreMacro expr = new PreMacro();
 		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);	
+		stack.push(expr);
 	}
-	
+
 	/**
 	 * Pops the item from the stack and adds it to its parents
+	 * 
 	 * @param ctx
 	 */
 	public void exitPreMacro(Pre_macroContext ctx) {
 		PreMacro expr = (PreMacro) stack.pop();
 		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);	
+		nesting.addItemToParent(expr);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreMacroIdentifier(Pre_macro_identifierContext ctx) {
 		PreMacroIdentifier expr = new PreMacroIdentifier();
 		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);	
+		stack.push(expr);
 	}
-	
+
 	/**
 	 * Pops the item from the stack and adds it to its parents
+	 * 
 	 * @param ctx
 	 */
 	public void exitPreMacroIdentifier(Pre_macro_identifierContext ctx) {
 		PreMacroIdentifier expr = (PreMacroIdentifier) stack.pop();
 		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);		
+		nesting.addItemToParent(expr);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreMacroParameters(Pre_macro_parametersContext ctx) {
 		PreMacroParameters expr = new PreMacroParameters();
 		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);		
+		stack.push(expr);
 	}
-	
+
 	/**
 	 * Pops the item from the stack and adds it to its parents
+	 * 
 	 * @param ctx
 	 */
 	public void exitPreMacroParameters(Pre_macro_parametersContext ctx) {
 		PreMacroParameters expr = (PreMacroParameters) stack.pop();
 		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);	
+		nesting.addItemToParent(expr);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreUndef(Pre_undefContext ctx) {
 		replaceTopOfStack(new PreUndef(), ctx);
 	}
-	
 
-//----------------------------------Preprocessor command handling--------------------------------------------------------------		
-	
+	// ----------------------------------Preprocessor command handling--------------------------------------------------------------
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreDiagnostic(Pre_diagnosticContext ctx) {
 		replaceTopOfStack(new PreDiagnostic(), ctx);
 	}
-	
+
 	/**
-	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreInclude}, rather than a {@link PreStatement}
+	 * Replace top of stack with the current item, as the parent item is only a
+	 * placeholder This makes the element appear as a {@link PreInclude}, rather
+	 * than a {@link PreStatement}
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreInclude(Pre_includeContext ctx) {
-		replaceTopOfStack(new PreInclude(), ctx);	
+		replaceTopOfStack(new PreInclude(), ctx);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreIncludeNext(Pre_include_nextContext ctx) {
-		replaceTopOfStack(new PreIncludeNext(), ctx);	
+		replaceTopOfStack(new PreIncludeNext(), ctx);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreLine(Pre_lineContext ctx) {
 		replaceTopOfStack(new PreLine(), ctx);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreOther(Pre_otherContext ctx) {
 		replaceTopOfStack(new PreOther(), ctx);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPrePragma(Pre_pragmaContext ctx) {
-		replaceTopOfStack(new PrePragma(), ctx);	
+		replaceTopOfStack(new PrePragma(), ctx);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreIncludeFilename(Pre_include_filenameContext ctx) {
@@ -406,9 +404,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
-	
+
 	/**
 	 * Pops the item from the stack and adds it to its parents
+	 * 
 	 * @param ctx
 	 */
 	public void exitPreIncludeFilename(Pre_include_filenameContext ctx) {
@@ -416,29 +415,32 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		ASTNodeFactory.initializeFromContext(expr, ctx);
 		nesting.addItemToParent(expr);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreIncludeSystemHeader(Pre_include_system_headerContext ctx) {
 		PreIncludeSystemHeader expr = new PreIncludeSystemHeader();
 		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);		
+		stack.push(expr);
 	}
-	
+
 	/**
 	 * Pops the item from the stack and adds it to its parents
+	 * 
 	 * @param ctx
 	 */
 	public void exitPreIncludeSystemHeader(Pre_include_system_headerContext ctx) {
 		PreIncludeSystemHeader expr = (PreIncludeSystemHeader) stack.pop();
 		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);	
+		nesting.addItemToParent(expr);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
 	public void enterPreIncludeLocalFile(Pre_include_local_fileContext ctx) {
@@ -446,140 +448,151 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
-	
+
 	/**
 	 * Pops the item from the stack and adds it to its parents
+	 * 
 	 * @param ctx
 	 */
 	public void exitPreIncludeLocalFile(Pre_include_local_fileContext ctx) {
 		PreIncludeLocalFile expr = (PreIncludeLocalFile) stack.pop();
 		ASTNodeFactory.initializeFromContext(expr, ctx);
-		nesting.addItemToParent(expr);	
+		nesting.addItemToParent(expr);
 	}
 
+	// ----------------------------------Preprocessor blockstarter handling------------------------------------------------------
 
-//----------------------------------Preprocessor blockstarter handling------------------------------------------------------	
-	
 	/**
-	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreIfStatement}, rather than a {@link Statement}
+	 * Replace top of stack with the current item, as the parent item is only a
+	 * placeholder This makes the element appear as a {@link PreIfStatement}, rather
+	 * than a {@link Statement}
+	 * 
 	 * @param ctx
 	 */
-	public void enterPreIf(Pre_if_statementContext ctx)	{
+	public void enterPreIf(Pre_if_statementContext ctx) {
 		PreIfStatement expr = new PreIfStatement();
 		nodeToRuleContext.put(expr, ctx);
-		replaceTopOfStack(expr, ctx);	
+		replaceTopOfStack(expr, ctx);
 	}
-	
+
 	/**
-	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreElseStatement}, rather than a {@link Statement}
+	 * Replace top of stack with the current item, as the parent item is only a
+	 * placeholder This makes the element appear as a {@link PreElseStatement},
+	 * rather than a {@link Statement}
+	 * 
 	 * @param ctx
 	 */
-	public void enterPreElse(Pre_else_statementContext ctx)	{
+	public void enterPreElse(Pre_else_statementContext ctx) {
 		PreElseStatement expr = new PreElseStatement();
 		nodeToRuleContext.put(expr, ctx);
-		replaceTopOfStack(expr, ctx);	
+		replaceTopOfStack(expr, ctx);
 	}
-	
+
 	/**
-	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreElIfStatement}, rather than a {@link Statement}
+	 * Replace top of stack with the current item, as the parent item is only a
+	 * placeholder This makes the element appear as a {@link PreElIfStatement},
+	 * rather than a {@link Statement}
+	 * 
 	 * @param ctx
 	 */
-	public void enterPreElIf(Pre_elif_statementContext ctx)	{
+	public void enterPreElIf(Pre_elif_statementContext ctx) {
 		PreElIfStatement expr = new PreElIfStatement();
 		nodeToRuleContext.put(expr, ctx);
-		replaceTopOfStack(expr, ctx);	
+		replaceTopOfStack(expr, ctx);
 	}
-	
+
 	/**
-	 * Replace top of stack with the current item, as the parent item is only a placeholder
-	 * This makes the element appear as a {@link PreEndIfStatement}, rather than a {@link Statement}
+	 * Replace top of stack with the current item, as the parent item is only a
+	 * placeholder This makes the element appear as a {@link PreEndIfStatement},
+	 * rather than a {@link Statement}
+	 * 
 	 * @param ctx
 	 */
-	public void enterPreEndIf(Pre_endif_statementContext ctx)	{
+	public void enterPreEndIf(Pre_endif_statementContext ctx) {
 		PreEndIfStatement expr = new PreEndIfStatement();
 		nodeToRuleContext.put(expr, ctx);
-		replaceTopOfStack(expr, ctx);		
+		replaceTopOfStack(expr, ctx);
 	}
-	
+
 	/**
 	 * Pushes the item on the stack
+	 * 
 	 * @param ctx
 	 */
-	public void enterPreIfCondition(Pre_if_conditionContext ctx)	{
+	public void enterPreIfCondition(Pre_if_conditionContext ctx) {
 		PreIfCondition cond = new PreIfCondition();
 		nodeToRuleContext.put(cond, ctx);
 		stack.push(cond);
 	}
-	
+
 	/**
 	 * Pops the item from the stack and adds it to its parents
+	 * 
 	 * @param ctx
 	 */
-	public void exitPreIfConditionn(Pre_if_conditionContext ctx)	{
+	public void exitPreIfConditionn(Pre_if_conditionContext ctx) {
 		PreIfCondition cond = (PreIfCondition) stack.pop();
 		ASTNodeFactory.initializeFromContext(cond, ctx);
 		nesting.addItemToParent(cond);
 	}
-	
-//----------------------------------Preprocessor handling end-------------------------------------------------------------
-	
-	
-	public void exitStatement(StatementContext ctx)	{
+
+	// ----------------------------------Preprocessor handling end-------------------------------------------------------------
+
+	public void exitStatement(StatementContext ctx) {
 		if (stack.size() == 0) {
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
 		}
 
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
-		
 
-		//For all items that extend from PreStatements
-		if (itemToRemove instanceof PreStatement){
+		// For all items that extend from PreStatements
+		if (itemToRemove instanceof PreStatement) {
 			handlePreStatements(itemToRemove);
 			return;
-		}		
-	
-		if (itemToRemove instanceof BlockCloser){
+		}
+
+		if (itemToRemove instanceof BlockCloser) {
 			closeCompoundStatement();
 			return;
 		}
 
-		// We keep Block-starters and compound items on the stack. They are removed by following statements.
+		// We keep Block-starters and compound items on the stack. They are removed by
+		// following statements.
 		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement)
 			return;
 
 		nesting.consolidate();
 	}
 
-	private void closeCompoundStatement()	{
+	private void closeCompoundStatement() {
 		stack.pop(); // remove 'CloseBlock'
 		CompoundStatement compoundItem = (CompoundStatement) stack.pop();
 		nesting.consolidateBlockStarters(compoundItem);
 	}
-	
+
 	/**
-	 * Keep pre statement blockstarters on the stack, consolidate them if an {@link PreEndifStatement)is reached
-	 * Add all {@link PreStatement}s and included compound statements to their respective parent
+	 * Keep pre statement blockstarters on the stack, consolidate them if an
+	 * {@link PreEndifStatement)is reached Add all {@link PreStatement}s and
+	 * included compound statements to their respective parent
+	 * 
 	 * @param itemToRemove
 	 */
 	private void handlePreStatements(ASTNode itemToRemove) {
 
-		//Keep blockstarters on the stack
-		if(!(itemToRemove instanceof PreBlockstarter)) {
-			//Remove non-blockstarter from stack
+		// Keep blockstarters on the stack
+		if (!(itemToRemove instanceof PreBlockstarter)) {
+			// Remove non-blockstarter from stack
 			stack.pop();
-			//Add them to their parent
+			// Add them to their parent
 			nesting.addItemToParent(itemToRemove);
 			return;
-		} 
-		
+		}
 
-		//If an #endif is reached
+		// If an #endif is reached
 		if (itemToRemove instanceof PreEndIfStatement) {
-			// Connect pre-blockstarters and compound items on the stack that belong together
+			// Connect pre-blockstarters and compound items on the stack that belong
+			// together
 			while (stack.size() > 1) {
 				ASTNode currentNode = (ASTNode) stack.pop();
 				nesting.addItemToParent(currentNode);
@@ -588,229 +601,192 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 					break;
 				}
 			}
-		// For if/else/elif
+			// For if/else/elif
 		} else {
-			// Add a new (empty) compound statement to the stack, which will contain the children of the blockstarter
+			// Add a new (empty) compound statement to the stack, which will contain the
+			// children of the blockstarter
 			stack.push(new CompoundStatement());
-		}		
+		}
 	}
 
 	// Expression handling
-	public void enterExpression(ExprContext ctx)	{
+	public void enterExpression(ExprContext ctx) {
 		Expression expression = new Expression();
 		nodeToRuleContext.put(expression, ctx);
 		stack.push(expression);
 	}
 
-	public void exitExpression(ExprContext ctx)
-	{
+	public void exitExpression(ExprContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterAssignment(Assign_exprContext ctx)
-	{
+	public void enterAssignment(Assign_exprContext ctx) {
 		AssignmentExpression expr = new AssignmentExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitAssignment(Assign_exprContext ctx)
-	{
+	public void exitAssignment(Assign_exprContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterConditionalExpr(Conditional_expressionContext ctx)
-	{
+	public void enterConditionalExpr(Conditional_expressionContext ctx) {
 		ConditionalExpression expr = new ConditionalExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitConditionalExpr(Conditional_expressionContext ctx)
-	{
+	public void exitConditionalExpr(Conditional_expressionContext ctx) {
 		introduceCndNodeForCndExpr();
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterOrExpression(Or_expressionContext ctx)
-	{
+	public void enterOrExpression(Or_expressionContext ctx) {
 		OrExpression expr = new OrExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitrOrExpression(Or_expressionContext ctx)
-	{
+	public void exitrOrExpression(Or_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterAndExpression(And_expressionContext ctx)
-	{
+	public void enterAndExpression(And_expressionContext ctx) {
 		AndExpression expr = new AndExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitAndExpression(And_expressionContext ctx)
-	{
+	public void exitAndExpression(And_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterInclusiveOrExpression(Inclusive_or_expressionContext ctx)
-	{
+	public void enterInclusiveOrExpression(Inclusive_or_expressionContext ctx) {
 		InclusiveOrExpression expr = new InclusiveOrExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitInclusiveOrExpression(Inclusive_or_expressionContext ctx)
-	{
+	public void exitInclusiveOrExpression(Inclusive_or_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterExclusiveOrExpression(Exclusive_or_expressionContext ctx)
-	{
+	public void enterExclusiveOrExpression(Exclusive_or_expressionContext ctx) {
 		ExclusiveOrExpression expr = new ExclusiveOrExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitExclusiveOrExpression(Exclusive_or_expressionContext ctx)
-	{
+	public void exitExclusiveOrExpression(Exclusive_or_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterBitAndExpression(Bit_and_expressionContext ctx)
-	{
+	public void enterBitAndExpression(Bit_and_expressionContext ctx) {
 		BitAndExpression expr = new BitAndExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void enterEqualityExpression(Equality_expressionContext ctx)
-	{
+	public void enterEqualityExpression(Equality_expressionContext ctx) {
 		EqualityExpression expr = new EqualityExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitEqualityExpression(Equality_expressionContext ctx)
-	{
+	public void exitEqualityExpression(Equality_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void exitBitAndExpression(Bit_and_expressionContext ctx)
-	{
+	public void exitBitAndExpression(Bit_and_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterRelationalExpression(Relational_expressionContext ctx)
-	{
+	public void enterRelationalExpression(Relational_expressionContext ctx) {
 		RelationalExpression expr = new RelationalExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitRelationalExpression(Relational_expressionContext ctx)
-	{
+	public void exitRelationalExpression(Relational_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterShiftExpression(Shift_expressionContext ctx)
-	{
+	public void enterShiftExpression(Shift_expressionContext ctx) {
 		ShiftExpression expr = new ShiftExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitShiftExpression(Shift_expressionContext ctx)
-	{
+	public void exitShiftExpression(Shift_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterAdditiveExpression(Additive_expressionContext ctx)
-	{
+	public void enterAdditiveExpression(Additive_expressionContext ctx) {
 		AdditiveExpression expr = new AdditiveExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitAdditiveExpression(Additive_expressionContext ctx)
-	{
+	public void exitAdditiveExpression(Additive_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterMultiplicativeExpression(
-			Multiplicative_expressionContext ctx)
-	{
+	public void enterMultiplicativeExpression(Multiplicative_expressionContext ctx) {
 		MultiplicativeExpression expr = new MultiplicativeExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitMultiplicativeExpression(
-			Multiplicative_expressionContext ctx)
-	{
+	public void exitMultiplicativeExpression(Multiplicative_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterCastExpression(Cast_expressionContext ctx)
-	{
+	public void enterCastExpression(Cast_expressionContext ctx) {
 		CastExpression expr = new CastExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitCastExpression(Cast_expressionContext ctx)
-	{
+	public void exitCastExpression(Cast_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterCast_target(Cast_targetContext ctx)
-	{
+	public void enterCast_target(Cast_targetContext ctx) {
 		CastTarget expr = new CastTarget();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitCast_target(Cast_targetContext ctx)
-	{
+	public void exitCast_target(Cast_targetContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterFuncCall(FuncCallContext ctx)
-	{
+	public void enterFuncCall(FuncCallContext ctx) {
 		CallExpression expr = new CallExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitFuncCall(FuncCallContext ctx)
-	{
+	public void exitFuncCall(FuncCallContext ctx) {
 		introduceCalleeNode();
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterSizeof(SizeofContext ctx)
-	{
+	public void enterSizeof(SizeofContext ctx) {
 		Sizeof expr = new Sizeof();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitSizeof(SizeofContext ctx)
-	{
+	public void exitSizeof(SizeofContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	private void introduceCalleeNode()
-	{
+	private void introduceCalleeNode() {
 		CallExpression expr;
-		try
-		{
+		try {
 			expr = (CallExpression) stack.peek();
-		} catch (EmptyStackException ex)
-		{
+		} catch (EmptyStackException ex) {
 			return;
 		}
 
@@ -823,14 +799,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		expr.replaceFirstChild(callee);
 	}
 
-	private void introduceCndNodeForCndExpr()
-	{
+	private void introduceCndNodeForCndExpr() {
 		ConditionalExpression expr;
-		try
-		{
+		try {
 			expr = (ConditionalExpression) stack.peek();
-		} catch (EmptyStackException ex)
-		{
+		} catch (EmptyStackException ex) {
 			return;
 		}
 
@@ -843,69 +816,58 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 
 	}
 
-	public void enterArgumentList(Function_argument_listContext ctx)
-	{
+	public void enterArgumentList(Function_argument_listContext ctx) {
 		ArgumentList expr = new ArgumentList();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitArgumentList(Function_argument_listContext ctx)
-	{
+	public void exitArgumentList(Function_argument_listContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterCondition(ConditionContext ctx)
-	{
+	public void enterCondition(ConditionContext ctx) {
 		Condition expr = new Condition();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitCondition(ConditionContext ctx)
-	{
+	public void exitCondition(ConditionContext ctx) {
 		Condition cond = (Condition) stack.pop();
 		ASTNodeFactory.initializeFromContext(cond, ctx);
 		nesting.addItemToParent(cond);
 	}
-	
 
-	public void enterDeclByClass(DeclByClassContext ctx)
-	{
+	public void enterDeclByClass(DeclByClassContext ctx) {
 		ClassDefBuilder classDefBuilder = new ClassDefBuilder();
 		classDefBuilder.createNew(ctx);
 		classDefBuilder.setName(ctx.class_def().class_name());
 		replaceTopOfStack(classDefBuilder.getItem(), ctx);
 	}
 
-	public void exitDeclByClass()
-	{
+	public void exitDeclByClass() {
 		nesting.consolidate();
 	}
 
-	public void enterInitDeclSimple(InitDeclSimpleContext ctx)
-	{
+	public void enterInitDeclSimple(InitDeclSimpleContext ctx) {
 		ASTNode identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
 	}
 
-	public void exitInitDeclSimple()
-	{
+	public void exitInitDeclSimple() {
 		IdentifierDecl identifierDecl = (IdentifierDecl) stack.pop();
 		ASTNode stmt = stack.peek();
 		stmt.addChild(identifierDecl);
 	}
 
-	public void enterInitDeclWithAssign(InitDeclWithAssignContext ctx)
-	{
+	public void enterInitDeclWithAssign(InitDeclWithAssignContext ctx) {
 		IdentifierDecl identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
 	}
 
-	public void exitInitDeclWithAssign(InitDeclWithAssignContext ctx)
-	{
+	public void exitInitDeclWithAssign(InitDeclWithAssignContext ctx) {
 		IdentifierDecl identifierDecl = (IdentifierDecl) stack.pop();
 
 		Expression lastChild = (Expression) identifierDecl.popLastChild();
@@ -923,22 +885,19 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		stmt.addChild(identifierDecl);
 	}
 
-	public void enterInitDeclWithCall(InitDeclWithCallContext ctx)
-	{
+	public void enterInitDeclWithCall(InitDeclWithCallContext ctx) {
 		ASTNode identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
 	}
 
-	public void exitInitDeclWithCall()
-	{
+	public void exitInitDeclWithCall() {
 		IdentifierDecl identifierDecl = (IdentifierDecl) stack.pop();
 		ASTNode stmt = stack.peek();
 		stmt.addChild(identifierDecl);
 	}
 
-	private IdentifierDecl buildDeclarator(ParserRuleContext ctx)
-	{
+	private IdentifierDecl buildDeclarator(ParserRuleContext ctx) {
 		InitDeclContextWrapper wrappedContext = new InitDeclContextWrapper(ctx);
 		ParserRuleContext typeName = getTypeFromParent();
 		IdentifierDeclBuilder declBuilder = new IdentifierDeclBuilder();
@@ -948,205 +907,170 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		return identifierDecl;
 	}
 
-	private ParserRuleContext getTypeFromParent()
-	{
+	private ParserRuleContext getTypeFromParent() {
 		ASTNode parentItem = stack.peek();
 		ParserRuleContext typeName;
-		if (parentItem instanceof IdentifierDeclStatement)
-		{
+		if (parentItem instanceof IdentifierDeclStatement) {
 			IdentifierDeclStatement stmt = ((IdentifierDeclStatement) parentItem);
 			IdentifierDeclType type = stmt.getType();
 			typeName = nodeToRuleContext.get(type);
-		} else if (parentItem instanceof ClassDefStatement)
-		{
+		} else if (parentItem instanceof ClassDefStatement) {
 			Identifier name = ((ClassDefStatement) parentItem).getIdentifier();
 			typeName = nodeToRuleContext.get(name);
 		} else
-			throw new RuntimeException(
-					"No matching declaration statement/class definiton for init declarator");
+			throw new RuntimeException("No matching declaration statement/class definiton for init declarator");
 		return typeName;
 	}
 
-	public void enterIncDec(Inc_decContext ctx)
-	{
+	public void enterIncDec(Inc_decContext ctx) {
 		IncDec expr = new IncDec();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitIncDec(Inc_decContext ctx)
-	{
+	public void exitIncDec(Inc_decContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterArrayIndexing(ArrayIndexingContext ctx)
-	{
+	public void enterArrayIndexing(ArrayIndexingContext ctx) {
 		ArrayIndexing expr = new ArrayIndexing();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitArrayIndexing(ArrayIndexingContext ctx)
-	{
+	public void exitArrayIndexing(ArrayIndexingContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterMemberAccess(MemberAccessContext ctx)
-	{
+	public void enterMemberAccess(MemberAccessContext ctx) {
 		MemberAccess expr = new MemberAccess();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitMemberAccess(MemberAccessContext ctx)
-	{
+	public void exitMemberAccess(MemberAccessContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterIncDecOp(IncDecOpContext ctx)
-	{
+	public void enterIncDecOp(IncDecOpContext ctx) {
 		PostIncDecOperationExpression expr = new PostIncDecOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitIncDecOp(IncDecOpContext ctx)
-	{
+	public void exitIncDecOp(IncDecOpContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
-	
-	public void enterPreIncDecOp(IncDecOpContext ctx)
-	{
+
+	public void enterPreIncDecOp(IncDecOpContext ctx) {
 		PreIncDecOperationExpression expr = new PreIncDecOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitPreIncDecOp(IncDecOpContext ctx)
-	{
+	public void exitPreIncDecOp(IncDecOpContext ctx) {
 		nesting.consolidateSubExpression(ctx);
-	}	
+	}
 
-	public void enterPrimary(Primary_expressionContext ctx)
-	{
+	public void enterPrimary(Primary_expressionContext ctx) {
 		PrimaryExpression expr = new PrimaryExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitPrimary(Primary_expressionContext ctx)
-	{
+	public void exitPrimary(Primary_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterUnaryExpression(Unary_expressionContext ctx)
-	{
+	public void enterUnaryExpression(Unary_expressionContext ctx) {
 		UnaryExpression expr = new UnaryExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitUnaryExpression(Unary_expressionContext ctx)
-	{
+	public void exitUnaryExpression(Unary_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterIdentifier(IdentifierContext ctx)
-	{
+	public void enterIdentifier(IdentifierContext ctx) {
 		Identifier expr = new Identifier();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitIdentifier(IdentifierContext ctx)
-	{
+	public void exitIdentifier(IdentifierContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterArgument(Function_argumentContext ctx)
-	{
+	public void enterArgument(Function_argumentContext ctx) {
 		Argument expr = new Argument();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitArgument(Function_argumentContext ctx)
-	{
+	public void exitArgument(Function_argumentContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterInitializerList(Initializer_listContext ctx)
-	{
+	public void enterInitializerList(Initializer_listContext ctx) {
 		InitializerList expr = new InitializerList();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitInitializerList(Initializer_listContext ctx)
-	{
+	public void exitInitializerList(Initializer_listContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterPtrMemberAccess(PtrMemberAccessContext ctx)
-	{
+	public void enterPtrMemberAccess(PtrMemberAccessContext ctx) {
 		PtrMemberAccess expr = new PtrMemberAccess();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitPtrMemberAccess(PtrMemberAccessContext ctx)
-	{
+	public void exitPtrMemberAccess(PtrMemberAccessContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterInitFor(For_init_statementContext ctx)
-	{
+	public void enterInitFor(For_init_statementContext ctx) {
 		ForInit expr = new ForInit();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitInitFor(For_init_statementContext ctx)
-	{
+	public void exitInitFor(For_init_statementContext ctx) {
 		ASTNode node = stack.pop();
 		ASTNodeFactory.initializeFromContext(node, ctx);
 		ForStatement forStatement = (ForStatement) stack.peek();
 		forStatement.addChild(node);
 	}
 
-	public void enterSwitchStatement(Switch_statementContext ctx)
-	{
+	public void enterSwitchStatement(Switch_statementContext ctx) {
 		replaceTopOfStack(new SwitchStatement(), ctx);
 	}
 
-	public void enterLabel(LabelContext ctx)
-	{
+	public void enterLabel(LabelContext ctx) {
 		replaceTopOfStack(new Label(), ctx);
 	}
 
-	public void enterReturnStatement(ReturnStatementContext ctx)
-	{
+	public void enterReturnStatement(ReturnStatementContext ctx) {
 		replaceTopOfStack(new ReturnStatement(), ctx);
 	}
 
-	public void enterBreakStatement(BreakStatementContext ctx)
-	{
+	public void enterBreakStatement(BreakStatementContext ctx) {
 		replaceTopOfStack(new BreakStatement(), ctx);
 	}
 
-	public void enterContinueStatement(ContinueStatementContext ctx)
-	{
+	public void enterContinueStatement(ContinueStatementContext ctx) {
 		replaceTopOfStack(new ContinueStatement(), ctx);
 	}
 
-	public void enterGotoStatement(GotoStatementContext ctx)
-	{
+	public void enterGotoStatement(GotoStatementContext ctx) {
 		replaceTopOfStack(new GotoStatement(), ctx);
 	}
 
 	@Override
-	public void createNew(ParserRuleContext ctx)
-	{
+	public void createNew(ParserRuleContext ctx) {
 		item = new CompoundStatement();
 		CompoundStatement rootItem = (CompoundStatement) item;
 		ASTNodeFactory.initializeFromContext(item, ctx);
@@ -1154,16 +1078,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 		stack.push(rootItem);
 	}
 
-	public void addLocalDecl(IdentifierDecl decl)
-	{
-		IdentifierDeclStatement declStmt = (IdentifierDeclStatement) stack
-				.peek();
+	public void addLocalDecl(IdentifierDecl decl) {
+		IdentifierDeclStatement declStmt = (IdentifierDeclStatement) stack.peek();
 		declStmt.addChild(decl);
 	}
 
-	public void enterDeclByType(ParserRuleContext ctx,
-			Type_nameContext type_nameContext)
-	{
+	public void enterDeclByType(ParserRuleContext ctx, Type_nameContext type_nameContext) {
 		IdentifierDeclStatement declStmt = new IdentifierDeclStatement();
 		ASTNodeFactory.initializeFromContext(declStmt, ctx);
 
@@ -1174,106 +1094,91 @@ public class FunctionContentBuilder extends ASTNodeBuilder
 
 		if (stack.peek() instanceof Statement)
 			replaceTopOfStack(declStmt, ctx);
-		else
-		{
+		else {
 			nodeToRuleContext.put(declStmt, ctx);
 			stack.push(declStmt);
 		}
 	}
 
-	public void exitDeclByType()
-	{
-		//TODO Here
+	public void exitDeclByType() {
+		// TODO Here
 		nesting.consolidate();
 	}
 
-	protected void replaceTopOfStack(ASTNode item, ParserRuleContext ctx)
-	{
+	protected void replaceTopOfStack(ASTNode item, ParserRuleContext ctx) {
 		ASTNode oldNode = stack.pop();
 		nodeToRuleContext.put(item, ctx);
 		stack.push(item);
 	}
 
-	public void enterSizeofExpr(Sizeof_expressionContext ctx)
-	{
+	public void enterSizeofExpr(Sizeof_expressionContext ctx) {
 		SizeofExpression expr = new SizeofExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitSizeofExpr(Sizeof_expressionContext ctx)
-	{
+	public void exitSizeofExpr(Sizeof_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterSizeofOperand2(Sizeof_operand2Context ctx)
-	{
+	public void enterSizeofOperand2(Sizeof_operand2Context ctx) {
 		SizeofOperand expr = new SizeofOperand();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void enterSizeofOperand(Sizeof_operandContext ctx)
-	{
+	public void enterSizeofOperand(Sizeof_operandContext ctx) {
 		SizeofOperand expr = new SizeofOperand();
 		stack.push(expr);
 	}
 
-	public void exitSizeofOperand2(Sizeof_operand2Context ctx)
-	{
+	public void exitSizeofOperand2(Sizeof_operand2Context ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void exitSizeofOperand(Sizeof_operandContext ctx)
-	{
+	public void exitSizeofOperand(Sizeof_operandContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterUnaryOpAndCastExpr(Unary_op_and_cast_exprContext ctx)
-	{
+	public void enterUnaryOpAndCastExpr(Unary_op_and_cast_exprContext ctx) {
 		UnaryOperationExpression expr = new UnaryOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitUnaryOpAndCastExpr(Unary_op_and_cast_exprContext ctx)
-	{
+	public void exitUnaryOpAndCastExpr(Unary_op_and_cast_exprContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterUnaryOperator(Unary_operatorContext ctx)
-	{
+	public void enterUnaryOperator(Unary_operatorContext ctx) {
 		UnaryOperator expr = new UnaryOperator();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitUnaryOperator(Unary_operatorContext ctx)
-	{
+	public void exitUnaryOperator(Unary_operatorContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterTryStatement(Try_statementContext ctx)
-	{
+	public void enterTryStatement(Try_statementContext ctx) {
 		replaceTopOfStack(new TryStatement(), ctx);
 	}
 
-	public void enterCatchStatement(Catch_statementContext ctx)
-	{
+	public void enterCatchStatement(Catch_statementContext ctx) {
 		replaceTopOfStack(new CatchStatement(), ctx);
 	}
 
-	public void enterThrowStatement(ThrowStatementContext ctx)
-	{
+	public void enterThrowStatement(ThrowStatementContext ctx) {
 		replaceTopOfStack(new ThrowStatement(), ctx);
 	}
 
 	/**
 	 * Pop newline parent statement from the stack, as we dont need it as a node.
+	 * 
 	 * @param ctx
 	 */
 	public void enterNewline(NewlineContext ctx) {
 		stack.pop();
-		
+
 	}
 }
