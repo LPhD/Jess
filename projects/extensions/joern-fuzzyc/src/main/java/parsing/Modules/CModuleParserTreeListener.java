@@ -2,6 +2,7 @@ package parsing.Modules;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
@@ -11,7 +12,11 @@ import antlr.ModuleParser.Class_defContext;
 import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
 import antlr.ModuleParser.Type_nameContext;
+import ast.ASTNode;
 import ast.c.preprocessor.PreStatement;
+import ast.c.preprocessor.blockstarter.PreBlockstarter;
+import ast.c.preprocessor.blockstarter.PreEndIfStatement;
+import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
 import ast.statements.IdentifierDeclStatement;
@@ -20,7 +25,6 @@ import parsing.ASTNodeFactory;
 import parsing.CompoundItemAssembler;
 import parsing.ModuleFunctionParserInterface;
 import parsing.Functions.ANTLRCFunctionParserDriver;
-import parsing.Functions.builder.FunctionContentBuilder;
 import parsing.Modules.builder.FunctionDefBuilder;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
@@ -32,20 +36,18 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	ANTLRParserDriver p;
 	//For variability analysis
 	ANTLRCFunctionParserDriver fDriver;
+	private Stack<ASTNode> itemStack = new Stack<ASTNode>();
+	
+	//TODO Introduce stack for preprocessor statements (stack should stay for the whole file, maybe needs to be done in visitFile?)
+	
 
 	public CModuleParserTreeListener(ANTLRParserDriver aP)	{
 		p = aP;
-
-		
-
-		//builder.createNew(ctx);
-		//fDriver.builderStack.push(builder);
 	}
 
 	@Override
 	public void enterCode(ModuleParser.CodeContext ctx)	{
 		p.notifyObserversOfUnitStart(ctx);
-
 	}
 
 	@Override
@@ -68,12 +70,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	
 
 	//-------------------------------------------------------------------------------------------------			
-		//Preprocessor if handling
-		@Override
-		public void enterPre_statement(ModuleParser.Pre_statementContext ctx){
-			//PreprocessorBuilder builder = new PreprocessorBuilder();
-			//builder.createPreStatement(ctx);
-			//p.builderStack.push(builder);
+	/**
+	 * This builder calls the @FunctionParser, because PreStatements follow the same rules
+	 * on module and on function level. As we dont want cloned code, we simple parse
+	 * the pre statements with the function parser and connect the result on module level.
+	 */
+	@Override
+	public void enterPre_statement(ModuleParser.Pre_statementContext ctx){
 			
 			// Driver for calling function parser
 			fDriver = new ANTLRCFunctionParserDriver();
@@ -90,8 +93,49 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 				e.printStackTrace();
 			}
 			p.notifyObserversOfItem(thisItem);
-
+			
+			//If the current item is an #endif
+			if (thisItem instanceof PreEndIfStatement) {
+				//Connect #endif to parent 
+				checkVariability(thisItem);
+				//Remove items from stack until the next #if/#ifdef
+				closeBlock();
+			} else if (thisItem instanceof PreBlockstarter) {
+				//Collect all Pre Blockstarters on the Stack
+				itemStack.push(thisItem);
+			} else {
+				//Connect all other pre statements to parent blockstarters 
+				checkVariability(thisItem);
+			}
 		}
+	
+	/**
+	 * Connects the current statement with its parent PreBlockstarter if that exists
+	 * @param node
+	 */
+	private void checkVariability(ASTNode currentNode) {
+		if (!itemStack.isEmpty()) {
+			PreStatement parent = (PreStatement) itemStack.peek();
+			parent.addChild(currentNode);
+		}
+	}
+	
+	/**
+	 * Removes collected PreBlockstarters from the stack and connects them.
+	 * Stop if the stack is empty or if we reach an PreIfStatement.
+	 */
+	private void closeBlock() {
+		while (!itemStack.isEmpty()) {
+			PreStatement currentNode = (PreStatement) itemStack.pop();
+			checkVariability(currentNode);
+
+			//Stop if we reach an PreIfStatement
+			if(currentNode instanceof PreIfStatement) {
+				return;
+			}
+		}
+	}
+
 		
 //		//Preprocessor if handling
 //		@Override

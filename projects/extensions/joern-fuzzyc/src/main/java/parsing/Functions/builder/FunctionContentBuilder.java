@@ -1126,7 +1126,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	public void exitDeclByType() {
-		// TODO Here
 		nesting.consolidate();
 	}
 
