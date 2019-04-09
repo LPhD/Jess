@@ -224,6 +224,24 @@ public class ModuleBuildersTest {
 		codeItem = (PreStatement) codeItems.get(4);	
 		assertEquals("PreElseStatement", codeItem.getTypeAsString());
 	}
+	
+	@Test
+	public void preprocessorModuleBuilderTestWithFunction() {
+		String input = "#if (modulefoo < 5) \n int foo(){ int modulei1;} \n #elif (modulefoo > 5) \n double foo(){ double modulei1;} \n #else \n long foo(){ long modulei1;} \n #endif";
+		List<ASTNode> codeItems = parseInput(input);
+		PreStatement codeItem = (PreStatement) codeItems.get(0);	
+		assertEquals("PreIfStatement", codeItem.getTypeAsString());
+		assertEquals("FunctionDef", codeItem.getChild(2).getTypeAsString());
+		assertEquals("PreElIfStatement", codeItem.getChild(3).getTypeAsString());
+		codeItem = (PreStatement) codeItems.get(2);	
+		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
+		assertEquals("FunctionDef", codeItem.getChild(2).getTypeAsString());
+		assertEquals("PreElseStatement", codeItem.getChild(3).getTypeAsString());
+		codeItem = (PreStatement) codeItems.get(4);	
+		assertEquals("PreElseStatement", codeItem.getTypeAsString());
+		assertEquals("FunctionDef", codeItem.getChild(1).getTypeAsString());
+		assertEquals("PreEndIfStatement", codeItem.getChild(2).getTypeAsString());
+	}
 
 	private List<ASTNode> parseInput(String input) {
 		ANTLRCModuleParserDriver parser = new ANTLRCModuleParserDriver();
