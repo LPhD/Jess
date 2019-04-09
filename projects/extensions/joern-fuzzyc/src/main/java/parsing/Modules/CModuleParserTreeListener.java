@@ -24,42 +24,36 @@ import parsing.Functions.builder.FunctionContentBuilder;
 import parsing.Modules.builder.FunctionDefBuilder;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
-import parsing.Shared.builders.PreprocessorBuilder;
 
 // Converts Parse Trees to ASTs for Modules
 
-public class CModuleParserTreeListener extends ModuleBaseListener
-{
+public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	ANTLRParserDriver p;
 	//For variability analysis
-	ANTLRCFunctionParserDriver driver;
+	ANTLRCFunctionParserDriver fDriver;
 
-	public CModuleParserTreeListener(ANTLRParserDriver aP)
-	{
+	public CModuleParserTreeListener(ANTLRParserDriver aP)	{
 		p = aP;
 		// Driver for calling function parser
-		driver = new ANTLRCFunctionParserDriver();
+		fDriver = new ANTLRCFunctionParserDriver();
 	}
 
 	@Override
-	public void enterCode(ModuleParser.CodeContext ctx)
-	{
+	public void enterCode(ModuleParser.CodeContext ctx)	{
 		p.notifyObserversOfUnitStart(ctx);
-		
+		//For the function parser
 		FunctionContentBuilder builder = new FunctionContentBuilder();
 		builder.createNew(ctx);
-		driver.builderStack.push(builder);
+		fDriver.builderStack.push(builder);
 	}
 
 	@Override
-	public void exitCode(ModuleParser.CodeContext ctx)
-	{
+	public void exitCode(ModuleParser.CodeContext ctx)	{
 		p.notifyObserversOfUnitEnd(ctx);
-		
-		FunctionContentBuilder builder = (FunctionContentBuilder) driver.builderStack.peek();
-		//TODO
-		//builder.exitStatements(ctx);
+		//For the function parser
+		FunctionContentBuilder builder = (FunctionContentBuilder) fDriver.builderStack.peek();
+		builder.exitCode(ctx);
 	}
 
 	// /////////////////////////////////////////////////////////////
@@ -85,7 +79,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener
 			PreStatement thisItem = new PreStatement();
 			ASTNodeFactory.initializeFromContext(thisItem, ctx);
 			String text = thisItem.getEscapedCodeStr();
-			driver.parseAndWalkString(text);
+			fDriver.parseAndWalkString(text);
 		}
 		
 		//Preprocessor if handling
