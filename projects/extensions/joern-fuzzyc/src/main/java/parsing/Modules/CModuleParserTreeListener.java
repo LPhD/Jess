@@ -35,25 +35,25 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	public CModuleParserTreeListener(ANTLRParserDriver aP)	{
 		p = aP;
-		// Driver for calling function parser
-		fDriver = new ANTLRCFunctionParserDriver();
+
+		
+
+		//builder.createNew(ctx);
+		//fDriver.builderStack.push(builder);
 	}
 
 	@Override
 	public void enterCode(ModuleParser.CodeContext ctx)	{
 		p.notifyObserversOfUnitStart(ctx);
-		//For the function parser
-		FunctionContentBuilder builder = new FunctionContentBuilder();
-		builder.createNew(ctx);
-		fDriver.builderStack.push(builder);
+
 	}
 
 	@Override
 	public void exitCode(ModuleParser.CodeContext ctx)	{
 		p.notifyObserversOfUnitEnd(ctx);
 		//For the function parser
-		FunctionContentBuilder builder = (FunctionContentBuilder) fDriver.builderStack.peek();
-		builder.exitCode(ctx);
+//		FunctionContentBuilder builder = (FunctionContentBuilder) fDriver.builderStack.peek();
+//		builder.exitCode(ctx);
 	}
 
 	// /////////////////////////////////////////////////////////////
@@ -75,19 +75,30 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//builder.createPreStatement(ctx);
 			//p.builderStack.push(builder);
 			
+			// Driver for calling function parser
+			fDriver = new ANTLRCFunctionParserDriver();
 			// Get code of PreStatement
 			PreStatement thisItem = new PreStatement();
 			ASTNodeFactory.initializeFromContext(thisItem, ctx);
 			String text = thisItem.getEscapedCodeStr();
-			fDriver.parseAndWalkString(text);
+			//Try to reuse the function parser rules for parsing the preprocessor statement
+			try {
+				fDriver.parseAndWalkString(text);
+				thisItem = (PreStatement) fDriver.builderStack.pop().getItem().getChild(0);
+			} catch (Exception e) {
+				System.err.println("Cannot create PreStatement " +text+" in ModuleParser");
+				e.printStackTrace();
+			}
+			p.notifyObserversOfItem(thisItem);
+
 		}
 		
-		//Preprocessor if handling
-		@Override
-		public void exitPre_statement(ModuleParser.Pre_statementContext ctx){
-			//PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
+//		//Preprocessor if handling
+//		@Override
+//		public void exitPre_statement(ModuleParser.Pre_statementContext ctx){
+//			//PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
 //			p.notifyObserversOfItem(builder.getItem());
-		}
+//		}
 
 	//---------------------------------------------------------------------------------------------------------------
 	

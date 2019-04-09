@@ -13,15 +13,13 @@ public class CParserCSVOutput extends ParserCSVOutput {
 	ModuleParser parser = new ModuleParser(driver);
 
 	@Override
-	public void visitFile(Path pathToFile)
-	{
+	public void visitFile(Path pathToFile) {
 		dirTreeImporter.enterFile(pathToFile);
 		parser.parseFile(pathToFile.toString());
 	}
 
 	@Override
-	public void initialize()
-	{
+	public void initialize() {
 		this.setFunctionExporter(new CCSVFunctionExporter());
 		super.initialize();
 		parser.addObserver(astWalker);
