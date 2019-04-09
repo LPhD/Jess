@@ -34,28 +34,23 @@ import parsing.Shared.builders.IdentifierDeclBuilder;
 public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	ANTLRParserDriver p;
-	//For variability analysis
+	// For variability analysis and preprocessor statements
 	ANTLRCFunctionParserDriver fDriver;
 	private Stack<ASTNode> itemStack = new Stack<ASTNode>();
-	
-	//TODO Introduce stack for preprocessor statements (stack should stay for the whole file, maybe needs to be done in visitFile?)
-	
 
-	public CModuleParserTreeListener(ANTLRParserDriver aP)	{
+
+	public CModuleParserTreeListener(ANTLRParserDriver aP) {
 		p = aP;
 	}
 
 	@Override
-	public void enterCode(ModuleParser.CodeContext ctx)	{
+	public void enterCode(ModuleParser.CodeContext ctx) {
 		p.notifyObserversOfUnitStart(ctx);
 	}
 
 	@Override
-	public void exitCode(ModuleParser.CodeContext ctx)	{
+	public void exitCode(ModuleParser.CodeContext ctx) {
 		p.notifyObserversOfUnitEnd(ctx);
-		//For the function parser
-//		FunctionContentBuilder builder = (FunctionContentBuilder) fDriver.builderStack.peek();
-//		builder.exitCode(ctx);
 	}
 
 	// /////////////////////////////////////////////////////////////
@@ -66,51 +61,50 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	// the function parser and connect the AST node created for the
 	// function definition to the AST created by the function parser.
 	// ////////////////////////////////////////////////////////////////
-	
-	
 
-	//-------------------------------------------------------------------------------------------------			
+// --------------------------------Preprocessor-----------------------------------------------------------------
 	/**
-	 * This builder calls the @FunctionParser, because PreStatements follow the same rules
-	 * on module and on function level. As we dont want cloned code, we simple parse
-	 * the pre statements with the function parser and connect the result on module level.
+	 * This builder calls the @FunctionParser, because PreStatements follow the same
+	 * rules on module and on function level. As we dont want cloned code, we simple
+	 * parse the pre statements with the function parser and connect the result on
+	 * module level.
 	 */
 	@Override
-	public void enterPre_statement(ModuleParser.Pre_statementContext ctx){
-			
-			// Driver for calling function parser
-			fDriver = new ANTLRCFunctionParserDriver();
-			// Get code of PreStatement
-			PreStatement thisItem = new PreStatement();
-			ASTNodeFactory.initializeFromContext(thisItem, ctx);
-			String text = thisItem.getEscapedCodeStr();
-			//Try to reuse the function parser rules for parsing the preprocessor statement
-			try {
-				fDriver.parseAndWalkString(text);
-				thisItem = (PreStatement) fDriver.builderStack.pop().getItem().getChild(0);
-			} catch (Exception e) {
-				System.err.println("Cannot create PreStatement " +text+" in ModuleParser");
-				e.printStackTrace();
-			}
-			p.notifyObserversOfItem(thisItem);
-			
-			//If the current item is an #endif
-			if (thisItem instanceof PreEndIfStatement) {
-				//Connect #endif to parent 
-				checkVariability(thisItem);
-				//Remove items from stack until the next #if/#ifdef
-				closeBlock();
-			} else if (thisItem instanceof PreBlockstarter) {
-				//Collect all Pre Blockstarters on the Stack
-				itemStack.push(thisItem);
-			} else {
-				//Connect all other pre statements to parent blockstarters 
-				checkVariability(thisItem);
-			}
+	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
+		// Driver for calling function parser
+		fDriver = new ANTLRCFunctionParserDriver();
+		// Get code of PreStatement
+		PreStatement thisItem = new PreStatement();
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		String text = thisItem.getEscapedCodeStr();
+		// Try to reuse the function parser rules for parsing the preprocessor statement
+		try {
+			fDriver.parseAndWalkString(text);
+			thisItem = (PreStatement) fDriver.builderStack.pop().getItem().getChild(0);
+		} catch (Exception e) {
+			System.err.println("Cannot create PreStatement " + text + " in ModuleParser");
+			e.printStackTrace();
 		}
-	
+		p.notifyObserversOfItem(thisItem);
+
+		// If the current item is an #endif
+		if (thisItem instanceof PreEndIfStatement) {
+			// Connect #endif to parent
+			checkVariability(thisItem);
+			// Remove items from stack until the next #if/#ifdef
+			closeBlock();
+		} else if (thisItem instanceof PreBlockstarter) {
+			// Collect all Pre Blockstarters on the Stack
+			itemStack.push(thisItem);
+		} else {
+			// Connect all other pre statements to parent blockstarters if they exist
+			checkVariability(thisItem);
+		}
+	}
+
 	/**
 	 * Connects the current statement with its parent PreBlockstarter if that exists
+	 * 
 	 * @param node
 	 */
 	private void checkVariability(ASTNode currentNode) {
@@ -119,78 +113,66 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			parent.addChild(currentNode);
 		}
 	}
-	
+
 	/**
-	 * Removes collected PreBlockstarters from the stack and connects them.
-	 * Stop if the stack is empty or if we reach an PreIfStatement.
+	 * Removes collected PreBlockstarters from the stack and connects them. Stop if
+	 * the stack is empty or if we reach an PreIfStatement.
 	 */
 	private void closeBlock() {
 		while (!itemStack.isEmpty()) {
 			PreStatement currentNode = (PreStatement) itemStack.pop();
 			checkVariability(currentNode);
 
-			//Stop if we reach an PreIfStatement
-			if(currentNode instanceof PreIfStatement) {
+			// Stop if we reach an PreIfStatement
+			if (currentNode instanceof PreIfStatement) {
 				return;
 			}
 		}
 	}
 
-		
-//		//Preprocessor if handling
-//		@Override
-//		public void exitPre_statement(ModuleParser.Pre_statementContext ctx){
-//			//PreprocessorBuilder builder = (PreprocessorBuilder) p.builderStack.pop();
-//			p.notifyObserversOfItem(builder.getItem());
-//		}
 
-	//---------------------------------------------------------------------------------------------------------------
-	
+// --------------------------------------Preprocessor end-------------------------------------------------------------------------
+
 	@Override
-	public void enterFunction_def(ModuleParser.Function_defContext ctx)
-	{
+	public void enterFunction_def(ModuleParser.Function_defContext ctx) {
 
 		FunctionDefBuilder builder = new FunctionDefBuilder();
 		builder.createNew(ctx);
 		p.builderStack.push(builder);
 
-		CompoundStatement functionContent = ModuleFunctionParserInterface
-				.parseFunctionContents(ctx);
+		CompoundStatement functionContent = ModuleFunctionParserInterface.parseFunctionContents(ctx);
 		builder.setContent(functionContent);
 	}
 
 	@Override
-	public void exitFunction_def(ModuleParser.Function_defContext ctx)
-	{
+	public void exitFunction_def(ModuleParser.Function_defContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.pop();
 		p.notifyObserversOfItem(builder.getItem());
+
+		// Connect to parent blockstarters if they exist
+		checkVariability(builder.getItem());
 	}
 
 	@Override
-	public void enterReturn_type(ModuleParser.Return_typeContext ctx)
-	{
+	public void enterReturn_type(ModuleParser.Return_typeContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
 		builder.setReturnType(ctx, p.builderStack);
 	}
 
 	@Override
-	public void enterFunction_name(ModuleParser.Function_nameContext ctx)
-	{
+	public void enterFunction_name(ModuleParser.Function_nameContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
 		builder.setName(ctx, p.builderStack);
 	}
 
 	@Override
-	public void enterFunction_param_list(
-			ModuleParser.Function_param_listContext ctx)
-	{
+	public void enterFunction_param_list(ModuleParser.Function_param_listContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
 		builder.setParameterList(ctx, p.builderStack);
 	}
 
 	@Override
-	public void enterParameter_decl(ModuleParser.Parameter_declContext ctx)
-	{
+	public void enterParameter_decl(ModuleParser.Parameter_declContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
 		builder.addParameter(ctx, p.builderStack);
 	}
@@ -198,46 +180,41 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	// DeclByType
 
 	@Override
-	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx)
-	{
+	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
 		Init_declarator_listContext decl_list = ctx.init_declarator_list();
 		Type_nameContext typeName = ctx.type_name();
 		emitDeclarations(decl_list, typeName, ctx);
 	}
 
-	private void emitDeclarations(ParserRuleContext decl_list,
-			ParserRuleContext typeName, ParserRuleContext ctx)
-	{
+	private void emitDeclarations(ParserRuleContext decl_list, ParserRuleContext typeName, ParserRuleContext ctx) {
 		IdentifierDeclBuilder builder = new IdentifierDeclBuilder();
-		List<IdentifierDecl> declarations = builder.getDeclarations(decl_list,
-				typeName);
+		List<IdentifierDecl> declarations = builder.getDeclarations(decl_list, typeName);
 
 		IdentifierDeclStatement stmt = new IdentifierDeclStatement();
 		// stmt.initializeFromContext(ctx);
 
 		Iterator<IdentifierDecl> it = declarations.iterator();
-		while (it.hasNext())
-		{
+		while (it.hasNext()) {
 			IdentifierDecl decl = it.next();
 			stmt.addChild(decl);
 		}
 
 		p.notifyObserversOfItem(stmt);
+		//Connect to parent blockstarters if they exist
+		checkVariability(stmt);
 	}
 
 	// DeclByClass
 
 	@Override
-	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx)
-	{
+	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx) {
 		ClassDefBuilder builder = new ClassDefBuilder();
 		builder.createNew(ctx);
 		p.builderStack.push(builder);
 	}
 
 	@Override
-	public void exitDeclByClass(ModuleParser.DeclByClassContext ctx)
-	{
+	public void exitDeclByClass(ModuleParser.DeclByClassContext ctx) {
 		ClassDefBuilder builder = (ClassDefBuilder) p.builderStack.pop();
 
 		CompoundStatement content = parseClassContent(ctx);
@@ -245,17 +222,18 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		p.notifyObserversOfItem(builder.getItem());
 		emitDeclarationsForClass(ctx);
+		
+		//Connect to parent blockstarters if they exist
+		checkVariability(builder.getItem());
 	}
 
 	@Override
-	public void enterClass_name(ModuleParser.Class_nameContext ctx)
-	{
+	public void enterClass_name(ModuleParser.Class_nameContext ctx) {
 		ClassDefBuilder builder = (ClassDefBuilder) p.builderStack.peek();
 		builder.setName(ctx);
 	}
 
-	private void emitDeclarationsForClass(DeclByClassContext ctx)
-	{
+	private void emitDeclarationsForClass(DeclByClassContext ctx) {
 
 		Init_declarator_listContext decl_list = ctx.init_declarator_list();
 		if (decl_list == null)
@@ -265,9 +243,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		emitDeclarations(decl_list, typeName, ctx);
 	}
 
-	private CompoundStatement parseClassContent(
-			ModuleParser.DeclByClassContext ctx)
-	{
+	private CompoundStatement parseClassContent(ModuleParser.DeclByClassContext ctx) {
 		ANTLRCModuleParserDriver shallowParser = createNewShallowParser();
 		CompoundItemAssembler generator = new CompoundItemAssembler();
 		shallowParser.addObserver(generator);
@@ -279,9 +255,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		return generator.getCompoundItem();
 	}
 
-	private void restrictStreamToClassContent(
-			ModuleParser.DeclByClassContext ctx)
-	{
+	private void restrictStreamToClassContent(ModuleParser.DeclByClassContext ctx) {
 		Class_defContext class_def = ctx.class_def();
 		int startIndex = class_def.OPENING_CURLY().getSymbol().getTokenIndex();
 		int stopIndex = class_def.stop.getTokenIndex();
@@ -289,8 +263,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		p.stream.restrict(startIndex + 1, stopIndex);
 	}
 
-	private ANTLRCModuleParserDriver createNewShallowParser()
-	{
+	private ANTLRCModuleParserDriver createNewShallowParser() {
 		ANTLRCModuleParserDriver shallowParser = new ANTLRCModuleParserDriver();
 		shallowParser.setStack(p.builderStack);
 		return shallowParser;
