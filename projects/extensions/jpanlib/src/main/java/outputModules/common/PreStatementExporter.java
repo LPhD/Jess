@@ -40,9 +40,12 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		final int nChildren = astNodeParent.getChildCount();
 		for (int i = 0; i < nChildren; i++) {
 			ASTNode child = astNodeParent.getChild(i);
+			System.out.println("Parent: "+astNodeParent.getEscapedCodeStr()+"with "+nChildren+" children");
+			System.out.println("Child: "+child.getEscapedCodeStr());
 			addASTToDatabase(dbNodeParent, astNodeParent, child);			
 		}
 	}
+	
 	
 	/**
 	 * Add current ASTNode to database and look for its children
