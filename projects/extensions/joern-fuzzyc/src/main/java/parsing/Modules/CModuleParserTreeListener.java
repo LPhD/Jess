@@ -137,6 +137,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx) {
+		System.out.println("Enter functionDef");
 
 		FunctionDefBuilder builder = new FunctionDefBuilder();
 		builder.createNew(ctx);
