@@ -45,12 +45,16 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterCode(ModuleParser.CodeContext ctx) {
+		System.out.println("Unit start");
 		p.notifyObserversOfUnitStart(ctx);
+		System.out.println("Unit started");
 	}
 
 	@Override
 	public void exitCode(ModuleParser.CodeContext ctx) {
+		System.out.println("Unit end");
 		p.notifyObserversOfUnitEnd(ctx);
+		System.out.println("Unit ended");
 	}
 
 	// /////////////////////////////////////////////////////////////
@@ -85,7 +89,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			System.err.println("Cannot create PreStatement " + text + " in ModuleParser");
 			e.printStackTrace();
 		}
-		p.notifyObserversOfItem(thisItem);
+
 
 		// If the current item is an #endif
 		if (thisItem instanceof PreEndIfStatement) {
@@ -101,6 +105,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			// Connect all other pre statements to parent blockstarters if they exist
 			checkVariability(thisItem);
 		}
+		
+		p.notifyObserversOfItem(thisItem);
 	}
 
 	/**
@@ -150,10 +156,12 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	@Override
 	public void exitFunction_def(ModuleParser.Function_defContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.pop();
-		p.notifyObserversOfItem(builder.getItem());
+		
 
 		// Connect to parent blockstarters if they exist
 		checkVariability(builder.getItem());
+		
+		p.notifyObserversOfItem(builder.getItem());
 	}
 
 	@Override
@@ -202,9 +210,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			stmt.addChild(decl);
 		}
 
-		p.notifyObserversOfItem(stmt);
+
 		//Connect to parent blockstarters if they exist
 		checkVariability(stmt);
+		
+		p.notifyObserversOfItem(stmt);
 	}
 
 	// DeclByClass
@@ -223,11 +233,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		CompoundStatement content = parseClassContent(ctx);
 		builder.setContent(content);
 
-		p.notifyObserversOfItem(builder.getItem());
-		emitDeclarationsForClass(ctx);
+
 		
 		//Connect to parent blockstarters if they exist
 		checkVariability(builder.getItem());
+		
+		p.notifyObserversOfItem(builder.getItem());
+		emitDeclarationsForClass(ctx);
 	}
 
 	@Override
