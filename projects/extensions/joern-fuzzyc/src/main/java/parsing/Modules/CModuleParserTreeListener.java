@@ -93,6 +93,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			checkVariability(thisItem);
 			// Remove items from stack until the next #if/#ifdef
 			closeBlock();
+			System.out.println("Block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the Stack
 			itemStack.push(thisItem);
@@ -111,6 +112,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		if (!itemStack.isEmpty()) {
 			PreStatement parent = (PreStatement) itemStack.peek();
 			parent.addChild(currentNode);
+			System.out.println("Connected child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		}
 	}
 
