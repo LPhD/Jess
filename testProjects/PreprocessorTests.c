@@ -10,27 +10,27 @@
 #include_next "something"
 #include_next MACRO
 
-#ifdef foo
+#ifdef foo1
 #else
-	#ifdef foo
+	#ifdef foo2
 	#else
 	#endif
 #endif
 
-#if foo
+#if foo3
 bar();
 #else
 foo();
 foo();
 #endif
 
-#if foo
+#if foo4
 int i;
 #endif
 
-#if foo
+#if foo5
 bar();
-#elif  bar
+#elif  bar6
 foo();
 foo();
 #endif
@@ -87,27 +87,27 @@ void testMethod() {
 #include_next "something"
 #include_next MACRO
 
-#ifdef foo
+#ifdef foo11
 #else
-	#ifdef foo
+	#ifdef foo22
 	#else
 	#endif
 #endif
 
-#if foo
+#if foo33
 bar();
 #else
 foo();
 foo();
 #endif
 
-#if foo
+#if foo44
 int i;
 #endif
 
-#if foo
+#if foo55
 bar();
-#elif  bar
+#elif  bar66
 foo();
 foo();
 #endif
