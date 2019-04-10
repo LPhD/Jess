@@ -75,6 +75,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	@Override
 	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
+		System.out.println("Enter pre statement");
+		
 		// Driver for calling function parser
 		fDriver = new ANTLRCFunctionParserDriver();
 		// Get code of PreStatement
@@ -89,7 +91,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			System.err.println("Cannot create PreStatement " + text + " in ModuleParser");
 			e.printStackTrace();
 		}
-
+		
 
 		// If the current item is an #endif
 		if (thisItem instanceof PreEndIfStatement) {
