@@ -103,6 +103,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the Stack
 			itemStack.push(thisItem);
+			System.out.println("#if collected");
 		} else {
 			// Connect all other pre statements to parent blockstarters if they exist
 			checkVariability(thisItem);
