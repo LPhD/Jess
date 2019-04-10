@@ -107,9 +107,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		} else {
 			// Connect all other pre statements to parent blockstarters if they exist
 			checkVariability(thisItem);
-		}
-		
-		p.notifyObserversOfItem(thisItem);
+		}				
 	}
 
 	/**
@@ -133,7 +131,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		while (!itemStack.isEmpty()) {
 			PreStatement currentNode = (PreStatement) itemStack.pop();
 			checkVariability(currentNode);
-
+			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
+			//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children
+			p.notifyObserversOfItem(currentNode);
+			
 			// Stop if we reach an PreIfStatement
 			if (currentNode instanceof PreIfStatement) {
 				return;
@@ -160,7 +161,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	public void exitFunction_def(ModuleParser.Function_defContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.pop();
 		
-
 		// Connect to parent blockstarters if they exist
 		checkVariability(builder.getItem());
 		
