@@ -1,13 +1,12 @@
-package ast.c.preprocessor.commands;
+package ast.preprocessor;
 
-import ast.c.preprocessor.PreStatement;
 import ast.walking.ASTNodeVisitor;
 
 /**
  * Placeholder class
  *
  */
-public class PreCommand extends PreStatement{
+public class PreCommand extends PreStatementBase{
 
 	@Override
 	public void accept(ASTNodeVisitor visitor) {

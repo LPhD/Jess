@@ -1,14 +1,13 @@
-package ast.c.preprocessor.blockstarter;
+package ast.preprocessor;
 
 import java.util.LinkedList;
 
 import ast.ASTNode;
-import ast.c.preprocessor.PreStatement;
 import ast.expressions.Expression;
 import ast.logical.statements.Statement;
 import ast.walking.ASTNodeVisitor;
 
-public class PreBlockstarter extends PreStatement {
+public class PreBlockstarter extends PreStatementBase {
 	protected Expression condition = null;
 	protected Statement statement = null;
 	/**
