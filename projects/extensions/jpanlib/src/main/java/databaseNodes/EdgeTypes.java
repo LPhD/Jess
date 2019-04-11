@@ -54,5 +54,10 @@ public class EdgeTypes
 	 * Links an include statement with the included file
 	 */
 	public static final String INCLUDES = "INCLUDES";
+	
+	/**
+	 * Links an #if/#ifdef/#elif/#else with its contained block
+	 */
+	public static final String VARIABILITY = "VARIABILITY";
 
 }
