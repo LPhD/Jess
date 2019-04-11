@@ -12,11 +12,9 @@ import databaseNodes.FunctionDatabaseNode;
 import outputModules.common.FunctionExporter;
 import outputModules.common.Writer;
 
-public class CSVFunctionExporter extends FunctionExporter
-{
+public class CSVFunctionExporter extends FunctionExporter {
 
-	public CSVFunctionExporter()
-	{
+	public CSVFunctionExporter() {
 		astImporter = new CSVASTExporter();
 		cfgImporter = new CSVCFGExporter();
 		udgImporter = new CSVUDGExporter();
@@ -26,42 +24,32 @@ public class CSVFunctionExporter extends FunctionExporter
 	}
 
 	@Override
-	protected void linkFunctionWithAST(FunctionDatabaseNode function)
-	{
+	protected void linkFunctionWithAST(FunctionDatabaseNode function) {
 		long functionId = Writer.getIdForObject(function);
 		long astNodeId = Writer.getIdForObject(function.getASTRoot());
 
-		Writer.addEdge(functionId, astNodeId, null,
-				EdgeTypes.IS_FUNCTION_OF_AST);
+		Writer.addEdge(functionId, astNodeId, null, EdgeTypes.IS_FUNCTION_OF_AST);
 	}
 
 	@Override
-	protected void linkFunctionWithCFG(FunctionDatabaseNode function, CFG cfg)
-	{
+	protected void linkFunctionWithCFG(FunctionDatabaseNode function, CFG cfg) {
 
 		long functionId = Writer.getIdForObject(function);
 		CFGNode firstBlock = cfg.getEntryNode();
 
 		long cfgRootId;
-		try
-		{
+		try {
 			cfgRootId = Writer.getIdForObject(firstBlock);
-		}
-		catch (RuntimeException ex)
-		{
-			cfgRootId = Writer.getIdForObject(
-					((ASTNodeContainer) firstBlock).getASTNode());
+		} catch (RuntimeException ex) {
+			cfgRootId = Writer.getIdForObject(((ASTNodeContainer) firstBlock).getASTNode());
 		}
 
-		Writer.addEdge(functionId, cfgRootId, null,
-				EdgeTypes.IS_FUNCTION_OF_CFG);
+		Writer.addEdge(functionId, cfgRootId, null, EdgeTypes.IS_FUNCTION_OF_CFG);
 
 	}
 
 	@Override
-	protected void linkFunctionToFileNode(FunctionDatabaseNode function,
-			FileDatabaseNode fileNode)
-	{
+	protected void linkFunctionToFileNode(FunctionDatabaseNode function, FileDatabaseNode fileNode) {
 
 		long srcId = Writer.getIdForObject(curFile);
 		long dstId = Writer.getIdForObject(function);
@@ -70,8 +58,7 @@ public class CSVFunctionExporter extends FunctionExporter
 	}
 
 	@Override
-	protected void addMainNode(DatabaseNode dbNode)
-	{
+	protected void addMainNode(DatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		Writer.addNode(dbNode, properties);
 		mainNodeId = Writer.getIdForObject(dbNode);

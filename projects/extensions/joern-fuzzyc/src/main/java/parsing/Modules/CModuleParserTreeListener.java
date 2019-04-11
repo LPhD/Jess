@@ -13,12 +13,13 @@ import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
 import antlr.ModuleParser.Type_nameContext;
 import ast.ASTNode;
-import ast.c.preprocessor.PreStatement;
-import ast.c.preprocessor.blockstarter.PreBlockstarter;
+
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
+import ast.preprocessor.PreBlockstarter;
+import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
 import parsing.ANTLRParserDriver;
 import parsing.ASTNodeFactory;
@@ -80,13 +81,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		// Driver for calling function parser
 		fDriver = new ANTLRCFunctionParserDriver();
 		// Get code of PreStatement
-		PreStatement thisItem = new PreStatement();
+		PreStatementBase thisItem = new PreStatementBase();
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
 		String text = thisItem.getEscapedCodeStr();
 		// Try to reuse the function parser rules for parsing the preprocessor statement
 		try {
 			fDriver.parseAndWalkString(text);
-			thisItem = (PreStatement) fDriver.builderStack.pop().getItem().getChild(0);
+			thisItem = (PreStatementBase) fDriver.builderStack.pop().getItem().getChild(0);
 		} catch (Exception e) {
 			System.err.println("Cannot create PreStatement " + text + " in ModuleParser");
 			e.printStackTrace();
@@ -117,8 +118,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	private void checkVariability(ASTNode currentNode) {
 		if (!itemStack.isEmpty()) {
-			PreStatement parent = (PreStatement) itemStack.peek();
-			parent.addChild(currentNode);
+			PreBlockstarter parent = (PreBlockstarter) itemStack.peek();
+			parent.addVariableStatement(currentNode);
 			System.out.println("Connected child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		}
 	}
@@ -129,14 +130,15 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	private void closeBlock() {
 		while (!itemStack.isEmpty()) {
-			PreStatement currentNode = (PreStatement) itemStack.pop();
+			PreBlockstarter currentNode = (PreBlockstarter) itemStack.pop();
 			checkVariability(currentNode);
-			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
-			//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children
-			p.notifyObserversOfItem(currentNode);
 			
 			// Stop if we reach an PreIfStatement
 			if (currentNode instanceof PreIfStatement) {
+				//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
+				//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children
+				//Do not do this for #else/#elif/#endif, they will be automatically added, as they are AST children of the PreIfStatement
+				p.notifyObserversOfItem(currentNode);
 				return;
 			}
 		}
