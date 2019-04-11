@@ -1,6 +1,6 @@
 package ast.c.preprocessor.commands.macro;
 
-import ast.c.preprocessor.commands.PreCommand;
+import ast.preprocessor.PreCommand;
 
 public class PreUndef extends PreCommand{
 	
