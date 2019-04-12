@@ -10,8 +10,6 @@ import org.junit.Test;
 import antlr.ModuleLexer;
 import ast.ASTNode;
 import ast.c.functionDef.ParameterType;
-import ast.c.preprocessor.PreStatement;
-import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;

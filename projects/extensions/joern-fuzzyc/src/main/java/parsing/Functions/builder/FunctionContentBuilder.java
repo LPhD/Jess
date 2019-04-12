@@ -90,8 +90,6 @@ import ast.ASTNode;
 import ast.ASTNodeBuilder;
 import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
-import ast.c.preprocessor.PreStatement;
-import ast.c.preprocessor.blockstarter.PreBlockstarter;
 import ast.c.preprocessor.blockstarter.PreElIfStatement;
 import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
@@ -155,6 +153,8 @@ import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
 import ast.logical.statements.Statement;
+import ast.preprocessor.PreBlockstarter;
+import ast.preprocessor.PreStatementBase;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.blockstarters.CatchStatement;
@@ -572,7 +572,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 
 		// For all items that extend from PreStatements
-		if (itemToRemove instanceof PreStatement) {
+		if (itemToRemove instanceof PreStatementBase) {
 			handlePreStatements(itemToRemove);
 			return;
 		}
