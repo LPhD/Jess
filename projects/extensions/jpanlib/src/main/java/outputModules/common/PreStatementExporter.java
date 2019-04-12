@@ -45,7 +45,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		final int nVariableStatements = preAstNode.getVariableStatementsCount();
 		for (int i = 0; i < nVariableStatements; i++) {
 			ASTNode vStatement = preAstNode.getVariableStatement(i);
-			drawVariabilityEdge(preDBNode, vStatement);
+//			drawVariabilityEdge(preStatementNodeID, vStatementID);
 			System.out.println("Parent: "+preAstNode.getEscapedCodeStr()+"with "+nVariableStatements+" children");
 			System.out.println("Child: "+vStatement.getEscapedCodeStr());
 		}
@@ -100,5 +100,5 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	protected abstract void addASTNode(ASTDatabaseNode astDatabaseNode);
 	protected abstract void addASTLink(ASTDatabaseNode parent, ASTDatabaseNode child);
 	protected abstract void linkPreStatementToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode fileNode);
-	protected abstract void drawVariabilityEdge(ASTDatabaseNode preDBNode, ASTNode vStatement);
+	protected abstract void drawVariabilityEdge(ASTDatabaseNode preDBNode, ASTDatabaseNode vStatement);
 }
