@@ -2,7 +2,6 @@ package outputModules.csv.exporters;
 
 import java.util.Map;
 
-import ast.ASTNode;
 import databaseNodes.ASTDatabaseNode;
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
@@ -58,12 +57,11 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	
 	/**
 	 * Link the given preStatementDatabaseNode (blockstarter) with its block content (variability)
-	 * 
 	 */
 	@Override
-	protected void drawVariabilityEdge(ASTDatabaseNode preDBNode, ASTNode vStatement) {
+	protected void drawVariabilityEdge(ASTDatabaseNode preDBNode, ASTDatabaseNode vStatement) {
 		//TODO We need the DB node id of the child!
-		long statementId = fileNode.getId();
+		long statementId = Writer.getIdForObject(vStatement);
 		long blockstarterId = Writer.getIdForObject(preDBNode);
 		Writer.addEdge(blockstarterId, statementId, null, EdgeTypes.VARIABILITY);
 	}

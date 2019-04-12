@@ -76,4 +76,10 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 
 		Neo4JBatchInserter.addRelationship(parentId, childId, rel, properties);
 	}
+
+	@Override
+	protected void drawVariabilityEdge(ASTDatabaseNode preDBNode, ASTDatabaseNode vStatement) {
+		// TODO Auto-generated method stub
+		
+	}
 }
