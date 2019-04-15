@@ -141,21 +141,24 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//Look at the next node on the stack
 			PreBlockstarter topOfStack = (PreBlockstarter) ASTItemStack.peek();		
 			//Connect the current node with its parent
-			topOfStack.addChild(currentNode);			
+			topOfStack.addChild(currentNode);	
+			System.out.println("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
 		
 			// Stop if we reach an PreIfStatement
 			if (topOfStack instanceof PreIfStatement && (ASTItemStack.size() > 1)) {
 				//Remove the PreIfStatement node from the stack and add it to its parent block, stop the iteration
 				currentNode = (PreBlockstarter) ASTItemStack.pop();
 				topOfStack = (PreBlockstarter) ASTItemStack.peek();		
-				topOfStack.addChild(currentNode);					
+				topOfStack.addChild(currentNode);			
+				System.out.println("Nested #if found, connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
 			} else {
 				//Connect AST children until we reach a PreIfStatement or there is only 1 item left on the stack
 				closeASTBlock();
 			}
 		} else if (ASTItemStack.size() == 1)  {
-			//Remove solo #endif or #if statements
+			//Remove orphaned #endif or #if statements
 			PreBlockstarter lastNode = (PreBlockstarter) ASTItemStack.pop();
+			System.out.println("Removed orphan: "+lastNode.getEscapedCodeStr());
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 			//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children or twice
 			//Do not do this for child #else/#elif/#endif, they will be automatically added, as they are AST children of the first PreIfStatement
