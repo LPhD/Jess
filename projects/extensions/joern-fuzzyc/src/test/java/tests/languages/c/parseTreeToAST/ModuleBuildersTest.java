@@ -214,16 +214,18 @@ public class ModuleBuildersTest {
 	
 	
 	@Test
-	public void preprocessorModuleBuilderTest() {
+	public void preprocessorModuleBuilderASTNestingTest() {
 		String input = "#if (modulefoo < 5) \n int modulei1; \n #elif (modulefoo > 5) \n double modulei2; \n #else \n long modulei3; \n #endif";
 		List<ASTNode> codeItems = parseInput(input);
 		//PreIfStatement is the last node on the stack
-		PreStatementBase codeItem = (PreStatementBase) codeItems.get(5);	
+		PreStatementBase codeItem = (PreStatementBase) codeItems.get(3);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
-		codeItem = (PreStatementBase) codeItems.get(4);	
+		codeItem = (PreStatementBase) codeItem.getChild(2);	
 		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
-		codeItem = (PreStatementBase) codeItems.get(3);	
+		codeItem = (PreStatementBase) codeItem.getChild(2);	
 		assertEquals("PreElseStatement", codeItem.getTypeAsString());
+		codeItem = (PreStatementBase) codeItem.getChild(1);	
+		assertEquals("PreEndIfStatement", codeItem.getTypeAsString());
 	}
 	
 	
@@ -232,16 +234,17 @@ public class ModuleBuildersTest {
 		String input = "#if (modulefoo < 5) \n int foo(){ int modulei1;} \n #elif (modulefoo > 5) \n double foo(){ double modulei1;} \n #else \n long foo(){ long modulei1;} \n #endif";
 		List<ASTNode> codeItems = parseInput(input);
 		//PreIfStatement is the last node on the stack
-		PreStatementBase codeItem = (PreStatementBase) codeItems.get(5);	
+		PreStatementBase codeItem = (PreStatementBase) codeItems.get(3);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
-		assertEquals("FunctionDef", codeItem.getChild(2).getTypeAsString());
-		codeItem = (PreStatementBase) codeItem.getChild(3);	
+//		assertEquals("FunctionDef", codeItem.getChild(2).getTypeAsString());
+		codeItem = (PreStatementBase) codeItem.getChild(2);	
 		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
-		assertEquals("FunctionDef", codeItem.getChild(2).getTypeAsString());
-		codeItem = (PreStatementBase) codeItem.getChild(3);			
+//		assertEquals("FunctionDef", codeItem.getChild(2).getTypeAsString());
+		codeItem = (PreStatementBase) codeItem.getChild(2);			
 		assertEquals("PreElseStatement", codeItem.getTypeAsString());
-		assertEquals("FunctionDef", codeItem.getChild(1).getTypeAsString());
-		assertEquals("PreEndIfStatement", codeItem.getChild(2).getTypeAsString());
+//		assertEquals("FunctionDef", codeItem.getChild(1).getTypeAsString());
+		codeItem = (PreStatementBase) codeItem.getChild(1);		
+		assertEquals("PreEndIfStatement", codeItem.getTypeAsString());
 	}
 
 	private List<ASTNode> parseInput(String input) {
