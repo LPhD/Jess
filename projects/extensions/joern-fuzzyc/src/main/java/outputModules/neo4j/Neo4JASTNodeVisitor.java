@@ -17,40 +17,34 @@ import outputModules.neo4j.exporters.Neo4JPreStatementExporter;
 
 // Stays alive during the lifetime of the program
 
-public class Neo4JASTNodeVisitor extends OutModASTNodeVisitor
-{
+public class Neo4JASTNodeVisitor extends OutModASTNodeVisitor {
 
-	public void visit(FunctionDefBase node)
-	{
+	public void visit(FunctionDefBase node) {
 		ASTNodeExporter importer = new Neo4JFunctionExporter();
 		importNode(importer, node);
 	}
 
-	public void visit(ClassDefStatement node)
-	{
+	public void visit(ClassDefStatement node) {
 		ASTNodeExporter importer = new Neo4JClassDefExporter();
 		long classNodeId = importNode(importer, node);
 		visitClassDefContent(node, classNodeId);
 	}
 
-	public void visit(IdentifierDeclStatement node)
-	{
+	public void visit(IdentifierDeclStatement node) {
 		ASTNodeExporter importer = new Neo4JDeclStmtExporter();
 		importNode(importer, node);
 	}
-	
-	//Preprocessor handling
-	public void visit(PreStatementBase node)	{
+
+	// Preprocessor handling
+	public void visit(PreStatementBase node) {
 		ASTNodeExporter importer = new Neo4JPreStatementExporter();
 		long preNodeId = importNode(importer, node);
 		visitPreStatementContent(node, preNodeId);
 	}
 
 	@Override
-	protected void addEdgeFromClassToFunc(long dstNodeId, Long classId)
-	{
-		RelationshipType rel = DynamicRelationshipType
-				.withName(EdgeTypes.IS_CLASS_OF);
+	protected void addEdgeFromClassToFunc(long dstNodeId, Long classId) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_CLASS_OF);
 		Neo4JBatchInserter.addRelationship(classId, dstNodeId, rel, null);
 	}
 

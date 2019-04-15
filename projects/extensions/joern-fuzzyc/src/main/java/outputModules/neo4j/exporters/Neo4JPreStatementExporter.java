@@ -72,14 +72,16 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 
 		long parentId = nodeStore.getIdForObject(parent);
 		long childId = nodeStore.getIdForObject(child);
-		Map<String, Object> properties = null;
 
-		Neo4JBatchInserter.addRelationship(parentId, childId, rel, properties);
+		Neo4JBatchInserter.addRelationship(parentId, childId, rel, null);
 	}
-
+	
+	/**
+	 * Link the given preStatementDatabaseNode (parentNodeID) with its block content (childNodeID)
+	 */
 	@Override
-	protected void drawVariabilityEdge(ASTDatabaseNode preDBNode, ASTDatabaseNode vStatement) {
-		// TODO Auto-generated method stub
-		
+	protected void drawVariabilityEdge(long parentNodeID, long childNodeID) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.VARIABILITY);
+		Neo4JBatchInserter.addRelationship(parentNodeID, childNodeID, rel, null);
 	}
 }

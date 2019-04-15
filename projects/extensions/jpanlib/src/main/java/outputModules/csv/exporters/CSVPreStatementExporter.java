@@ -56,13 +56,10 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	}
 	
 	/**
-	 * Link the given preStatementDatabaseNode (blockstarter) with its block content (variability)
+	 * Link the given preStatementDatabaseNode (parentNodeID) with its block content (childNodeID)
 	 */
 	@Override
-	protected void drawVariabilityEdge(ASTDatabaseNode preDBNode, ASTDatabaseNode vStatement) {
-		//TODO We need the DB node id of the child!
-		long statementId = Writer.getIdForObject(vStatement);
-		long blockstarterId = Writer.getIdForObject(preDBNode);
-		Writer.addEdge(blockstarterId, statementId, null, EdgeTypes.VARIABILITY);
+	protected void drawVariabilityEdge(long parentNodeID, long childNodeID) {
+		Writer.addEdge(parentNodeID, childNodeID, null, EdgeTypes.VARIABILITY);
 	}
 }
