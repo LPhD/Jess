@@ -145,23 +145,25 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			System.out.println("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
 		
 			// Stop if we reach an PreIfStatement
-			if (topOfStack instanceof PreIfStatement && (ASTItemStack.size() > 1)) {
-				//Remove the PreIfStatement node from the stack and add it to its parent block, stop the iteration
+			if (topOfStack instanceof PreIfStatement) {
+				//Remove the PreIfStatement node from the stack and stop the iteration
 				currentNode = (PreBlockstarter) ASTItemStack.pop();
-				topOfStack = (PreBlockstarter) ASTItemStack.peek();		
-				topOfStack.addChild(currentNode);			
-				System.out.println("Nested #if found, connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
+				System.out.println("Found #if for #endif, notify observers");
+				//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
+				//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children or twice
+				//Do not do this for child #else/#elif/#endif, they will be automatically added, as they are AST children of the first PreIfStatement
+				p.notifyObserversOfItem(currentNode);
+								
 			} else {
 				//Connect AST children until we reach a PreIfStatement or there is only 1 item left on the stack
 				closeASTBlock();
 			}
+			
 		} else if (ASTItemStack.size() == 1)  {
-			//Remove orphaned #endif or #if statements
+			//Remove orphaned #endif statements
 			PreBlockstarter lastNode = (PreBlockstarter) ASTItemStack.pop();
-			System.out.println("Removed orphan: "+lastNode.getEscapedCodeStr());
-			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
-			//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children or twice
-			//Do not do this for child #else/#elif/#endif, they will be automatically added, as they are AST children of the first PreIfStatement
+			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr());
+			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class)
 			p.notifyObserversOfItem(lastNode);
 		}
 	}
