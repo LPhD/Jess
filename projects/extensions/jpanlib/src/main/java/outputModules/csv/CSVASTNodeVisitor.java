@@ -14,21 +14,18 @@ import outputModules.csv.exporters.CSVDeclStmtExporter;
 import outputModules.csv.exporters.CSVFunctionExporter;
 import outputModules.csv.exporters.CSVPreStatementExporter;
 
-public class CSVASTNodeVisitor extends OutModASTNodeVisitor
-{
+public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 
 	private CSVFunctionExporter functionExporter;
 
 	@Override
-	public void visit(FunctionDefBase node)
-	{
+	public void visit(FunctionDefBase node) {
 		ASTNodeExporter importer = functionExporter;
 		importNode(importer, node);
 	}
 
 	@Override
-	public void visit(ClassDefStatement node)
-	{
+	public void visit(ClassDefStatement node) {
 
 		ASTNodeExporter importer = new CSVClassDefExporter();
 		long classNodeId = importNode(importer, node);
@@ -36,30 +33,25 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor
 	}
 
 	@Override
-	public void visit(IdentifierDeclStatement node)
-	{
+	public void visit(IdentifierDeclStatement node) {
 		ASTNodeExporter importer = new CSVDeclStmtExporter();
 		importNode(importer, node);
 	}
-	
-	
-	//Preprocessor handling
+
+	// Preprocessor handling
 	@Override
-	public void visit(PreStatementBase node)	{
+	public void visit(PreStatementBase node) {
 		ASTNodeExporter importer = new CSVPreStatementExporter();
 		long preId = importNode(importer, node);
 		visitPreStatementContent(node, preId);
 	}
-	
 
 	@Override
-	protected void addEdgeFromClassToFunc(long dstNodeId, Long classId)
-	{
+	protected void addEdgeFromClassToFunc(long dstNodeId, Long classId) {
 		Writer.addEdge(classId, dstNodeId, null, EdgeTypes.IS_CLASS_OF);
 	}
 
-	public void setFunctionExporter(CSVFunctionExporter functionExporter)
-	{
+	public void setFunctionExporter(CSVFunctionExporter functionExporter) {
 		this.functionExporter = functionExporter;
 	}
 
