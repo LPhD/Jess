@@ -217,7 +217,7 @@ public class ModuleBuildersTest {
 	public void preprocessorModuleBuilderASTNestingTest() {
 		String input = "#if (modulefoo < 5) \n int modulei1; \n #elif (modulefoo > 5) \n double modulei2; \n #else \n long modulei3; \n #endif";
 		List<ASTNode> codeItems = parseInput(input);
-		//PreIfStatement is the last node on the stack
+		//First PreIfStatement is the last node on the stack
 		PreStatementBase codeItem = (PreStatementBase) codeItems.get(3);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
 		codeItem = (PreStatementBase) codeItem.getChild(2);	
@@ -228,12 +228,23 @@ public class ModuleBuildersTest {
 		assertEquals("PreEndIfStatement", codeItem.getTypeAsString());
 	}
 	
+	@Test
+	public void preprocessorModuleBuilderASTNestingWithNestedIFsTest() {
+		String input = "#if (a) \n int a; \n #if (b) \n double b; \n #else \n long c; \n #endif \n #endif";
+		List<ASTNode> codeItems = parseInput(input);
+		//First PreIfStatement is the last node on the stack
+		PreStatementBase codeItem = (PreStatementBase) codeItems.get(3);	
+		assertEquals("PreIfStatement", codeItem.getTypeAsString());
+		assertEquals("PreIfStatement", codeItem.getChild(2).getTypeAsString());
+		assertEquals("PreEndIfStatement", codeItem.getChild(3).getTypeAsString());
+	}
+	
 	
 	@Test
 	public void preprocessorModuleBuilderTestWithNestingChildren() {
 		String input = "#if (modulefoo < 5) \n int foo(){ int modulei1;} \n #elif (modulefoo > 5) \n double foo(){ double modulei1;} \n #else \n long foo(){ long modulei1;} \n #endif";
 		List<ASTNode> codeItems = parseInput(input);
-		//PreIfStatement is the last node on the stack
+		//First PreIfStatement is the last node on the stack
 		PreStatementBase codeItem = (PreStatementBase) codeItems.get(3);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
 //		assertEquals("FunctionDef", codeItem.getChild(2).getTypeAsString());
