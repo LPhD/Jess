@@ -37,7 +37,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	ANTLRParserDriver p;
 	// For variability analysis and preprocessor statements AST nesting
 	ANTLRCFunctionParserDriver fDriver;
+	/**
+	 * This stack contains PreBlockstarters that can implement variability
+	 */
 	private Stack<ASTNode> variabilityItemStack = new Stack<ASTNode>();
+	/**
+	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
+	 */
 	private Stack<ASTNode> ASTItemStack = new Stack<ASTNode>();
 
 
@@ -94,6 +100,25 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			e.printStackTrace();
 		}
 		
+		//________________________________VARIABILITY ANALYSIS________________________________________________________________
+		
+		// If the current item is an #endif
+		if (thisItem instanceof PreEndIfStatement) {
+			// Remove items from stack until the next #if/#ifdef
+			closeBlock();
+			System.out.println("Block closed!");
+		} else if (thisItem instanceof PreBlockstarter) {
+			// Collect all Pre Blockstarters on the Stack
+			variabilityItemStack.push(thisItem);
+			System.out.println("#if collected");
+		} else {
+			// Connect all other pre statements to parent blockstarters if they exist
+			checkVariability(thisItem);
+		}
+		
+		
+		//________________________________AST ANALYSIS________________________________________________________________
+		
 		//Resolve AST nesting of preprocessor blockstarters on module level. This has to be done before the db nodes are built.
 		if (thisItem instanceof PreEndIfStatement) {
 			ASTItemStack.push(thisItem);
@@ -108,25 +133,43 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 			//Do this now for every pre statement that has no AST nesting
 			p.notifyObserversOfItem(thisItem);
-		}
-		
-		//________________________________VARIABILITY ANALYSIS________________________________________________________________
-		
-		// If the current item is an #endif
-		if (thisItem instanceof PreEndIfStatement) {
-			// Connect #endif to parent
-			checkVariability(thisItem);
-			// Remove items from stack until the next #if/#ifdef
-			closeBlock();
-			System.out.println("Block closed!");
-		} else if (thisItem instanceof PreBlockstarter) {
-			// Collect all Pre Blockstarters on the Stack
-			variabilityItemStack.push(thisItem);
-			System.out.println("#if collected");
+		}		
+				
+	}
+	
+
+	/**
+	 * Check if the current ASTNode is inside an #ifdef block and therefore variable
+	 * 
+	 * @param currentNode
+	 */
+	private void checkVariability(ASTNode currentNode) {
+		if (!variabilityItemStack.isEmpty()) {
+			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
+			parent.addVariableStatement(currentNode);
+			//TODO Add variability edge here?
+			System.out.println("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
-			// Connect all other pre statements to parent blockstarters if they exist
-			checkVariability(thisItem);
-		}				
+			System.out.println(currentNode.getEscapedCodeStr()+" is not variable!");
+		}
+	}
+
+	/**
+	 * Removes collected PreBlockstarters from the stack. 
+	 * Stop if the stack is empty or if we reach an PreIfStatement.
+	 */
+	private void closeBlock() {
+		if (!variabilityItemStack.isEmpty()) {
+			PreBlockstarter currentNode = (PreBlockstarter) variabilityItemStack.pop();
+			
+			// Stop if we reach an PreIfStatement
+			if (currentNode instanceof PreIfStatement) {
+				//TODO Add variability edge here?
+				checkVariability(currentNode);
+			} else {
+				closeBlock();
+			}
+		}
 	}
 	
 	/**
@@ -165,37 +208,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr());
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class)
 			p.notifyObserversOfItem(lastNode);
-		}
-	}
-
-	/**
-	 * Connects the current statement with its parent PreBlockstarter if that exists
-	 * 
-	 * @param node
-	 */
-	private void checkVariability(ASTNode currentNode) {
-		if (!variabilityItemStack.isEmpty()) {
-			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
-			parent.addVariableStatement(currentNode);
-			//TODO Add variability edge here?
-			System.out.println("Connected child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
-		}
-	}
-
-	/**
-	 * Removes collected PreBlockstarters from the stack and connects them. Stop if
-	 * the stack is empty or if we reach an PreIfStatement.
-	 */
-	private void closeBlock() {
-		while (!variabilityItemStack.isEmpty()) {
-			PreBlockstarter currentNode = (PreBlockstarter) variabilityItemStack.pop();
-			checkVariability(currentNode);
-			
-			// Stop if we reach an PreIfStatement
-			if (currentNode instanceof PreIfStatement) {
-				//TODO Add variability edge here?
-				return;
-			}
 		}
 	}
 
@@ -253,6 +265,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
+		System.out.println("Enter enterDeclByType");
 		Init_declarator_listContext decl_list = ctx.init_declarator_list();
 		Type_nameContext typeName = ctx.type_name();
 		emitDeclarations(decl_list, typeName, ctx);
@@ -273,6 +286,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		p.notifyObserversOfItem(stmt);
 		
+
+		
+		//TODO Strange behaviour here... Why is the declaration not initialized (see above)? 
 		//Connect to parent blockstarters if they exist
 		checkVariability(stmt);
 		
@@ -283,6 +299,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx) {
+		System.out.println("Enter enterDeclByClass");
 		ClassDefBuilder builder = new ClassDefBuilder();
 		builder.createNew(ctx);
 		p.builderStack.push(builder);
