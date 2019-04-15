@@ -210,25 +210,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	}
 	
-	/**
-	 *  Called by the module parser when the entire file-content has been walked
-	 *  This is the implementation for the module level
-	 * @param ctx
-	 */
-	public void exitCode(CodeContext ctx) {
-		if (stack.size() != 1) {
-			// TODO Implement handling of preprocessor blockstarters on module level
-			try {
-				while (stack.size() != 1) {
-					ASTNode currentNode = (ASTNode) stack.pop();
-					nesting.addItemToParent(currentNode);
-				}
-			} catch (Exception e) {
-				System.out.println("Exception while removing items from stack!");
-			}
-			// throw new RuntimeException("Broken stack while parsing");
-		}
-	}
 
 	// For all statements, begin by pushing a Statement Object onto the stack.
 	public void enterStatement(StatementContext ctx) {
