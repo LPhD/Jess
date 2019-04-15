@@ -2,7 +2,6 @@ package outputModules.csv;
 
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
-import ast.logical.statements.BlockStarter;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
 import databaseNodes.EdgeTypes;
