@@ -277,6 +277,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		IdentifierDeclStatement stmt = new IdentifierDeclStatement();
 		// stmt.initializeFromContext(ctx);
+		//This is just a test
+		builder.createNew(ctx);
 
 		Iterator<IdentifierDecl> it = declarations.iterator();
 		while (it.hasNext()) {
