@@ -159,7 +159,7 @@ public class ASTNode
 		}
 		catch(NumberFormatException e) {
 			id = -1l;
-			System.err.println("Trying to retrieve node for node " + super.toString() + ", but none is set " +
+			System.err.println("Trying to retrieve node ID for node " + super.toString() + ", but none is set " +
 					"(type = " + getTypeAsString() + ", location = " + getLocation() + ", code = " + getCodeStr() + ")");
 			e.printStackTrace();
 		}
