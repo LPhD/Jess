@@ -30,7 +30,6 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		// index, but do not index location
 		properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);
-		
 		System.out.println("Neo4j main Node added: "+ ((ASTDatabaseNode) dbNode).getAstNode());
 	}
 	

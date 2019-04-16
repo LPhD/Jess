@@ -12,6 +12,9 @@ public class Neo4JDeclExporter extends Neo4JASTNodeExporter
 		DeclDatabaseNode dbNode = new DeclDatabaseNode();
 		dbNode.initialize(node);
 		addMainNode(dbNode);
+		
+		//Set nodeID for Variability Analysis
+		node.setNodeId(mainNodeId);
 	}
 
 }

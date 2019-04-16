@@ -4,8 +4,7 @@ import ast.ASTNode;
 import databaseNodes.DatabaseNode;
 import databaseNodes.FileDatabaseNode;
 
-public abstract class ASTNodeExporter
-{
+public abstract class ASTNodeExporter {
 	protected Long mainNodeId;
 	protected FileDatabaseNode curFile;
 

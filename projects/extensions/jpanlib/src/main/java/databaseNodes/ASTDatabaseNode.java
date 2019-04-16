@@ -6,16 +6,12 @@ import java.util.Map;
 import ast.ASTNode;
 import ast.CodeLocation;
 import ast.expressions.Expression;
-import ast.functionDef.ParameterBase;
-import ast.functionDef.ReturnType;
-import ast.logical.statements.CompoundStatement;
 
 public class ASTDatabaseNode extends DatabaseNode {
 
 	private ASTNode astNode;
 	private FunctionDatabaseNode currentFunction;
 	private boolean insideFunctionBlock;
-	private long nodeId;
 
 	@Override
 	public void initialize(Object node) {
@@ -87,14 +83,6 @@ public class ASTDatabaseNode extends DatabaseNode {
 	
 	public ASTNode getAstNode() {
 		return astNode;
-	}
-
-	public long getNodeId() {
-		return nodeId;
-	}
-
-	public void setNodeId(long nodeId) {
-		this.nodeId = nodeId;
 	}
 
 }

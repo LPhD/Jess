@@ -21,6 +21,9 @@ public abstract class DeclStmtExporter extends ASTNodeExporter
 		addMainNode(dbNode);
 
 		addDeclarations(node);
+		
+		//Set nodeID for Variability Analysis
+		node.setNodeId(mainNodeId);
 	}
 
 	private void addDeclarations(ASTNode node)

@@ -16,10 +16,11 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	 */
 	@Override
 	protected void addMainNode(DatabaseNode dbNode) {
-		Map<String, Object> properties = dbNode.createProperties();
+		ASTDatabaseNode astDBnode = (ASTDatabaseNode) dbNode;
+		Map<String, Object> properties = astDBnode.createProperties();
 		Writer.addNode(dbNode, properties);
 		mainNodeId = Writer.getIdForObject(dbNode);
-		System.out.println("CSV Main Node added: "+ ((ASTDatabaseNode) dbNode).getAstNode());
+		System.out.println("CSV Main Node added: "+ astDBnode.getAstNode());
 	}
 	
 	/**

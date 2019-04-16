@@ -43,6 +43,9 @@ public abstract class FunctionExporter extends ASTNodeExporter {
 
 			addFunctionToDatabase(function);
 			linkFunctionToFileNode(function, curFile);
+			
+			//Set nodeID for Variability Analysis
+			node.setNodeId(mainNodeId);
 
 		} catch (RuntimeException ex) {
 			ex.printStackTrace();
