@@ -18,6 +18,10 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		try	{			
 			preDBNode.initialize(astNode);
 			addMainNode(preDBNode);
+			
+			//Set nodeID for Variability Analysis
+			astNode.setNodeId(mainNodeId);
+			
 			linkPreStatementToFileNode(preDBNode, curFile);	
 			//Look for file inclusions
 			if(astNode.getTypeAsString().equals("PreIncludeLocalFile")) {
@@ -45,7 +49,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		final int nVariableStatements = preAstNode.getVariableStatementsCount();
 		for (int i = 0; i < nVariableStatements; i++) {
 			ASTNode vStatement = preAstNode.getVariableStatement(i);
-			long parentNodeID = preAstNode.getNodeId();
+			long parentNodeID = preDBNode.getNodeId();
 			long childNodeID = vStatement.getNodeId();
 			
 			drawVariabilityEdge(parentNodeID, childNodeID);

@@ -3,6 +3,7 @@ package outputModules.csv.exporters;
 import java.util.Map;
 
 import ast.ASTNode;
+import databaseNodes.ASTDatabaseNode;
 import databaseNodes.DatabaseNode;
 import outputModules.common.ASTNodeExporter;
 import outputModules.common.Writer;

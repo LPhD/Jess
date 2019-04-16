@@ -12,6 +12,9 @@ public class CSVDeclExporter extends CSVASTNodeExporter
 		DeclDatabaseNode dbNode = new DeclDatabaseNode();
 		dbNode.initialize(node);
 		addMainNode(dbNode);
+		
+		//Set nodeID for Variability Analysis
+		node.setNodeId(mainNodeId);
 
 	}
 
