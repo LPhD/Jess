@@ -49,7 +49,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		final int nVariableStatements = preAstNode.getVariableStatementsCount();
 		for (int i = 0; i < nVariableStatements; i++) {
 			ASTNode vStatement = preAstNode.getVariableStatement(i);
-			long parentNodeID = preDBNode.getNodeId();
+			long parentNodeID = preAstNode.getNodeId();
 			long childNodeID = vStatement.getNodeId();
 			
 			drawVariabilityEdge(parentNodeID, childNodeID);
