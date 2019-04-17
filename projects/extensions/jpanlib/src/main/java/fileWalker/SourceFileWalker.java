@@ -21,14 +21,15 @@ public abstract class SourceFileWalker {
 	 * @param fileAndDirNames: A list of file and/or directory names
 	 */
 
-	public void walk(String[] fileAndDirNames) {
+	public void walk(String[] fileAndDirNames) throws IOException {
+		System.out.println("Walk");
 		for (String filename : fileAndDirNames) {
 
 			if (!pathIsAccessible(filename)) {
 				System.err.println("Warning: Skipping " + filename + " because it is not accessible");
 				continue;
 			}
-			
+			System.out.println("filename");
 			try {
 				walkExistingFileOrDirectory(filename);
 			} catch (Exception e) {
