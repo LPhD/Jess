@@ -31,9 +31,13 @@ public class PluginExecutor {
 		try {
 			if (settings != null)
 				plugin.configure(settings);
+			System.out.println("beforeExecution");
 			plugin.beforeExecution();
+			System.out.println("execute");
 			plugin.execute();
+			System.out.println("afterExecution");
 			plugin.afterExecution();
+			System.out.println("result");
 			return plugin.result();
 		} catch (Exception e) {
 			System.out.println("Exception during plugin execution of: "+pluginName);
