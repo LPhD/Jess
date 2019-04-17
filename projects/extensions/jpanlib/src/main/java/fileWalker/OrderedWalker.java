@@ -7,37 +7,31 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class OrderedWalker extends SourceFileWalker
-{
+public class OrderedWalker extends SourceFileWalker {
 	FileNameMatcher matcher = new FileNameMatcher();
 	List<SourceFileListener> listeners = new LinkedList<SourceFileListener>();
 
-	public OrderedWalker()
-	{
+	public OrderedWalker() {
 		setFilenameFilter(DEFAULT_FILENAME_FILTER);
 	}
 
 	@Override
-	public void setFilenameFilter(String filter)
-	{
+	public void setFilenameFilter(String filter) {
 		matcher.setFilenameFilter(filter);
 	}
 
 	@Override
-	public void addListener(SourceFileListener listener)
-	{
+	public void addListener(SourceFileListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	protected void walkExistingFileOrDirectory(String dirOrFileName)
-			throws IOException
-	{
+	protected void walkExistingFileOrDirectory(String dirOrFileName) throws IOException {
 		walk(dirOrFileName);
 	}
 
-	private void walk(String dirOrFileName)
-	{
+	private void walk(String dirOrFileName) {
+		System.out.println("Ordered walking");
 		File file = new File(dirOrFileName);
 		File[] dirContent = file.listFiles();
 		Path path = file.toPath();
@@ -49,13 +43,11 @@ public class OrderedWalker extends SourceFileWalker
 
 		reportDirectoryEnter(path);
 
-		for (File f : dirContent)
-		{
+		for (File f : dirContent) {
 			Path filePath = f.toPath();
 			String absolutePath = f.getAbsolutePath();
 
-			if (f.isDirectory())
-			{
+			if (f.isDirectory()) {
 				walk(absolutePath);
 				continue;
 			}
@@ -67,20 +59,17 @@ public class OrderedWalker extends SourceFileWalker
 		reportDirectoryLeave(path);
 	}
 
-	private void reportDirectoryEnter(Path path)
-	{
+	private void reportDirectoryEnter(Path path) {
 		for (SourceFileListener listener : listeners)
 			listener.preVisitDirectory(path);
 	}
 
-	private void reportDirectoryLeave(Path path)
-	{
+	private void reportDirectoryLeave(Path path) {
 		for (SourceFileListener listener : listeners)
 			listener.postVisitDirectory(path);
 	}
 
-	private void reportFile(Path path)
-	{
+	private void reportFile(Path path) {
 		for (SourceFileListener listener : listeners)
 			listener.visitFile(path);
 
