@@ -5,28 +5,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class UnorderedWalker extends SourceFileWalker
-{
+public class UnorderedWalker extends SourceFileWalker {
 	private UnorderedFileWalkerImpl sourceFileWalkerImpl = new UnorderedFileWalkerImpl();
 
-	public UnorderedWalker()
-	{
+	public UnorderedWalker() {
 		sourceFileWalkerImpl.setFilenameFilter(DEFAULT_FILENAME_FILTER);
 	}
 
-	public void setFilenameFilter(String filter)
-	{
+	public void setFilenameFilter(String filter) {
 		sourceFileWalkerImpl.setFilenameFilter(filter);
 	}
 
-	public void addListener(SourceFileListener listener)
-	{
+	public void addListener(SourceFileListener listener) {
 		sourceFileWalkerImpl.addListener(listener);
 	}
 
-	protected void walkExistingFileOrDirectory(String dirName)
-			throws IOException
-	{
+	protected void walkExistingFileOrDirectory(String dirName) throws IOException {
+		System.out.println("Unordered walking");
 		Path dir = Paths.get(dirName);
 		Files.walkFileTree(dir, sourceFileWalkerImpl);
 	}
