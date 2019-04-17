@@ -78,21 +78,14 @@ public class JoernImporter extends JoernProjectPlugin {
 		logger.debug("Importing graph");
 
 		String parserOutputDirectory = joernProject.getParserOutputDirectory();
-		System.out.println("parserOutputDirectory");
 
 		OrderedWalker walker = new OrderedWalker();
-		System.out.println("OrderedWalker");
 		walker.setFilenameFilter("*nodes.csv");
-		System.out.println("setFilenameFilter");
 		ImporterListener listener = new ImporterListener();
-		System.out.println("ImporterListener");
 		listener.setProject(joernProject);
-		System.out.println("setProject");
 
 		walker.addListener(listener);
-		System.out.println("addListener");
 		walker.walk(new String[] { parserOutputDirectory });
-		System.out.println("walk");
 
 		logger.debug("Import complete");
 	}
