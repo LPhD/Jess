@@ -21,42 +21,34 @@ public class JoernImporter extends JoernProjectPlugin {
 
 	private JoernProject joernProject;
 
-
 	@Override
-	public void configure(JSONObject settings)
-	{
+	public void configure(JSONObject settings) {
 		super.configure(settings);
 
-		if(settings.has("nouncompress"))
+		if (settings.has("nouncompress"))
 			uncompress = false;
-		if(settings.has("noparsecode"))
+		if (settings.has("noparsecode"))
 			parsecode = false;
-		if(settings.has("noimportcsv"))
+		if (settings.has("noimportcsv"))
 			importcsv = false;
 	}
 
-
-	 @Override
-     public void execute() throws Exception
-	 {
+	@Override
+	public void execute() throws Exception {
 		openProject();
-		System.out.println("Open");
-		if(uncompress) uncompressArchive();
-		System.out.println("uncompressArchive");
-		if(parsecode) parseSourceCode();
-		System.out.println("parseSourceCode");
-		if(importcsv) importCSVFilesIntoDatabase();
-		System.out.println("importCSVFilesIntoDatabase");
-	 }
+		if (uncompress)
+			uncompressArchive();
+		if (parsecode)
+			parseSourceCode();
+		if (importcsv)
+			importCSVFilesIntoDatabase();
+	}
 
-	private void openProject()
-	{
+	private void openProject() {
 		joernProject = (JoernProject) getProjectConnector().getWrapper();
 	}
 
-
-	private void uncompressArchive() throws IOException
-	{
+	private void uncompressArchive() throws IOException {
 		String tarballFilename = joernProject.getTarballName();
 		String outputDirectory = joernProject.getSourceCodeDirectory();
 
@@ -68,8 +60,7 @@ public class JoernImporter extends JoernProjectPlugin {
 		logger.debug("decompression successful");
 	}
 
-	private void parseSourceCode()
-	{
+	private void parseSourceCode() {
 		logger.debug("Parsing code");
 
 		String parserOutputDirectory = joernProject.getParserOutputDirectory();
@@ -83,19 +74,25 @@ public class JoernImporter extends JoernProjectPlugin {
 		logger.debug("Parsing complete");
 	}
 
-	private void importCSVFilesIntoDatabase() throws IOException
-	{
+	private void importCSVFilesIntoDatabase() throws IOException {
 		logger.debug("Importing graph");
 
 		String parserOutputDirectory = joernProject.getParserOutputDirectory();
+		System.out.println("parserOutputDirectory");
 
 		OrderedWalker walker = new OrderedWalker();
+		System.out.println("OrderedWalker");
 		walker.setFilenameFilter("*nodes.csv");
+		System.out.println("setFilenameFilter");
 		ImporterListener listener = new ImporterListener();
+		System.out.println("ImporterListener");
 		listener.setProject(joernProject);
+		System.out.println("setProject");
 
 		walker.addListener(listener);
-		walker.walk(new String[] { parserOutputDirectory } );
+		System.out.println("addListener");
+		walker.walk(new String[] { parserOutputDirectory });
+		System.out.println("walk");
 
 		logger.debug("Import complete");
 	}
