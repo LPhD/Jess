@@ -29,6 +29,7 @@ public class PluginExecutor {
 			throw new RuntimeException("Error while loading plugin " + pluginName);
 
 		try {
+			System.out.println("settings");
 			if (settings != null)
 				plugin.configure(settings);
 			System.out.println("beforeExecution");
