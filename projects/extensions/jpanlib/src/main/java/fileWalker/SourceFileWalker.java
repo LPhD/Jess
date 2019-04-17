@@ -22,19 +22,20 @@ public abstract class SourceFileWalker {
 	 */
 
 	public void walk(String[] fileAndDirNames) throws IOException {
-		System.out.println("Walk");
+
 		for (String filename : fileAndDirNames) {
 
 			if (!pathIsAccessible(filename)) {
 				System.err.println("Warning: Skipping " + filename + " because it is not accessible");
 				continue;
 			}
-			System.out.println("filename");
+
 			try {
 				walkExistingFileOrDirectory(filename);
 			} catch (Exception e) {
-				System.err.println("Error walking files...");
+				System.err.println("Error walking file: "+filename);
 				e.printStackTrace();
+				throw new RuntimeException();
 			}
 
 		}
