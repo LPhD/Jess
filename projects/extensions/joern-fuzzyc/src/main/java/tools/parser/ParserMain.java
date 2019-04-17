@@ -14,47 +14,39 @@ import outputModules.parser.Parser;
  * source-files and directories and report them to the parser.
  */
 
-public class ParserMain
-{
+public class ParserMain {
 
 	private static ParserCmdLineInterface cmd = new ParserCmdLineInterface();
 	private static SourceFileWalker sourceFileWalker = new OrderedWalker();
 
 	private static Parser parser;
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		parseCommandLine(args);
 		String[] fileAndDirNames = getFileAndDirNamesFromCommandLine();
 		setupIndexer();
 		walkCodebase(fileAndDirNames);
 	}
 
-	private static void parseCommandLine(String[] args)
-	{
-		try
-		{
+	private static void parseCommandLine(String[] args) {
+		try {
 			cmd.parseCommandLine(args);
-		} catch (RuntimeException | ParseException ex)
-		{
+		} catch (RuntimeException | ParseException ex) {
 			printHelpAndTerminate(ex);
 		}
 	}
 
-	private static void printHelpAndTerminate(Exception ex)
-	{
+	private static void printHelpAndTerminate(Exception ex) {
 		System.err.println(ex.getMessage());
 		cmd.printHelp();
 		System.exit(1);
 	}
 
-	private static String[] getFileAndDirNamesFromCommandLine()
-	{
+	private static String[] getFileAndDirNamesFromCommandLine() {
 		return cmd.getFilenames();
 	}
 
-	private static void setupIndexer()
-	{
+	private static void setupIndexer() {
 
 		String outputFormat = cmd.getOutputFormat();
 		if (outputFormat.equals("neo4j"))
@@ -70,17 +62,12 @@ public class ParserMain
 		sourceFileWalker.addListener(parser);
 	}
 
-	private static void walkCodebase(String[] fileAndDirNames)
-	{
-		try
-		{
+	private static void walkCodebase(String[] fileAndDirNames) {
+		try {
 			sourceFileWalker.walk(fileAndDirNames);
-		} catch (IOException err)
-		{
-			System.err
-					.println("Error walking source files: " + err.getMessage());
-		} finally
-		{
+		} catch (IOException err) {
+			System.err.println("Error walking source files: " + err.getMessage());
+		} finally {
 			parser.shutdown();
 		}
 	}
