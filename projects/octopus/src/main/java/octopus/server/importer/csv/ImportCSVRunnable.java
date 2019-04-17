@@ -13,8 +13,7 @@ import octopus.server.importer.csv.titan.CSVImporter;
 public class ImportCSVRunnable implements Runnable
 {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(ImportCSVRunnable.class);
+	private static final Logger logger = LoggerFactory.getLogger(ImportCSVRunnable.class);
 
 	private final ImportJob importJob;
 
@@ -36,7 +35,7 @@ public class ImportCSVRunnable implements Runnable
 		ProjectManager projectManager = new ProjectManager();
 		OctopusProject project = projectManager.getProjectByName(projectName);
 		if(project == null)
-			throw new RuntimeException("Error: project dos not exist");
+			throw new RuntimeException("Error: project does not exist");
 
 		try
 		{

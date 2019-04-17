@@ -13,8 +13,7 @@ import octopus.api.decompressor.Decompressor;
 
 public class JoernImporter extends JoernProjectPlugin {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(JoernImporter.class);
+	private static final Logger logger = LoggerFactory.getLogger(JoernImporter.class);
 
 	private boolean uncompress = true;
 	private boolean parsecode = true;
@@ -41,10 +40,13 @@ public class JoernImporter extends JoernProjectPlugin {
      public void execute() throws Exception
 	 {
 		openProject();
-
+		System.out.println("Open");
 		if(uncompress) uncompressArchive();
+		System.out.println("uncompressArchive");
 		if(parsecode) parseSourceCode();
+		System.out.println("parseSourceCode");
 		if(importcsv) importCSVFilesIntoDatabase();
+		System.out.println("importCSVFilesIntoDatabase");
 	 }
 
 	private void openProject()
