@@ -13,6 +13,7 @@ class CParserNeo4JOuput extends ParserNeo4JOutput {
 
 	@Override
 	public void visitFile(Path pathToFile) {
+		System.out.println("Visit CParserNeo4JOuput.java");
 		dirTreeImporter.enterFile(pathToFile);
 		parser.parseFile(pathToFile.toString());
 	}
