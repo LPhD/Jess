@@ -34,50 +34,59 @@ public class OrderedWalker extends SourceFileWalker {
 		File file = new File(dirOrFileName);
 		File[] dirContent = file.listFiles();
 		Path path = file.toPath();
-		
+
 		// if this is not a directory
 		if (dirContent == null)
 			return;
-		
-		Arrays.sort(dirContent);		
+
+		Arrays.sort(dirContent);
 		reportDirectoryEnter(path);
 
 		for (File f : dirContent) {
 			Path filePath = f.toPath();
 			String absolutePath = f.getAbsolutePath();
-			System.out.println("getAbsolutePath");
 
 			if (f.isDirectory()) {
-				System.out.println("isDirectory");
 				walk(absolutePath);
-				System.out.println("absolutePath");
 				continue;
 			}
 
 			if (matcher.fileMatches(filePath)) {
-				System.out.println("fileMatches");
 				reportFile(filePath);
-				System.out.println("reportFile");
 			}
-			System.out.println("enddirContent");
 		}
-
 		reportDirectoryLeave(path);
 	}
 
 	private void reportDirectoryEnter(Path path) {
-		for (SourceFileListener listener : listeners)
-			listener.preVisitDirectory(path);
+		try {
+			for (SourceFileListener listener : listeners)
+				listener.preVisitDirectory(path);
+		} catch (Exception e) {
+			System.err.println("Error pre visiting directory");
+			e.printStackTrace();
+		}
+
 	}
 
 	private void reportDirectoryLeave(Path path) {
-		for (SourceFileListener listener : listeners)
-			listener.postVisitDirectory(path);
+		try {
+			for (SourceFileListener listener : listeners)
+				listener.postVisitDirectory(path);
+		} catch (Exception e) {
+			System.err.println("Error post visiting directory");
+			e.printStackTrace();
+		}
 	}
 
 	private void reportFile(Path path) {
-		for (SourceFileListener listener : listeners)
-			listener.visitFile(path);
+		try {
+			for (SourceFileListener listener : listeners)
+				listener.visitFile(path);
+		} catch (Exception e) {
+			System.err.println("Error visiting file");
+			e.printStackTrace();
+		}
 
 	}
 
