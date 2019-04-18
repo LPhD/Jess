@@ -45,7 +45,6 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	 * @param astNodeParent The current node.
 	 */
 	private void addVariableStatements(ASTDatabaseNode preDBNode, PreBlockstarter preAstNode) {
-		System.out.println("Look for variable statements of: "+preAstNode.getEscapedCodeStr());
 		final int nVariableStatements = preAstNode.getVariableStatementsCount();
 		for (int i = 0; i < nVariableStatements; i++) {
 			ASTNode vStatement = preAstNode.getVariableStatement(i);
@@ -53,8 +52,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			long childNodeID = vStatement.getNodeId();
 			
 			drawVariabilityEdge(parentNodeID, childNodeID);
-			System.out.println("Parent: "+preAstNode.getEscapedCodeStr()+"with "+nVariableStatements+" children");
-			System.out.println("Child: "+vStatement.getEscapedCodeStr());
+			System.out.println("Connected DB parent: "+preAstNode.getEscapedCodeStr()+" with DB child: "+vStatement.getEscapedCodeStr());
 		}
 	}
 
@@ -68,8 +66,8 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		final int nChildren = astNodeParent.getChildCount();
 		for (int i = 0; i < nChildren; i++) {
 			ASTNode child = astNodeParent.getChild(i);
-			System.out.println("Parent: "+astNodeParent.getEscapedCodeStr()+"with "+nChildren+" children");
-			System.out.println("Child: "+child.getEscapedCodeStr());
+//			System.out.println("Parent: "+astNodeParent.getEscapedCodeStr()+"with "+nChildren+" children");
+//			System.out.println("Child: "+child.getEscapedCodeStr());
 			addASTToDatabase(dbNodeParent, child);			
 		}
 	}

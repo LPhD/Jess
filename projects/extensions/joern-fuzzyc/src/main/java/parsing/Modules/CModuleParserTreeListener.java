@@ -105,7 +105,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		// If the current item is an #endif
 		if (thisItem instanceof PreEndIfStatement) {
 			// Remove items from stack until the next #if/#ifdef
-			closeBlock();
+			closeVariabilityBlock();
 			System.out.println("Block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the Stack
@@ -128,7 +128,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the AST stack
 			ASTItemStack.push(thisItem);
-			System.out.println("#if collected in AST stack");
+//			System.out.println("#if collected in AST stack");
 		} else {
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 			//Do this now for every pre statement that has no AST nesting
@@ -147,7 +147,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		if (!variabilityItemStack.isEmpty()) {
 			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
 			parent.addVariableStatement(currentNode);
-			//TODO Add variability edge here?
+
 			System.out.println("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
 			System.out.println(currentNode.getEscapedCodeStr()+" is not variable!");
@@ -158,16 +158,15 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 * Removes collected PreBlockstarters from the stack. 
 	 * Stop if the stack is empty or if we reach an PreIfStatement.
 	 */
-	private void closeBlock() {
+	private void closeVariabilityBlock() {
 		if (!variabilityItemStack.isEmpty()) {
 			PreBlockstarter currentNode = (PreBlockstarter) variabilityItemStack.pop();
 			
 			// Stop if we reach an PreIfStatement
 			if (currentNode instanceof PreIfStatement) {
-				//TODO Add variability edge here?
 				checkVariability(currentNode);
 			} else {
-				closeBlock();
+				closeVariabilityBlock();
 			}
 		}
 	}
