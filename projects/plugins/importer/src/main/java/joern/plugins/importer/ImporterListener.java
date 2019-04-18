@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import fileWalker.SourceFileListener;
 import joern.api.JoernProject;
 
-
 public class ImporterListener extends SourceFileListener {
 
 	private JoernProject joernProject;
@@ -19,8 +18,8 @@ public class ImporterListener extends SourceFileListener {
 	private static final Logger logger = LoggerFactory.getLogger(ImporterListener.class);
 
 	@Override
-	public void visitFile(Path filename)
-	{
+	public void visitFile(Path filename) {
+		System.out.println("Visit importerListener.java");
 		String basePath = filename.getParent().toString();
 		String nodeFilename = basePath + File.separator + "nodes.csv";
 		String edgeFilename = basePath + File.separator + "edges.csv";
@@ -34,14 +33,24 @@ public class ImporterListener extends SourceFileListener {
 		(new CSVImporter()).importCSV(importJob);
 	}
 
-	public void setProject(JoernProject project)
-	{
+	public void setProject(JoernProject project) {
 		this.joernProject = project;
 	}
 
-	@Override public void initialize() { }
-	@Override public void shutdown() { }
-	@Override public void preVisitDirectory(Path dir) { }
-	@Override public void postVisitDirectory(Path dir) { }
+	@Override
+	public void initialize() {
+	}
+
+	@Override
+	public void shutdown() {
+	}
+
+	@Override
+	public void preVisitDirectory(Path dir) {
+	}
+
+	@Override
+	public void postVisitDirectory(Path dir) {
+	}
 
 }

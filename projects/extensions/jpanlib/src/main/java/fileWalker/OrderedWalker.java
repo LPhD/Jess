@@ -63,7 +63,7 @@ public class OrderedWalker extends SourceFileWalker {
 			for (SourceFileListener listener : listeners)
 				listener.preVisitDirectory(path);
 		} catch (Exception e) {
-			System.err.println("Error pre visiting directory");
+			System.err.println("Error pre visiting directory: "+path);
 			e.printStackTrace();
 		}
 
@@ -74,7 +74,7 @@ public class OrderedWalker extends SourceFileWalker {
 			for (SourceFileListener listener : listeners)
 				listener.postVisitDirectory(path);
 		} catch (Exception e) {
-			System.err.println("Error post visiting directory");
+			System.err.println("Error post visiting directory: "+path);
 			e.printStackTrace();
 		}
 	}
@@ -84,7 +84,7 @@ public class OrderedWalker extends SourceFileWalker {
 			for (SourceFileListener listener : listeners)
 				listener.visitFile(path);
 		} catch (Exception e) {
-			System.err.println("Error visiting file");
+			System.err.println("Error visiting file: "+path);
 			e.printStackTrace();
 		}
 

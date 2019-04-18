@@ -29,15 +29,8 @@ public abstract class SourceFileWalker {
 				System.err.println("Warning: Skipping " + filename + " because it is not accessible");
 				continue;
 			}
-
-			try {
-				walkExistingFileOrDirectory(filename);
-			} catch (Exception e) {
-				System.err.println("Error walking file: "+filename);
-				e.printStackTrace();
-				throw new RuntimeException();
-			}
-
+			
+			walkExistingFileOrDirectory(filename);
 		}
 	}
 

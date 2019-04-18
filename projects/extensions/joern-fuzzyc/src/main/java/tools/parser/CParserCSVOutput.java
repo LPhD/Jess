@@ -14,6 +14,7 @@ public class CParserCSVOutput extends ParserCSVOutput {
 
 	@Override
 	public void visitFile(Path pathToFile) {
+		System.out.println("Visit CParserCSVOutput.java");
 		dirTreeImporter.enterFile(pathToFile);
 		parser.parseFile(pathToFile.toString());
 	}
