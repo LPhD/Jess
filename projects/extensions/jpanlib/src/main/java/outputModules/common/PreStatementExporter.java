@@ -16,22 +16,27 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	public void addToDatabaseSafe(ASTNode astNode)	{
 		ASTDatabaseNode preDBNode = new ASTDatabaseNode();
 		try	{			
+			//Add top level AST node to DB
 			preDBNode.initialize(astNode);
 			addMainNode(preDBNode);
 			
 			//Set nodeID for Variability Analysis
 			astNode.setNodeId(mainNodeId);
 			
+			//Connect the DB node with its parent file node
 			linkPreStatementToFileNode(preDBNode, curFile);	
+			
 			//Look for file inclusions
 			if(astNode.getTypeAsString().equals("PreIncludeLocalFile")) {
 				IncludeAnalyzer.includeNodeList.add(preDBNode);
 			}
-			//Look for AST children and add them
-			addASTChildren(preDBNode, astNode);		
-			//Look for statements that are inside an #ifdef block
+	
+			//Look for statements that are inside an #ifdef block and add a variability edge
 			if (astNode instanceof PreBlockstarter)
 				addVariableStatements(preDBNode, (PreBlockstarter) astNode);
+			
+			//Finally, look for AST children and add them
+			addASTChildren(preDBNode, astNode);	
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
 			System.err.println("Error adding pre-statement to database: "+ preDBNode.toString());
@@ -82,18 +87,25 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	public void addASTToDatabase(ASTDatabaseNode dbNodeParent, ASTNode currentASTNode) {
 		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
 		try	{
+			//Add DB Node and connect it with its parent
 			astDatabaseNode.initialize(currentASTNode);
 			addASTNode(astDatabaseNode);
 			addASTLink(dbNodeParent, astDatabaseNode);
+						
 			//Link include statement with included file
-			//Not needed, as include will never be an AST child?
-//			if(currentASTNode.getTypeAsString().equals("PreIncludeLocalFile")) {
-//				IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
-//			}
-			addASTChildren(astDatabaseNode, currentASTNode);	
+			if(currentASTNode.getTypeAsString().equals("PreIncludeLocalFile")) {
+				IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
+			}
+				
 			//Look for statements that are inside an #ifdef block
-			if (currentASTNode instanceof PreBlockstarter)
+			if (currentASTNode instanceof PreBlockstarter) {
+				//Set nodeID for Variability Analysis (this is only neccessary for #else and #elif nodes)
+				currentASTNode.setNodeId(astDatabaseNode.getNodeId());
 				addVariableStatements(astDatabaseNode, (PreBlockstarter) currentASTNode);
+			}
+			
+			//Finally, look for AST childs and add them
+			addASTChildren(astDatabaseNode, currentASTNode);
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
 			System.err.println("Error adding pre-statement children to database: "+ astDatabaseNode.toString());

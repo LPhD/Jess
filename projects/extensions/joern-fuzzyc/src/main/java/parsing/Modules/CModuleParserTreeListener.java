@@ -53,16 +53,12 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterCode(ModuleParser.CodeContext ctx) {
-		System.out.println("Unit start");
 		p.notifyObserversOfUnitStart(ctx);
-		System.out.println("Unit started");
 	}
 
 	@Override
 	public void exitCode(ModuleParser.CodeContext ctx) {
-		System.out.println("Unit end");
 		p.notifyObserversOfUnitEnd(ctx);
-		System.out.println("Unit ended");
 	}
 
 	// /////////////////////////////////////////////////////////////
@@ -83,8 +79,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	@Override
 	public void enterPre_statement(ModuleParser.Pre_statementContext ctx) {
-		System.out.println("Enter pre statement");
-		
 		// Driver for calling function parser
 		fDriver = new ANTLRCFunctionParserDriver();
 		// Get code of PreStatement
