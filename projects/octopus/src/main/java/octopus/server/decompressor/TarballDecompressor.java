@@ -34,7 +34,7 @@ public class TarballDecompressor {
 			try {
 				decompressFileToOutputDirectory(tarIn, outputFilename);
 			} catch (Exception e) {
-				System.err.println("Error while decompressing file");
+				System.out.println("Error while decompressing file");
 				e.printStackTrace();
 			}
 
