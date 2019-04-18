@@ -19,7 +19,6 @@ public class ImporterListener extends SourceFileListener {
 
 	@Override
 	public void visitFile(Path filename) {
-		System.out.println("Visit importerListener.java");
 		String basePath = filename.getParent().toString();
 		String nodeFilename = basePath + File.separator + "nodes.csv";
 		String edgeFilename = basePath + File.separator + "edges.csv";

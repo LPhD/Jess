@@ -22,30 +22,23 @@ public class ImportCSVRunnable implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("run");
 		CSVImporter csvBatchImporter = new CSVImporter();
 
 		String nodeFilename = importJob.getNodeFilename();
 		String edgeFilename = importJob.getEdgeFilename();
 		String projectName = importJob.getProjectName();
-		System.out.println("names");
 
 		ProjectManager projectManager = new ProjectManager();
 		OctopusProject project = projectManager.getProjectByName(projectName);
-		System.out.println("project name");
 		
 		if (project == null)
 			throw new RuntimeException("Error: project does not exist");
 
 		try {
 			Database database = project.getNewDatabaseInstance();
-			System.out.println("getNewDatabaseInstance");
 			csvBatchImporter.setGraph(database.getGraph());
-			System.out.println("setGraph");
 			csvBatchImporter.importCSVFiles(nodeFilename, edgeFilename);
-			System.out.println("importCSVFiles");
 			database.closeInstance();
-			System.out.println("closeInstance");
 		} catch (IOException e) {
 			System.err.println("Error in ImportCSVRunnable");
 			e.printStackTrace();
