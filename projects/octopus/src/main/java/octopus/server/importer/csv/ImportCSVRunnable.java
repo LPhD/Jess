@@ -10,42 +10,44 @@ import octopus.api.projects.OctopusProject;
 import octopus.api.projects.ProjectManager;
 import octopus.server.importer.csv.titan.CSVImporter;
 
-public class ImportCSVRunnable implements Runnable
-{
+public class ImportCSVRunnable implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImportCSVRunnable.class);
 
 	private final ImportJob importJob;
 
-	public ImportCSVRunnable(ImportJob importJob)
-	{
+	public ImportCSVRunnable(ImportJob importJob) {
 		this.importJob = importJob;
 	}
 
 	@Override
-	public void run()
-	{
-
+	public void run() {
+		System.out.println("run");
 		CSVImporter csvBatchImporter = new CSVImporter();
 
 		String nodeFilename = importJob.getNodeFilename();
 		String edgeFilename = importJob.getEdgeFilename();
 		String projectName = importJob.getProjectName();
+		System.out.println("names");
 
 		ProjectManager projectManager = new ProjectManager();
 		OctopusProject project = projectManager.getProjectByName(projectName);
-		if(project == null)
+		System.out.println("project name");
+		
+		if (project == null)
 			throw new RuntimeException("Error: project does not exist");
 
-		try
-		{
+		try {
 			Database database = project.getNewDatabaseInstance();
+			System.out.println("getNewDatabaseInstance");
 			csvBatchImporter.setGraph(database.getGraph());
+			System.out.println("setGraph");
 			csvBatchImporter.importCSVFiles(nodeFilename, edgeFilename);
+			System.out.println("importCSVFiles");
 			database.closeInstance();
-		}
-		catch (IOException e)
-		{
+			System.out.println("closeInstance");
+		} catch (IOException e) {
+			System.err.println("Error in ImportCSVRunnable");
 			e.printStackTrace();
 		}
 

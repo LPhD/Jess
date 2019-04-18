@@ -10,10 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.thinkaurelius.titan.core.SchemaViolationException;
 
-public class CSVImporter
-{
-	private static final Logger logger = LoggerFactory
-			.getLogger(CSVImporter.class);
+public class CSVImporter {
+	private static final Logger logger = LoggerFactory.getLogger(CSVImporter.class);
 
 	static final int NELEMS_PER_TRANSACTION = 100000;
 	static final String KEY = "_key";
@@ -31,48 +29,63 @@ public class CSVImporter
 
 	int nElemsInTransaction = 0;
 
-	public void setDbName(String dbName)
-	{
+	public void setDbName(String dbName) {
 		this.dbName = dbName;
 	}
 
-	public void importCSVFiles(String nodeFilename, String edgeFilename)
-			throws IOException
-	{
-		openNodeFile(nodeFilename);
-		openEdgeFile(edgeFilename);
+	public void importCSVFiles(String nodeFilename, String edgeFilename) throws IOException {
+		try {
+			openNodeFile(nodeFilename);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error opening file: "+nodeFilename);
+		}
+		
+		try {
+			openEdgeFile(edgeFilename);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error opening file: "+edgeFilename);
+		}
 
-		importNodes();
-		importEdges();
+		try {
+			importNodes();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error importing nodes");
+		}
+		
+		try {
+			importEdges();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error importing edges");
+		}
 
+				
 		closeDatabase();
 	}
 
-	private void openNodeFile(String nodeFilename) throws IOException
-	{
+	private void openNodeFile(String nodeFilename) throws IOException {
 		nodeFile = new NodeFile();
 		nodeFile.openFile(nodeFilename);
 	}
 
-	private void openEdgeFile(String edgeFilename) throws IOException
-	{
+	private void openEdgeFile(String edgeFilename) throws IOException {
 		edgeFile = new EdgeFile();
 		edgeFile.openFile(edgeFilename);
 	}
 
-	protected void importNodes() throws IOException
-	{
-		String [] row;
+	protected void importNodes() throws IOException {
+		String[] row;
 
-		while((row = nodeFile.getNextRow()) != null)
-		{
+		while ((row = nodeFile.getNextRow()) != null) {
 			importNodeRow(row);
 			possiblyFinishTransaction();
 		}
 	}
 
-	private void importNodeRow(String[] row)
-	{
+	private void importNodeRow(String[] row) {
 		// skip empty lines
 		if (row.length < 1)
 			return;
@@ -88,28 +101,23 @@ public class CSVImporter
 			addNodeToGraphNoReplace(id, row, keys);
 	}
 
-	private void possiblyFinishTransaction()
-	{
+	private void possiblyFinishTransaction() {
 		nElemsInTransaction++;
-		if(nElemsInTransaction >= NELEMS_PER_TRANSACTION){
+		if (nElemsInTransaction >= NELEMS_PER_TRANSACTION) {
 			graph.tx().commit();
 			nElemsInTransaction = 0;
 		}
 	}
 
-	private void addNodeToGraph(String id, String[] row, String[] keys)
-	{
-		try
-		{
+	private void addNodeToGraph(String id, String[] row, String[] keys) {
+		try {
 			doAddNodeToGraph(id, row, keys, 0);
-		} catch (RuntimeException e)
-		{
+		} catch (RuntimeException e) {
 			logger.error(e.getMessage());
 		}
 	}
 
-	private void doAddNodeToGraph(String baseId, String[] row, String[] keys, int num)
-	{
+	private void doAddNodeToGraph(String baseId, String[] row, String[] keys, int num) {
 
 		if (num == Constants.MAX_NODES_FOR_KEY)
 			throw new RuntimeException("Too many nodes with the same key: " + baseId);
@@ -120,24 +128,20 @@ public class CSVImporter
 
 		String completeId = createCompleteId(baseId, num);
 
-		try
-		{
+		try {
 			Vertex vertex = graph.addVertex(KEY, completeId);
 			setPropertiesOnVertex(vertex, row, keys);
 
-			if (num != 0)
-			{
+			if (num != 0) {
 				linkToPreviousNode(baseId, num);
 			}
 
-		} catch (IllegalArgumentException e)
-		{
+		} catch (IllegalArgumentException e) {
 			doAddNodeToGraph(baseId, row, keys, num + 1);
 		}
 	}
 
-	private String createCompleteId(String baseId, int num)
-	{
+	private String createCompleteId(String baseId, int num) {
 		String completeId;
 		if (num == 0)
 			completeId = baseId;
@@ -146,8 +150,7 @@ public class CSVImporter
 		return completeId;
 	}
 
-	private void linkToPreviousNode(String baseId, int num)
-	{
+	private void linkToPreviousNode(String baseId, int num) {
 
 		String previousId = createCompleteId(baseId, num - 1);
 		String thisId = createCompleteId(baseId, num);
@@ -158,15 +161,13 @@ public class CSVImporter
 		fromNode.addEdge("foo", toNode);
 	}
 
-	private void addNodeToGraphNoReplace(String id, String[] row, String[] keys)
-	{
+	private void addNodeToGraphNoReplace(String id, String[] row, String[] keys) {
 		String completeId = createCompleteId(id, 0);
 		Vertex vertex;
 
-		try{
+		try {
 			vertex = graph.addVertex(KEY, completeId);
-		}catch(SchemaViolationException ex)
-		{
+		} catch (SchemaViolationException ex) {
 			return;
 		}
 
@@ -174,27 +175,23 @@ public class CSVImporter
 
 	}
 
-	private void setPropertiesOnVertex(Vertex vertex, String[] row, String[] keys)
-	{
-		for(int i = 2; i < row.length; i++) {
+	private void setPropertiesOnVertex(Vertex vertex, String[] row, String[] keys) {
+		for (int i = 2; i < row.length; i++) {
 			if (!row[i].equals(""))
-					vertex.property(keys[i - 1], row[i]);
+				vertex.property(keys[i - 1], row[i]);
 		}
 	}
 
-	protected void importEdges() throws IOException
-	{
-		String [] row;
+	protected void importEdges() throws IOException {
+		String[] row;
 
-		while((row = edgeFile.getNextRow()) != null)
-		{
+		while ((row = edgeFile.getNextRow()) != null) {
 			importEdgeRow(row);
 			possiblyFinishTransaction();
 		}
 	}
 
-	private void importEdgeRow(String[] row)
-	{
+	private void importEdgeRow(String[] row) {
 
 		if (row.length < 3)
 			return;
@@ -206,38 +203,30 @@ public class CSVImporter
 		Vertex outVertex = lookupVertex(srcId);
 		Vertex inVertex = lookupVertex(dstId);
 
-		if (outVertex == null)
-		{
-			logger.debug("Cannot resolve source node {} for {} -> {}", srcId,
-					srcId, dstId);
+		if (outVertex == null) {
+			logger.debug("Cannot resolve source node {} for {} -> {}", srcId, srcId, dstId);
 			return;
 		}
 
-		if (inVertex == null)
-		{
-			logger.debug("Cannot resolve destination node {} for {} -> {}",
-					dstId, srcId, dstId);
+		if (inVertex == null) {
+			logger.debug("Cannot resolve destination node {} for {} -> {}", dstId, srcId, dstId);
 			return;
 		}
-
 
 		Edge edge = outVertex.addEdge(label, inVertex);
 
-		for (int i = 3; i < row.length; i++)
-		{
+		for (int i = 3; i < row.length; i++) {
 			if (!row[i].equals(""))
 				edge.property(edgeFile.getKeys()[i], row[i]);
 		}
 
 	}
 
-	protected Vertex lookupVertex(String id)
-	{
+	protected Vertex lookupVertex(String id) {
 		return graph.traversal().V().has(KEY, id).next();
 	}
 
-	public void closeDatabase()
-	{
+	public void closeDatabase() {
 		try {
 			graph.close();
 		} catch (Exception e) {
@@ -246,13 +235,11 @@ public class CSVImporter
 		}
 	}
 
-	public boolean isNewDatabase()
-	{
+	public boolean isNewDatabase() {
 		return isNewDatabase;
 	}
 
-	public void setGraph(Graph graph)
-	{
+	public void setGraph(Graph graph) {
 		this.graph = graph;
 	}
 
