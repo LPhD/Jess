@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -44,35 +45,90 @@ public class TarballDecompressor {
 //		tarIn.close();
 //	}
 	
-    public static void decompress(String in, File out) throws IOException {
-		FileInputStream fin = new FileInputStream(in);
-		BufferedInputStream bin = new BufferedInputStream(fin);
-		GzipCompressorInputStream gzIn = new GzipCompressorInputStream(bin);
-		TarArchiveInputStream tarIn = new TarArchiveInputStream(gzIn);
+    /**
+     * The constant BUFFER_SIZE.
+     */
+    private static final int BUFFER_SIZE = 4096;
 
-         try {
+    /**
+     * Extract g zip.
+     *
+     * @param tgzFile
+     *            the tgz file
+     * @param outDir
+     *            the out dir
+     */
+    public static void decompress(File tgzFile, File outDir) {
+        try {
+            TarArchiveInputStream tarIs = new TarArchiveInputStream(new GzipCompressorInputStream(new BufferedInputStream(new FileInputStream(tgzFile))));
             TarArchiveEntry entry;
-            
-            while ((entry = tarIn.getNextTarEntry()) != null) {
+            while ((entry = (TarArchiveEntry) tarIs.getNextEntry()) != null) {
+                String name = entry.getName();
                 if (entry.isDirectory()) {
-                    continue;
+                    mkDirs(outDir, name);
+                } else {
+                    String dir = directoryPart(name);
+                    if (dir != null) {
+                        mkDirs(outDir, dir);
+                    }
+                    extractFile(tarIs, outDir, name);
                 }
-                
-                File curfile = new File(out, entry.getName());
-                File parent = curfile.getParentFile();
-                
-                if (!parent.exists()) {
-                    parent.mkdirs();
-                }
-                
-                IOUtils.copy(tarIn, new FileOutputStream(curfile));
             }
-        } catch (Exception e) {
-			System.out.println("Error while decompressing file");
-			e.printStackTrace();
-			throw new RuntimeException();
-		}
+            tarIs.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    /**
+     * Extract file.
+     *
+     * @param inputStream
+     *            the input stream
+     * @param outDir
+     *            the out dir
+     * @param name
+     *            the name
+     * @throws IOException
+     *             the io exception
+     */
+    private static void extractFile(InputStream inputStream, File outDir, String name) throws IOException {
+        int count = -1;
+        byte buffer[] = new byte[BUFFER_SIZE];
+        BufferedOutputStream out = new BufferedOutputStream(
+                new FileOutputStream(new File(outDir, name)), BUFFER_SIZE);
+        while ((count = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
+            out.write(buffer, 0, count);
+        }
+        out.close();
+    }
+
+    /**
+     * Mk dirs.
+     *
+     * @param outdir
+     *            the outdir
+     * @param path
+     *            the path
+     */
+    private static void mkDirs(File outdir, String path) {
+        File d = new File(outdir, path);
+        if (!d.exists()) {
+            d.mkdirs();
+        }
+    }
+
+    /**
+     * Directory part string.
+     *
+     * @param name
+     *            the name
+     * @return the string
+     */
+    private static String directoryPart(String name) {
+        int s = name.lastIndexOf(File.separatorChar);
+        return s == -1 ? null : name.substring(0, s);
+}
 
 //	private TarArchiveInputStream createTarInputStreamForFile(String tarballFilename) throws FileNotFoundException, IOException {
 //		FileInputStream fin = new FileInputStream(tarballFilename);
