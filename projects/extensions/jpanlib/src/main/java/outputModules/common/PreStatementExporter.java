@@ -57,7 +57,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			long childNodeID = vStatement.getNodeId();
 			
 			drawVariabilityEdge(parentNodeID, childNodeID);
-			System.out.println("Connected DB parent: "+preAstNode.getEscapedCodeStr()+" with DB child: "+vStatement.getEscapedCodeStr());
+//			System.out.println("Connected DB parent: "+preAstNode.getEscapedCodeStr()+" with DB child: "+vStatement.getEscapedCodeStr());
 		}
 	}
 

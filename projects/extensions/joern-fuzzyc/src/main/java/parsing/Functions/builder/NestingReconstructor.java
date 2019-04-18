@@ -80,7 +80,7 @@ protected void consolidatePreBlockStarters(ASTNode preNode)	{
 	while (stack.size() > 0){
 		//Try to get the previous blockstarter on the stack
 		try	{					
-			System.out.println("Nesting stack: " +stack.peek().getTypeAsString());
+//			System.out.println("Nesting stack: " +stack.peek().getTypeAsString());
 			
 			//Is the top stack item a PreBlockstarter? Break here if not...
 			curBlockStarter = (PreBlockstarter) stack.peek();			

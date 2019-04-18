@@ -195,7 +195,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 */
 	public void exitStatements(StatementsContext ctx) {
 		if (stack.size() != 1) {
-			// TODO Implement handling of preprocessor blockstarters on module level
 			try {
 				while (stack.size() != 1) {
 					ASTNode currentNode = (ASTNode) stack.pop();
