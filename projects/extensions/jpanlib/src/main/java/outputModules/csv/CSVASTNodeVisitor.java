@@ -42,7 +42,6 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	public void visit(PreStatementBase node) {
 		ASTNodeExporter importer = new CSVPreStatementExporter();
 		long preId = importNode(importer, node);
-		visitPreStatementContent(node, preId);
 	}
 
 	@Override

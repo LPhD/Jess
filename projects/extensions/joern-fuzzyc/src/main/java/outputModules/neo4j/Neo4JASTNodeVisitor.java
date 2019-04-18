@@ -19,27 +19,30 @@ import outputModules.neo4j.exporters.Neo4JPreStatementExporter;
 
 public class Neo4JASTNodeVisitor extends OutModASTNodeVisitor {
 
+	@Override
 	public void visit(FunctionDefBase node) {
 		ASTNodeExporter importer = new Neo4JFunctionExporter();
 		importNode(importer, node);
 	}
 
+	@Override
 	public void visit(ClassDefStatement node) {
 		ASTNodeExporter importer = new Neo4JClassDefExporter();
 		long classNodeId = importNode(importer, node);
 		visitClassDefContent(node, classNodeId);
 	}
 
+	@Override
 	public void visit(IdentifierDeclStatement node) {
 		ASTNodeExporter importer = new Neo4JDeclStmtExporter();
 		importNode(importer, node);
 	}
 
 	// Preprocessor handling
+	@Override
 	public void visit(PreStatementBase node) {
 		ASTNodeExporter importer = new Neo4JPreStatementExporter();
 		long preNodeId = importNode(importer, node);
-		visitPreStatementContent(node, preNodeId);
 	}
 
 	@Override
