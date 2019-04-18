@@ -31,14 +31,4 @@ public abstract class OutModASTNodeVisitor extends ASTNodeVisitor {
 		visit(node.content);
 		contextStack.pop();
 	}
-
-	// Preprocessor
-	protected void visitPreStatementContent(PreStatementBase node, long PreNodeId) {
-		// visit compound statement, it might contain functions, declarations, pre statements or class definitions
-		System.out.println("visitPreStatementContent");
-		contextStack.push(PreNodeId);
-		// TODO
-		// visit(node.content);
-		contextStack.pop();
-	}
 }
