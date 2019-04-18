@@ -184,13 +184,10 @@ public class CSVImporter {
 
 	protected void importEdges() throws IOException {
 		String[] row;
-		System.out.println("row");
 
 		while ((row = edgeFile.getNextRow()) != null) {
 			importEdgeRow(row);
-			System.out.println("importEdgeRow");
 			possiblyFinishTransaction();
-			System.out.println("possiblyFinishTransaction");
 		}
 	}
 
@@ -202,27 +199,30 @@ public class CSVImporter {
 		String srcId = row[0];
 		String dstId = row[1];
 		String label = row[2];
+		System.out.println("label");
 
 		Vertex outVertex = lookupVertex(srcId);
 		Vertex inVertex = lookupVertex(dstId);
+		System.out.println("inVertex");
 
 		if (outVertex == null) {
-			logger.debug("Cannot resolve source node {} for {} -> {}", srcId, srcId, dstId);
+			System.err.println("Cannot resolve source node "+srcId+" for "+srcId+" -> "+dstId);
 			return;
 		}
 
 		if (inVertex == null) {
-			logger.debug("Cannot resolve destination node {} for {} -> {}", dstId, srcId, dstId);
+			System.err.println("Cannot resolve destination node "+dstId+" for "+srcId+" -> "+dstId);
 			return;
 		}
 
 		Edge edge = outVertex.addEdge(label, inVertex);
+		System.out.println("addEdge");
 
 		for (int i = 3; i < row.length; i++) {
 			if (!row[i].equals(""))
 				edge.property(edgeFile.getKeys()[i], row[i]);
 		}
-
+		System.out.println("property");
 	}
 
 	protected Vertex lookupVertex(String id) {
@@ -233,7 +233,7 @@ public class CSVImporter {
 		try {
 			graph.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			System.err.println("Error while closing database");
 			e.printStackTrace();
 		}
 	}
