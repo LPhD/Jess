@@ -21,7 +21,6 @@ public class UnorderedWalker extends SourceFileWalker {
 	}
 
 	protected void walkExistingFileOrDirectory(String dirName) throws IOException {
-		System.out.println("Unordered walking");
 		Path dir = Paths.get(dirName);
 		Files.walkFileTree(dir, sourceFileWalkerImpl);
 	}
