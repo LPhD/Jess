@@ -50,8 +50,8 @@ public class JoernImporter extends JoernProjectPlugin {
 	}
 
 	private void uncompressArchive() throws IOException {
-		String tarballFilename = joernProject.getTarballName();
-		File outputDirectory = new File("joernProject.getSourceCodeDirectory()");
+		File tarballFilename = new File(joernProject.getTarballName());
+		File outputDirectory = new File(joernProject.getSourceCodeDirectory());
 
 		logger.debug("uncompressing archive: " + tarballFilename);
 		logger.debug("output directory: " + outputDirectory);
