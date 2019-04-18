@@ -36,6 +36,7 @@ public class TarballDecompressor {
 			} catch (Exception e) {
 				System.out.println("Error while decompressing file");
 				e.printStackTrace();
+				throw new RuntimeException();
 			}
 
 		}
