@@ -67,8 +67,10 @@ public class TarballDecompressor {
                 System.out.println("Name: "+name);
                 
                 if (entry.isDirectory()) {
+                	System.out.println(name+" is a directory");
                     mkDirs(outDir, name);
                 } else {
+                	System.out.println(name+" is a file");
                     String dir = directoryPart(name);
                     if (dir != null) {
                         mkDirs(outDir, dir);
