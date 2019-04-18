@@ -53,6 +53,7 @@ public class TarballDecompressor {
 	private void createOutputSubDirectory(String outputFilename) {
 		File f = new File(outputFilename);
 		f.mkdirs();
+		System.out.println("Directory created! "+outputFilename);
 	}
 
 	private void decompressFileToOutputDirectory(TarArchiveInputStream tarIn, String outputFilename) throws IOException {
@@ -61,6 +62,7 @@ public class TarballDecompressor {
 		int bytesRead;
 
 		System.out.println("outputFilename: " + outputFilename);
+
 
 		FileOutputStream fos = new FileOutputStream(outputFilename);
 
