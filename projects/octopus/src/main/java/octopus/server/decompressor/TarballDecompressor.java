@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +11,6 @@ import java.io.InputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.compress.utils.IOUtils;
 
 public class TarballDecompressor {
 
@@ -99,8 +97,18 @@ public class TarballDecompressor {
     private static void extractFile(InputStream inputStream, File outDir, String name) throws IOException {
         int count = -1;
         byte buffer[] = new byte[BUFFER_SIZE];
-        BufferedOutputStream out = new BufferedOutputStream(
-                new FileOutputStream(new File(outDir, name)), BUFFER_SIZE);
+        BufferedOutputStream out = null;
+        try {
+        	out = new BufferedOutputStream(new FileOutputStream(new File(outDir, name)), BUFFER_SIZE);
+		} catch (Exception e) {
+			//Sometimes directories are not recognized
+			System.out.println("Error writing file, try do make a directory instead");
+			mkDirs(outDir, name);
+		}
+        
+        if (out != null)
+        	out = new BufferedOutputStream(new FileOutputStream(new File(outDir, name)), BUFFER_SIZE);
+        
         while ((count = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
             out.write(buffer, 0, count);
         }
@@ -116,10 +124,14 @@ public class TarballDecompressor {
      *            the path
      */
     private static void mkDirs(File outdir, String path) {
-        File d = new File(outdir, path);
-        if (!d.exists()) {
-            d.mkdirs();
-        }
+    	try {
+            File d = new File(outdir, path);
+            if (!d.exists()) {
+                d.mkdirs();
+            }
+		} catch (Exception e) {
+			System.err.println("Error making directory");
+		}
     }
 
     /**
@@ -132,43 +144,6 @@ public class TarballDecompressor {
     private static String directoryPart(String name) {
         int s = name.lastIndexOf(File.separatorChar);
         return s == -1 ? null : name.substring(0, s);
-}
-
-//	private TarArchiveInputStream createTarInputStreamForFile(String tarballFilename) throws FileNotFoundException, IOException {
-//		FileInputStream fin = new FileInputStream(tarballFilename);
-//		BufferedInputStream in = new BufferedInputStream(fin);
-//		GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in);
-//		TarArchiveInputStream tarIn = new TarArchiveInputStream(gzIn);
-//		return tarIn;
-//	}
-//
-//	private void createOutputSubDirectory(String outputFilename) {
-//		File f = new File(outputFilename);
-//		f.mkdirs();
-//		System.out.println("Directory created! "+outputFilename);
-//	}
-//
-//	private void decompressFileToOutputDirectory(TarArchiveInputStream tarIn, String outputFilename) throws IOException {
-//		final int BUFFER_SIZE = 4096;
-//		byte data[] = new byte[BUFFER_SIZE];
-//		int bytesRead;
-//
-//		System.out.println("outputFilename: " + outputFilename);
-//
-//
-//		FileOutputStream fos = new FileOutputStream(outputFilename);
-//
-//		System.out.println("Buffer");
-//
-//		BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE);
-//
-//		System.out.println("ReadIn");
-//
-//		while ((bytesRead = tarIn.read(data, 0, BUFFER_SIZE)) != -1) {
-//			dest.write(data, 0, bytesRead);
-//		}
-//		dest.close();
-//
-//	}
+    }
 
 }
