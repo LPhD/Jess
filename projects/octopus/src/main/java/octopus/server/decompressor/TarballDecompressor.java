@@ -104,6 +104,7 @@ public class TarballDecompressor {
 			//Sometimes directories are not recognized
 			System.out.println("Error writing file, try do make a directory instead");
 			mkDirs(outDir, name);
+			return;
 		}
         
         if (out != null)
