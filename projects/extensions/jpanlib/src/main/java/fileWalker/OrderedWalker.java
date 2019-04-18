@@ -31,20 +31,16 @@ public class OrderedWalker extends SourceFileWalker {
 	}
 
 	private void walk(String dirOrFileName) {
-		System.out.println("Ordered walking");
 		File file = new File(dirOrFileName);
 		File[] dirContent = file.listFiles();
 		Path path = file.toPath();
-		System.out.println("Path");
 		
 		// if this is not a directory
 		if (dirContent == null)
 			return;
-		Arrays.sort(dirContent);
-		System.out.println("sort");
 		
+		Arrays.sort(dirContent);		
 		reportDirectoryEnter(path);
-		System.out.println("reportDirectoryEnter");
 
 		for (File f : dirContent) {
 			Path filePath = f.toPath();
@@ -52,18 +48,21 @@ public class OrderedWalker extends SourceFileWalker {
 			System.out.println("getAbsolutePath");
 
 			if (f.isDirectory()) {
+				System.out.println("isDirectory");
 				walk(absolutePath);
 				System.out.println("absolutePath");
 				continue;
 			}
 
-			if (matcher.fileMatches(filePath))
+			if (matcher.fileMatches(filePath)) {
+				System.out.println("fileMatches");
 				reportFile(filePath);
-			System.out.println("reportFile");
+				System.out.println("reportFile");
+			}
+			System.out.println("enddirContent");
 		}
 
 		reportDirectoryLeave(path);
-		System.out.println("reportDirectoryLeave");
 	}
 
 	private void reportDirectoryEnter(Path path) {
