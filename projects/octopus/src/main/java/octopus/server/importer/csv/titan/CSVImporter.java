@@ -203,15 +203,17 @@ public class CSVImporter {
 		Vertex outVertex = lookupVertex(srcId);
 		Vertex inVertex = lookupVertex(dstId);
 
-		if (outVertex == null) {
-			System.out.println(graph.traversal().V().has(KEY, dstId).next());
-			System.out.println(graph.traversal().V().has(KEY, dstId));
+		if (outVertex == null) {			
 			System.err.println("Cannot resolve source node "+srcId+" for "+srcId+" -> "+dstId);
+			System.out.println("Graph src id: "+ graph.traversal().V().has(KEY, srcId).next());
+			System.out.println("Graph dst id: "+ graph.traversal().V().has(KEY, dstId).next());
 			return;
 		}
 
 		if (inVertex == null) {
 			System.err.println("Cannot resolve destination node "+dstId+" for "+srcId+" -> "+dstId);
+			System.out.println("Graph src id: "+ graph.traversal().V().has(KEY, srcId).next());
+			System.out.println("Graph dst id: "+ graph.traversal().V().has(KEY, dstId).next());
 			return;
 		}
 
