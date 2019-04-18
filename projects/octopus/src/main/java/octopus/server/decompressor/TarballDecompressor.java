@@ -45,10 +45,15 @@ public class TarballDecompressor {
 //	}
 	
     public static void decompress(String in, File out) throws IOException {
-        try (TarArchiveInputStream fin = new TarArchiveInputStream(new FileInputStream(in))){
+		FileInputStream fin = new FileInputStream(in);
+		BufferedInputStream bin = new BufferedInputStream(fin);
+		GzipCompressorInputStream gzIn = new GzipCompressorInputStream(bin);
+		TarArchiveInputStream tarIn = new TarArchiveInputStream(gzIn);
+
+         try {
             TarArchiveEntry entry;
             
-            while ((entry = fin.getNextTarEntry()) != null) {
+            while ((entry = tarIn.getNextTarEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
                 }
@@ -60,7 +65,7 @@ public class TarballDecompressor {
                     parent.mkdirs();
                 }
                 
-                IOUtils.copy(fin, new FileOutputStream(curfile));
+                IOUtils.copy(tarIn, new FileOutputStream(curfile));
             }
         } catch (Exception e) {
 			System.out.println("Error while decompressing file");
