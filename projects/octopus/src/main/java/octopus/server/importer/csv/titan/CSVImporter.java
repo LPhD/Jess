@@ -199,11 +199,9 @@ public class CSVImporter {
 		String srcId = row[0];
 		String dstId = row[1];
 		String label = row[2];
-		System.out.println("label");
 
 		Vertex outVertex = lookupVertex(srcId);
 		Vertex inVertex = lookupVertex(dstId);
-		System.out.println("inVertex");
 
 		if (outVertex == null) {
 			System.err.println("Cannot resolve source node "+srcId+" for "+srcId+" -> "+dstId);
@@ -216,17 +214,22 @@ public class CSVImporter {
 		}
 
 		Edge edge = outVertex.addEdge(label, inVertex);
-		System.out.println("addEdge");
 
 		for (int i = 3; i < row.length; i++) {
 			if (!row[i].equals(""))
 				edge.property(edgeFile.getKeys()[i], row[i]);
 		}
-		System.out.println("property");
 	}
 
 	protected Vertex lookupVertex(String id) {
-		return graph.traversal().V().has(KEY, id).next();
+		Vertex v = null;
+		try {
+			v = graph.traversal().V().has(KEY, id).next();
+		} catch (Exception e) {
+			System.err.println("Error looking up vertex with id: "+id);
+			e.printStackTrace();
+		}
+		return v;
 	}
 
 	public void closeDatabase() {
