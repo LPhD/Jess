@@ -16,8 +16,7 @@ public class ImporterListener extends SourceFileListener {
 
 	private JoernProject joernProject;
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(ImporterListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(ImporterListener.class);
 
 	@Override
 	public void visitFile(Path filename)
