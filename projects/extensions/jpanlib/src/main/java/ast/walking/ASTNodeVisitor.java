@@ -35,180 +35,146 @@ import ast.statements.jump.ReturnStatement;
 import ast.statements.jump.ThrowStatement;
 import databaseNodes.FileDatabaseNode;
 
-public abstract class ASTNodeVisitor
-{
+public abstract class ASTNodeVisitor {
 	protected FileDatabaseNode currentFileNode;
 	protected Stack<Long> contextStack;
 
-	public void handleStartOfUnit(FileDatabaseNode aCurrentFileNode)
-	{
+	public void handleStartOfUnit(FileDatabaseNode aCurrentFileNode) {
 		currentFileNode = aCurrentFileNode;
 		contextStack = new Stack<Long>();
 	}
 
-	public void visit(ASTNode item)
-	{
+	public void visit(ASTNode item) {
 		visitChildren(item);
 	}
-	
-	//Preprocessor
+
+	// Preprocessor
 	public void visit(PreStatementBase item) {
 		defaultHandler(item);
 	}
 
-	public void visit(ParameterList item)
-	{
+	public void visit(ParameterList item) {
 		defaultHandler(item);
 	}
 
-	public void visit(ParameterBase item)
-	{
+	public void visit(ParameterBase item) {
 		defaultHandler(item);
 	}
 
-	public void visit(FunctionDefBase item)
-	{
+	public void visit(FunctionDefBase item) {
 		defaultHandler(item);
 	}
 
-	public void visit(ClassDefStatement item)
-	{
+	public void visit(ClassDefStatement item) {
 		defaultHandler(item);
 	}
 
-	public void visit(IdentifierDeclStatement statementItem)
-	{
+	public void visit(IdentifierDeclStatement statementItem) {
 		defaultHandler(statementItem);
 	}
 
-	public void visit(ExpressionStatement statementItem)
-	{
+	public void visit(ExpressionStatement statementItem) {
 		defaultHandler(statementItem);
 	}
 
-	public void visit(CallExpressionBase expression)
-	{
+	public void visit(CallExpressionBase expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(Condition expression)
-	{
+	public void visit(Condition expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(AssignmentExpression expression)
-	{
+	public void visit(AssignmentExpression expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(PrimaryExpression expression)
-	{
+	public void visit(PrimaryExpression expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(Identifier expression)
-	{
+	public void visit(Identifier expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(MemberAccess expression)
-	{
+	public void visit(MemberAccess expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(UnaryExpression expression)
-	{
+	public void visit(UnaryExpression expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(Argument expression)
-	{
+	public void visit(Argument expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(ReturnStatement expression)
-	{
+	public void visit(ReturnStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(GotoStatement expression)
-	{
+	public void visit(GotoStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(ContinueStatement expression)
-	{
+	public void visit(ContinueStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(BreakStatement expression)
-	{
+	public void visit(BreakStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(CompoundStatement expression)
-	{
+	public void visit(CompoundStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(IfStatementBase expression)
-	{
+	public void visit(IfStatementBase expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(ForStatement expression)
-	{
+	public void visit(ForStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(WhileStatement expression)
-	{
+	public void visit(WhileStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(DoStatement expression)
-	{
+	public void visit(DoStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(Label expression)
-	{
+	public void visit(Label expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(SwitchStatement expression)
-	{
+	public void visit(SwitchStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(TryStatement expression)
-	{
+	public void visit(TryStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(ThrowStatement expression)
-	{
+	public void visit(ThrowStatement expression) {
 		defaultHandler(expression);
 	}
 
-	public void visit(ForEachStatement node)
-	{
+	public void visit(ForEachStatement node) {
 		defaultHandler(node);
 	}
 
-	public void defaultHandler(ASTNode item)
-	{
-		System.out.println("Visit "+item.getEscapedCodeStr());
+	public void defaultHandler(ASTNode item) {
+//		System.out.println("Visit "+item.getEscapedCodeStr());
 		// by default, redirect to visit(ASTNode item)
 		visit(item);
 	}
 
-	public void visitChildren(ASTNode item)
-	{
+	public void visitChildren(ASTNode item) {
 		int nChildren = item.getChildCount();
 
-		for (int i = 0; i < nChildren; i++)
-		{
+		for (int i = 0; i < nChildren; i++) {
 			ASTNode child = item.getChild(i);
 			child.accept(this);
 		}

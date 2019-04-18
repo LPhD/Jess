@@ -13,36 +13,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 public class TarballDecompressor {
-
-//	public void decompress(String tarballFilename, String outputDirectory) throws FileNotFoundException, IOException {
-//		if (!outputDirectory.endsWith(File.separator))
-//			outputDirectory = outputDirectory + File.separator;
-//
-//		TarArchiveInputStream tarIn = createTarInputStreamForFile(tarballFilename);
-//
-//		TarArchiveEntry entry;
-//		while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-//			String outputFilename = outputDirectory + entry.getName();
-//
-//			if (outputFilename.contains("pax_global_header"))
-//				continue;
-//
-//			if (entry.isDirectory()) {
-//				createOutputSubDirectory(outputFilename);
-//				continue;
-//			}
-//			try {
-//				decompressFileToOutputDirectory(tarIn, outputFilename);
-//			} catch (Exception e) {
-//				System.out.println("Error while decompressing file");
-//				e.printStackTrace();
-//				throw new RuntimeException();
-//			}
-//
-//		}
-//		tarIn.close();
-//	}
-	
     /**
      * The constant BUFFER_SIZE.
      */
@@ -62,13 +32,10 @@ public class TarballDecompressor {
             TarArchiveEntry entry;
             while ((entry = (TarArchiveEntry) tarIs.getNextEntry()) != null) {
                 String name = entry.getName();
-                System.out.println("Name: "+name);
                 
                 if (entry.isDirectory()) {
-                	System.out.println(name+" is a directory");
                     mkDirs(outDir, name);
                 } else {
-                	System.out.println(name+" is a file");
                     String dir = directoryPart(name);
                     if (dir != null) {
                         mkDirs(outDir, dir);

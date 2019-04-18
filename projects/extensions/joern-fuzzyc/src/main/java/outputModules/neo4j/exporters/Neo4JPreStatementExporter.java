@@ -30,7 +30,7 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		// index, but do not index location
 		properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);
-		System.out.println("Neo4j main Node added: "+ ((ASTDatabaseNode) dbNode).getAstNode());
+//		System.out.println("Neo4j main Node added: "+ ((ASTDatabaseNode) dbNode).getAstNode());
 	}
 	
 	/**
@@ -47,7 +47,7 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		nodeStore.indexNode(astDatabaseNode, properties);
 		astDatabaseNode.setNodeId(nodeStore.getIdForObject(astDatabaseNode));
 		
-		System.out.println("Neo4j AST Node added: "+ astDatabaseNode.getAstNode());
+//		System.out.println("Neo4j AST Node added: "+ astDatabaseNode.getAstNode());
 	}
 	
 	

@@ -100,11 +100,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		if (thisItem instanceof PreEndIfStatement) {
 			// Remove items from stack until the next #if/#ifdef
 			closeVariabilityBlock();
-			System.out.println("Block closed!");
+//			System.out.println("Block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the Stack
 			variabilityItemStack.push(thisItem);
-			System.out.println("#if collected");
+//			System.out.println("#if collected");
 		} else {
 			// Connect all other pre statements to parent blockstarters if they exist
 			checkVariability(thisItem);
@@ -118,7 +118,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			ASTItemStack.push(thisItem);
 			// Remove items from stack until the next #if/#ifdef
 			closeASTBlock();
-			System.out.println("AST block closed!");
+//			System.out.println("AST block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the AST stack
 			ASTItemStack.push(thisItem);
@@ -142,9 +142,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
 			parent.addVariableStatement(currentNode);
 
-			System.out.println("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
+//			System.out.println("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
-			System.out.println(currentNode.getEscapedCodeStr()+" is not variable!");
+//			System.out.println(currentNode.getEscapedCodeStr()+" is not variable!");
 		}
 	}
 
@@ -178,13 +178,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			PreBlockstarter topOfStack = (PreBlockstarter) ASTItemStack.peek();		
 			//Connect the current node with its parent
 			topOfStack.addChild(currentNode);	
-			System.out.println("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
+//			System.out.println("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
 		
 			// Stop if we reach an PreIfStatement
 			if (topOfStack instanceof PreIfStatement) {
 				//Remove the PreIfStatement node from the stack and stop the iteration
 				currentNode = (PreBlockstarter) ASTItemStack.pop();
-				System.out.println("Found #if for #endif, notify observers");
+//				System.out.println("Found #if for #endif, notify observers");
 				//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 				//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children or twice
 				//Do not do this for child #else/#elif/#endif, they will be automatically added, as they are AST children of the first PreIfStatement
@@ -209,7 +209,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx) {
-		System.out.println("Enter functionDef");
+//		System.out.println("Enter functionDef");
 
 		FunctionDefBuilder builder = new FunctionDefBuilder();
 		builder.createNew(ctx);
@@ -258,7 +258,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
-		System.out.println("Enter enterDeclByType");
+//		System.out.println("Enter enterDeclByType");
 		Init_declarator_listContext decl_list = ctx.init_declarator_list();
 		Type_nameContext typeName = ctx.type_name();
 		emitDeclarations(decl_list, typeName, ctx);
@@ -292,7 +292,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx) {
-		System.out.println("Enter enterDeclByClass");
+//		System.out.println("Enter enterDeclByClass");
 		ClassDefBuilder builder = new ClassDefBuilder();
 		builder.createNew(ctx);
 		p.builderStack.push(builder);

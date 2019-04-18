@@ -32,9 +32,9 @@ public class PluginExecutor {
 			if (settings != null)
 				plugin.configure(settings);
 			plugin.beforeExecution();
-			System.out.println("execute");
+//			System.out.println("execute");
 			plugin.execute();
-			System.out.println("afterExecution");
+//			System.out.println("afterExecution");
 			plugin.afterExecution();
 			return plugin.result();
 		} catch (Exception e) {
