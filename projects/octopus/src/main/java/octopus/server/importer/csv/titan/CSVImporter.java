@@ -204,6 +204,8 @@ public class CSVImporter {
 		Vertex inVertex = lookupVertex(dstId);
 
 		if (outVertex == null) {
+			System.out.println(graph.traversal().V().has(KEY, dstId).next());
+			System.out.println(graph.traversal().V().has(KEY, dstId));
 			System.err.println("Cannot resolve source node "+srcId+" for "+srcId+" -> "+dstId);
 			return;
 		}
