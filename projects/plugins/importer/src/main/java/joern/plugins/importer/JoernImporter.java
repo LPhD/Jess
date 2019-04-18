@@ -1,5 +1,6 @@
 package joern.plugins.importer;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.json.JSONObject;
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import fileWalker.OrderedWalker;
 import joern.api.JoernProject;
 import joern.api.plugintypes.JoernProjectPlugin;
-import octopus.api.decompressor.Decompressor;
+import octopus.server.decompressor.TarballDecompressor;
 
 public class JoernImporter extends JoernProjectPlugin {
 
@@ -50,12 +51,12 @@ public class JoernImporter extends JoernProjectPlugin {
 
 	private void uncompressArchive() throws IOException {
 		String tarballFilename = joernProject.getTarballName();
-		String outputDirectory = joernProject.getSourceCodeDirectory();
+		File outputDirectory = new File("joernProject.getSourceCodeDirectory()");
 
 		logger.debug("uncompressing archive: " + tarballFilename);
 		logger.debug("output directory: " + outputDirectory);
 
-		new Decompressor().decompressTarball(tarballFilename, outputDirectory);
+		TarballDecompressor.decompress(tarballFilename, outputDirectory);
 
 		logger.debug("decompression successful");
 	}
