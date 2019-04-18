@@ -47,15 +47,19 @@ public class TarballDecompressor {
     public static void decompress(String in, File out) throws IOException {
         try (TarArchiveInputStream fin = new TarArchiveInputStream(new FileInputStream(in))){
             TarArchiveEntry entry;
+            
             while ((entry = fin.getNextTarEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
                 }
+                
                 File curfile = new File(out, entry.getName());
                 File parent = curfile.getParentFile();
+                
                 if (!parent.exists()) {
                     parent.mkdirs();
                 }
+                
                 IOUtils.copy(fin, new FileOutputStream(curfile));
             }
         } catch (Exception e) {
