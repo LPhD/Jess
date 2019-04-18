@@ -29,7 +29,7 @@ dependencies{
   compile group: 'org.json', name: 'json', version: '20141113'
   compile group: 'org.apache.ftpserver', name: 'ftpserver', version: '1.0.6'
   compile "com.sparkjava:spark-core:2.5"
-  compile group: 'org.apache.commons', name: 'commons-compress', version: '1.8'
+  compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
   compile group: "com.thinkaurelius.titan", name: "titan-core", version: '1.0.0'
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.13'
   compile group: 'org.apache.tinkerpop', name: 'gremlin-driver', version: '3.0.1-incubating'
