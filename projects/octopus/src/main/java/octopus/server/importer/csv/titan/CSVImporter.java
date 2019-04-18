@@ -184,10 +184,13 @@ public class CSVImporter {
 
 	protected void importEdges() throws IOException {
 		String[] row;
+		System.out.println("row");
 
 		while ((row = edgeFile.getNextRow()) != null) {
 			importEdgeRow(row);
+			System.out.println("importEdgeRow");
 			possiblyFinishTransaction();
+			System.out.println("possiblyFinishTransaction");
 		}
 	}
 
