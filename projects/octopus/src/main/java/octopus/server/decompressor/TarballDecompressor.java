@@ -64,6 +64,8 @@ public class TarballDecompressor {
             TarArchiveEntry entry;
             while ((entry = (TarArchiveEntry) tarIs.getNextEntry()) != null) {
                 String name = entry.getName();
+                System.out.println("Name: "+name);
+                
                 if (entry.isDirectory()) {
                     mkDirs(outDir, name);
                 } else {
