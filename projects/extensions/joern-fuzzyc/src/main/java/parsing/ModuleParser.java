@@ -1,31 +1,30 @@
 package parsing;
 
 import java.util.Observer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ModuleParser
-{
+import parsing.Modules.CModuleParserTreeListener;
+
+public class ModuleParser {
 	ANTLRParserDriver parserDriver;
+	private static final Logger logger = LoggerFactory.getLogger(ModuleParser.class);
 
-	public ModuleParser(ANTLRParserDriver driver)
-	{
+	public ModuleParser(ANTLRParserDriver driver) {
 		parserDriver = driver;
 	}
 
-	public void parseFile(String filename)
-	{
-		System.out.println(filename);
+	public void parseFile(String filename) {
+		logger.debug(filename);
 
-		try
-		{
+		try {
 			parserDriver.parseAndWalkFile(filename);
-		} catch (ParserException ex)
-		{
+		} catch (ParserException ex) {
 			System.err.println("Error parsing file: " + filename);
 		}
 	}
 
-	public void addObserver(Observer anObserver)
-	{
+	public void addObserver(Observer anObserver) {
 		parserDriver.addObserver(anObserver);
 	}
 
@@ -33,13 +32,10 @@ public class ModuleParser
 	 * Testing
 	 **/
 
-	public void parseString(String code)
-	{
-		try
-		{
+	public void parseString(String code) {
+		try {
 			parserDriver.parseAndWalkString(code);
-		} catch (ParserException ex)
-		{
+		} catch (ParserException ex) {
 			System.err.println("Error parsing string.");
 		}
 	}
