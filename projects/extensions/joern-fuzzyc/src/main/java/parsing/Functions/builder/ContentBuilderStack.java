@@ -44,18 +44,6 @@ public class ContentBuilderStack
 		return shadowStack.getIf();
 	}
 	
-//	//Preprocessor if/else handling
-//	public PreIfStatement getPreIfInPreElseCase()
-//	{
-//		return shadowStack.getPreIfInPreElseCase();
-//	}
-//	
-//	//Preprocessor if handling
-//	public PreIfStatement getPreIf()
-//	{
-//		return shadowStack.getPreIf();
-//	}
-
 	public DoStatement getDo()
 	{
 		return shadowStack.getDo();

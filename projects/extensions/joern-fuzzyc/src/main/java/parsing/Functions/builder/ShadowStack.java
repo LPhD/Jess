@@ -6,7 +6,6 @@ import java.util.Stack;
 import ast.ASTNode;
 import ast.c.statements.blockstarters.IfStatement;
 import ast.logical.statements.CompoundStatement;
-import ast.preprocessor.PreBlockstarter;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.TryStatement;
 
@@ -35,8 +34,7 @@ public class ShadowStack {
 		// Blockstarters
 		if (statementItem instanceof IfStatement 
 				|| statementItem instanceof DoStatement
-				|| statementItem instanceof TryStatement 
-				|| statementItem instanceof PreBlockstarter) {
+				|| statementItem instanceof TryStatement) {
 			
 			ASTNode parentCompound = parentCompoundFromItemStack(itemStack);
 			stack.push(new StackItem(statementItem, parentCompound));
@@ -61,18 +59,6 @@ public class ShadowStack {
 		return (IfStatement) returnItem.ifOrDoOrTry;
 	}
 
-	// //Preprocessor if/else handling
-	// public PreIfStatement getPreIfInPreElseCase() {
-	// if (stack.size() < 2)
-	// return null;
-	//
-	// StackItem topItem = stack.pop();
-	// StackItem returnItem = stack.pop();
-	// stack.push(topItem);
-	// //Works also for #elif?
-	// return (PreIfStatement) returnItem.ifOrDoOrTry;
-	// }
-
 	public IfStatement getIf() {
 		IfStatement retval;
 		StackItem item = null;
@@ -89,27 +75,6 @@ public class ShadowStack {
 
 		return retval;
 	}
-
-	// //Preprocessor if handling
-	// public PreIfStatement getPreIf() {
-	// PreIfStatement retval;
-	// StackItem item = null;
-	//
-	// try {
-	// item = stack.pop();
-	// //Works also for #elif?
-	// retval = (PreIfStatement) item.ifOrDoOrTry;
-	// } catch (EmptyStackException ex) {
-	// System.out.println("Stack is empty!");
-	// return null;
-	// } catch (ClassCastException ex) {
-	// System.out.println("StackClassCastException!");
-	// stack.push(item);
-	// return null;
-	// }
-	//
-	// return retval;
-	// }
 
 	public DoStatement getDo() {
 		DoStatement retval;

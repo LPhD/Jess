@@ -2,8 +2,11 @@ package parsing.Functions.builder;
 
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.Stack;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import antlr.FunctionParser.Additive_expressionContext;
 import antlr.FunctionParser.And_expressionContext;
@@ -168,6 +171,7 @@ import ast.statements.jump.GotoStatement;
 import ast.statements.jump.ReturnStatement;
 import ast.statements.jump.ThrowStatement;
 import parsing.ASTNodeFactory;
+import parsing.Modules.CModuleParserTreeListener;
 import parsing.Shared.InitDeclContextWrapper;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
@@ -187,10 +191,18 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	ContentBuilderStack stack = new ContentBuilderStack();
 	NestingReconstructor nesting = new NestingReconstructor(stack);
 	HashMap<ASTNode, ParserRuleContext> nodeToRuleContext = new HashMap<ASTNode, ParserRuleContext>();
+	private static final Logger logger = LoggerFactory.getLogger(CModuleParserTreeListener.class);
+	/**
+	 * This stack contains PreBlockstarters that can implement variability
+	 */
+	private Stack<ASTNode> variabilityItemStack = new Stack<ASTNode>();
+	/**
+	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
+	 */
+	private Stack<ASTNode> preASTItemStack = new Stack<ASTNode>();	
 
 	/**
 	 *  Called when the entire function-content has been walked
-	 *  This is the implementation for the function level
 	 * @param ctx
 	 */
 	public void exitStatements(StatementsContext ctx) {
@@ -476,7 +488,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterPreIf(Pre_if_statementContext ctx) {
 		PreIfStatement expr = new PreIfStatement();
 		nodeToRuleContext.put(expr, ctx);
-		replaceTopOfStack(expr, ctx);
+		ASTNodeFactory.initializeFromContext(expr, ctx);
 	}
 
 	/**
@@ -489,7 +501,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterPreElse(Pre_else_statementContext ctx) {
 		PreElseStatement expr = new PreElseStatement();
 		nodeToRuleContext.put(expr, ctx);
-		replaceTopOfStack(expr, ctx);
+		ASTNodeFactory.initializeFromContext(expr, ctx);
 	}
 
 	/**
@@ -502,7 +514,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterPreElIf(Pre_elif_statementContext ctx) {
 		PreElIfStatement expr = new PreElIfStatement();
 		nodeToRuleContext.put(expr, ctx);
-		replaceTopOfStack(expr, ctx);
+		ASTNodeFactory.initializeFromContext(expr, ctx);
 	}
 
 	/**
@@ -515,7 +527,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterPreEndIf(Pre_endif_statementContext ctx) {
 		PreEndIfStatement expr = new PreEndIfStatement();
 		nodeToRuleContext.put(expr, ctx);
-		replaceTopOfStack(expr, ctx);
+		ASTNodeFactory.initializeFromContext(expr, ctx);		
 	}
 
 	/**
@@ -539,6 +551,71 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNodeFactory.initializeFromContext(cond, ctx);
 		nesting.addItemToParent(cond);
 	}
+	
+	/**
+	 * Check if the current ASTNode is inside an #ifdef block and therefore variable
+	 * 
+	 * @param currentNode
+	 */
+	private void checkVariability(ASTNode currentNode) {
+		if (!variabilityItemStack.isEmpty()) {
+			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
+			parent.addVariableStatement(currentNode);
+
+			logger.debug("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
+		} else {
+			logger.debug(currentNode.getEscapedCodeStr()+" is not variable!");
+		}
+	}
+
+	/**
+	 * Removes collected PreBlockstarters from the stack. 
+	 * Stop if the stack is empty or if we reach an PreIfStatement.
+	 */
+	private void closeVariabilityBlock() {
+		if (!variabilityItemStack.isEmpty()) {
+			PreBlockstarter currentNode = (PreBlockstarter) variabilityItemStack.pop();
+			
+			// Stop if we reach an PreIfStatement
+			if (currentNode instanceof PreIfStatement) {
+				checkVariability(currentNode);
+			} else {
+				closeVariabilityBlock();
+			}
+		}
+	}
+	
+	/**
+	 * Removes collected PreBlockstarters from the stack and connects them with AST relations.
+	 * When this method is first called, the top stack item should be an #endif
+	 * Stop if the AST stack is empty or if we reach an PreIfStatement.
+	 */
+	private void closeASTBlock() {
+		if (preASTItemStack.size() > 1) {
+			//Remove the current AST node from the stack
+			PreBlockstarter currentNode = (PreBlockstarter) preASTItemStack.pop();
+			//Look at the next node on the stack
+			PreBlockstarter topOfStack = (PreBlockstarter) preASTItemStack.peek();		
+			//Connect the current node with its parent
+			topOfStack.addChild(currentNode);	
+			logger.debug("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
+		
+			// Stop if we reach an PreIfStatement
+			if (topOfStack instanceof PreIfStatement) {
+				//Remove the PreIfStatement node from the stack and stop the iteration
+				currentNode = (PreBlockstarter) preASTItemStack.pop();
+				logger.debug("Found #if for #endif");								
+			} else {
+				//Connect AST children until we reach a PreIfStatement or there is only 1 item left on the stack
+				closeASTBlock();
+			}
+			
+		} else if (preASTItemStack.size() == 1)  {
+			//Remove orphaned #endif statements
+			PreBlockstarter lastNode = (PreBlockstarter) preASTItemStack.pop();
+			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation());
+		}
+	}
 
 	// ----------------------------------Preprocessor handling end-------------------------------------------------------------
 
@@ -549,13 +626,28 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
-
-		// For all items that extend from PreStatements
-		if (itemToRemove instanceof PreStatementBase) {
-			handlePreStatements(itemToRemove);
-			return;
-		}
-
+		
+		//________________________________Preprocessor AST and VARIABILITY ANALYSIS________________________________________________________________
+		
+		// If the current item is an #endif
+		if (itemToRemove instanceof PreEndIfStatement) {
+			//#endifs are only collected on the AST stack
+			preASTItemStack.push(itemToRemove);
+			// Remove items from stack until the next #if/#ifdef
+			closeASTBlock();
+			closeVariabilityBlock();
+			logger.debug("AST and variability block closed!");
+		} else if (itemToRemove instanceof PreBlockstarter) {
+			// Collect all Pre Blockstarters on the Stack
+			variabilityItemStack.push(itemToRemove);
+			preASTItemStack.push(itemToRemove);
+			logger.debug("#if collected");
+		} else {
+			// Check variability for all other types
+			checkVariability(itemToRemove);
+		}	
+		//________________________________Preprocessor AST and VARIABILITY ANALYSIS END________________________________________________________________
+		
 		if (itemToRemove instanceof BlockCloser) {
 			closeCompoundStatement();
 			return;
@@ -582,36 +674,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * 
 	 * @param itemToRemove
 	 */
-	private void handlePreStatements(ASTNode itemToRemove) {
 
-		// Keep blockstarters on the stack
-		if (!(itemToRemove instanceof PreBlockstarter)) {
-			// Remove non-blockstarter from stack
-			stack.pop();
-			// Add them to their parent
-			nesting.addItemToParent(itemToRemove);
-			return;
-		}
-
-		// If an #endif is reached
-		if (itemToRemove instanceof PreEndIfStatement) {
-			// Connect pre-blockstarters and compound items on the stack that belong
-			// together
-			while (stack.size() > 1) {
-				ASTNode currentNode = (ASTNode) stack.pop();
-				nesting.addItemToParent(currentNode);
-				// Stop if the blockstarter #if is reached
-				if (currentNode instanceof PreIfStatement) {
-					break;
-				}
-			}
-			// For if/else/elif
-		} else {
-			// Add a new (empty) compound statement to the stack, which will contain the
-			// children of the blockstarter
-			stack.push(new CompoundStatement());
-		}
-	}
 
 	// Expression handling
 	public void enterExpression(ExprContext ctx) {
