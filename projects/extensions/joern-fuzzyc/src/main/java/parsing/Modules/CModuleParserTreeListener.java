@@ -46,7 +46,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
 	 */
 	private Stack<ASTNode> ASTItemStack = new Stack<ASTNode>();	
-	private static final Logger logger = LoggerFactory.getLogger(ImporterListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(CModuleParserTreeListener.class);
 
 
 	public CModuleParserTreeListener(ANTLRParserDriver aP) {
