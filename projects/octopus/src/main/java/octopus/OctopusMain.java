@@ -18,6 +18,7 @@ public class OctopusMain {
         main = new OctopusMain();
         main.startFTPServer();
         main.startRestServer();
+        System.out.println("Server started successfully");
     }
 
     private void startFTPServer()

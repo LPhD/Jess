@@ -22,6 +22,9 @@ public class ImportCSVRunnable implements Runnable {
 
 	@Override
 	public void run() {
+		logger.warn("Starting import");
+		
+		
 		CSVImporter csvBatchImporter = new CSVImporter();
 
 		String nodeFilename = importJob.getNodeFilename();

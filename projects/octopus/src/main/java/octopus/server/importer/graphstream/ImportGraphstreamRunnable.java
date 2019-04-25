@@ -10,46 +10,40 @@ import octopus.api.projects.OctopusProject;
 import octopus.api.projects.ProjectManager;
 import octopus.server.importer.graphstream.titan.GraphstreamImporter;
 
-public class ImportGraphstreamRunnable implements Runnable
-{
+public class ImportGraphstreamRunnable implements Runnable {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(ImportGraphstreamRunnable.class);
+	private static final Logger logger = LoggerFactory.getLogger(ImportGraphstreamRunnable.class);
 
-    private final ImportJob importJob;
+	private final ImportJob importJob;
 
-    public ImportGraphstreamRunnable(ImportJob importJob)
-    {
-        this.importJob = importJob;
-    }
+	public ImportGraphstreamRunnable(ImportJob importJob) {
+		this.importJob = importJob;
+	}
 
-    @Override
-    public void run()
-    {
+	@Override
+	public void run() {
+		logger.warn("Starting import");
 
-        GraphstreamImporter gdsBatchImporter = new GraphstreamImporter();
+		GraphstreamImporter gdsBatchImporter = new GraphstreamImporter();
 
-        String streamFilename = importJob.getStreamFilename();
-        String projectName = importJob.getProjectName();
+		String streamFilename = importJob.getStreamFilename();
+		String projectName = importJob.getProjectName();
 
-        ProjectManager projectManager = new ProjectManager();
-        OctopusProject project = projectManager.getProjectByName(projectName);
-        if(project == null)
-            throw new RuntimeException("Error: project dos not exist");
+		ProjectManager projectManager = new ProjectManager();
+		OctopusProject project = projectManager.getProjectByName(projectName);
+		if (project == null)
+			throw new RuntimeException("Error: project dos not exist");
 
-        try
-        {
-            Database database = project.getNewDatabaseInstance();
-            gdsBatchImporter.setGraph(database.getGraph());
-            gdsBatchImporter.importGraphstreamFiles(streamFilename);
-            database.closeInstance();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+		try {
+			Database database = project.getNewDatabaseInstance();
+			gdsBatchImporter.setGraph(database.getGraph());
+			gdsBatchImporter.importGraphstreamFiles(streamFilename);
+			database.closeInstance();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        logger.warn("Import finished");
-    }
+		logger.warn("Import finished");
+	}
 
 }
