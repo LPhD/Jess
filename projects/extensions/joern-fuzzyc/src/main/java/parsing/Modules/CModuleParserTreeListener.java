@@ -45,7 +45,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	/**
 	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
 	 */
-	private Stack<ASTNode> ASTItemStack = new Stack<ASTNode>();	
+	private Stack<ASTNode> preASTItemStack = new Stack<ASTNode>();	
 	private static final Logger logger = LoggerFactory.getLogger(CModuleParserTreeListener.class);
 
 
@@ -117,13 +117,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		
 		//Resolve AST nesting of preprocessor blockstarters on module level. This has to be done before the db nodes are built.
 		if (thisItem instanceof PreEndIfStatement) {
-			ASTItemStack.push(thisItem);
+			preASTItemStack.push(thisItem);
 			// Remove items from stack until the next #if/#ifdef
 			closeASTBlock();
 			logger.debug("AST block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the AST stack
-			ASTItemStack.push(thisItem);
+			preASTItemStack.push(thisItem);
 			logger.debug("#if collected in AST stack");
 		} else {
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
@@ -173,11 +173,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 * Stop if the AST stack is empty or if we reach an PreIfStatement.
 	 */
 	private void closeASTBlock() {
-		if (ASTItemStack.size() > 1) {
+		if (preASTItemStack.size() > 1) {
 			//Remove the current AST node from the stack
-			PreBlockstarter currentNode = (PreBlockstarter) ASTItemStack.pop();
+			PreBlockstarter currentNode = (PreBlockstarter) preASTItemStack.pop();
 			//Look at the next node on the stack
-			PreBlockstarter topOfStack = (PreBlockstarter) ASTItemStack.peek();		
+			PreBlockstarter topOfStack = (PreBlockstarter) preASTItemStack.peek();		
 			//Connect the current node with its parent
 			topOfStack.addChild(currentNode);	
 			logger.debug("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
@@ -185,7 +185,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			// Stop if we reach an PreIfStatement
 			if (topOfStack instanceof PreIfStatement) {
 				//Remove the PreIfStatement node from the stack and stop the iteration
-				currentNode = (PreBlockstarter) ASTItemStack.pop();
+				currentNode = (PreBlockstarter) preASTItemStack.pop();
 				logger.debug("Found #if for #endif, notify observers");
 				//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 				//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children or twice
@@ -197,9 +197,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 				closeASTBlock();
 			}
 			
-		} else if (ASTItemStack.size() == 1)  {
+		} else if (preASTItemStack.size() == 1)  {
 			//Remove orphaned #endif statements
-			PreBlockstarter lastNode = (PreBlockstarter) ASTItemStack.pop();
+			PreBlockstarter lastNode = (PreBlockstarter) preASTItemStack.pop();
 			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation());
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class)
 			p.notifyObserversOfItem(lastNode);
