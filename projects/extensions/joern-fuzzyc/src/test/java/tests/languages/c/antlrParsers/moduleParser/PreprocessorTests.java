@@ -74,5 +74,18 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))))))) (function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #else { #endif })) (water abc) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
 		assertEquals(outputExpected, output);
 	}
+	
+	@Test
+	public void testPreIfDefined() {
+		String input = "#if !defined(_TRACE_KVM_H) || defined(TRACE_HEADER_MULTI_READ) #endif";
+		ModuleParser parser = createParser(input);
+		String output = parser.code().toStringTree(parser);
+		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #if (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (unary_op_and_cast_expr (unary_operator !) (cast_expression (unary_expression (defined_expression defined ( "
+				+ "(expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier _TRACE_KVM_H)))))))))))))))))) )))))))))))))))) "
+				+ "|| (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (defined_expression defined ("
+				+ " (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier TRACE_HEADER_MULTI_READ)))))))))))))))))) ))))))))))))))))))))))) "
+				+ "(pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
+		assertEquals(outputExpected, output);
+	}
 
 }
