@@ -50,6 +50,8 @@ public class JoernImporter extends JoernProjectPlugin {
 	}
 
 	private void uncompressArchive() throws IOException {
+		logger.warn("Beginn uncompressing archive");
+		
 		File tarballFilename = new File(joernProject.getTarballName());
 		File outputDirectory = new File(joernProject.getSourceCodeDirectory());
 
@@ -58,11 +60,11 @@ public class JoernImporter extends JoernProjectPlugin {
 
 		TarballDecompressor.decompress(tarballFilename, outputDirectory);
 
-		logger.debug("decompression successful");
+		logger.warn("Decompression successful");
 	}
 
 	private void parseSourceCode() {
-		logger.debug("Parsing code");
+		logger.warn("Parsing code");
 
 		String parserOutputDirectory = joernProject.getParserOutputDirectory();
 		String sourceCodeDirectory = joernProject.getSourceCodeDirectory();
@@ -72,11 +74,11 @@ public class JoernImporter extends JoernProjectPlugin {
 		parserWrapper.initialize(parserOutputDirectory);
 		parserWrapper.walkCodebase(new String[] { sourceCodeDirectory });
 
-		logger.debug("Parsing complete");
+		logger.warn("Parsing complete");
 	}
 
 	private void importCSVFilesIntoDatabase() throws IOException {
-		logger.debug("Importing graph");
+		logger.warn("Importing graph");
 
 		String parserOutputDirectory = joernProject.getParserOutputDirectory();
 
@@ -88,7 +90,7 @@ public class JoernImporter extends JoernProjectPlugin {
 		walker.addListener(listener);
 		walker.walk(new String[] { parserOutputDirectory });
 
-		logger.debug("Import complete");
+		logger.warn("Import complete");
 	}
 
 }
