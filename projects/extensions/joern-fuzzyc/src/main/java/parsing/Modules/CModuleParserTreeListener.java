@@ -3,7 +3,8 @@ package parsing.Modules;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import antlr.ModuleBaseListener;
@@ -44,7 +45,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	/**
 	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
 	 */
-	private Stack<ASTNode> ASTItemStack = new Stack<ASTNode>();
+	private Stack<ASTNode> ASTItemStack = new Stack<ASTNode>();	
+	private static final Logger logger = LoggerFactory.getLogger(ImporterListener.class);
 
 
 	public CModuleParserTreeListener(ANTLRParserDriver aP) {
@@ -100,11 +102,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		if (thisItem instanceof PreEndIfStatement) {
 			// Remove items from stack until the next #if/#ifdef
 			closeVariabilityBlock();
-//			System.out.println("Block closed!");
+			logger.debug("Block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the Stack
 			variabilityItemStack.push(thisItem);
-//			System.out.println("#if collected");
+			logger.debug("#if collected");
 		} else {
 			// Connect all other pre statements to parent blockstarters if they exist
 			checkVariability(thisItem);
@@ -118,11 +120,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			ASTItemStack.push(thisItem);
 			// Remove items from stack until the next #if/#ifdef
 			closeASTBlock();
-//			System.out.println("AST block closed!");
+			logger.debug("AST block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the AST stack
 			ASTItemStack.push(thisItem);
-//			System.out.println("#if collected in AST stack");
+			logger.debug("#if collected in AST stack");
 		} else {
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 			//Do this now for every pre statement that has no AST nesting
@@ -142,9 +144,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
 			parent.addVariableStatement(currentNode);
 
-//			System.out.println("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
+			logger.debug("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
-//			System.out.println(currentNode.getEscapedCodeStr()+" is not variable!");
+			logger.debug(currentNode.getEscapedCodeStr()+" is not variable!");
 		}
 	}
 
@@ -178,13 +180,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			PreBlockstarter topOfStack = (PreBlockstarter) ASTItemStack.peek();		
 			//Connect the current node with its parent
 			topOfStack.addChild(currentNode);	
-//			System.out.println("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
+			logger.debug("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
 		
 			// Stop if we reach an PreIfStatement
 			if (topOfStack instanceof PreIfStatement) {
 				//Remove the PreIfStatement node from the stack and stop the iteration
 				currentNode = (PreBlockstarter) ASTItemStack.pop();
-//				System.out.println("Found #if for #endif, notify observers");
+				logger.debug("Found #if for #endif, notify observers");
 				//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 				//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children or twice
 				//Do not do this for child #else/#elif/#endif, they will be automatically added, as they are AST children of the first PreIfStatement
@@ -198,7 +200,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		} else if (ASTItemStack.size() == 1)  {
 			//Remove orphaned #endif statements
 			PreBlockstarter lastNode = (PreBlockstarter) ASTItemStack.pop();
-			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr());
+			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation());
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class)
 			p.notifyObserversOfItem(lastNode);
 		}
@@ -209,7 +211,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx) {
-//		System.out.println("Enter functionDef");
+		logger.debug("Enter functionDef");
 
 		FunctionDefBuilder builder = new FunctionDefBuilder();
 		builder.createNew(ctx);
@@ -258,7 +260,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
-//		System.out.println("Enter enterDeclByType");
+		logger.debug("Enter enterDeclByType");
 		Init_declarator_listContext decl_list = ctx.init_declarator_list();
 		Type_nameContext typeName = ctx.type_name();
 		emitDeclarations(decl_list, typeName, ctx);
@@ -292,7 +294,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx) {
-//		System.out.println("Enter enterDeclByClass");
+		logger.debug("Enter enterDeclByClass");
 		ClassDefBuilder builder = new ClassDefBuilder();
 		builder.createNew(ctx);
 		p.builderStack.push(builder);
