@@ -478,6 +478,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitSizeof(ModuleParser.SizeofContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#defined_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefined_expression(ModuleParser.Defined_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#defined_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefined_expression(ModuleParser.Defined_expressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#sizeof_operand}.
 	 * @param ctx the parse tree
 	 */

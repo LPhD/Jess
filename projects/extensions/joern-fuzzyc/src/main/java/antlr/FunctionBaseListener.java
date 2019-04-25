@@ -1078,6 +1078,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDefined_expression(FunctionParser.Defined_expressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDefined_expression(FunctionParser.Defined_expressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSizeof_operand(FunctionParser.Sizeof_operandContext ctx) { }
 	/**
 	 * {@inheritDoc}
