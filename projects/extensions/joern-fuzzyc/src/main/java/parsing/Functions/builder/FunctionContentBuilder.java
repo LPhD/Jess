@@ -486,9 +486,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreIf(Pre_if_statementContext ctx) {
-		PreIfStatement expr = new PreIfStatement();
-		nodeToRuleContext.put(expr, ctx);
-		ASTNodeFactory.initializeFromContext(expr, ctx);
+		replaceTopOfStack(new PreIfStatement(), ctx);
 	}
 
 	/**
@@ -499,9 +497,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreElse(Pre_else_statementContext ctx) {
-		PreElseStatement expr = new PreElseStatement();
-		nodeToRuleContext.put(expr, ctx);
-		ASTNodeFactory.initializeFromContext(expr, ctx);
+		replaceTopOfStack(new PreElseStatement(), ctx);
 	}
 
 	/**
@@ -512,9 +508,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreElIf(Pre_elif_statementContext ctx) {
-		PreElIfStatement expr = new PreElIfStatement();
-		nodeToRuleContext.put(expr, ctx);
-		ASTNodeFactory.initializeFromContext(expr, ctx);
+		replaceTopOfStack(new PreElIfStatement(), ctx);
 	}
 
 	/**
@@ -525,9 +519,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreEndIf(Pre_endif_statementContext ctx) {
-		PreEndIfStatement expr = new PreEndIfStatement();
-		nodeToRuleContext.put(expr, ctx);
-		ASTNodeFactory.initializeFromContext(expr, ctx);		
+		replaceTopOfStack(new PreEndIfStatement(), ctx);
 	}
 
 	/**
