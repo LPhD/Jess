@@ -924,6 +924,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitSizeof(FunctionParser.SizeofContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#defined_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefined_expression(FunctionParser.Defined_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#defined_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefined_expression(FunctionParser.Defined_expressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#sizeof_operand}.
 	 * @param ctx the parse tree
 	 */
