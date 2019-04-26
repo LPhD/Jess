@@ -3,31 +3,49 @@ package tests.languages.c.parseTreeToAST;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
+import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.logical.statements.CompoundStatement;
+import ast.preprocessor.PreBlockstarter;
 
 public class PreprocessorTests {
 
 	@Test
 	public void testNestedIfndefs() {
-		String input = "#ifdef foo  #else  #ifdef foo  #else  #endif  #endif";
+		String input = "#ifdef foo1  #else  #ifdef foo2  #else  #endif  #endif";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("Top level child has to be the #ifdef", 1, item.getStatements().size());
-		assertEquals("#if has 2 childs (condition and compound statement)",2, item.getStatement(0).getChildCount());
-		assertEquals("#else has 1 compound statement as child, that has 2 children (#ifdef and #endif)", 2, item.getStatement(0).getChild(1).getChild(0).getChild(0).getChildCount());
+		assertEquals("Top level childs have to be the two #ifdefs", 2, item.getStatements().size());
+		PreBlockstarter firstIf = (PreBlockstarter) item.getStatement(0);
+		assertEquals("#ifdef foo1 has 2 childs (condition and #else)",2, firstIf.getChildCount());
+		assertEquals("First #else has 1 child (#endif)", 1, firstIf.getChild(1).getChildCount());
+		//This is due to the grammar, maybe will be reworked later
+		assertEquals("#else has 2 variable items (#ifdef foo and its identifier foo)", 2, ( (PreElseStatement) firstIf.getChild(1)).getVariableStatementsCount());
+	}
+	
+	@Test
+	public void testVariableStatements() {
+		String input = "#if foo  bar(); #else  int i; i++; #endif";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		//#if
+		PreBlockstarter bs = (PreBlockstarter) contentItem.getStatement(0);
+		assertEquals("bar ( )", bs.getVariableStatement(0).getEscapedCodeStr());
+		//#else
+		bs = (PreBlockstarter) bs.getChild(1);
+		assertEquals("int i ;", bs.getVariableStatement(0).getEscapedCodeStr());
+		assertEquals("i ++", bs.getVariableStatement(1).getEscapedCodeStr());
 	}
 
 	@Test
 	public void testPreElseStatement() {
 		String input = "#if foo  bar(); #else  foo(); foo(); #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreElseStatement", contentItem.getStatement(0).getChild(1).getChild(1).getTypeAsString());
+		assertEquals("PreElseStatement", contentItem.getStatement(0).getChild(1).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreElseStatementCode() {
 		String input = "#if foo  bar(); #else  foo(); foo(); #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("#else", contentItem.getStatement(0).getChild(1).getChild(1).getEscapedCodeStr());
+		assertEquals("#else", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
 	}
 
 	@Test
@@ -48,35 +66,35 @@ public class PreprocessorTests {
 	public void testPreElIfStatement() {
 		String input = "#if foo  bar();  #elif bar  foo();  foo();  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreElIfStatement", contentItem.getStatement(0).getChild(1).getChild(1).getTypeAsString());
+		assertEquals("PreElIfStatement", contentItem.getStatement(0).getChild(1).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreElIfStatementCode() {
 		String input = "#if foo  bar();  #elif bar  foo();  foo();  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("#elif bar", contentItem.getStatement(0).getChild(1).getChild(1).getEscapedCodeStr());
+		assertEquals("#elif bar", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testPreEndIfStatement() {
 		String input = "#if bar  int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreEndIfStatement", contentItem.getStatement(0).getChild(1).getChild(1).getTypeAsString());
+		assertEquals("PreEndIfStatement", contentItem.getStatement(0).getChild(1).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreEndIfStatementCode() {
 		String input = "#if bar  int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("#endif", contentItem.getStatement(0).getChild(1).getChild(1).getEscapedCodeStr());
+		assertEquals("#endif", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testPreIfWithBracketsAroundCondition() {
 		String input = "#if (foo < 5) int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals(1, contentItem.getStatements().size());
+		assertEquals(2, contentItem.getStatements().size());
 		assertEquals("foo < 5", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
 	}
 	
@@ -91,7 +109,7 @@ public class PreprocessorTests {
 	public void testPreIfWithNestedCondition() {
 		String input = "#if (foo < 5 && ( x < 1 || x > 5 ))  int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals(1, contentItem.getStatements().size());
+		assertEquals(2, contentItem.getStatements().size());
 		assertEquals("foo < 5 && ( x < 1 || x > 5 )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
 	}
 	
