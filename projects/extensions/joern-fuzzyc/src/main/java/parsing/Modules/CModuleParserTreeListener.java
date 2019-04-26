@@ -3,9 +3,10 @@ package parsing.Modules;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.antlr.v4.runtime.ParserRuleContext;
 
 import antlr.ModuleBaseListener;
 import antlr.ModuleParser;
@@ -14,7 +15,6 @@ import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
 import antlr.ModuleParser.Type_nameContext;
 import ast.ASTNode;
-
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.IdentifierDecl;
@@ -101,8 +101,16 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			e.printStackTrace();
 		}
 		
-		//________________________________VARIABILITY ANALYSIS________________________________________________________________
-		
+		//VARIABILITY ANALYSIS first
+		variabilityAnalysis(thisItem);
+		//AST ANALYSIS second
+		astAnalysis(thisItem);				
+	}
+	
+	/**
+	 * Decides, how to behave for the variability analysis
+	 */
+	private void variabilityAnalysis(ASTNode thisItem) {
 		// If the current item is an #endif
 		if (thisItem instanceof PreEndIfStatement) {
 			// Remove items from stack until the next #if/#ifdef
@@ -116,10 +124,12 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			// Connect all other pre statements to parent blockstarters if they exist
 			checkVariability(thisItem);
 		}
-		
-		
-		//________________________________AST ANALYSIS________________________________________________________________
-		
+	}
+	
+	/**
+	 * Decides, how to behave for the AST analysis
+	 */
+	private void astAnalysis(ASTNode thisItem) {
 		//Resolve AST nesting of preprocessor blockstarters on module level. This has to be done before the db nodes are built.
 		if (thisItem instanceof PreEndIfStatement) {
 			preASTItemStack.push(thisItem);
@@ -134,8 +144,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 			//Do this now for every pre statement that has no AST nesting
 			p.notifyObserversOfItem(thisItem);
-		}		
-				
+		}	
 	}
 	
 
@@ -282,17 +291,12 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		while (it.hasNext()) {
 			IdentifierDecl decl = it.next();
 			stmt.addChild(decl);
+			//stmt is not a node, instead check decl?
+			checkVariability(decl);
 		}
 
 		p.notifyObserversOfItem(stmt);
 		
-
-		
-		//TODO Strange behaviour here... Why is the declaration not initialized (see above)? 
-		//Connect to parent blockstarters if they exist
-		checkVariability(stmt);
-		
-
 	}
 
 	// DeclByClass
