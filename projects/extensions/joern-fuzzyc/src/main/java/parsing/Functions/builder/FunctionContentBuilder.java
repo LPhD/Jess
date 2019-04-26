@@ -199,6 +199,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
 	 */
 	private Stack<ASTNode> preASTItemStack = new Stack<ASTNode>();	
+	/**
+	 * This is needed for returning the current item when we call the function parser via the module parser
+	 * We need this for #else/#elif/#endif because they are not children of the top level compound statement
+	 */
+	public ASTNode currentItem = null;
 
 	/**
 	 *  Called when the entire function-content has been walked
@@ -497,6 +502,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 */
 	public void enterPreElse(Pre_else_statementContext ctx) {
 		replaceTopOfStack(new PreElseStatement(), ctx);
+		currentItem = stack.peek();
 	}
 
 	/**
@@ -508,6 +514,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 */
 	public void enterPreElIf(Pre_elif_statementContext ctx) {
 		replaceTopOfStack(new PreElIfStatement(), ctx);
+		currentItem = stack.peek();
 	}
 
 	/**
@@ -519,6 +526,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 */
 	public void enterPreEndIf(Pre_endif_statementContext ctx) {
 		replaceTopOfStack(new PreEndIfStatement(), ctx);
+		currentItem = stack.peek();
 	}
 
 	/**
@@ -650,7 +658,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	// ----------------------------------Preprocessor handling end-------------------------------------------------------------
 
 	/**
-	 * This is called for every AST node that is a statement and that has no separate exit function
+	 * This is called for every AST node that is classified as a statement (based on grammar, e.g. expressionStatement is a statement)
 	 * @param ctx
 	 */
 	public void exitStatement(StatementContext ctx) {

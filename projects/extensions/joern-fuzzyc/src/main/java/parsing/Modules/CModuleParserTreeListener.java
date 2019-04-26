@@ -27,6 +27,7 @@ import parsing.ASTNodeFactory;
 import parsing.CompoundItemAssembler;
 import parsing.ModuleFunctionParserInterface;
 import parsing.Functions.ANTLRCFunctionParserDriver;
+import parsing.Functions.builder.FunctionContentBuilder;
 import parsing.Modules.builder.FunctionDefBuilder;
 import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
@@ -90,7 +91,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		// Try to reuse the function parser rules for parsing the preprocessor statement
 		try {
 			fDriver.parseAndWalkString(text);
-			thisItem = (PreStatementBase) fDriver.builderStack.pop().getItem().getChild(0);
+			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
+			thisItem = (PreStatementBase) fb.getItem().getChild(0);
+			//#elif/#else/#endif are not on the builderStack and therefore null, we get them via a separate attribute
+			if (thisItem == null)
+				thisItem = (PreStatementBase) fb.currentItem;
 		} catch (Exception e) {
 			System.err.println("Cannot create PreStatement " + text + " in ModuleParser");
 			e.printStackTrace();

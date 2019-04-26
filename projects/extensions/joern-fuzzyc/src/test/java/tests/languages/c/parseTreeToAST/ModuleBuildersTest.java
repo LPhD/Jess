@@ -215,17 +215,20 @@ public class ModuleBuildersTest {
 	
 	
 	@Test
-	public void preprocessorModuleBuilderASTNestingTest() {
+	public void preprocessorModuleBuilderASTAndVariabilityNestingTest() {
 		String input = "#if (modulefoo < 5) \n int modulei1; \n #elif (modulefoo > 5) \n double modulei2; \n #else \n long modulei3; \n #endif";
 		List<ASTNode> codeItems = parseInput(input);
 		//First PreIfStatement is the last node on the stack
-		PreStatementBase codeItem = (PreStatementBase) codeItems.get(3);	
+		PreBlockstarter codeItem = (PreBlockstarter) codeItems.get(3);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
-		codeItem = (PreStatementBase) codeItem.getChild(2);	
+		assertEquals("int modulei1;", codeItem.getVariableStatement(0).getEscapedCodeStr());
+		codeItem = (PreBlockstarter) codeItem.getChild(1);	
 		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
-		codeItem = (PreStatementBase) codeItem.getChild(2);	
+		assertEquals("double modulei2;", codeItem.getVariableStatement(0).getEscapedCodeStr());
+		codeItem = (PreBlockstarter) codeItem.getChild(1);	
 		assertEquals("PreElseStatement", codeItem.getTypeAsString());
-		codeItem = (PreStatementBase) codeItem.getChild(1);	
+		assertEquals("long modulei3;;", codeItem.getVariableStatement(0).getEscapedCodeStr());
+		codeItem = (PreBlockstarter) codeItem.getChild(0);	
 		assertEquals("PreEndIfStatement", codeItem.getTypeAsString());
 	}
 	
@@ -238,7 +241,7 @@ public class ModuleBuildersTest {
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
 		assertEquals("IdentifierDeclStatement", codeItem.getVariableStatement(0).getTypeAsString());
 		assertEquals("#if ( b )", codeItem.getVariableStatement(1).getEscapedCodeStr());
-		assertEquals("PreEndIfStatement", codeItem.getChild(2).getTypeAsString());
+		assertEquals("PreEndIfStatement", codeItem.getChild(1).getTypeAsString());
 	}
 	
 	
@@ -250,13 +253,16 @@ public class ModuleBuildersTest {
 		PreBlockstarter codeItem = (PreBlockstarter) codeItems.get(3);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
 		assertEquals("FunctionDef", codeItem.getVariableStatement(0).getTypeAsString());
-		codeItem = (PreBlockstarter) codeItem.getChild(2);	
+		//#elif (modulefoo > 5)
+		codeItem = (PreBlockstarter) codeItem.getChild(1);	
 		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
 		assertEquals("foo ()", codeItem.getVariableStatement(0).getEscapedCodeStr());
-		codeItem = (PreBlockstarter) codeItem.getChild(2);			
+		//#else
+		codeItem = (PreBlockstarter) codeItem.getChild(1);			
 		assertEquals("PreElseStatement", codeItem.getTypeAsString());
 		assertEquals("FunctionDef", codeItem.getVariableStatement(0).getTypeAsString());
-		codeItem = (PreBlockstarter) codeItem.getChild(1);		
+		//#endif
+		codeItem = (PreBlockstarter) codeItem.getChild(0);		
 		assertEquals("PreEndIfStatement", codeItem.getTypeAsString());
 	}
 
