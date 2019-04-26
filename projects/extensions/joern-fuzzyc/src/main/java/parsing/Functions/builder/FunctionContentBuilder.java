@@ -942,7 +942,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNode identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
-		checkVariability(identifierDecl);
 	}
 
 	public void exitInitDeclSimple() {
@@ -955,7 +954,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		IdentifierDecl identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
-		checkVariability(identifierDecl);
 	}
 
 	public void exitInitDeclWithAssign(InitDeclWithAssignContext ctx) {
@@ -980,7 +978,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNode identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
-		checkVariability(identifierDecl);
 	}
 
 	public void exitInitDeclWithCall() {
@@ -1110,7 +1107,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		InitializerList expr = new InitializerList();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
-		checkVariability(expr);
 	}
 
 	public void exitInitializerList(Initializer_listContext ctx) {
