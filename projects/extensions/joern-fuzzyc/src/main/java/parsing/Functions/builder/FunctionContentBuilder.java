@@ -156,7 +156,6 @@ import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
-import ast.preprocessor.PreStatementBase;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.blockstarters.CatchStatement;
@@ -605,7 +604,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		} else if (preASTItemStack.size() == 1)  {
 			//Remove orphaned #endif statements
 			PreBlockstarter lastNode = (PreBlockstarter) preASTItemStack.pop();
-			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation());
+			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation()+ " on function level");
 		}
 	}
 
@@ -629,14 +628,16 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			closeASTBlock();
 			closeVariabilityBlock();
 			logger.debug("AST and variability block closed!");
+			return;
 		} else if (itemToRemove instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the Stack
 			variabilityItemStack.push(itemToRemove);
 			preASTItemStack.push(itemToRemove);
 			logger.debug("#if collected");
 		} else {
-			// Check variability for all other types
-			checkVariability(itemToRemove);
+			// Check variability for all other types (except the top last compound statement, which is needed for function content building)
+			if (stack.size() > 1)
+				checkVariability(itemToRemove);
 		}	
 		//________________________________Preprocessor AST and VARIABILITY ANALYSIS END________________________________________________________________
 		

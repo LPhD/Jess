@@ -61,8 +61,6 @@ public class NestingReconstructor {
 			//This way first, { -> int i
 			CompoundStatement compound = (CompoundStatement) topOfStack;
 			compound.addChild(stmt);
-		} else if (topOfStack instanceof PreBlockstarter){		
-//			consolidatePreBlockStarters(stmt);
 		} else {
 			consolidateBlockStarters(stmt);
 		}
