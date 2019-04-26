@@ -610,6 +610,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	// ----------------------------------Preprocessor handling end-------------------------------------------------------------
 
+	/**
+	 * This is called for every AST node that is a statement and that has no separate exit function
+	 * @param ctx
+	 */
 	public void exitStatement(StatementContext ctx) {
 		if (stack.size() == 0) {
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
@@ -684,6 +688,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		AssignmentExpression expr = new AssignmentExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		checkVariability(expr);
 	}
 
 	public void exitAssignment(Assign_exprContext ctx) {
@@ -825,6 +830,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		CallExpression expr = new CallExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		checkVariability(expr);
 	}
 
 	public void exitFuncCall(FuncCallContext ctx) {
@@ -836,6 +842,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		Sizeof expr = new Sizeof();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		checkVariability(expr);
 	}
 
 	public void exitSizeof(SizeofContext ctx) {
@@ -903,6 +910,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		classDefBuilder.createNew(ctx);
 		classDefBuilder.setName(ctx.class_def().class_name());
 		replaceTopOfStack(classDefBuilder.getItem(), ctx);
+		checkVariability(classDefBuilder.getItem());
 	}
 
 	public void exitDeclByClass() {
@@ -913,6 +921,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNode identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
+		checkVariability(identifierDecl);
 	}
 
 	public void exitInitDeclSimple() {
@@ -925,6 +934,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		IdentifierDecl identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
+		checkVariability(identifierDecl);
 	}
 
 	public void exitInitDeclWithAssign(InitDeclWithAssignContext ctx) {
@@ -949,6 +959,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNode identifierDecl = buildDeclarator(ctx);
 		nodeToRuleContext.put(identifierDecl, ctx);
 		stack.push(identifierDecl);
+		checkVariability(identifierDecl);
 	}
 
 	public void exitInitDeclWithCall() {
@@ -1016,6 +1027,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		PostIncDecOperationExpression expr = new PostIncDecOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		checkVariability(expr);
 	}
 
 	public void exitIncDecOp(IncDecOpContext ctx) {
@@ -1026,6 +1038,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		PreIncDecOperationExpression expr = new PreIncDecOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		checkVariability(expr);
 	}
 
 	public void exitPreIncDecOp(IncDecOpContext ctx) {
@@ -1076,6 +1089,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		InitializerList expr = new InitializerList();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		checkVariability(expr);
 	}
 
 	public void exitInitializerList(Initializer_listContext ctx) {
@@ -1158,6 +1172,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			nodeToRuleContext.put(declStmt, ctx);
 			stack.push(declStmt);
 		}
+		
+		checkVariability(declStmt);
 	}
 
 	public void exitDeclByType() {
@@ -1174,6 +1190,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		SizeofExpression expr = new SizeofExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		checkVariability(expr);
 	}
 
 	public void exitSizeofExpr(Sizeof_expressionContext ctx) {
@@ -1203,6 +1220,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		UnaryOperationExpression expr = new UnaryOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		checkVariability(expr);
 	}
 
 	public void exitUnaryOpAndCastExpr(Unary_op_and_cast_exprContext ctx) {
