@@ -15,7 +15,6 @@ import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.preprocessor.PreBlockstarter;
-import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
 import parsing.TokenSubStream;
 import parsing.Modules.ANTLRCModuleParserDriver;
@@ -221,13 +220,16 @@ public class ModuleBuildersTest {
 		//First PreIfStatement is the last node on the stack
 		PreBlockstarter codeItem = (PreBlockstarter) codeItems.get(3);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
-		assertEquals("int modulei1;", codeItem.getVariableStatement(0).getEscapedCodeStr());
+		assertEquals("modulei1", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getName().getEscapedCodeStr());
+		assertEquals("int", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getType().getEscapedCodeStr());
 		codeItem = (PreBlockstarter) codeItem.getChild(1);	
 		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
-		assertEquals("double modulei2;", codeItem.getVariableStatement(0).getEscapedCodeStr());
+		assertEquals("modulei2", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getName().getEscapedCodeStr());
+		assertEquals("double", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getType().getEscapedCodeStr());
 		codeItem = (PreBlockstarter) codeItem.getChild(1);	
 		assertEquals("PreElseStatement", codeItem.getTypeAsString());
-		assertEquals("long modulei3;;", codeItem.getVariableStatement(0).getEscapedCodeStr());
+		assertEquals("modulei3", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getName().getEscapedCodeStr());
+		assertEquals("long", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getType().getEscapedCodeStr());
 		codeItem = (PreBlockstarter) codeItem.getChild(0);	
 		assertEquals("PreEndIfStatement", codeItem.getTypeAsString());
 	}
