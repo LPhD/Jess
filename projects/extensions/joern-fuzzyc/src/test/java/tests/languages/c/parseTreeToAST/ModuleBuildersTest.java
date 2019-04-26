@@ -220,16 +220,16 @@ public class ModuleBuildersTest {
 		//First PreIfStatement is the last node on the stack
 		PreBlockstarter codeItem = (PreBlockstarter) codeItems.get(3);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
-		assertEquals("modulei1", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getName().getEscapedCodeStr());
-		assertEquals("int", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getType().getEscapedCodeStr());
+		assertEquals("modulei1", ((IdentifierDecl) codeItem.getVariableStatement(0)).getName().getEscapedCodeStr());
+		assertEquals("int", ((IdentifierDecl) codeItem.getVariableStatement(0)).getType().getEscapedCodeStr());
 		codeItem = (PreBlockstarter) codeItem.getChild(1);	
 		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
-		assertEquals("modulei2", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getName().getEscapedCodeStr());
-		assertEquals("double", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getType().getEscapedCodeStr());
+		assertEquals("modulei2", ((IdentifierDecl) codeItem.getVariableStatement(0)).getName().getEscapedCodeStr());
+		assertEquals("double", ((IdentifierDecl) codeItem.getVariableStatement(0)).getType().getEscapedCodeStr());
 		codeItem = (PreBlockstarter) codeItem.getChild(1);	
 		assertEquals("PreElseStatement", codeItem.getTypeAsString());
-		assertEquals("modulei3", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getName().getEscapedCodeStr());
-		assertEquals("long", ((IdentifierDecl) ((IdentifierDeclStatement) codeItem.getVariableStatement(0)).getIdentifierDeclList().get(0)).getType().getEscapedCodeStr());
+		assertEquals("modulei3", ((IdentifierDecl) codeItem.getVariableStatement(0)).getName().getEscapedCodeStr());
+		assertEquals("long", ((IdentifierDecl) codeItem.getVariableStatement(0)).getType().getEscapedCodeStr());
 		codeItem = (PreBlockstarter) codeItem.getChild(0);	
 		assertEquals("PreEndIfStatement", codeItem.getTypeAsString());
 	}
@@ -241,7 +241,7 @@ public class ModuleBuildersTest {
 		//First PreIfStatement is the last node on the stack
 		PreBlockstarter codeItem = (PreBlockstarter) codeItems.get(4);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
-		assertEquals("IdentifierDeclStatement", codeItem.getVariableStatement(0).getTypeAsString());
+		assertEquals("IdentifierDecl", codeItem.getVariableStatement(0).getTypeAsString());
 		assertEquals("#if ( b )", codeItem.getVariableStatement(1).getEscapedCodeStr());
 		assertEquals("PreEndIfStatement", codeItem.getChild(1).getTypeAsString());
 	}
