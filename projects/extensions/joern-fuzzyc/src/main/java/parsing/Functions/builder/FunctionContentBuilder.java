@@ -544,6 +544,45 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 	
 	/**
+	 * Handles the preprocessor AST and variability analysis
+	 * 
+	 * @param itemToRemove
+	 * @return True if itemToRemove needs to be consolidated, false otherwise
+	 */
+	private Boolean preprocessorHandling(ASTNode itemToRemove) {
+		// If the current item is an #endif
+		if (itemToRemove instanceof PreEndIfStatement) {
+			// #endifs are only collected on the AST stack, not the variability stack
+			preASTItemStack.push(itemToRemove);
+			// Remove items from stack until the next #if/#ifdef
+			closeASTBlock();
+			closeVariabilityBlock();
+			logger.debug("AST and variability block closed!");
+			// Remove item from the stack
+			stack.pop();
+			return false;
+		} else if (itemToRemove instanceof PreBlockstarter) {
+			// Collect all Pre Blockstarters on the Stack
+			variabilityItemStack.push(itemToRemove);
+			preASTItemStack.push(itemToRemove);
+			logger.debug("#if collected");
+			// Connect only the #if with the function content compound statement
+			if (itemToRemove instanceof PreIfStatement) {
+				nesting.consolidate();
+			} else {
+				// Remove item from the stack. The nesting will be resolved in the closeASTBlock function
+				stack.pop();
+			}
+			return false;
+		} else {
+			// Check variability for all other types (except the top last compound statement, which is needed for function content building)
+			if (stack.size() > 1)
+				checkVariability(itemToRemove);
+			return true;
+		}
+	}
+	
+	/**
 	 * Check if the current ASTNode is inside an #ifdef block and therefore variable
 	 * 
 	 * @param currentNode
@@ -595,7 +634,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			if (topOfStack instanceof PreIfStatement) {
 				//Remove the PreIfStatement node from the stack and stop the iteration
 				currentNode = (PreBlockstarter) preASTItemStack.pop();
-				logger.debug("Found #if for #endif");								
+				logger.debug("Found #if for #endif");		
 			} else {
 				//Connect AST children until we reach a PreIfStatement or there is only 1 item left on the stack
 				closeASTBlock();
@@ -615,6 +654,9 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void exitStatement(StatementContext ctx) {
+		//We need this switch, because some pre statements should not be consolidated at this point
+		Boolean consolidate = true;
+		
 		if (stack.size() == 0) {
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
 		}
@@ -622,40 +664,19 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 		
-		//________________________________Preprocessor AST and VARIABILITY ANALYSIS________________________________________________________________
-		
-		// If the current item is an #endif
-		if (itemToRemove instanceof PreEndIfStatement) {
-			//#endifs are only collected on the AST stack
-			preASTItemStack.push(itemToRemove);
-			// Remove items from stack until the next #if/#ifdef
-			closeASTBlock();
-			closeVariabilityBlock();
-			logger.debug("AST and variability block closed!");
-			return;
-		} else if (itemToRemove instanceof PreBlockstarter) {
-			// Collect all Pre Blockstarters on the Stack
-			variabilityItemStack.push(itemToRemove);
-			preASTItemStack.push(itemToRemove);
-			logger.debug("#if collected");
-		} else {
-			// Check variability for all other types (except the top last compound statement, which is needed for function content building)
-			if (stack.size() > 1)
-				checkVariability(itemToRemove);
-		}	
-		//________________________________Preprocessor AST and VARIABILITY ANALYSIS END________________________________________________________________
-		
+		consolidate = preprocessorHandling(itemToRemove);
+				
 		if (itemToRemove instanceof BlockCloser) {
 			closeCompoundStatement();
 			return;
 		}
 
-		// We keep Block-starters and compound items on the stack. They are removed by
-		// following statements.
+		// We keep Block-starters and compound items on the stack. They are removed by following statements.
 		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement)
 			return;
-
-		nesting.consolidate();
+		
+		if (consolidate)
+			nesting.consolidate();
 	}
 
 	private void closeCompoundStatement() {
