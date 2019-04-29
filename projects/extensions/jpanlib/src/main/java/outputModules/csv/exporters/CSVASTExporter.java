@@ -9,28 +9,28 @@ import databaseNodes.NodeKeys;
 import outputModules.common.ASTExporter;
 import outputModules.common.Writer;
 
-public class CSVASTExporter extends ASTExporter
-{
+public class CSVASTExporter extends ASTExporter {
+	
+	@Override
+	protected void addASTNode(ASTDatabaseNode astDatabaseNode) {
+		Map<String, Object> properties = astDatabaseNode.createProperties();
+		properties.put(NodeKeys.FUNCTION_ID, Writer.getIdForObject(currentFunction).toString());
+		Writer.addNode(astDatabaseNode, properties);
+		astDatabaseNode.setNodeId(Writer.getIdForObject(astDatabaseNode));
+	}
 
 	@Override
-	protected void addASTLink(ASTNode parent, ASTNode child)
-	{
+	protected void addASTLink(ASTNode parent, ASTNode child) {
 		long srcId = Writer.getIdForObject(parent);
 		long dstId = Writer.getIdForObject(child);
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);
 	}
 
+	/**
+	 * Link the given preStatementDatabaseNode (parentNodeID) with its block content (childNodeID)
+	 */
 	@Override
-	protected void addASTNode(ASTNode node)
-	{
-		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
-		astDatabaseNode.initialize(node);
-		astDatabaseNode.setCurrentFunction(currentFunction);
-		astDatabaseNode.setInsideFunctionBlock(this.isInsideFunctionBlock());
-		Map<String, Object> properties = astDatabaseNode.createProperties();
-
-		properties.put(NodeKeys.FUNCTION_ID,
-				Writer.getIdForObject(currentFunction).toString());
-		Writer.addNode(node, properties);
+	protected void drawVariabilityEdge(long parentNodeID, long childNodeID) {
+		Writer.addEdge(parentNodeID, childNodeID, null, EdgeTypes.VARIABILITY);
 	}
 }
