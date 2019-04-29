@@ -20,8 +20,8 @@ pre_else_statement: PRE_ELSE;
 
 pre_endif_statement: PRE_ENDIF;
 
-pre_if_condition: '(' condition ')'
-				| condition;
+pre_if_condition: condition
+				| '(' condition ')';
                              
 condition: expr
      | type_name declarator '=' assign_expr;
