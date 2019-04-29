@@ -19,7 +19,9 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 		ASTDatabaseNode astDBnode = (ASTDatabaseNode) dbNode;
 		Map<String, Object> properties = astDBnode.createProperties();
 		Writer.addNode(dbNode, properties);
+		
 		mainNodeId = Writer.getIdForObject(dbNode);
+		dbNode.setNodeId(Writer.getIdForObject(dbNode));
 //		System.out.println("CSV Main Node added: "+ astDBnode.getAstNode());
 	}
 	
@@ -52,9 +54,7 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	 * @param child The child ASTNode
 	 */
 	@Override
-	protected void addASTLink(ASTDatabaseNode parent, ASTDatabaseNode child) {
-		long srcId = Writer.getIdForObject(parent);
-		long dstId = Writer.getIdForObject(child);
+	protected void addASTLink(long srcId, long dstId ) {
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);
 	}
 	

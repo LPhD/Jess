@@ -2,7 +2,6 @@ package outputModules.csv.exporters;
 
 import java.util.Map;
 
-import ast.ASTNode;
 import databaseNodes.ASTDatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.NodeKeys;
@@ -20,9 +19,7 @@ public class CSVASTExporter extends ASTExporter {
 	}
 
 	@Override
-	protected void addASTLink(ASTNode parent, ASTNode child) {
-		long srcId = Writer.getIdForObject(parent);
-		long dstId = Writer.getIdForObject(child);
+	protected void addASTLink(long srcId, long dstId) {
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);
 	}
 

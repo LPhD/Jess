@@ -20,8 +20,8 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			preDBNode.initialize(astNode);
 			addMainNode(preDBNode);
 			
-			//Set nodeID for Variability Analysis
-			astNode.setNodeId(mainNodeId);
+			//Set nodeID in AST node to draw variability and AST edges
+			astNode.setNodeId(preDBNode.getNodeId());
 			
 			//Connect the DB node with its parent file node
 			linkPreStatementToFileNode(preDBNode, curFile);	
@@ -33,10 +33,10 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	
 			//Look for statements that are inside an #ifdef block and add a variability edge
 			if (astNode instanceof PreBlockstarter)
-				addVariableStatements(preDBNode, (PreBlockstarter) astNode);
+				addVariableStatements((PreBlockstarter) astNode);
 			
 			//Finally, look for AST children and add them
-			addASTChildren(preDBNode, astNode);	
+			addASTChildren(astNode);	
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
 			System.err.println("Error adding pre-statement to database: "+ preDBNode.toString());
@@ -49,7 +49,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	 * @param parent The current node.
 	 * @param astNodeParent The current node.
 	 */
-	private void addVariableStatements(ASTDatabaseNode preDBNode, PreBlockstarter preAstNode) {
+	private void addVariableStatements(PreBlockstarter preAstNode) {
 		final int nVariableStatements = preAstNode.getVariableStatementsCount();
 		for (int i = 0; i < nVariableStatements; i++) {
 			ASTNode vStatement = preAstNode.getVariableStatement(i);
@@ -67,13 +67,14 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	 * @param parent The current node.
 	 * @param astNodeParent The current node.
 	 */
-	protected void addASTChildren(ASTDatabaseNode dbNodeParent, ASTNode astNodeParent) {
+	protected void addASTChildren(ASTNode astNodeParent) {
 		final int nChildren = astNodeParent.getChildCount();
 		for (int i = 0; i < nChildren; i++) {
 			ASTNode child = astNodeParent.getChild(i);
 //			System.out.println("Parent: "+astNodeParent.getEscapedCodeStr()+"with "+nChildren+" children");
 //			System.out.println("Child: "+child.getEscapedCodeStr());
-			addASTToDatabase(dbNodeParent, child);			
+			addASTToDatabase(child);	
+			addASTLink(astNodeParent.getNodeId(), child.getNodeId());
 		}
 	}
 	
@@ -84,13 +85,14 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	 * @param currentNode The current node.
 	 * @param parent The parent node of the current node.
 	 */
-	public void addASTToDatabase(ASTDatabaseNode dbNodeParent, ASTNode currentASTNode) {
+	public void addASTToDatabase(ASTNode currentASTNode) {
 		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
 		try	{
 			//Add DB Node and connect it with its parent
 			astDatabaseNode.initialize(currentASTNode);
 			addASTNode(astDatabaseNode);
-			addASTLink(dbNodeParent, astDatabaseNode);
+			//Set nodeID in AST node to draw variability and AST edges
+			currentASTNode.setNodeId(astDatabaseNode.getNodeId());
 						
 			//Link include statement with included file
 			if(currentASTNode.getTypeAsString().equals("PreIncludeLocalFile")) {
@@ -99,13 +101,11 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 				
 			//Look for statements that are inside an #ifdef block
 			if (currentASTNode instanceof PreBlockstarter) {
-				//Set nodeID for Variability Analysis (this is only neccessary for #else and #elif nodes)
-				currentASTNode.setNodeId(astDatabaseNode.getNodeId());
-				addVariableStatements(astDatabaseNode, (PreBlockstarter) currentASTNode);
+				addVariableStatements((PreBlockstarter) currentASTNode);
 			}
 			
 			//Finally, look for AST childs and add them
-			addASTChildren(astDatabaseNode, currentASTNode);
+			addASTChildren(currentASTNode);
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
 			System.err.println("Error adding pre-statement children to database: "+ astDatabaseNode.toString());
@@ -115,7 +115,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	
 	
 	protected abstract void addASTNode(ASTDatabaseNode astDatabaseNode);
-	protected abstract void addASTLink(ASTDatabaseNode parent, ASTDatabaseNode child);
+	protected abstract void addASTLink(long parentNodeID, long childNodeID);
 	protected abstract void linkPreStatementToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode fileNode);
 	protected abstract void drawVariabilityEdge(long parentNodeID, long childNodeID);
 }

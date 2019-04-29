@@ -12,12 +12,14 @@ public abstract class ASTExporter {
 	protected int ancestorCompoundStatements;
 
 	public void addASTToDatabase(ASTNode node) {
-		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
+		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();				
 		astDatabaseNode.initialize(node);
 		astDatabaseNode.setCurrentFunction(currentFunction);
 		astDatabaseNode.setInsideFunctionBlock(this.isInsideFunctionBlock());
 		
 		addASTNode(astDatabaseNode);
+		//Set nodeID in AST node to draw variability and AST edges
+		node.setNodeId(astDatabaseNode.getNodeId());
 		
 		// Link include statement with included file
 		if (node.getTypeAsString().equals("PreIncludeLocalFile")) {
@@ -26,10 +28,7 @@ public abstract class ASTExporter {
 
 		// Look for statements that are inside an #ifdef block
 		if (node instanceof PreBlockstarter) {
-			// Set nodeID for Variability Analysis (this is only neccessary for #else and
-			// #elif nodes)
-			node.setNodeId(astDatabaseNode.getNodeId());
-			addVariableStatements(astDatabaseNode, (PreBlockstarter) node);
+			addVariableStatements((PreBlockstarter) node);
 		}
 		
 		visit(node);
@@ -52,7 +51,7 @@ public abstract class ASTExporter {
 	 * @param astNodeParent
 	 *            The current node.
 	 */
-	private void addVariableStatements(ASTDatabaseNode preDBNode, PreBlockstarter preAstNode) {
+	private void addVariableStatements(PreBlockstarter preAstNode) {
 		final int nVariableStatements = preAstNode.getVariableStatementsCount();
 		for (int i = 0; i < nVariableStatements; i++) {
 			ASTNode vStatement = preAstNode.getVariableStatement(i);
@@ -65,14 +64,14 @@ public abstract class ASTExporter {
 		}
 	}
 	
-	protected void addASTChildren(ASTNode node) {
+	protected void addASTChildren(ASTNode astNodeParent) {
 
-		final int nChildren = node.getChildCount();
+		final int nChildren = astNodeParent.getChildCount();
 
 		for (int i = 0; i < nChildren; i++) {
-			ASTNode child = node.getChild(i);
+			ASTNode child = astNodeParent.getChild(i);
 			addASTToDatabase(child);
-			addASTLink(node, child);
+			addASTLink(astNodeParent.getNodeId(), child.getNodeId());
 		}
 
 	}
@@ -92,7 +91,7 @@ public abstract class ASTExporter {
 	}
 	
 	protected abstract void addASTNode(ASTDatabaseNode astDatabaseNode);
-	protected abstract void addASTLink(ASTNode parent, ASTNode child);
+	protected abstract void addASTLink(long parentNodeID, long childNodeID);
 	protected abstract void drawVariabilityEdge(long parentNodeID, long childNodeID);
 
 }

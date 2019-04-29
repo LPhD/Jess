@@ -27,6 +27,8 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		nodeStore.addNeo4jNode(dbNode, properties);
 
 		mainNodeId = nodeStore.getIdForObject(dbNode);
+		dbNode.setNodeId(nodeStore.getIdForObject(dbNode));
+		
 		// index, but do not index location
 		properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);
@@ -70,12 +72,8 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 	 * @param child The child ASTNode
 	 */
 	@Override
-	protected void addASTLink(ASTDatabaseNode parent, ASTDatabaseNode child) {
+	protected void addASTLink(long parentId, long childId) {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_AST_PARENT);
-
-		long parentId = nodeStore.getIdForObject(parent);
-		long childId = nodeStore.getIdForObject(child);
-
 		Neo4JBatchInserter.addRelationship(parentId, childId, rel, null);
 	}
 	
