@@ -114,6 +114,15 @@ public class PreprocessorTests {
 	}
 	
 	@Test
+	public void testPreIfWithEvenMoreNestedCondition() {
+		String input = "#if (MAKRO(7) > 7) && (IS_ENABLED(BUBBLE) && ENABLED(BUBBLE)) int i;  #endif";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals(2, contentItem.getStatements().size());
+		assertEquals("( MAKRO ( 7 ) > 7 ) && ( IS_ENABLED ( BUBBLE ) && ENABLED ( BUBBLE ) )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
+	}
+		
+	
+	@Test
 	public void testPreIncludeStatementWithBrackets() {
 		String input = "#include <file.h> ";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
