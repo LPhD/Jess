@@ -5,7 +5,6 @@ import java.util.Map;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.RelationshipType;
 
-import ast.ASTNode;
 import databaseNodes.ASTDatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.NodeKeys;
@@ -32,13 +31,9 @@ public class Neo4JASTExporter extends ASTExporter {
 	}
 
 	@Override
-	protected void addASTLink(ASTNode parent, ASTNode child) {
+	protected void addASTLink(long parentId, long childId) {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_AST_PARENT);
-
-		long parentId = nodeStore.getIdForObject(parent);
-		long childId = nodeStore.getIdForObject(child);
 		Map<String, Object> properties = null;
-
 		Neo4JBatchInserter.addRelationship(parentId, childId, rel, properties);
 	}
 	
