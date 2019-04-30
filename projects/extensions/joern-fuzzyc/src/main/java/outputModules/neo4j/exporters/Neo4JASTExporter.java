@@ -23,8 +23,9 @@ public class Neo4JASTExporter extends ASTExporter {
 	@Override
 	protected void addASTNode(ASTDatabaseNode astDatabaseNode) {
 		Map<String, Object> properties = astDatabaseNode.createProperties();
-		properties.put(NodeKeys.FUNCTION_ID, nodeStore.getIdForObject(currentFunction));
 		nodeStore.addNeo4jNode(astDatabaseNode, properties);
+		properties.put(NodeKeys.FUNCTION_ID, nodeStore.getIdForObject(currentFunction));
+
 
 		nodeStore.indexNode(astDatabaseNode, properties);
 		astDatabaseNode.setNodeId(nodeStore.getIdForObject(astDatabaseNode));

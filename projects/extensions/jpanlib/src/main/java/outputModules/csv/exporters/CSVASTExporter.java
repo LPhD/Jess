@@ -13,8 +13,8 @@ public class CSVASTExporter extends ASTExporter {
 	@Override
 	protected void addASTNode(ASTDatabaseNode astDatabaseNode) {
 		Map<String, Object> properties = astDatabaseNode.createProperties();
-		properties.put(NodeKeys.FUNCTION_ID, Writer.getIdForObject(currentFunction).toString());
 		Writer.addNode(astDatabaseNode, properties);
+		properties.put(NodeKeys.FUNCTION_ID, Writer.getIdForObject(currentFunction).toString());
 		astDatabaseNode.setNodeId(Writer.getIdForObject(astDatabaseNode));
 	}
 
