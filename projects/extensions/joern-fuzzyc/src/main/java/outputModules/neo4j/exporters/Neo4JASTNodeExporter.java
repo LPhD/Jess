@@ -8,20 +8,19 @@ import databaseNodes.NodeKeys;
 import neo4j.batchInserter.GraphNodeStore;
 import outputModules.common.ASTNodeExporter;
 
-public abstract class Neo4JASTNodeExporter extends ASTNodeExporter
-{
+public abstract class Neo4JASTNodeExporter extends ASTNodeExporter {
 
 	public abstract void addToDatabaseSafe(ASTNode node);
 
 	protected GraphNodeStore nodeStore = new GraphNodeStore();
 
 	@Override
-	protected void addMainNode(DatabaseNode dbNode)
-	{
+	protected void addMainNode(DatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		nodeStore.addNeo4jNode(dbNode, properties);
 
 		mainNodeId = nodeStore.getIdForObject(dbNode);
+		dbNode.setNodeId(nodeStore.getIdForObject(dbNode));
 
 		// We are currently not adding 'functionId' to the function node
 		// as that requires us to perform a lookup on the node just created

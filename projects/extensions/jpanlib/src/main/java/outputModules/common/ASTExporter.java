@@ -21,22 +21,21 @@ public abstract class ASTExporter {
 		//Set nodeID in AST node to draw variability and AST edges
 		node.setNodeId(astDatabaseNode.getNodeId());
 		
-		System.out.println("Node: "+node.getEscapedCodeStr());
-		System.out.println("AST node id: "+node.getNodeId());
-		System.out.println("DB node id: "+astDatabaseNode.getNodeId());
 		
 		// Link include statement with included file
 		if (node.getTypeAsString().equals("PreIncludeLocalFile")) {
 			IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
 		}
-
-		// Look for statements that are inside an #ifdef block
+		
+		visit(node);
+		addASTChildren(node);
+		
+		// Look for statements that are inside an #ifdef block. Do this after adding the AST child nodes, otherwise
+		// some nodes may not be initialized yet.
 		if (node instanceof PreBlockstarter) {
 			addVariableStatements((PreBlockstarter) node);
 		}
 		
-		visit(node);
-		addASTChildren(node);
 		leave(node);
 	}
 

@@ -11,7 +11,6 @@ import databaseNodes.NodeKeys;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.ASTExporter;
-import outputModules.common.Writer;
 
 public class Neo4JASTExporter extends ASTExporter {
 	GraphNodeStore nodeStore;

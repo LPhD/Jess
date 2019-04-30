@@ -10,14 +10,10 @@ import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.ClassDefExporter;
 
-public class Neo4JClassDefExporter extends ClassDefExporter
-{
+public class Neo4JClassDefExporter extends ClassDefExporter {
 
-	protected void linkClassDefToFileNode(ClassDefDatabaseNode classDefNode,
-			FileDatabaseNode fileNode)
-	{
-		RelationshipType rel = DynamicRelationshipType
-				.withName(EdgeTypes.IS_FILE_OF);
+	protected void linkClassDefToFileNode(ClassDefDatabaseNode classDefNode, FileDatabaseNode fileNode) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_FILE_OF);
 
 		long fileId = fileNode.getId();
 		long functionId = nodeStore.getIdForObject(classDefNode);
@@ -32,14 +28,14 @@ public class Neo4JClassDefExporter extends ClassDefExporter
 	protected GraphNodeStore nodeStore = new GraphNodeStore();
 
 	@Override
-	protected void addMainNode(DatabaseNode dbNode)
-	{
+	protected void addMainNode(DatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		nodeStore.addNeo4jNode(dbNode, properties);
 
 		mainNodeId = nodeStore.getIdForObject(dbNode);
+		dbNode.setNodeId(nodeStore.getIdForObject(dbNode));
 		properties.remove(NodeKeys.LOCATION);
-		nodeStore.indexNode(dbNode, properties);
+		nodeStore.indexNode(dbNode, properties);		
 	}
 
 }
