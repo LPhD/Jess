@@ -58,20 +58,15 @@ public abstract class CFGExporter {
 		for (CFGEdge edge : cfg.getEdges()) {
 			src = edge.getSource();
 			dst = edge.getDestination();
-			System.out.println("Src: "+src.toString());
-			System.out.println("Dst: "+dst.toString());
 			
 			if (src instanceof ASTNodeContainer) {
 				src = ((ASTNodeContainer) src).getASTNode();
-				System.out.println("Src2: "+src.toString());
 			}
 			
 			if (dst instanceof ASTNodeContainer) {
 				dst = ((ASTNodeContainer) dst).getASTNode();
-				System.out.println("Dst2: "+dst.toString());
 			}
 			
-			System.out.println("Edge: "+edge.getProperties());
 			addFlowToLink(src, dst, edge.getProperties());
 		}
 	}
