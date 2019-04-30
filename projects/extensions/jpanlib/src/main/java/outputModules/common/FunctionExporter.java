@@ -69,6 +69,9 @@ public abstract class FunctionExporter extends ASTNodeExporter {
 		cdgImporter.addCDGToDatabase(function.getCDG());
 		domExporter.addDominatorTreeToDatabase(function.getDominatorTree());
 		domExporter.addPostDominatorTreeToDatabase(function.getPostDominatorTree());
+		
+		//Analyze the function content (the children of the compound statement)
+		astImporter.addVariabilityAnalysis(function.getASTRoot().getChild(0));
 
 		linkFunctionToASTAndCFG(function);
 
