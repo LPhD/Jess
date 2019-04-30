@@ -54,17 +54,18 @@ public abstract class ASTExporter {
 			if (currentNode instanceof PreBlockstarter) {
 				final int nVariableStatements = ((PreBlockstarter) currentNode).getVariableStatementsCount();
 				for (int i = 0; i < nVariableStatements; i++) {
-					ASTNode vStatement = ((PreBlockstarter) currentNode).getVariableStatement(i);
+					ASTNode vStatement = ((PreBlockstarter) currentNode).getVariableStatement(i);					
 					
-					System.out.println("Try to recieve node ids from " + currentNode.getEscapedCodeStr() + " and "+ vStatement.getEscapedCodeStr());
-					System.out.println("currentNode: "+currentNode.getNodeId());
-					System.out.println("vStatement: "+vStatement.getNodeId());
-					
-					
-					long parentNodeID = currentNode.getNodeId();
-					long childNodeID = vStatement.getNodeId();
+					try {
+						long parentNodeID = currentNode.getNodeId();
+						long childNodeID = vStatement.getNodeId();
+						drawVariabilityEdge(parentNodeID, childNodeID);
+					} catch (Exception e) {
+						System.out.println("Try to recieve node ids from " + currentNode.getEscapedCodeStr() + " and "+ vStatement.getEscapedCodeStr());
+//						System.out.println("currentNode: "+currentNode.getNodeId());
+//						System.out.println("vStatement: "+vStatement.getNodeId());
+					}
 
-					drawVariabilityEdge(parentNodeID, childNodeID);
 					// System.out.println("Connected variability parent: "+preAstNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 				}
 			}
