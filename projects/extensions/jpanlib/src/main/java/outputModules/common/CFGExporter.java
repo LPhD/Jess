@@ -8,23 +8,18 @@ import cfg.nodes.ASTNodeContainer;
 import cfg.nodes.CFGNode;
 import databaseNodes.FunctionDatabaseNode;
 
-public abstract class CFGExporter
-{
-	protected abstract void writeCFGNode(CFGNode statement,
-			Map<String, Object> properties);
+public abstract class CFGExporter {
+	protected abstract void writeCFGNode(CFGNode statement, Map<String, Object> properties);
 
-	protected abstract void addFlowToLink(Object srcBlock, Object dstBlock,
-			Map<String, Object> properties);
+	protected abstract void addFlowToLink(Object srcBlock, Object dstBlock, Map<String, Object> properties);
 
 	protected FunctionDatabaseNode currentFunction;
 
-	public void setCurrentFunction(FunctionDatabaseNode func)
-	{
+	public void setCurrentFunction(FunctionDatabaseNode func) {
 		currentFunction = func;
 	}
 
-	public void addCFGToDatabase(CFG cfg)
-	{
+	public void addCFGToDatabase(CFG cfg) {
 		if (cfg == null)
 			return;
 
@@ -32,8 +27,7 @@ public abstract class CFGExporter
 		addCFGEdges(cfg);
 	}
 
-	private void createEmptyCFGNodes(CFG cfg)
-	{
+	private void createEmptyCFGNodes(CFG cfg) {
 		// This deserves some explanation:
 		// Our CFG creation code currently inserts empty-blocks
 		// in some places, e.g., nodes that join prior control-flows.
@@ -42,17 +36,14 @@ public abstract class CFGExporter
 		// database nodes when importing the CFG. All other CFG nodes
 		// are nodes of the AST and hence are already in the database.
 
-		for (CFGNode statement : cfg.getVertices())
-		{
+		for (CFGNode statement : cfg.getVertices()) {
 
 			Map<String, Object> properties;
-			if (statement instanceof ASTNodeContainer)
-			{
+			if (statement instanceof ASTNodeContainer) {
 				// nothing to do for nodes that have already
 				// been imported by the ASTImporter.
 				continue;
-			} else
-			{
+			} else {
 				properties = statement.getProperties();
 			}
 
@@ -61,18 +52,26 @@ public abstract class CFGExporter
 		}
 	}
 
-	private void addCFGEdges(CFG cfg)
-	{
+	private void addCFGEdges(CFG cfg) {
 		Object src;
 		Object dst;
-		for (CFGEdge edge : cfg.getEdges())
-		{
+		for (CFGEdge edge : cfg.getEdges()) {
 			src = edge.getSource();
 			dst = edge.getDestination();
-			if (src instanceof ASTNodeContainer)
+			System.out.println("Src: "+src.toString());
+			System.out.println("Dst: "+dst.toString());
+			
+			if (src instanceof ASTNodeContainer) {
 				src = ((ASTNodeContainer) src).getASTNode();
-			if (dst instanceof ASTNodeContainer)
+				System.out.println("Src2: "+src.toString());
+			}
+			
+			if (dst instanceof ASTNodeContainer) {
 				dst = ((ASTNodeContainer) dst).getASTNode();
+				System.out.println("Dst2: "+dst.toString());
+			}
+			
+			System.out.println("Edge: "+edge.getProperties());
 			addFlowToLink(src, dst, edge.getProperties());
 		}
 	}
