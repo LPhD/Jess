@@ -24,8 +24,13 @@ public class CSVCFGExporter extends CFGExporter {
 
 	@Override
 	protected void addFlowToLink(Object srcBlock, Object dstBlock, Map<String, Object> properties) {
+
 		long srcId = Writer.getIdForObject(srcBlock);
+		System.out.println("Src: "+srcId);
+
 		long dstId = Writer.getIdForObject(dstBlock);
+		System.out.println("Dst: "+dstId);
+		
 		Writer.addEdge(srcId, dstId, properties, EdgeTypes.FLOWS_TO);
 	}
 
