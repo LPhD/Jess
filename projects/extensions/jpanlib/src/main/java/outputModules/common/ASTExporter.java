@@ -29,14 +29,7 @@ public abstract class ASTExporter {
 		}
 		
 		visit(node);
-		addASTChildren(node);
-		
-		// Look for statements that are inside an #ifdef block. Do this after adding the AST child nodes, otherwise
-		// some nodes may not be initialized yet.
-		if (node instanceof PreBlockstarter) {
-			addVariableStatements((PreBlockstarter) node);
-		}
-		
+		addASTChildren(node);	
 		leave(node);
 	}
 
@@ -47,24 +40,28 @@ public abstract class ASTExporter {
 	}
 	
 	/**
-	 * Look for nodes surrounded with the variability block of the current node and
-	 * add them to the db.
+	 * Look for nodes surrounded with a variability block and draws the respective variability link
 	 * 
-	 * @param parent
-	 *            The current node.
-	 * @param astNodeParent
-	 *            The current node.
+	 * @param rootAstCompoundNode The top level compound statement of the function
 	 */
-	private void addVariableStatements(PreBlockstarter preAstNode) {
-		final int nVariableStatements = preAstNode.getVariableStatementsCount();
-		for (int i = 0; i < nVariableStatements; i++) {
-			ASTNode vStatement = preAstNode.getVariableStatement(i);
-			System.out.println("Try to recieve node ids from "+preAstNode.getEscapedCodeStr()+" and "+vStatement.getEscapedCodeStr());
-			long parentNodeID = preAstNode.getNodeId();
-			long childNodeID = vStatement.getNodeId();
+	public void addVariabilityAnalysis(ASTNode rootAstCompoundNode) {
+		final int nChildren = rootAstCompoundNode.getChildCount();
 
-			drawVariabilityEdge(parentNodeID, childNodeID);
-//			System.out.println("Connected variability parent: "+preAstNode.getEscapedCodeStr()+"with variability child: "+vStatement.getEscapedCodeStr());
+		//For each top level child that is a pre blockstarter
+		for (int j = 0; j < nChildren; j++) {
+			ASTNode child = rootAstCompoundNode.getChild(j);
+			if (child instanceof PreBlockstarter) {
+				final int nVariableStatements = ((PreBlockstarter) child).getVariableStatementsCount();
+				for (int i = 0; i < nVariableStatements; i++) {
+					ASTNode vStatement = ((PreBlockstarter) child).getVariableStatement(i);
+					System.out.println("Try to recieve node ids from " + child.getEscapedCodeStr() + " and "+ vStatement.getEscapedCodeStr());
+					long parentNodeID = child.getNodeId();
+					long childNodeID = vStatement.getNodeId();
+
+					drawVariabilityEdge(parentNodeID, childNodeID);
+					// System.out.println("Connected variability parent: "+preAstNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
+				}
+			}
 		}
 	}
 	
