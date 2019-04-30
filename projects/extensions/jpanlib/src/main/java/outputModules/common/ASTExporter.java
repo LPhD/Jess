@@ -20,6 +20,7 @@ public abstract class ASTExporter {
 		addASTNode(astDatabaseNode);
 		//Set nodeID in AST node to draw variability and AST edges
 		node.setNodeId(astDatabaseNode.getNodeId());
+		
 		System.out.println("Set nodeId for: "+node.getEscapedCodeStr()+" -> "+node.getNodeId());
 		
 		
@@ -49,13 +50,18 @@ public abstract class ASTExporter {
 
 		//For each top level child that is a pre blockstarter
 		for (int j = 0; j < nChildren; j++) {
-			ASTNode child = rootAstCompoundNode.getChild(j);
-			if (child instanceof PreBlockstarter) {
-				final int nVariableStatements = ((PreBlockstarter) child).getVariableStatementsCount();
+			ASTNode currentNode = rootAstCompoundNode.getChild(j);
+			if (currentNode instanceof PreBlockstarter) {
+				final int nVariableStatements = ((PreBlockstarter) currentNode).getVariableStatementsCount();
 				for (int i = 0; i < nVariableStatements; i++) {
-					ASTNode vStatement = ((PreBlockstarter) child).getVariableStatement(i);
-					System.out.println("Try to recieve node ids from " + child.getEscapedCodeStr() + " and "+ vStatement.getEscapedCodeStr());
-					long parentNodeID = child.getNodeId();
+					ASTNode vStatement = ((PreBlockstarter) currentNode).getVariableStatement(i);
+					
+					System.out.println("Try to recieve node ids from " + currentNode.getEscapedCodeStr() + " and "+ vStatement.getEscapedCodeStr());
+					System.out.println("currentNode: "+currentNode.getNodeId());
+					System.out.println("vStatement: "+vStatement.getNodeId());
+					
+					
+					long parentNodeID = currentNode.getNodeId();
 					long childNodeID = vStatement.getNodeId();
 
 					drawVariabilityEdge(parentNodeID, childNodeID);
