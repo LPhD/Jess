@@ -15,7 +15,11 @@ public class CSVASTExporter extends ASTExporter {
 		Map<String, Object> properties = astDatabaseNode.createProperties();
 		Writer.addNode(astDatabaseNode, properties);
 		properties.put(NodeKeys.FUNCTION_ID, Writer.getIdForObject(currentFunction).toString());
-		astDatabaseNode.setNodeId(Writer.getIdForObject(astDatabaseNode));
+		
+		//ID handling (because sometimes we get the id from the AST node or the DB node or via the writer)
+		long id = Writer.getIdForObject(astDatabaseNode);
+		astDatabaseNode.setNodeId(id);
+		Writer.setIdForObject(astDatabaseNode.getAstNode(), id);
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import databaseNodes.NodeKeys;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.ASTExporter;
+import outputModules.common.Writer;
 
 public class Neo4JASTExporter extends ASTExporter {
 	GraphNodeStore nodeStore;
@@ -24,11 +25,14 @@ public class Neo4JASTExporter extends ASTExporter {
 	protected void addASTNode(ASTDatabaseNode astDatabaseNode) {
 		Map<String, Object> properties = astDatabaseNode.createProperties();
 		nodeStore.addNeo4jNode(astDatabaseNode, properties);
+		nodeStore.indexNode(astDatabaseNode, properties);
+		
 		properties.put(NodeKeys.FUNCTION_ID, nodeStore.getIdForObject(currentFunction));
 
-
-		nodeStore.indexNode(astDatabaseNode, properties);
-		astDatabaseNode.setNodeId(nodeStore.getIdForObject(astDatabaseNode));
+		//ID handling (because sometimes we get the id from the AST node or the DB node or via the writer)
+		long id = nodeStore.getIdForObject(astDatabaseNode);
+		astDatabaseNode.setNodeId(id);
+		nodeStore.setIdForObject(astDatabaseNode.getAstNode(), id);
 	}
 
 	@Override
