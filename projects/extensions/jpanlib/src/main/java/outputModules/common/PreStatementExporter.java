@@ -54,10 +54,16 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		final int nVariableStatements = preAstNode.getVariableStatementsCount();
 		for (int i = 0; i < nVariableStatements; i++) {
 			ASTNode vStatement = preAstNode.getVariableStatement(i);
-			long parentNodeID = preAstNode.getNodeId();
-			long childNodeID = vStatement.getNodeId();
 			
-			drawVariabilityEdge(parentNodeID, childNodeID);
+			//TODO: Sometimes the cildNode is null, check why
+			if(preAstNode.getNodeId() > 0 && vStatement.getNodeId() > 0) {
+				long parentNodeID = preAstNode.getNodeId();
+				long childNodeID = vStatement.getNodeId();
+				drawVariabilityEdge(parentNodeID, childNodeID);
+			} else {
+				System.err.println("Error connecting "+preAstNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
+			}
+
 //			System.out.println("Connected DB parent: "+preAstNode.getEscapedCodeStr()+" with DB child: "+vStatement.getEscapedCodeStr());
 		}
 	}

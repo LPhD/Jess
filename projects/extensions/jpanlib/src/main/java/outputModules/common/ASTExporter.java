@@ -61,6 +61,8 @@ public abstract class ASTExporter {
 						long parentNodeID = currentNode.getNodeId();
 						long childNodeID = vStatement.getNodeId();
 						drawVariabilityEdge(parentNodeID, childNodeID);
+					} else {
+						System.err.println("Error connecting "+currentNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 					}
 					// System.out.println("Connected variability parent: "+preAstNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 				}
