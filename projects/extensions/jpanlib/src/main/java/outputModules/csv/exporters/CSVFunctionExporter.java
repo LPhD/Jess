@@ -62,6 +62,7 @@ public class CSVFunctionExporter extends FunctionExporter {
 		Map<String, Object> properties = dbNode.createProperties();
 		Writer.addNode(dbNode, properties);
 		mainNodeId = Writer.getIdForObject(dbNode);
+		dbNode.setNodeId(Writer.getIdForObject(dbNode));
 	}
 
 }

@@ -12,20 +12,16 @@ import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.DeclStmtExporter;
 
-public class Neo4JDeclStmtExporter extends DeclStmtExporter
-{
+public class Neo4JDeclStmtExporter extends DeclStmtExporter {
 
-	public Neo4JDeclStmtExporter()
-	{
+	public Neo4JDeclStmtExporter() {
 		declImporter = new Neo4JDeclExporter();
 
 	}
 
 	@Override
-	protected void addLinkFromStmtToDecl(long mainNodeId, long declId)
-	{
-		RelationshipType rel = DynamicRelationshipType
-				.withName(EdgeTypes.DECLARES);
+	protected void addLinkFromStmtToDecl(long mainNodeId, long declId) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.DECLARES);
 		Neo4JBatchInserter.addRelationship(mainNodeId, declId, rel, null);
 	}
 
@@ -34,12 +30,12 @@ public class Neo4JDeclStmtExporter extends DeclStmtExporter
 	protected GraphNodeStore nodeStore = new GraphNodeStore();
 
 	@Override
-	protected void addMainNode(DatabaseNode dbNode)
-	{
+	protected void addMainNode(DatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		nodeStore.addNeo4jNode(dbNode, properties);
 
 		mainNodeId = nodeStore.getIdForObject(dbNode);
+		dbNode.setNodeId(nodeStore.getIdForObject(dbNode));
 
 		// We are currently not adding 'functionId' to the function node
 		// as that requires us to perform a lookup on the node just created

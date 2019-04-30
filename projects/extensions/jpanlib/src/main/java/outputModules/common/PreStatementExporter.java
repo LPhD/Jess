@@ -26,6 +26,9 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			//Connect the DB node with its parent file node
 			linkPreStatementToFileNode(preDBNode, curFile);	
 			
+			//Look for AST children and add them
+			addASTChildren(astNode);
+			
 			//Look for file inclusions
 			if(astNode.getTypeAsString().equals("PreIncludeLocalFile")) {
 				IncludeAnalyzer.includeNodeList.add(preDBNode);
@@ -34,9 +37,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			//Look for statements that are inside an #ifdef block and add a variability edge
 			if (astNode instanceof PreBlockstarter)
 				addVariableStatements((PreBlockstarter) astNode);
-			
-			//Finally, look for AST children and add them
-			addASTChildren(astNode);	
+				
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
 			System.err.println("Error adding pre-statement to database: "+ preDBNode.toString());
@@ -93,6 +94,9 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			addASTNode(astDatabaseNode);
 			//Set nodeID in AST node to draw variability and AST edges
 			currentASTNode.setNodeId(astDatabaseNode.getNodeId());
+			
+			//Look for AST childs and add them
+			addASTChildren(currentASTNode);
 						
 			//Link include statement with included file
 			if(currentASTNode.getTypeAsString().equals("PreIncludeLocalFile")) {
@@ -104,8 +108,6 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 				addVariableStatements((PreBlockstarter) currentASTNode);
 			}
 			
-			//Finally, look for AST childs and add them
-			addASTChildren(currentASTNode);
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
 			System.err.println("Error adding pre-statement children to database: "+ astDatabaseNode.toString());

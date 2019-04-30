@@ -15,7 +15,7 @@ public abstract class ClassDefExporter extends ASTNodeExporter {
 			addClassDefToDatabase(classDefNode);
 			linkClassDefToFileNode(classDefNode, curFile);
 			//Set nodeID for Variability Analysis
-			node.setNodeId(mainNodeId);
+			node.setNodeId(classDefNode.getNodeId());
 		} catch (RuntimeException ex) {
 			ex.printStackTrace();
 			System.err.println(

@@ -24,11 +24,9 @@ import udg.useDefAnalysis.CASTDefUseAnalyzer;
 // Stays alive while importing a function into
 // the database
 
-public class Neo4JFunctionExporter extends FunctionExporter
-{
+public class Neo4JFunctionExporter extends FunctionExporter {
 
-	public Neo4JFunctionExporter()
-	{
+	public Neo4JFunctionExporter() {
 		astImporter = new Neo4JASTExporter(nodeStore);
 		cfgImporter = new Neo4JCFGExporter(nodeStore);
 		udgImporter = new Neo4JUDGExporter(nodeStore);
@@ -40,10 +38,8 @@ public class Neo4JFunctionExporter extends FunctionExporter
 	}
 
 	@Override
-	protected void linkFunctionWithAST(FunctionDatabaseNode function)
-	{
-		RelationshipType rel = DynamicRelationshipType
-				.withName(EdgeTypes.IS_FUNCTION_OF_AST);
+	protected void linkFunctionWithAST(FunctionDatabaseNode function) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_FUNCTION_OF_AST);
 
 		long functionId = nodeStore.getIdForObject(function);
 		long astNodeId = nodeStore.getIdForObject(function.getASTRoot());
@@ -52,23 +48,17 @@ public class Neo4JFunctionExporter extends FunctionExporter
 	}
 
 	@Override
-	protected void linkFunctionWithCFG(FunctionDatabaseNode function, CFG cfg)
-	{
-		RelationshipType rel = DynamicRelationshipType
-				.withName(EdgeTypes.IS_FUNCTION_OF_CFG);
+	protected void linkFunctionWithCFG(FunctionDatabaseNode function, CFG cfg) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_FUNCTION_OF_CFG);
 		long functionId = nodeStore.getIdForObject(function);
 
 		CFGNode firstBlock = cfg.getEntryNode();
 
 		long cfgRootId;
-		try
-		{
+		try {
 			cfgRootId = nodeStore.getIdForObject(firstBlock);
-		}
-		catch (RuntimeException ex)
-		{
-			cfgRootId = nodeStore.getIdForObject(
-					((ASTNodeContainer) firstBlock).getASTNode());
+		} catch (RuntimeException ex) {
+			cfgRootId = nodeStore.getIdForObject(((ASTNodeContainer) firstBlock).getASTNode());
 		}
 
 		Neo4JBatchInserter.addRelationship(functionId, cfgRootId, rel, null);
@@ -76,11 +66,8 @@ public class Neo4JFunctionExporter extends FunctionExporter
 	}
 
 	@Override
-	protected void linkFunctionToFileNode(FunctionDatabaseNode function,
-			FileDatabaseNode fileNode)
-	{
-		RelationshipType rel = DynamicRelationshipType
-				.withName(EdgeTypes.IS_FILE_OF);
+	protected void linkFunctionToFileNode(FunctionDatabaseNode function, FileDatabaseNode fileNode) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_FILE_OF);
 
 		long fileId = fileNode.getId();
 		long functionId = nodeStore.getIdForObject(function);
@@ -95,12 +82,12 @@ public class Neo4JFunctionExporter extends FunctionExporter
 	protected GraphNodeStore nodeStore = new GraphNodeStore();
 
 	@Override
-	protected void addMainNode(DatabaseNode dbNode)
-	{
+	protected void addMainNode(DatabaseNode dbNode) {
 		Map<String, Object> properties = dbNode.createProperties();
 		nodeStore.addNeo4jNode(dbNode, properties);
 
 		mainNodeId = nodeStore.getIdForObject(dbNode);
+		dbNode.setNodeId(nodeStore.getIdForObject(dbNode));
 
 		properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);

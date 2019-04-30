@@ -41,11 +41,8 @@ public abstract class FunctionExporter extends ASTNodeExporter {
 				return;
 			}
 
-			addFunctionToDatabase(function);
-			linkFunctionToFileNode(function, curFile);
-			
-			//Set nodeID for Variability Analysis
-			node.setNodeId(mainNodeId);
+			addFunctionToDatabase(function);						
+			linkFunctionToFileNode(function, curFile);			
 
 		} catch (RuntimeException ex) {
 			ex.printStackTrace();
@@ -57,6 +54,9 @@ public abstract class FunctionExporter extends ASTNodeExporter {
 	private void addFunctionToDatabase(FunctionDatabaseNode function) {
 
 		addMainNode(function);
+		
+		//Set AST nodeID for Variability Analysis
+		function.getASTRoot().setNodeId(function.getNodeId());
 
 		astImporter.setCurrentFunction(function);
 		cfgImporter.setCurrentFunction(function);
