@@ -285,14 +285,14 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		List<IdentifierDecl> declarations = builder.getDeclarations(decl_list, typeName);
 
 		IdentifierDeclStatement stmt = new IdentifierDeclStatement();
-		// stmt.initializeFromContext(ctx);
+		//Here is something strange
+		ASTNodeFactory.initializeFromContext(stmt, ctx);	
+		checkVariability(stmt);
 
 		Iterator<IdentifierDecl> it = declarations.iterator();
 		while (it.hasNext()) {
 			IdentifierDecl decl = it.next();
 			stmt.addChild(decl);
-			//stmt is not a node, instead check decl?
-			checkVariability(decl);
 		}
 
 		p.notifyObserversOfItem(stmt);
