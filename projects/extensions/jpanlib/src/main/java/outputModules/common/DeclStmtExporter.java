@@ -6,6 +6,7 @@ import java.util.List;
 import ast.ASTNode;
 import ast.statements.IdentifierDeclStatement;
 import databaseNodes.DeclStmtDatabaseNode;
+import databaseNodes.FileDatabaseNode;
 
 public abstract class DeclStmtExporter extends ASTNodeExporter {
 
@@ -24,6 +25,8 @@ public abstract class DeclStmtExporter extends ASTNodeExporter {
 		node.setNodeId(dbNode.getNodeId());
 
 		addDeclarations(node);
+		
+		addLinkFromFileToDecl(node.getNodeId(), curFile);
 
 	}
 
@@ -41,5 +44,7 @@ public abstract class DeclStmtExporter extends ASTNodeExporter {
 			addLinkFromStmtToDecl(mainNodeId, declId);
 		}
 	}
+	
+	protected abstract void addLinkFromFileToDecl(Long nodeId, FileDatabaseNode curFile);
 
 }

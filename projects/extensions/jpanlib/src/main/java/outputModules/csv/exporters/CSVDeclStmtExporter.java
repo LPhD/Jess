@@ -4,6 +4,7 @@ import java.util.Map;
 
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
+import databaseNodes.FileDatabaseNode;
 import outputModules.common.DeclStmtExporter;
 import outputModules.common.Writer;
 
@@ -26,6 +27,12 @@ public class CSVDeclStmtExporter extends DeclStmtExporter {
 		
 		//Set nodeID for Variability Analysis
 		dbNode.setNodeId(Writer.getIdForObject(dbNode));
+	}
+	
+	@Override
+	protected void addLinkFromFileToDecl(Long nodeId, FileDatabaseNode curFile) {
+		long srcId = Writer.getIdForObject(curFile);
+		Writer.addEdge(srcId, nodeId, null, EdgeTypes.IS_FILE_OF);
 	}
 
 }
