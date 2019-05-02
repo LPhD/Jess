@@ -63,7 +63,7 @@ public abstract class ASTExporter {
 					} else {
 						System.err.println("Error connecting "+currentNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 					}
-					System.out.println("Connected variability parent: "+currentNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
+//					System.out.println("Connected variability parent: "+currentNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 				}
 				
 				//Check also the AST children (#else/#elif)
