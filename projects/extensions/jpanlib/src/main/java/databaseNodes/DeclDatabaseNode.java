@@ -5,17 +5,16 @@ import java.util.Map;
 
 import ast.declarations.IdentifierDecl;
 
-public class DeclDatabaseNode extends DatabaseNode
-{
+public class DeclDatabaseNode extends DeclStmtDatabaseNode {
 
 	IdentifierDecl decl;
 	String baseType;
 	String completeType;
 	String identifierString;
 
+
 	@Override
-	public void initialize(Object obj)
-	{
+	public void initialize(Object obj) {
 		decl = (IdentifierDecl) obj;
 		baseType = decl.getType().baseType;
 		completeType = decl.getType().completeType;
@@ -23,8 +22,7 @@ public class DeclDatabaseNode extends DatabaseNode
 	}
 
 	@Override
-	public Map<String, Object> createProperties()
-	{
+	public Map<String, Object> createProperties() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put(NodeKeys.NODE_TYPE, "Decl");
 		map.put(NodeKeys.BASE_TYPE, baseType);

@@ -2,7 +2,6 @@ package outputModules.common;
 
 import ast.ASTNode;
 import ast.declarations.ClassDefStatement;
-import ast.preprocessor.PreStatementBase;
 import ast.walking.ASTNodeVisitor;
 
 public abstract class OutModASTNodeVisitor extends ASTNodeVisitor {
