@@ -565,7 +565,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			// Remove items from stack until the next #if/#ifdef
 			closeASTBlock();
 			closeVariabilityBlock();
-			logger.debug("AST and variability block closed!");
+			logger.warn("AST and variability block closed!");
 			// Remove item from the stack
 			stack.pop();
 			return false;
@@ -573,7 +573,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			// Collect all Pre Blockstarters on the Stack
 			variabilityItemStack.push(itemToRemove);
 			preASTItemStack.push(itemToRemove);
-			logger.debug("#if collected");
+			logger.warn("#if collected");
 			// Connect only the #if with the function content compound statement
 			if (itemToRemove instanceof PreIfStatement) {
 				nesting.consolidate();
@@ -600,9 +600,9 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
 			parent.addVariableStatement(currentNode);
 
-			logger.debug("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
+			logger.warn("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
-			logger.debug(currentNode.getEscapedCodeStr()+" is not variable!");
+			logger.warn(currentNode.getEscapedCodeStr()+" is not variable!");
 		}
 	}
 
@@ -636,13 +636,13 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			PreBlockstarter topOfStack = (PreBlockstarter) preASTItemStack.peek();		
 			//Connect the current node with its parent
 			topOfStack.addChild(currentNode);	
-			logger.debug("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
+			logger.warn("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
 		
 			// Stop if we reach an PreIfStatement
 			if (topOfStack instanceof PreIfStatement) {
 				//Remove the PreIfStatement node from the stack and stop the iteration
 				currentNode = (PreBlockstarter) preASTItemStack.pop();
-				logger.debug("Found #if for #endif");		
+				logger.warn("Found #if for #endif");		
 			} else {
 				//Connect AST children until we reach a PreIfStatement or there is only 1 item left on the stack
 				closeASTBlock();
@@ -651,7 +651,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		} else if (preASTItemStack.size() == 1)  {
 			//Remove orphaned #endif statements
 			PreBlockstarter lastNode = (PreBlockstarter) preASTItemStack.pop();
-			logger.debug("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation()+ " on function level");
+			logger.warn("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation()+ " on function level");
 		}
 	}
 
