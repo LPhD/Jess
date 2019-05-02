@@ -602,7 +602,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 			logger.warn("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
-			logger.warn(currentNode.getEscapedCodeStr()+" is not variable!");
+			logger.warn("Current node of type "+currentNode.getTypeAsString()+" with code "+currentNode.getEscapedCodeStr()+" is not variable!");
 		}
 	}
 
