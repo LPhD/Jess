@@ -717,7 +717,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		AssignmentExpression expr = new AssignmentExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
-		checkVariability(expr);
+		//No variability check here (as there will be no nodes of this type)
 	}
 
 	public void exitAssignment(Assign_exprContext ctx) {
