@@ -18,7 +18,7 @@ public class PreprocessorTests {
 		assertEquals("#ifdef foo1 has 2 childs (condition and #else)",2, firstIf.getChildCount());
 		assertEquals("First #else has 1 child (#endif)", 1, firstIf.getChild(1).getChildCount());
 		//This is due to the grammar, maybe will be reworked later
-		assertEquals("#else has 2 variable items (#ifdef foo and its identifier foo)", 2, ( (PreElseStatement) firstIf.getChild(1)).getVariableStatementsCount());
+		assertEquals("#else has 1 variable item (#ifdef foo)", 1, ( (PreElseStatement) firstIf.getChild(1)).getVariableStatementsCount());
 	}
 	
 	@Test
