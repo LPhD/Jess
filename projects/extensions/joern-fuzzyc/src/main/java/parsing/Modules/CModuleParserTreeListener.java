@@ -274,7 +274,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
-		logger.warn("Enter enterDeclByType");
+		logger.debugn("Enter enterDeclByType");
 		Init_declarator_listContext decl_list = ctx.init_declarator_list();
 		Type_nameContext typeName = ctx.type_name();
 		emitDeclarations(decl_list, typeName, ctx);
@@ -285,9 +285,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		List<IdentifierDecl> declarations = builder.getDeclarations(decl_list, typeName);
 
 		IdentifierDeclStatement stmt = new IdentifierDeclStatement();
-		//Here is something strange
+
 		ASTNodeFactory.initializeFromContext(stmt, ctx);	
-		logger.warn("Node "+stmt.getEscapedCodeStr()+" intialized");
+		logger.debug("Node "+stmt.getEscapedCodeStr()+" intialized");
 		checkVariability(stmt);
 
 		Iterator<IdentifierDecl> it = declarations.iterator();

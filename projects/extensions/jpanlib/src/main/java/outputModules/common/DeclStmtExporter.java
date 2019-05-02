@@ -17,9 +17,7 @@ public abstract class DeclStmtExporter extends ASTNodeExporter {
 	public void addToDatabaseSafe(ASTNode node) {
 		DeclStmtDatabaseNode dbNode = new DeclStmtDatabaseNode();
 		dbNode.initialize(node);
-		System.out.println("Declare node "+node.getEscapedCodeStr()+" initialized");
 		addMainNode(dbNode);
-		System.out.println("Declare node "+node.getEscapedCodeStr()+" added");
 		
 		//Set nodeID for Variability Analysis
 		node.setNodeId(dbNode.getNodeId());
@@ -36,9 +34,7 @@ public abstract class DeclStmtExporter extends ASTNodeExporter {
 		Iterator<ASTNode> it = identifierDeclList.iterator();
 		while (it.hasNext()) {
 			ASTNode decl = it.next();
-			declImporter.addToDatabaseSafe(decl);
-			
-			System.out.println("DeclareStatement node "+node.getEscapedCodeStr()+" added");
+			declImporter.addToDatabaseSafe(decl);			
 			
 			long declId = decl.getNodeId();
 			addLinkFromStmtToDecl(mainNodeId, declId);
