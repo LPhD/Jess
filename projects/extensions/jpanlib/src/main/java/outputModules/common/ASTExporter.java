@@ -43,12 +43,12 @@ public abstract class ASTExporter {
 	/**
 	 * Look for nodes surrounded with a variability block and draws the respective variability link
 	 * 
-	 * @param rootAstCompoundNode The top level compound statement of the function
+	 * @param rootAstCompoundNode The top level compound statement of the function (first iteration), #else/#elif nodes on further iterations
 	 */
 	public void addVariabilityAnalysis(ASTNode rootAstCompoundNode) {
 		final int nChildren = rootAstCompoundNode.getChildCount();
 
-		//For each top level child that is a pre blockstarter
+		//For each top level child that is a pre blockstarter. 
 		for (int j = 0; j < nChildren; j++) {
 			ASTNode currentNode = rootAstCompoundNode.getChild(j);
 			if (currentNode instanceof PreBlockstarter) {
@@ -56,7 +56,6 @@ public abstract class ASTExporter {
 				for (int i = 0; i < nVariableStatements; i++) {
 					ASTNode vStatement = ((PreBlockstarter) currentNode).getVariableStatement(i);					
 					
-					//TODO: Sometimes the cildNode is null, check why
 					if(currentNode.getNodeId() > 0 && vStatement.getNodeId() > 0) {
 						long parentNodeID = currentNode.getNodeId();
 						long childNodeID = vStatement.getNodeId();
@@ -64,8 +63,11 @@ public abstract class ASTExporter {
 					} else {
 						System.err.println("Error connecting "+currentNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 					}
-					// System.out.println("Connected variability parent: "+preAstNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
+					System.out.println("Connected variability parent: "+preAstNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 				}
+				
+				//Check also the AST children (#else/#elif)
+				addVariabilityAnalysis(currentNode);
 			}
 		}
 	}

@@ -565,7 +565,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			// Remove items from stack until the next #if/#ifdef
 			closeASTBlock();
 			closeVariabilityBlock();
-			logger.warn("AST and variability block closed!");
+			logger.debug("AST and variability block closed!");
 			// Remove item from the stack
 			stack.pop();
 			return false;
@@ -573,7 +573,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			// Collect all Pre Blockstarters on the Stack
 			variabilityItemStack.push(itemToRemove);
 			preASTItemStack.push(itemToRemove);
-			logger.warn(itemToRemove.getEscapedCodeStr()+" collected on AST and variability stack");
+			logger.debug(itemToRemove.getEscapedCodeStr()+" collected on AST and variability stack");
 			// Connect only the #if with the function content compound statement
 			if (itemToRemove instanceof PreIfStatement) {
 				nesting.consolidate();
@@ -602,7 +602,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 			logger.warn("Connected variability child of type: "+currentNode.getTypeAsString()+" with code: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
-			logger.warn("Current node of type "+currentNode.getTypeAsString()+" with code "+currentNode.getEscapedCodeStr()+" is not variable!");
+			logger.debug("Current node of type "+currentNode.getTypeAsString()+" with code "+currentNode.getEscapedCodeStr()+" is not variable!");
 		}
 	}
 
@@ -636,13 +636,13 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			PreBlockstarter topOfStack = (PreBlockstarter) preASTItemStack.peek();		
 			//Connect the current node with its parent
 			topOfStack.addChild(currentNode);	
-			logger.warn("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
+			logger.debug("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
 		
 			// Stop if we reach an PreIfStatement
 			if (topOfStack instanceof PreIfStatement) {
 				//Remove the PreIfStatement node from the stack and stop the iteration
 				currentNode = (PreBlockstarter) preASTItemStack.pop();
-				logger.warn("Found #if with code "+currentNode.getEscapedCodeStr()+" for #endif");		
+				logger.debug("Found #if with code "+currentNode.getEscapedCodeStr()+" for #endif");		
 			} else {
 				//Connect AST children until we reach a PreIfStatement or there is only 1 item left on the stack
 				closeASTBlock();
@@ -651,7 +651,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		} else if (preASTItemStack.size() == 1)  {
 			//Remove orphaned #endif statements
 			PreBlockstarter lastNode = (PreBlockstarter) preASTItemStack.pop();
-			logger.warn("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation()+ " on function level");
+			logger.debug("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation()+ " on function level");
 		}
 	}
 
