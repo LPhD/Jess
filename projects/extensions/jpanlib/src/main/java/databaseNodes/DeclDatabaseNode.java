@@ -19,6 +19,7 @@ public class DeclDatabaseNode extends DeclStmtDatabaseNode {
 		baseType = decl.getType().baseType;
 		completeType = decl.getType().completeType;
 		identifierString = decl.getName().getEscapedCodeStr();
+		code = decl.getEscapedCodeStr();
 	}
 
 	@Override
@@ -28,6 +29,7 @@ public class DeclDatabaseNode extends DeclStmtDatabaseNode {
 		map.put(NodeKeys.BASE_TYPE, baseType);
 		map.put(NodeKeys.COMPLETE_TYPE, completeType);
 		map.put(NodeKeys.IDENTIFIER, identifierString);
+		map.put(NodeKeys.CODE, code);
 		return map;
 	}
 
