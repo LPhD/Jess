@@ -274,7 +274,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
-		logger.debugn("Enter enterDeclByType");
+		logger.debug("Enter enterDeclByType");
 		Init_declarator_listContext decl_list = ctx.init_declarator_list();
 		Type_nameContext typeName = ctx.type_name();
 		emitDeclarations(decl_list, typeName, ctx);
