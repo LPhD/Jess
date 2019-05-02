@@ -2,12 +2,13 @@ package outputModules.neo4j.exporters;
 
 import java.util.Map;
 
-import databaseNodes.NodeKeys;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.RelationshipType;
 
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
+import databaseNodes.FileDatabaseNode;
+import databaseNodes.NodeKeys;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.DeclStmtExporter;
@@ -48,6 +49,15 @@ public class Neo4JDeclStmtExporter extends DeclStmtExporter {
 		properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);
 
+	}
+	
+	@Override
+	protected void addLinkFromFileToDecl(Long nodeId, FileDatabaseNode curFile) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_FILE_OF);
+
+		long fileId = curFile.getId();
+
+		Neo4JBatchInserter.addRelationship(fileId, nodeId, rel, null);
 	}
 
 }
