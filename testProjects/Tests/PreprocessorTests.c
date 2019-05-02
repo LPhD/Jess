@@ -87,11 +87,21 @@ void testMethod() {
 #include_next "something"
 #include_next MACRO
 
+	int x = 0;
+
 #ifdef foo11
+	x = 1;
 #else
+	x = 2;
+
 	#ifdef foo22
+	x = x + 1;
 	#else
+	x = x - 1;
 	#endif
+
+	x = x * 3;
+
 #endif
 
 #if foo33
