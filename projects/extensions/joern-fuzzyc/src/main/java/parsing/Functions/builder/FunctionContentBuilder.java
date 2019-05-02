@@ -859,7 +859,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		CallExpression expr = new CallExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
-		checkVariability(expr);
+		//No variability check here, as there will be a parent expression node
 	}
 
 	public void exitFuncCall(FuncCallContext ctx) {
@@ -1215,7 +1215,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		SizeofExpression expr = new SizeofExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
-		checkVariability(expr);
+		//No variability check here, as there will be a parent expression node
 	}
 
 	public void exitSizeofExpr(Sizeof_expressionContext ctx) {
