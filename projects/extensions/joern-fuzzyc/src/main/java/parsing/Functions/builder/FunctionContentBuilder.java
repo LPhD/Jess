@@ -600,7 +600,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
 			parent.addVariableStatement(currentNode);
 
-			logger.warn("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
+			logger.warn("Connected variability child of type: "+currentNode.getTypeAsString()+" with code: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
 			logger.warn("Current node of type "+currentNode.getTypeAsString()+" with code "+currentNode.getEscapedCodeStr()+" is not variable!");
 		}
