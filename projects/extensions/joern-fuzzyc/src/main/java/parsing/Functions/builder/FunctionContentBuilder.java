@@ -584,7 +584,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			return false;
 		} else {
 			// Check variability for all other types (except the top last compound statement, which is needed for function content building)
-			if (stack.size() > 1)
+			if (stack.size() > 1 && !(itemToRemove instanceof CompoundStatement))
 				checkVariability(itemToRemove);
 			return true;
 		}
@@ -1053,7 +1053,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		PostIncDecOperationExpression expr = new PostIncDecOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
-		checkVariability(expr);
+		//No variability check here, as there will be a parent expression node
 	}
 
 	public void exitIncDecOp(IncDecOpContext ctx) {
@@ -1064,7 +1064,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		PreIncDecOperationExpression expr = new PreIncDecOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
-		checkVariability(expr);
+		//No variability check here, as there will be a parent expression node
 	}
 
 	public void exitPreIncDecOp(IncDecOpContext ctx) {
@@ -1245,7 +1245,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		UnaryOperationExpression expr = new UnaryOperationExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
-		checkVariability(expr);
+		//No variability check here, as there will be a parent expression node
 	}
 
 	public void exitUnaryOpAndCastExpr(Unary_op_and_cast_exprContext ctx) {
