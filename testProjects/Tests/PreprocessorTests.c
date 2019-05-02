@@ -18,10 +18,10 @@
 #endif
 
 #if foo3
-bar();
+#define bar3
 #else
-foo();
-foo();
+#define foo13
+#define foo23
 #endif
 
 #if foo4
@@ -29,10 +29,10 @@ int i;
 #endif
 
 #if foo5
-bar();
+#define bar5
 #elif  bar6
-foo();
-foo();
+#define bar16
+#define bar26
 #endif
 
 #if (foo < 5)
