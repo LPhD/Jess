@@ -165,7 +165,6 @@ public abstract class ASTNodeVisitor {
 	}
 
 	public void defaultHandler(ASTNode item) {
-//		System.out.println("Visit "+item.getEscapedCodeStr());
 		// by default, redirect to visit(ASTNode item)
 		visit(item);
 	}

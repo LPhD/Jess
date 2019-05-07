@@ -63,8 +63,6 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			} else {
 				System.err.println("Error connecting "+preAstNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 			}
-
-//			System.out.println("Connected DB parent: "+preAstNode.getEscapedCodeStr()+" with DB child: "+vStatement.getEscapedCodeStr());
 		}
 	}
 
@@ -78,8 +76,6 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		final int nChildren = astNodeParent.getChildCount();
 		for (int i = 0; i < nChildren; i++) {
 			ASTNode child = astNodeParent.getChild(i);
-//			System.out.println("Parent: "+astNodeParent.getEscapedCodeStr()+"with "+nChildren+" children");
-//			System.out.println("Child: "+child.getEscapedCodeStr());
 			addASTToDatabase(child);	
 			addASTLink(astNodeParent.getNodeId(), child.getNodeId());
 		}

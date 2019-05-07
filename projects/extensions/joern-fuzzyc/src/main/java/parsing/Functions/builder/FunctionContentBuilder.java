@@ -217,7 +217,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 					nesting.addItemToParent(currentNode);
 				}
 			} catch (Exception e) {
-				System.out.println("Exception while removing items from stack!");
+				System.err.println("Exception while removing items from stack! Current context: "+ctx.getText());
 			}
 			// throw new RuntimeException("Broken stack while parsing");
 		}

@@ -8,39 +8,31 @@ import databaseNodes.NodeKeys;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import neo4j.traversals.batchInserter.Elementary;
 
-public class CallResolver
-{
+public class CallResolver {
 
-	public IndexHits<Long> resolveByCallId(long callId)
-	{
+	public IndexHits<Long> resolveByCallId(long callId) {
 		String calleeString = getCalleeString(callId);
 		IndexHits<Long> calleeIds = lookupCallee(calleeString);
 		return calleeIds;
 	}
 
-	private String getCalleeString(Long callId)
-	{
-		try
-		{
+	private String getCalleeString(Long callId) {
+		try {
 			long firstChildId = getFirstChildId(callId);
-			String codeStr = (String) Neo4JBatchInserter
-					.getNodeProperties(firstChildId).get("code");
+			String codeStr = (String) Neo4JBatchInserter.getNodeProperties(firstChildId).get("code");
 			return codeStr;
-		} catch (RuntimeException ex)
-		{
+		} catch (RuntimeException ex) {
+			System.err.println("Error in CallResolver while getting Callee!");
 			System.err.println(ex.getMessage());
 		}
 		return "";
 	}
 
-	private long getFirstChildId(Long callId)
-	{
-		Iterable<BatchRelationship> rels = Neo4JBatchInserter
-				.getRelationships(callId);
+	private long getFirstChildId(Long callId) {
+		Iterable<BatchRelationship> rels = Neo4JBatchInserter.getRelationships(callId);
 		long endNode;
 
-		for (BatchRelationship rel : rels)
-		{
+		for (BatchRelationship rel : rels) {
 
 			// only consider outgoing nodes
 			endNode = rel.getEndNode();
@@ -52,8 +44,7 @@ public class CallResolver
 			if (!rel.getType().name().equals(EdgeTypes.IS_AST_PARENT))
 				continue;
 
-			String childNum = Elementary.getNodeProperty(endNode,
-					NodeKeys.CHILD_NUMBER);
+			String childNum = Elementary.getNodeProperty(endNode, NodeKeys.CHILD_NUMBER);
 
 			if (childNum == null)
 				return endNode;
@@ -63,12 +54,10 @@ public class CallResolver
 
 			return endNode;
 		}
-		throw new RuntimeException(
-				"Warning: encountered CallExpression without child nodes.");
+		throw new RuntimeException("Warning: encountered CallExpression without child nodes.");
 	}
 
-	private IndexHits<Long> lookupCallee(String callee)
-	{
+	private IndexHits<Long> lookupCallee(String callee) {
 		if (callee.contains(" "))
 			return null;
 

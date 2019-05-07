@@ -16,8 +16,7 @@ import graphutils.IncidenceListGraph;
  * Please place language specific attributes of the CFG into a sub-class.
  */
 
-public class CFG extends IncidenceListGraph<CFGNode, CFGEdge>
-{
+public class CFG extends IncidenceListGraph<CFGNode, CFGEdge> {
 	private CFGNode entry;
 	private CFGNode exit;
 	private CFGNode error;
@@ -30,11 +29,9 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge>
 	private HashMap<String, CFGNode> labels;
 	private CFGExceptionNode exceptionNode;
 
-	
-	public CFG()
-	{
+	public CFG() {
 		this(new CFGEntryNode(), new CFGExitNode());
-	
+
 		setBreakStatements(new LinkedList<CFGNode>());
 		setContinueStatements(new LinkedList<CFGNode>());
 		setReturnStatements(new LinkedList<CFGNode>());
@@ -42,8 +39,7 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge>
 		setLabels(new HashMap<String, CFGNode>());
 	}
 
-	public CFG(CFGNode entry, CFGNode exit)
-	{
+	public CFG(CFGNode entry, CFGNode exit) {
 		this.entry = entry;
 		this.exit = exit;
 		addVertex(this.entry);
@@ -52,272 +48,209 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge>
 	}
 
 	@Override
-	public boolean isEmpty()
-	{
+	public boolean isEmpty() {
 		// do not count entry and exit node, since they do not provide any
 		// additional information.
 		return size() == 2;
 	}
 
-	public CFGNode getExitNode()
-	{
+	public CFGNode getExitNode() {
 		return exit;
 	}
 
-	public CFGNode getEntryNode()
-	{
+	public CFGNode getEntryNode() {
 		return entry;
 	}
 
-	public CFGNode getErrorNode()
-	{
-		if (error == null)
-		{
+	public CFGNode getErrorNode() {
+		if (error == null) {
 			error = new CFGErrorNode();
 			addVertex(error);
 		}
 		return error;
 	}
 
-	public void registerParameter(CFGNode parameter)
-	{
+	public void registerParameter(CFGNode parameter) {
 		parameters.add(parameter);
 	}
 
-	public List<CFGNode> getParameters()
-	{
+	public List<CFGNode> getParameters() {
 		return parameters;
 	}
 
-	public void addCFG(CFG otherCFG)
-	{
+	public void addCFG(CFG otherCFG) {
 		addVertices(otherCFG);
 		addEdges(otherCFG);
-	
+
 		getParameters().addAll(otherCFG.getParameters());
 		getBreakStatements().addAll(otherCFG.getBreakStatements());
 		getContinueStatements().addAll(otherCFG.getContinueStatements());
 		getReturnStatements().addAll(otherCFG.getReturnStatements());
 		getGotoStatements().putAll(otherCFG.getGotoStatements());
 		getLabels().putAll(otherCFG.getLabels());
-		if (this.hasExceptionNode() && otherCFG.hasExceptionNode())
-		{
+		if (this.hasExceptionNode() && otherCFG.hasExceptionNode()) {
 			CFGExceptionNode oldExceptionNode = getExceptionNode();
 			CFGExceptionNode newExceptionNode = new CFGExceptionNode();
 			setExceptionNode(newExceptionNode);
-			addEdge(oldExceptionNode, newExceptionNode,
-					CFGEdge.UNHANDLED_EXCEPT_LABEL);
-			addEdge(otherCFG.getExceptionNode(), newExceptionNode,
-					CFGEdge.UNHANDLED_EXCEPT_LABEL);
-		} else if (otherCFG.hasExceptionNode())
-		{
+			addEdge(oldExceptionNode, newExceptionNode, CFGEdge.UNHANDLED_EXCEPT_LABEL);
+			addEdge(otherCFG.getExceptionNode(), newExceptionNode, CFGEdge.UNHANDLED_EXCEPT_LABEL);
+		} else if (otherCFG.hasExceptionNode()) {
 			setExceptionNode(otherCFG.getExceptionNode());
 		}
-	
+
 	}
 
-	public void appendCFG(CFG otherCFG)
-	{
+	public void appendCFG(CFG otherCFG) {
 		addCFG(otherCFG);
-		if (!otherCFG.isEmpty())
-		{
-			for (CFGEdge edge1 : incomingEdges(getExitNode()))
-			{
-				for (CFGEdge edge2 : otherCFG
-						.outgoingEdges(otherCFG.getEntryNode()))
-				{
-					addEdge(edge1.getSource(), edge2.getDestination(),
-							edge1.getLabel());
+		if (!otherCFG.isEmpty()) {
+			for (CFGEdge edge1 : incomingEdges(getExitNode())) {
+				for (CFGEdge edge2 : otherCFG.outgoingEdges(otherCFG.getEntryNode())) {
+					addEdge(edge1.getSource(), edge2.getDestination(), edge1.getLabel());
 				}
 			}
 			removeEdgesTo(getExitNode());
-			for (CFGEdge edge : otherCFG.incomingEdges(otherCFG.getExitNode()))
-			{
+			for (CFGEdge edge : otherCFG.incomingEdges(otherCFG.getExitNode())) {
 				addEdge(edge.getSource(), getExitNode(), edge.getLabel());
 			}
 		}
 	}
 
-	public void mountCFG(CFGNode branchNode, CFGNode mergeNode, CFG cfg,
-			String label)
-	{
-		if (!cfg.isEmpty())
-		{
+	public void mountCFG(CFGNode branchNode, CFGNode mergeNode, CFG cfg, String label) {
+		if (!cfg.isEmpty()) {
 			addCFG(cfg);
-			for (CFGEdge edge : cfg.outgoingEdges(cfg.getEntryNode()))
-			{
+			for (CFGEdge edge : cfg.outgoingEdges(cfg.getEntryNode())) {
 				addEdge(branchNode, edge.getDestination(), label);
 			}
-			for (CFGEdge edge : cfg.incomingEdges(cfg.getExitNode()))
-			{
+			for (CFGEdge edge : cfg.incomingEdges(cfg.getExitNode())) {
 				addEdge(edge.getSource(), mergeNode, edge.getLabel());
 			}
-		}
-		else
-		{
+		} else {
 			addEdge(branchNode, mergeNode, label);
 		}
 	}
 
-	private void addVertices(CFG cfg)
-	{
-		for (CFGNode vertex : cfg.getVertices())
-		{
+	private void addVertices(CFG cfg) {
+		for (CFGNode vertex : cfg.getVertices()) {
 			// do not add entry and exit node
-			if (!(vertex.equals(cfg.getEntryNode())
-					|| vertex.equals(cfg.getExitNode())))
-			{
+			if (!(vertex.equals(cfg.getEntryNode()) || vertex.equals(cfg.getExitNode()))) {
 				addVertex(vertex);
 			}
 		}
 	}
 
-	private void addEdges(CFG cfg)
-	{
-		for (CFGNode vertex : cfg.getVertices())
-		{
-			for (CFGEdge edge : cfg.outgoingEdges(vertex))
-			{
-				if (!(edge.getSource().equals(cfg.getEntryNode())
-						|| edge.getDestination().equals(cfg.getExitNode())))
-				{
+	private void addEdges(CFG cfg) {
+		for (CFGNode vertex : cfg.getVertices()) {
+			for (CFGEdge edge : cfg.outgoingEdges(vertex)) {
+				if (!(edge.getSource().equals(cfg.getEntryNode()) || edge.getDestination().equals(cfg.getExitNode()))) {
 					addEdge(edge);
 				}
 			}
 		}
 	}
 
-	public void addEdge(CFGNode srcBlock, CFGNode dstBlock)
-	{
+	public void addEdge(CFGNode srcBlock, CFGNode dstBlock) {
 		addEdge(srcBlock, dstBlock, CFGEdge.EMPTY_LABEL);
 	}
 
-	public void addEdge(CFGNode srcBlock, CFGNode dstBlock, String label)
-	{
+	public void addEdge(CFGNode srcBlock, CFGNode dstBlock, String label) {
 		CFGEdge edge = new CFGEdge(srcBlock, dstBlock, label);
 		addEdge(edge);
 	}
 
-	public CFG reverse()
-	{
+	public CFG reverse() {
 		CFG reverseGraph = new CFG(getExitNode(), getEntryNode());
-		for (CFGNode node : getVertices())
-		{
-			if (!node.equals(getEntryNode()) && !node.equals(getExitNode()))
-			{
+		for (CFGNode node : getVertices()) {
+			if (!node.equals(getEntryNode()) && !node.equals(getExitNode())) {
 				reverseGraph.addVertex(node);
 			}
 		}
-		for (CFGEdge edge : getEdges())
-		{
+		for (CFGEdge edge : getEdges()) {
 			reverseGraph.addEdge(edge.reverse());
 		}
 		reverseGraph.parameters = parameters;
 		return reverseGraph;
 	}
-	
-	public void setExceptionNode(CFGExceptionNode node)
-	{
+
+	public void setExceptionNode(CFGExceptionNode node) {
 		this.exceptionNode = node;
 		addVertex(node);
 	}
 
-	public List<CFGNode> getBreakStatements()
-	{
+	public List<CFGNode> getBreakStatements() {
 		return breakStatements;
 	}
 
-	public void setBreakStatements(List<CFGNode> breakStatements)
-	{
+	public void setBreakStatements(List<CFGNode> breakStatements) {
 		this.breakStatements = breakStatements;
 	}
 
-	public List<CFGNode> getContinueStatements()
-	{
+	public List<CFGNode> getContinueStatements() {
 		return continueStatements;
 	}
 
-	public void setContinueStatements(List<CFGNode> continueStatements)
-	{
+	public void setContinueStatements(List<CFGNode> continueStatements) {
 		this.continueStatements = continueStatements;
 	}
 
-	public HashMap<String, CFGNode> getLabels()
-	{
+	public HashMap<String, CFGNode> getLabels() {
 		return labels;
 	}
 
-	public void setLabels(HashMap<String, CFGNode> labels)
-	{
+	public void setLabels(HashMap<String, CFGNode> labels) {
 		this.labels = labels;
 	}
 
-	public HashMap<CFGNode, String> getGotoStatements()
-	{
+	public HashMap<CFGNode, String> getGotoStatements() {
 		return gotoStatements;
 	}
 
-	public void setGotoStatements(HashMap<CFGNode, String> gotoStatements)
-	{
+	public void setGotoStatements(HashMap<CFGNode, String> gotoStatements) {
 		this.gotoStatements = gotoStatements;
 	}
 
-	public List<CFGNode> getReturnStatements()
-	{
+	public List<CFGNode> getReturnStatements() {
 		return returnStatements;
 	}
 
-	public void setReturnStatements(List<CFGNode> returnStatements)
-	{
+	public void setReturnStatements(List<CFGNode> returnStatements) {
 		this.returnStatements = returnStatements;
 	}
 
-	public void addBlockLabel(String label, CFGNode block)
-	{
+	public void addBlockLabel(String label, CFGNode block) {
 		getLabels().put(label, block);
 	}
 
-	public void addBreakStatement(CFGNode statement)
-	{
+	public void addBreakStatement(CFGNode statement) {
 		getBreakStatements().add(statement);
 	}
 
-	public void addContinueStatement(CFGNode statement)
-	{
+	public void addContinueStatement(CFGNode statement) {
 		getContinueStatements().add(statement);
 	}
 
-	public void addGotoStatement(CFGNode gotoStatement, String gotoTarget)
-	{
+	public void addGotoStatement(CFGNode gotoStatement, String gotoTarget) {
 		getGotoStatements().put(gotoStatement, gotoTarget);
 	}
 
-	public void addReturnStatement(CFGNode returnStatement)
-	{
+	public void addReturnStatement(CFGNode returnStatement) {
 		getReturnStatements().add(returnStatement);
 	}
 
-	public CFGNode getBlockByLabel(String label)
-	{
+	public CFGNode getBlockByLabel(String label) {
 		CFGNode block = getLabels().get(label);
-		if (block == null)
-		{
-			System.err
-					.println("warning : can not find block for label " + label);
+		if (block == null) {
+			System.err.println("warning : can not find block for label " + label);
 			return getErrorNode();
 		}
 		return block;
 	}
 
-	public CFGExceptionNode getExceptionNode()
-	{
+	public CFGExceptionNode getExceptionNode() {
 		return this.exceptionNode;
 	}
 
-	public boolean hasExceptionNode()
-	{
+	public boolean hasExceptionNode() {
 		return this.exceptionNode != null;
 	}
-	
 
 }

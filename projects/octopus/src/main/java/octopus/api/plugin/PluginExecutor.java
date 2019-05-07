@@ -32,14 +32,12 @@ public class PluginExecutor {
 			if (settings != null)
 				plugin.configure(settings);
 			plugin.beforeExecution();
-//			System.out.println("execute");
 			plugin.execute();
-//			System.out.println("afterExecution");
 			plugin.afterExecution();
 			return plugin.result();
 		} catch (Exception e) {
-			System.out.println("Exception during plugin execution of: "+pluginName);
-			System.out.println(e.getMessage());
+			System.err.println("Exception during plugin execution of: "+pluginName);
+			System.err.println(e.getMessage());
 			e.printStackTrace();
 			throw new RuntimeException(e.getMessage());
 		}

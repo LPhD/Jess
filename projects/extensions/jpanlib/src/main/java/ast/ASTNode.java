@@ -131,15 +131,8 @@ public class ASTNode {
 	public Long getNodeId() {
 		Long id;
 		if (nodeId == null) {
-//			try {
-//				id = Long.parseLong(getProperty(ASTNodeProperties.NODE_ID));
-//			} catch (NumberFormatException e) {
-//				id = -1l;
-//				System.err.println("Trying to retrieve node ID for node " + super.toString() + ", but none is set "
-//						+ "(type = " + getTypeAsString() + ", location = " + getLocation() + ", code = " + getCodeStr()
-//						+ ")");
-//				e.printStackTrace();
-//			}
+			System.err.println("Trying to retrieve node ID for node " + super.toString() + ", but none is set " + "(type = "
+							+ getTypeAsString() + ", location = " + getLocation() + ", code = " + getCodeStr() + ")");
 			id = -1l;
 		} else {
 			id = this.nodeId;
@@ -163,12 +156,13 @@ public class ASTNode {
 	public void setLocation(CodeLocation location) {
 		this.location = location;
 	}
-	
+
 	/**
 	 * Set the filepath in the location object
+	 * 
 	 * @param path
 	 */
-	public void setPath (String path) {
+	public void setPath(String path) {
 		this.location.path = path;
 	}
 

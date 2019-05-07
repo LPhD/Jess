@@ -22,7 +22,6 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 		
 		mainNodeId = Writer.getIdForObject(dbNode);
 		dbNode.setNodeId(Writer.getIdForObject(dbNode));
-//		System.out.println("CSV Main Node added: "+ astDBnode.getAstNode());
 	}
 	
 	/**
@@ -34,7 +33,6 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 		Map<String, Object> properties = astDatabaseNode.createProperties();
 		Writer.addNode(astDatabaseNode, properties);
 		astDatabaseNode.setNodeId(Writer.getIdForObject(astDatabaseNode));
-//		System.out.println("CSV AST Node added: "+ astDatabaseNode.getAstNode());
 	}
 		
 	/**

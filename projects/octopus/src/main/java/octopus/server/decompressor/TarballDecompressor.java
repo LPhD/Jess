@@ -69,7 +69,7 @@ public class TarballDecompressor {
         	out = new BufferedOutputStream(new FileOutputStream(new File(outDir, name)), BUFFER_SIZE);
 		} catch (Exception e) {
 			//Sometimes directories are not recognized
-			System.out.println("Error writing file, try do make a directory instead");
+			System.err.println("Error writing file, try do make a directory instead");
 			mkDirs(outDir, name);
 			return;
 		}

@@ -20,10 +20,7 @@ public abstract class ASTExporter {
 		addASTNode(astDatabaseNode);
 		//Set nodeID in AST node to draw variability and AST edges
 		node.setNodeId(astDatabaseNode.getNodeId());
-		
-//		System.out.println("Set nodeId for: "+node.getEscapedCodeStr()+" -> "+node.getNodeId());
-		
-		
+				
 		// Link include statement with included file
 		if (node.getTypeAsString().equals("PreIncludeLocalFile")) {
 			IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
@@ -63,7 +60,6 @@ public abstract class ASTExporter {
 					} else {
 						System.err.println("Error connecting "+currentNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 					}
-//					System.out.println("Connected variability parent: "+currentNode.getEscapedCodeStr()+" with variability child: "+vStatement.getEscapedCodeStr());
 				}
 				
 				//Check also the AST children (#else/#elif)
@@ -80,7 +76,6 @@ public abstract class ASTExporter {
 			ASTNode child = astNodeParent.getChild(i);
 			addASTToDatabase(child);
 			addASTLink(astNodeParent.getNodeId(), child.getNodeId());
-//			System.out.println("Connected AST parent: "+astNodeParent.getEscapedCodeStr()+"with AST child: "+child.getEscapedCodeStr());
 		}
 
 	}

@@ -5,25 +5,21 @@ import groovy.lang.Script;
 
 import java.util.Map;
 
+public abstract class OctopusScriptBase extends Script {
 
-public abstract class OctopusScriptBase extends Script
-{
+	public void addStep(String name, Closure closure) {
+		System.out.println("Loading closures...");
+		System.out.println("Name: " + name + ", Closure: " + closure);
 
-	public void addStep(String name, Closure closure)
-	{
-        System.out.println("Name: "+name+", Closure: "+closure);
-        
 		Map<String, Closure> sessionSteps = getSessionSteps();
 		sessionSteps.put(name, closure);
 	}
 
-	public Closure getStep(String name)
-	{
+	public Closure getStep(String name) {
 		return getSessionSteps().get(name);
 	}
 
-	private Map<String, Closure> getSessionSteps()
-	{
+	private Map<String, Closure> getSessionSteps() {
 		Map<String, Closure> sessionSteps = (Map<String, Closure>) getBinding().getVariable("sessionSteps");
 		return sessionSteps;
 	}

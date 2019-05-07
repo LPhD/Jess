@@ -27,8 +27,8 @@ public class OctopusMain {
 		try {
 			ftpServer.start();
 		} catch (FtpException| FtpServerConfigurationException e) {
-			System.out.println("Error starting Octopus");
-			System.out.println(e.getMessage());
+			System.err.println("Error starting Octopus");
+			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
 	}

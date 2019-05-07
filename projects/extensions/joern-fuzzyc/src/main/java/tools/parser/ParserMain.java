@@ -37,6 +37,7 @@ public class ParserMain {
 	}
 
 	private static void printHelpAndTerminate(Exception ex) {
+		System.err.println("Error in ParserMain!");
 		System.err.println(ex.getMessage());
 		cmd.printHelp();
 		System.exit(1);
