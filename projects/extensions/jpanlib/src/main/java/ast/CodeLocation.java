@@ -1,7 +1,6 @@
 package ast;
 
-public class CodeLocation
-{
+public class CodeLocation {
 
 	final public static int NOT_SET = -1;
 
@@ -12,10 +11,8 @@ public class CodeLocation
 	public int stopIndex = NOT_SET;
 
 	@Override
-	public String toString()
-	{
-		return String.format("%d:%d:%d:%d", startLine, startPos, startIndex,
-				stopIndex);
+	public String toString() {
+		return String.format("%d:%d:%d:%d", startLine, startPos, startIndex, stopIndex);
 	}
 
 }

@@ -8,58 +8,46 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.LinkedList;
 import java.util.List;
 
-class UnorderedFileWalkerImpl extends SimpleFileVisitor<Path>
-{
+class UnorderedFileWalkerImpl extends SimpleFileVisitor<Path> {
 	private FileNameMatcher matcher = new FileNameMatcher();
 	private List<SourceFileListener> listeners = new LinkedList<SourceFileListener>();
 
-	public void setFilenameFilter(String pattern)
-	{
+	public void setFilenameFilter(String pattern) {
 		matcher.setFilenameFilter(pattern);
 	}
 
-	public void addListener(SourceFileListener listener)
-	{
+	public void addListener(SourceFileListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public FileVisitResult preVisitDirectory(Path dir,
-			BasicFileAttributes attrs)
-	{
+	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
 		notifyListenersOfDirEntry(dir);
 		return FileVisitResult.CONTINUE;
 	}
 
-	private void notifyListenersOfDirEntry(Path dir)
-	{
-		for (SourceFileListener listener : listeners)
-		{
+	private void notifyListenersOfDirEntry(Path dir) {
+		for (SourceFileListener listener : listeners) {
 			listener.preVisitDirectory(dir);
 		}
 	}
 
 	@Override
-	public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-	{
+	public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
 		notifyListenersOfDirExit(dir);
 		return FileVisitResult.CONTINUE;
 	}
 
-	private void notifyListenersOfDirExit(Path dir)
-	{
-		for (SourceFileListener listener : listeners)
-		{
+	private void notifyListenersOfDirExit(Path dir) {
+		for (SourceFileListener listener : listeners) {
 			listener.postVisitDirectory(dir);
 		}
 	}
 
 	@Override
-	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-	{
+	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 
-		if (!matcher.fileMatches(file))
-		{
+		if (!matcher.fileMatches(file)) {
 			return FileVisitResult.CONTINUE;
 		}
 
@@ -67,10 +55,8 @@ class UnorderedFileWalkerImpl extends SimpleFileVisitor<Path>
 		return FileVisitResult.CONTINUE;
 	}
 
-	private void notifyListenersOfFile(Path filename)
-	{
-		for (SourceFileListener listener : listeners)
-		{
+	private void notifyListenersOfFile(Path filename) {
+		for (SourceFileListener listener : listeners) {
 			listener.visitFile(filename);
 		}
 	}
