@@ -6,6 +6,7 @@ import ast.walking.ASTNodeVisitor;
 
 public abstract class OutModASTNodeVisitor extends ASTNodeVisitor {
 	protected long importNode(ASTNodeExporter importer, ASTNode node) {
+		node.setPath(currentFileNode.getPath());
 		importer.setCurrentFile(currentFileNode);
 		importer.addToDatabaseSafe(node);
 		long mainNodeId = importer.getMainNodeId();

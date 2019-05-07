@@ -10,6 +10,7 @@ public abstract class ClassDefExporter extends ASTNodeExporter {
 
 	public void addToDatabaseSafe(ASTNode node) {
 		try {
+			node.setPath(curFile.getPath());
 			ClassDefDatabaseNode classDefNode = new ClassDefDatabaseNode();
 			classDefNode.initialize(node);
 			addClassDefToDatabase(classDefNode);
@@ -19,7 +20,7 @@ public abstract class ClassDefExporter extends ASTNodeExporter {
 		} catch (RuntimeException ex) {
 			ex.printStackTrace();
 			System.err.println(
-					"Error adding class to database: " + ((ClassDefStatement) node).identifier.getEscapedCodeStr());
+					"Error adding class to database: " + ((ClassDefStatement) node).identifier.getEscapedCodeStr()+" in path: "+curFile.getPath());
 			return;
 		}
 

@@ -8,13 +8,11 @@ public abstract class ASTNodeExporter {
 	protected Long mainNodeId;
 	protected FileDatabaseNode curFile;
 
-	public void setCurrentFile(FileDatabaseNode fileNode)
-	{
+	public void setCurrentFile(FileDatabaseNode fileNode) {
 		curFile = fileNode;
 	}
 
-	public long getMainNodeId()
-	{
+	public long getMainNodeId() {
 		return mainNodeId;
 	}
 

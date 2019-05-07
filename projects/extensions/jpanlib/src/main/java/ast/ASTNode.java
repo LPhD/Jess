@@ -163,6 +163,14 @@ public class ASTNode {
 	public void setLocation(CodeLocation location) {
 		this.location = location;
 	}
+	
+	/**
+	 * Set the filepath in the location object
+	 * @param path
+	 */
+	public void setPath (String path) {
+		this.location.path = path;
+	}
 
 	public String getTypeAsString() {
 		return this.getClass().getSimpleName();

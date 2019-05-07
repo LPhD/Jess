@@ -9,30 +9,25 @@ import ast.ASTNodeBuilder;
 import ast.logical.statements.CompoundStatement;
 import ast.walking.ASTWalker;
 
-public class CompoundItemAssembler extends ASTWalker
-{
+public class CompoundItemAssembler extends ASTWalker {
 
 	private CompoundStatement compoundItem;
 
-	public CompoundStatement getCompoundItem()
-	{
+	public CompoundStatement getCompoundItem() {
 		return compoundItem;
 	}
 
 	@Override
-	public void startOfUnit(ParserRuleContext ctx, String filename)
-	{
+	public void startOfUnit(ParserRuleContext ctx, String filename) {
 		compoundItem = new CompoundStatement();
 	}
 
 	@Override
-	public void endOfUnit(ParserRuleContext ctx, String filename)
-	{
+	public void endOfUnit(ParserRuleContext ctx, String filename) {
 	}
 
 	@Override
-	public void processItem(ASTNode item, Stack<ASTNodeBuilder> itemStack)
-	{
+	public void processItem(ASTNode item, Stack<ASTNodeBuilder> itemStack) {
 		compoundItem.addChild(item);
 	}
 

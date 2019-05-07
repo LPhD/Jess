@@ -8,18 +8,15 @@ import databaseNodes.FileDatabaseNode;
  * importer.
  */
 
-public class ParserState
-{
+public class ParserState {
 
 	private FileDatabaseNode currentFileNode;
 
-	public void setCurrentFileNode(FileDatabaseNode node)
-	{
+	public void setCurrentFileNode(FileDatabaseNode node) {
 		currentFileNode = node;
 	}
 
-	public FileDatabaseNode getCurrentFileNode()
-	{
+	public FileDatabaseNode getCurrentFileNode() {
 		return currentFileNode;
 	}
 

@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.Stack;
 
 import databaseNodes.ASTDatabaseNode;
-import databaseNodes.DatabaseNode;
 import databaseNodes.FileDatabaseNode;
 import includeAnalysis.IncludeAnalyzer;
 import outputModules.parser.ParserState;

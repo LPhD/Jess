@@ -14,6 +14,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	 */
 	@Override
 	public void addToDatabaseSafe(ASTNode astNode)	{
+		astNode.setPath(curFile.getPath());
 		ASTDatabaseNode preDBNode = new ASTDatabaseNode();
 		try	{			
 			//Add top level AST node to DB
@@ -55,7 +56,6 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 		for (int i = 0; i < nVariableStatements; i++) {
 			ASTNode vStatement = preAstNode.getVariableStatement(i);
 			
-			//TODO: Sometimes the cildNode is null, check why
 			if(preAstNode.getNodeId() > 0 && vStatement.getNodeId() > 0) {
 				long parentNodeID = preAstNode.getNodeId();
 				long childNodeID = vStatement.getNodeId();
@@ -93,6 +93,7 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	 * @param parent The parent node of the current node.
 	 */
 	public void addASTToDatabase(ASTNode currentASTNode) {
+		currentASTNode.setPath(curFile.getPath());
 		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();
 		try	{
 			//Add DB Node and connect it with its parent

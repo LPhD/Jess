@@ -10,32 +10,27 @@ import ast.walking.ASTNodeVisitor;
 import ast.walking.ASTWalker;
 import databaseNodes.FileDatabaseNode;
 
-public abstract class ParserASTWalker extends ASTWalker
-{
+public abstract class ParserASTWalker extends ASTWalker {
 
 	protected ParserState state;
 	protected ASTNodeVisitor astVisitor;
 
-	public void setIndexerState(ParserState aState)
-	{
+	public void setIndexerState(ParserState aState) {
 		state = aState;
 	}
 
 	@Override
-	public void startOfUnit(ParserRuleContext ctx, String filename)
-	{
+	public void startOfUnit(ParserRuleContext ctx, String filename) {
 		FileDatabaseNode currentFileNode = state.getCurrentFileNode();
 		astVisitor.handleStartOfUnit(currentFileNode);
 	}
 
 	@Override
-	public void endOfUnit(ParserRuleContext ctx, String filename)
-	{
+	public void endOfUnit(ParserRuleContext ctx, String filename) {
 	}
 
 	@Override
-	public void processItem(ASTNode node, Stack<ASTNodeBuilder> nodeStack)
-	{
+	public void processItem(ASTNode node, Stack<ASTNodeBuilder> nodeStack) {
 		node.accept(astVisitor);
 	}
 

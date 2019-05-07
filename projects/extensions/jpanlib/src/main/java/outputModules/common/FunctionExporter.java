@@ -27,6 +27,7 @@ public abstract class FunctionExporter extends ASTNodeExporter {
 	@Override
 	public void addToDatabaseSafe(ASTNode node) {
 		try {
+			node.setPath(curFile.getPath());
 			FunctionDatabaseNode function = new FunctionDatabaseNode();
 			// this actually constructs all other representations of
 			// the function.

@@ -15,6 +15,7 @@ public abstract class DeclStmtExporter extends ASTNodeExporter {
 	protected abstract void addLinkFromStmtToDecl(long mainNodeId, long declId);
 
 	public void addToDatabaseSafe(ASTNode node) {
+		node.setPath(curFile.getPath());
 		DeclStmtDatabaseNode dbNode = new DeclStmtDatabaseNode();
 		dbNode.initialize(node);
 		addMainNode(dbNode);
@@ -34,6 +35,7 @@ public abstract class DeclStmtExporter extends ASTNodeExporter {
 		Iterator<ASTNode> it = identifierDeclList.iterator();
 		while (it.hasNext()) {
 			ASTNode decl = it.next();
+			decl.setPath(curFile.getPath());
 			declImporter.addToDatabaseSafe(decl);			
 			
 			long declId = decl.getNodeId();
