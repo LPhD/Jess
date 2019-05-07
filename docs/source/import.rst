@@ -4,23 +4,23 @@ Parsing and Importing Code
 Importing code
 --------------
 
-Once joern has been installed, you can start the server and begin to
-import code into the database by executing `joern-import`. In one
-terminal, execute the joern server:
+Once Jess has been installed, you can start the server and begin to
+import code into the database by executing `jess-import`. In one
+terminal, execute the Jess server:
 
 .. code-block:: none
 
-	cd $JOERN
-	./joern-server
+	cd $JESS
+	./jess-server
 
-where `$JOERN` is the joern root directory. In a second terminal,
+where `$JESS` is the Jess root directory. In a second terminal,
 import the code as follows
 
 .. code-block:: none
 
-	`cd $JOERN`
+	`cd $JESS`
 	`tar -cvf testCode.tar.gz testCode`
-	`joern-import testCode.tar.gz`
+	`jess-import testCode.tar.gz`
 
 This will upload the tarball to the server, unpack it, parse the code
 and create a new project and corresponding graph database. The project
@@ -30,18 +30,18 @@ Parsing code without importing
 ------------------------------
 
 In addition to offering a tool to automatically parse and import code
-into a graph database (`joern-import`), joern provides a tool to parse
+into a graph database (`jess-import`), Jess provides a tool to parse
 code and store its intermediate graph representation in a text
 file. The fuzzy parser can thus be used without the graph database
 backend, e.g., to provide input for other standalone code analysis
 tools.
 
 To parse source code in the directory $codeDir, simply invoke
-`joern-parse` as follows.
+`jess-parse` as follows.
 
 .. code-block:: none
 
-	./joern-parse $codeDir
+	./jess-parse $codeDir
 
 
 This will create a directory named `parsed`, which contains two files

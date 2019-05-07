@@ -1,4 +1,4 @@
-.. joern documentation master file, created by
+.. Jess documentation master file, created by
    sphinx-quickstart2 on Thu Jul 10 10:58:55 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -11,7 +11,7 @@ Jess is based on Joern. Joern is a platform for robust analysis of C/C++ code de
 `Alwin Maier <https://www.tu-braunschweig.de/sec/team/alwin>`_ at the
 `Institute of Systems Security <https://www.tu-braunschweig.de/sec>`_
 of the Technische Universitaet Braunschweig. It is part of the octopus
-project for graph-based program analysis tools. Joern generates *code
+project for graph-based program analysis tools. Jess generates *code
 property graphs*, a novel graph representation that exposes the code's
 syntax, control-flow, data-flow and type information in a joint data
 structure. Code property graphs are stored in an Titan DB graph
@@ -33,7 +33,7 @@ analysis tasks can be implemented as plugins for the platform.
   user-defined Gremlin steps that encode common traversals in the code
   property graph. These can be combined to create search queries easily.
   
-- **Variability-Awarness.** In contrast to Joern, Jess parses preprocessor statements and is therefore able to analyze variability in preprocessor-based product lines.
+- **Variability-Awarness.** Jess parses preprocessor statements and is therefore able to analyze variability in preprocessor-based product lines.
 
 - **Semantic Slicing.** Jess uses queries to slice the imported source code in semantically related units. That means, you can select an entry point (a line of code) and Jess will give you all lines of code that have an behavioural impact on that entry point or are impacted by that entry point (forward and backward slicing).
 
@@ -48,12 +48,6 @@ Contents:
 
 	installation
 	import
-	pythonAccess
-	databaseOverview
-	querying
-	joerntools
-	development
-	tutorials
 ..
    Indices and tables
    ==================

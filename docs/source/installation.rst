@@ -4,9 +4,9 @@ Installation
 System Requirements and Dependencies
 -------------------------------------
 
-Joern is a Java Application and should work on systems offering a Java
+Jess is a Java Application and should work on systems offering a Java
 virtual machine, e.g., Microsoft Windows, Mac OS X or GNU/Linux. We
-have tested Joern on Debian Jessie, where OpenJDK-8 and Gradle 2 have
+have tested Jess on Debian Jessie, where OpenJDK-8 and Gradle 2 have
 been installed from jessie backports. If you plan to work with large
 code bases such as the Linux Kernel, you should have at least 30GB of
 free disk space to store the database and 8GB of RAM to experience
@@ -14,11 +14,11 @@ acceptable performance. In addition, the following software should be
 installed:
 
 
-- **A Java Virtual Machine 1.8.** Joern is written in Java 8 and does
+- **A Java Virtual Machine 1.8.** Jess is written in Java 8 and does
   not build with Java 6 or 7. It has been tested with OpenJDK-8 but
   should also work fine with Oracle's JVM.
 
-- **Python 3.** Joern implements a client/server architecture where
+- **Python 3.** Jess implements a client/server architecture where
   client scripts are written in Python 3. Please note that these
   scripts are **not compatible with Python2**.
 
@@ -30,7 +30,7 @@ installed:
 - **Graphviz-dev.** Plotting tools require Graphviz and its
   development files to be installed.
   
-- **Gradle 2.x.** Joern uses the gradle build tool, and some features
+- **Gradle 2.x.** Jess uses the gradle build tool, and some features
   specific to Gradle 2.0 and above.
 
 If you are on a Debian-based system, try the following to download the
@@ -42,13 +42,13 @@ necessary dependencies:
 		
 
 Please note, however, that Debian stable (¨Jessie¨) currently does not
-include openjdk8 nor gradle 2 by default, so for Joern to work on
+include openjdk8 nor gradle 2 by default, so for Jess to work on
 Debian stable, please make use of Debian backports.
 	
 The following sections offer a step-by-step guide to the installation
-of Joern, including all of its dependencies.
+of Jess, including all of its dependencies.
 
-Building joern
+Building Jess
 
 --------------
 
@@ -58,18 +58,18 @@ automatically download and install dependencies.
 
 .. code-block:: none
 
-	git clone https://github.com/octopus-platform/joern
-	cd joern
+	git clone https://github.com/octopus-platform/jess
+	cd jess
 	./build.sh
 
 Testing the server
 -------------------
 
-In the joern root directory, invoke the script
+In the jess root directory, invoke the script
 
 .. code-block:: none
 
-	./joern-server.sh
+	./jess-server.sh
 
 to start the server.
 
@@ -89,6 +89,6 @@ script
 
 .. code-block:: none
 
-	joern-import
+	jess-import
 
 without parameters to verify that scripts are installed correctly.

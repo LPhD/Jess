@@ -24,13 +24,9 @@ def getScripts():
 if (platform.system() == "Linux"):
     print("Setting up scripts...")
     setup(
-        name = "joern",
-        version = "0.3",
-        author = "Fabian Yamaguchi",
-        author_email = "f.yamaguchi@tu-braunschweig.de",
+        name = "Jess",
         description = "Tools for code analysis based on joern.",
         license = "GPLv3",
-        url = "http://github.com/octopus-platform/joern-tools/",
         long_description = read('README.md'),
         packages = find_packages(),
         data_files=[ ('EGG-INFO/scripts/data', ['scripts/plotting/data/plotconfig.cfg'])],

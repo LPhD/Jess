@@ -1,4 +1,4 @@
-joern-tools
+jess-tools
 ===========
 
 Some simple code analysis tools build on top of joern
@@ -6,4 +6,4 @@ Some simple code analysis tools build on top of joern
 Installation
 ===
 
-See the installation instructions [here](http://joern.readthedocs.org/en/latest/installation.html#installing-joern-tools).
+See the installation instructions [here](https://jess.readthedocs.io/en/dev/).
