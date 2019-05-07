@@ -1,7 +1,6 @@
 package outputModules.csv;
 
 import java.io.File;
-import java.nio.file.Files;
 
 import outputModules.CSVASTWalker;
 import outputModules.common.Writer;
