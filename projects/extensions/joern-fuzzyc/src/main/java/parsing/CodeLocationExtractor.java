@@ -10,12 +10,7 @@ public class CodeLocationExtractor {
 		CodeLocation location = new CodeLocation();
 
 		location.startLine = ctx.start.getLine();
-		location.startPos = ctx.start.getCharPositionInLine();
-		location.startIndex = ctx.start.getStartIndex();
-		if (ctx.stop != null)
-			location.stopIndex = ctx.stop.getStopIndex();
-		else
-			location.stopIndex = CodeLocation.NOT_SET;
+		location.endLine = ctx.stop.getLine();
 
 		return location;
 	}
