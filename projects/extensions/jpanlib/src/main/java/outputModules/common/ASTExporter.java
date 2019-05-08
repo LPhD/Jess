@@ -12,6 +12,9 @@ public abstract class ASTExporter {
 	protected int ancestorCompoundStatements;
 
 	public void addASTToDatabase(ASTNode node) {
+		//The current node path is the same as the ASTRoot path
+		node.setPath(currentFunction.getASTRoot().getPath());
+		
 		ASTDatabaseNode astDatabaseNode = new ASTDatabaseNode();				
 		astDatabaseNode.initialize(node);
 		astDatabaseNode.setCurrentFunction(currentFunction);

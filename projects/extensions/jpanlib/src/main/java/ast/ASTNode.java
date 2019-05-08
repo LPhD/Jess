@@ -165,6 +165,14 @@ public class ASTNode {
 	public void setPath(String path) {
 		this.location.path = path;
 	}
+	
+	/**
+	 * Get the filepath from the location object
+	 * 
+	 */
+	public String getPath() {
+		return location.path;
+	}
 
 	public String getTypeAsString() {
 		return this.getClass().getSimpleName();
