@@ -7,7 +7,7 @@ public class Neo4JDeclExporter extends Neo4JASTNodeExporter {
 
 	@Override
 	public void addToDatabaseSafe(ASTNode node) {
-		node.setPath(curFile.getPath());
+		//Do not set path here, as it is null
 		DeclDatabaseNode dbNode = new DeclDatabaseNode();
 		dbNode.initialize(node);
 		addMainNode(dbNode);
