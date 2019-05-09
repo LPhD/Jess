@@ -14,7 +14,7 @@ public class CSVASTExporter extends ASTExporter {
 	protected void addASTNode(ASTDatabaseNode astDatabaseNode) {
 		Map<String, Object> properties = astDatabaseNode.createProperties();
 		Writer.addNode(astDatabaseNode, properties);
-		properties.put(NodeKeys.FUNCTION_ID, currentFunction.getNodeId());
+		properties.put(NodeKeys.FUNCTION_ID, ""+currentFunction.getNodeId());
 		
 		System.out.println("Putting function id: "+currentFunction.getNodeId()+" for node: "+astDatabaseNode.getAstNode().getEscapedCodeStr());
 		

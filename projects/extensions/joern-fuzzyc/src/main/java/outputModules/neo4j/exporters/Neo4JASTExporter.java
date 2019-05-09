@@ -26,7 +26,7 @@ public class Neo4JASTExporter extends ASTExporter {
 		nodeStore.addNeo4jNode(astDatabaseNode, properties);
 		nodeStore.indexNode(astDatabaseNode, properties);
 		
-		properties.put(NodeKeys.FUNCTION_ID, currentFunction.getNodeId());
+		properties.put(NodeKeys.FUNCTION_ID, ""+currentFunction.getNodeId());
 
 		//ID handling (because sometimes we get the id from the AST node or the DB node or via the writer)
 		long id = nodeStore.getIdForObject(astDatabaseNode);
