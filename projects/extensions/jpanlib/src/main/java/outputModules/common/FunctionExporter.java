@@ -29,8 +29,7 @@ public abstract class FunctionExporter extends ASTNodeExporter {
 		try {
 			node.setPath(curFile.getPath());
 			FunctionDatabaseNode function = new FunctionDatabaseNode();
-			// this actually constructs all other representations of
-			// the function.
+			// this actually constructs all other representations of the function.
 			analyzer.reset();
 			function.setASTDefUseAnalyzer(analyzer);
 			function.setCFGFactory(cfgFactory);

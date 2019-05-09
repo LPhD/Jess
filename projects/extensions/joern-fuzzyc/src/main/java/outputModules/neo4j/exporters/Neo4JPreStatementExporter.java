@@ -58,9 +58,9 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_FILE_OF);
 
 		long fileId = fileNode.getId();
-		long functionId = nodeStore.getIdForObject(preNode);
+		long preNodeId = nodeStore.getIdForObject(preNode);
 
-		Neo4JBatchInserter.addRelationship(fileId, functionId, rel, null);
+		Neo4JBatchInserter.addRelationship(fileId, preNodeId, rel, null);
 	}
 	
 	/**
