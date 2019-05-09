@@ -11,6 +11,7 @@ generateOnlyAST = True
 includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
+includeOtherFeatures = False
 
 
 
@@ -90,7 +91,7 @@ def identifySemanticUnits (currentEntryPoints):
             
         # Get enclosed vertices if current vertice is a for-, while- or if-statement
         if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):            
-            result = set(getChildren(currentNode))
+            result = set(getASTChildren(currentNode))
             # For each enclosed vertice, add to the Semantic Unit and get related elements
             identifySemanticUnits (result)
         # Get only the Syntax Elements of the selected statement     
@@ -186,6 +187,69 @@ def identifySemanticUnits (currentEntryPoints):
         if (type[0] == "Symbol"):
             result = set(getDefinesOfSymbols(currentNode))
             identifySemanticUnits (result)
+            
+########################################################################################
+#################################### Preprocessor ######################################          
+             
+        # Get enclosed vertices if current vertice is a pre-if-statement
+        if (type[0] == "PreIfStatement"):            
+            #get variable statements
+            result = set(getVariableStatements(currentNode))
+            
+            if (connectIfWithElse == False): 
+                # Only get #endif and the condition
+               result += set(getEndIfAndCondition(currentNode))                  
+            else:
+               # Otherwise get all AST children (condition and one #else/#elif/#endif)     
+               result += set(getASTChildren(currentNode))           
+                     
+            # For each enclosed vertice, add to the Semantic Unit and get related elements
+            identifySemanticUnits (result)
+
+                
+                                
+                   
+            
+            
+            
+            
+            
+        # Get all preprocessor statements       
+        if (type[0] == "PreElIfStatement"):
+            #get condition and endif or get all ast children
+            #get #if 
+            #get variable statements
+            #result = set(getDefinesOfSymbols(currentNode))
+            identifySemanticUnits (result)
+            
+        # Get all preprocessor statements     
+        if (type[0] == "PreElseStatement"):
+            #get endif or get all ast children
+            #get #if (
+            #get variable statements
+           # result = set(getDefinesOfSymbols(currentNode))
+            identifySemanticUnits (result)
+            
+        # Get all preprocessor statements     
+        if (type[0] == "PreEndIfStatement"):
+            #get if
+            #result = set(getDefinesOfSymbols(currentNode))
+            identifySemanticUnits (result)    
+
+        # Get all preprocessor statements     
+        if (type[0] == "PreDefineStatement"):
+            result = set(getDefinesOfSymbols(currentNode))
+            identifySemanticUnits (result) 
+
+        # Get all preprocessor statements     
+        # What about includenext? Currently its the same implementation as include
+        if (type[0] == "PreIncludeStatement"):
+            result = set(getDefinesOfSymbols(currentNode))
+            identifySemanticUnits (result) 
+
+
+#PreUndef?
+#Others currently have no impact on other lines of code
 
         #Problems: 
         # Global variables 
@@ -267,7 +331,7 @@ def getFunctionDefIn (verticeId):
     return db.runGremlinQuery(query)      
 
 # Return all AST children vertice ids of the given vertice
-def getChildren (verticeId):
+def getASTChildren (verticeId):
     query = """g.V(%s).emit().repeat(out(AST_EDGE)).unfold().id()""" % (verticeId)
     return db.runGremlinQuery(query)
     
@@ -338,9 +402,24 @@ def getIfWhileForStatement (verticeId):
 # Return the corresponding else-statement of an if-statement    
 def getElse (verticeId):
     query = """g.V(%s).out(AST_EDGE).has('type', 'ElseStatement').id()""" % (verticeId)
-    return db.runGremlinQuery(query)     
+    return db.runGremlinQuery(query)    
+
+# Return the corresponding #endif-statement and the condition of an #if-statement    
+def getEndIfAndCondition (verticeId):
+    # Condition is AST child of PreIfCondition
+    query = """g.V(%s).out(AST_EDGE).has('type', 'PreIfCondition').out(AST_EDGE).has('type', 'Condition').id()""" % (verticeId)
+    result = db.runGremlinQuery(query)
+    # Find the #endif
+    query = """g.V(%s).until(has('type', 'PreEndIfStatement')).repeat(out(AST_EDGE).has('type', 'PreEndIfStatement').id()""" % (verticeId)
+    result += db.runGremlinQuery(query)   
+    return result   
     
-    
+# Return all variable statements of the current node   
+def getVariableStatements (verticeId):
+    query = """g.V(%s).out(VARIABILITY).id()""" % (verticeId)
+    return db.runGremlinQuery(query)   
+
+
 ###################################### Output ###############################################################
 
 # Output of the code of the Semantic Unit        
