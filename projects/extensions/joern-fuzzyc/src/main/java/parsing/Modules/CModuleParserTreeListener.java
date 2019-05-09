@@ -101,6 +101,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			e.printStackTrace();
 		}
 		
+		//Initalize again to set correct location string
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		
 		//VARIABILITY ANALYSIS first
 		variabilityAnalysis(thisItem);
 		//AST ANALYSIS second
