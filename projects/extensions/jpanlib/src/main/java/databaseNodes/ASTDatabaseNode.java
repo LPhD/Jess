@@ -56,9 +56,8 @@ public class ASTDatabaseNode extends DatabaseNode {
 
 		if (this.isInsideFunctionBlock()) {
 			CodeLocation funcLocation = currentFunction.getContentLocation();
-			location.startIndex += funcLocation.startIndex + 1;
+
 			location.startLine += funcLocation.startLine - 1;
-			location.stopIndex += funcLocation.startIndex + 1;
 		}
 
 		return location.toString();
