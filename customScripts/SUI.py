@@ -40,8 +40,10 @@ db.connectToDatabase(projectName)
 # [622680] Callee compareResults in threeElmArray
 
 ## Work with sets, as they are way faster and allow only unique elements ##
-# Ids of entry point vertices 
-entryPointId = {'262328'}
+# Ids of entry point vertices or name of entry feature.
+entryPointId = {''}
+# You can select both, if you want additional entry points.
+entryFeatureNames = {'BUBBLE'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -416,28 +418,30 @@ def getEndIfAndCondition (verticeId):
     
 # Return all variable statements of the current node   
 def getVariableStatements (verticeId):
-    query = """g.V(%s).out(VARIABILITY).id()""" % (verticeId)
+    query = """g.V(%s).out('VARIABILITY').id()""" % (verticeId)
     return db.runGremlinQuery(query)   
 
+###################################### Variability ###############################################################
+    
 # Return all variable statements of the current node   
 def getFeatureBlocks (featureName):
-    query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).id()""" % (verticeId)
-    ##ToDO continue here, add to semantic unit and add call of this function
+    finalResult = set()
     
-#    _addEdges
-#Traceback (most recent call last):
-#  File "SUI.py", line 559, in <module>
-
- # File "SUI.py", line 473, in plotResults
- #   G = pgv.AGraph(directed=True, strict=False)
- # File "SUI.py", line 515, in addEdges
- #   G.add_node(nr.getId(), **plot_properties)
- # File "/home/lea/.local/lib/python3.5/site-packages/octopus/shelltool/ResultProcessor.py", line 10, in __init__
- #   for k, v in result.items():
-#AttributeError: 'str' object has no attribute 'items'
-
-
-    return db.runGremlinQuery(query)  
+    for currentNode in featureName:
+        # Find all #if/#elfif nodes that contain the name of the feature
+        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).id()""" % (currentNode)
+        result = db.runGremlinQuery(query) 
+        # Add the #if/#elif nodes to the final result        
+        finalResult.update(result)
+        # Remove brackets to allow direct injection into a query
+        result = repr(result)
+        result = result.replace("[","")
+        result = result.replace("]","")
+        # Find all nodes that belong to the variability blocks
+        query = """g.V(%s).out('VARIABILITY').id()""" % (result)
+        finalResult.update(set(db.runGremlinQuery(query)))
+              
+    return finalResult  
 
 ###################################### Output ###############################################################
 
@@ -508,7 +512,7 @@ def getNodes():
 # Returns all AST edges of the Semantic Unit    
 def getASTEdges():
     # Get all incoming edges that are part of the AST  
-    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF')""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY')""" % (list(semanticUnit))   
     return db.runGremlinQuery(query)
     
 # Returns all edges of the Semantic Unit    
@@ -571,7 +575,14 @@ def output(G):
     
 ####################################### Plotting ###############################################   
  
-# Start identification process
+# Check if a feature is selected as entry point
+if (len(entryFeatureNames) > 0):
+    print("Found feature as entry point") 
+    result = set(getFeatureBlocks(entryFeatureNames))
+    print(result) 
+    entryPointId.update(result)
+    
+# Start identification process    
 identifySemanticUnits(entryPointId)    
 
 # Plot resulting graph
