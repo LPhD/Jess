@@ -12,9 +12,6 @@ includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
-
-
-
 ###############################################
 
 
@@ -92,12 +89,21 @@ def identifySemanticUnits (currentEntryPoints):
             identifySemanticUnits(result)            
             
         # Get enclosed vertices if current vertice is a for-, while- or if-statement
-        if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):            
+        if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):    
+            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
+            result = set(getParentFunction(currentNode))      
+            # Just add, no further analysis
+            semanticUnit.update(result)
+            
             result = set(getASTChildren(currentNode))
             # For each enclosed vertice, add to the Semantic Unit and get related elements
             identifySemanticUnits (result)
         # Get only the Syntax Elements of the selected statement     
         elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):
+            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
+            result = set(getParentFunction(currentNode))      
+            # Just add, no further analysis
+            semanticUnit.update(result)
         
             # Get corresponding if-statement only if the configuration is selected
             if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
@@ -132,7 +138,12 @@ def identifySemanticUnits (currentEntryPoints):
 ################################### Call relations ################################### 
            
         # Get called function if current vertice is a callee
-        if (type[0] == "Callee"):            
+        if (type[0] == "Callee"): 
+            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
+            result = set(getParentFunction(currentNode))      
+            # Just add, no further analysis
+            semanticUnit.update(result)
+                       
             result = set(getCalledFunctionDef(currentNode))
             # Get related elements of the called function
             identifySemanticUnits (result)
@@ -194,7 +205,12 @@ def identifySemanticUnits (currentEntryPoints):
 #################################### Preprocessor ######################################          
              
         # Get enclosed vertices if current vertice is a pre-if-statement
-        if (type[0] == "PreIfStatement"):            
+        if (type[0] == "PreIfStatement"):      
+            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
+            result = set(getParentFunction(currentNode))      
+            # Just add, no further analysis
+            semanticUnit.update(result)
+                  
             #get variable statements
             result = set(getVariableStatements(currentNode))
             
@@ -208,13 +224,7 @@ def identifySemanticUnits (currentEntryPoints):
             # For each enclosed vertice, add to the Semantic Unit and get related elements
             identifySemanticUnits (result)
 
-                
-                                
-                   
-            
-            
-            
-            
+                          
             
         # Get all preprocessor statements       
         #if (type[0] == "PreElIfStatement"):
@@ -320,17 +330,41 @@ def getEnclosedCodeOfFunction (verticeId):
 # Return function definition vertice of a given function
 def getFunctionDefOut (verticeId):
     query = """g.V(%s).out().has('type', 'FunctionDef').id()""" % (verticeId)
-    return db.runGremlinQuery(query)    
+    return db.runGremlinQuery(query)
+    
+# Return parent function definition vertice of a vertice
+def getFunctionDefIn (verticeId):
+    query = """g.V(%s).in(AST_EDGE).has('type', 'FunctionDef').id()""" % (verticeId)
+    return db.runGremlinQuery(query)      
+
+# Return parent function of a given node (can be empty)
+def getParentFunction (verticeId):
+    query = """g.V(%s).values('functionId')""" % (verticeId)
+    result = db.runGremlinQuery(query)  
+    if (len(result) > 0 and not (result[0] in checkedVertices)) :
+        # Do this check only once
+        checkedVertices.add(result[0])
+        
+        query = """g.V().has('functionId', '%s').has('type', 'FunctionDef').id()""" % (result[0])
+        result = db.runGremlinQuery(query)
+
+        print(result)
+        query = """g.V(%s).out(AST_EDGE).has('type', 'CompoundStatement').id()""" % (result[0])
+        print(db.runGremlinQuery(query))
+        
+        result.extend(db.runGremlinQuery(query))
+        print(result)
+        
+        return result
+    else :
+        return ""    
     
 # Return parameter list of a parameter
 def getParameterList (verticeId):
     query = """g.V(%s).in(AST_EDGE).has('type', 'ParameterList')id()""" % (verticeId)
     return db.runGremlinQuery(query)    
     
-# Return parent function definition vertice of a vertice
-def getFunctionDefIn (verticeId):
-    query = """g.V(%s).in(AST_EDGE).has('type', 'FunctionDef').id()""" % (verticeId)
-    return db.runGremlinQuery(query)      
+    
 
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
@@ -367,13 +401,13 @@ def getDeclaration (verticeId):
     #ForInit ?
     #IdentifierDeclStatement (int j) -> AST Parent -> IdentifierDecl (j) -> AST Parent -> Identifier (j) and IdentifierDeclType (int)
     query = """g.V(%s).inE()""" % (verticeId)
-    print(db.runGremlinQuery(query))
+   # print(db.runGremlinQuery(query))
     query = """g.V(%s).in()""" % (verticeId)
-    print(db.runGremlinQuery(query))
+    #print(db.runGremlinQuery(query))
     query = """g.V(%s).outE()""" % (verticeId)
-    print(db.runGremlinQuery(query))
+    #print(db.runGremlinQuery(query))
     query = """g.V(%s).out()""" % (verticeId)
-    print(db.runGremlinQuery(query))  
+    #print(db.runGremlinQuery(query))  
     print("#########################################################################")    
     return ""
          ########################### TO DO ###################################     
