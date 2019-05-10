@@ -27,21 +27,21 @@ db.connectToDatabase(projectName)
 
 ## Example entry points ##
 ## Caution, depends on db ##
-# [8248] Directory src
-# [217176] File C_Test.c
-# [188432] FunctionDef compareResults
-# [258096, 282680] IfStatements in compareResults
-# [413864] ElseStatement in compareResults
-# [200720] ForStatement in compareResults
-# [225368, 225472, 241856] Conditions in compareResults
-# [233560] PostIncDecOperationExpression in compareResults
-# [463016] FunctionDef threeElmArray
-# [299064] CallExpression compareResults in threeElmArray
-# [303160] Callee compareResults in threeElmArray
+# [4280, 12472] Directory src
+# [237632] File C_Test.c
+# [262328] FunctionDef compareResults
+# [516184, 524440] IfStatements in compareResults
+# [528472] ElseStatement in compareResults
+# [266424] ForStatement in compareResults
+# [241688, 503896, 540824] Conditions in compareResults
+# [499800] PostIncDecOperationExpression in compareResults
+# [282752] FunctionDef threeElmArray
+# [622744] CallExpression compareResults in threeElmArray
+# [622680] Callee compareResults in threeElmArray
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices 
-entryPointId = {'53320'}
+entryPointId = {'262328'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -198,10 +198,10 @@ def identifySemanticUnits (currentEntryPoints):
             
             if (connectIfWithElse == False): 
                 # Only get #endif and the condition
-               result += set(getEndIfAndCondition(currentNode))                  
+               result.update(set(getEndIfAndCondition(currentNode)))              
             else:
                # Otherwise get all AST children (condition and one #else/#elif/#endif)     
-               result += set(getASTChildren(currentNode))           
+               result.update(set(getASTChildren(currentNode)))           
                      
             # For each enclosed vertice, add to the Semantic Unit and get related elements
             identifySemanticUnits (result)
@@ -215,37 +215,37 @@ def identifySemanticUnits (currentEntryPoints):
             
             
         # Get all preprocessor statements       
-        if (type[0] == "PreElIfStatement"):
+        #if (type[0] == "PreElIfStatement"):
             #get condition and endif or get all ast children
             #get #if 
             #get variable statements
             #result = set(getDefinesOfSymbols(currentNode))
-            identifySemanticUnits (result)
+            #identifySemanticUnits (result)
             
         # Get all preprocessor statements     
-        if (type[0] == "PreElseStatement"):
+        #if (type[0] == "PreElseStatement"):
             #get endif or get all ast children
             #get #if (
             #get variable statements
            # result = set(getDefinesOfSymbols(currentNode))
-            identifySemanticUnits (result)
+            #identifySemanticUnits (result)
             
         # Get all preprocessor statements     
-        if (type[0] == "PreEndIfStatement"):
+        #if (type[0] == "PreEndIfStatement"):
             #get if
             #result = set(getDefinesOfSymbols(currentNode))
-            identifySemanticUnits (result)    
+            #identifySemanticUnits (result)    
 
         # Get all preprocessor statements     
-        if (type[0] == "PreDefineStatement"):
-            result = set(getDefinesOfSymbols(currentNode))
-            identifySemanticUnits (result) 
+        #if (type[0] == "PreDefineStatement"):
+            #result = set(getDefinesOfSymbols(currentNode))
+            #identifySemanticUnits (result) 
 
         # Get all preprocessor statements     
         # What about includenext? Currently its the same implementation as include
-        if (type[0] == "PreIncludeStatement"):
-            result = set(getDefinesOfSymbols(currentNode))
-            identifySemanticUnits (result) 
+        #if (type[0] == "PreIncludeStatement"):
+            #result = set(getDefinesOfSymbols(currentNode))
+            #identifySemanticUnits (result) 
 
 
 #PreUndef?
@@ -419,6 +419,25 @@ def getVariableStatements (verticeId):
     query = """g.V(%s).out(VARIABILITY).id()""" % (verticeId)
     return db.runGremlinQuery(query)   
 
+# Return all variable statements of the current node   
+def getFeatureBlocks (featureName):
+    query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).id()""" % (verticeId)
+    ##ToDO continue here, add to semantic unit and add call of this function
+    
+#    _addEdges
+#Traceback (most recent call last):
+#  File "SUI.py", line 559, in <module>
+
+ # File "SUI.py", line 473, in plotResults
+ #   G = pgv.AGraph(directed=True, strict=False)
+ # File "SUI.py", line 515, in addEdges
+ #   G.add_node(nr.getId(), **plot_properties)
+ # File "/home/lea/.local/lib/python3.5/site-packages/octopus/shelltool/ResultProcessor.py", line 10, in __init__
+ #   for k, v in result.items():
+#AttributeError: 'str' object has no attribute 'items'
+
+
+    return db.runGremlinQuery(query)  
 
 ###################################### Output ###############################################################
 
@@ -488,8 +507,8 @@ def getNodes():
            
 # Returns all AST edges of the Semantic Unit    
 def getASTEdges():
-    # Get all incoming edges that are part of the AST
-    query = """idListToNodes(%s).inE('IS_AST_PARENT')""" % (list(semanticUnit))    
+    # Get all incoming edges that are part of the AST  
+    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF')""" % (list(semanticUnit))   
     return db.runGremlinQuery(query)
     
 # Returns all edges of the Semantic Unit    
