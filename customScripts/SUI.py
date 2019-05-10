@@ -205,12 +205,7 @@ def identifySemanticUnits (currentEntryPoints):
 #################################### Preprocessor ######################################          
              
         # Get enclosed vertices if current vertice is a pre-if-statement
-        if (type[0] == "PreIfStatement"):      
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
-                  
+        if (type[0] == "PreIfStatement"):                       
             #get variable statements
             result = set(getVariableStatements(currentNode))
             
