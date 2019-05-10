@@ -221,27 +221,33 @@ def identifySemanticUnits (currentEntryPoints):
 
                           
             
-        # Get all preprocessor statements       
-        #if (type[0] == "PreElIfStatement"):
+        #Get enclosed vertices if current vertice is a pre-elif-statement       
+        if (type[0] == "PreElIfStatement"):
             #get condition and endif or get all ast children
             #get #if 
-            #get variable statements
-            #result = set(getDefinesOfSymbols(currentNode))
-            #identifySemanticUnits (result)
             
-        # Get all preprocessor statements     
-        #if (type[0] == "PreElseStatement"):
+            #get variable statements
+            result = set(getVariableStatements(currentNode))
+            
+            # For each enclosed vertice, add to the Semantic Unit and get related elements
+            identifySemanticUnits (result)
+            
+        #Get enclosed vertices if current vertice is a pre-else-statement     
+        if (type[0] == "PreElseStatement"):
             #get endif or get all ast children
             #get #if (
-            #get variable statements
-           # result = set(getDefinesOfSymbols(currentNode))
-            #identifySemanticUnits (result)
             
-        # Get all preprocessor statements     
-        #if (type[0] == "PreEndIfStatement"):
+            #get variable statements
+            result = set(getVariableStatements(currentNode))
+            
+            # For each enclosed vertice, add to the Semantic Unit and get related elements
+            identifySemanticUnits (result)
+            
+        #Get enclosed vertices if current vertice is a pre-endif-statement     
+        if (type[0] == "PreEndIfStatement"):
             #get if
-            #result = set(getDefinesOfSymbols(currentNode))
-            #identifySemanticUnits (result)    
+            # For each enclosed vertice, add to the Semantic Unit and get related elements
+            identifySemanticUnits (result) 
 
         # Get all preprocessor statements     
         #if (type[0] == "PreDefineStatement"):
