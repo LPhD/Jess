@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import pygraphviz as pgv
+import ntpath
 
 from octopus.server.DBInterface import DBInterface
 from joern.shelltool.PlotConfiguration import PlotConfiguration
@@ -17,8 +18,9 @@ includeOtherFeatures = False
 
 # Connect to project DB
 #projectName = 'JoernTest'
-projectName = 'EvoDiss.tar.gz'
+#projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
+projectName = 'SPLC'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -40,7 +42,7 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature.
 entryPointId = {''}
 # You can select both, if you want additional entry points.
-entryFeatureNames = {'BUBBLE'}
+entryFeatureNames = {'analogueSender'}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -255,13 +257,13 @@ def identifySemanticUnits (currentEntryPoints):
             semanticUnit.update(set(getPreIf(currentNode)))                        
 
         # Get all preprocessor statements     
-        #if (type[0] == "PreDefineStatement"):
+        #if (type[0] == "PreDefine"):
             #result = set(getDefinesOfSymbols(currentNode))
             #identifySemanticUnits (result) 
 
         # Get all preprocessor statements     
         # What about includenext? Currently its the same implementation as include
-        #if (type[0] == "PreIncludeStatement"):
+        #if (type[0] == "PreInclude"):
             #result = set(getDefinesOfSymbols(currentNode))
             #identifySemanticUnits (result) 
 
@@ -399,15 +401,37 @@ def getCalledFunctionDef (verticeId):
 
     # Get name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
-    result = db.runGremlinQuery(query)
+    result = db.runGremlinQuery(query)   
          
     # Get the id of the called function (parent of identifier with code from result of last query)
-    query = """g.V().has('type', 'Identifier').has('code', '%s')
-        .in().has('type', 'FunctionDef').id()""" % (result[0])
-    result = db.runGremlinQuery(query)  
+    query = """g.V().has('type', within('PreMacroIdentifier', 'Identifier')).has('code', '%s')
+        .in().has('type', within('FunctionDef', 'PreDefine')).id()""" % (result[0])
+    result = db.runGremlinQuery(query)     
 
     # Check if result is in DB (could also be a C function like puts())
-    if (len(result) > 0):      
+    if (len(result) > 0):   
+        # Check whether target and callee are in the same file
+        query = """g.V(%s).values('location')""" % (result[0])
+        locationTarget = db.runGremlinQuery(query) 
+        #Get only the filename 
+        locationTargetFile = ntpath.basename(locationTarget[0])
+        locationTargetFile = locationTargetFile.split(',', 1)[0]
+        query = """g.V(%s).values('location')""" % (verticeId)
+        locationCallee = db.runGremlinQuery(query)
+        #Get only the filename 
+        locationCalleeFile = ntpath.basename(locationCallee[0])
+        locationCalleeFile = locationCalleeFile.split(' ,', 1)[0]
+        
+        # Look for includes and add them to the semanticUnit
+        if (locationCallee != locationTarget):      
+            query = """g.V().has('location', textContains('%s')).has('type', 'PreInclude').has('code', textContains('%s')).id()""" % (locationCalleeFile, locationTargetFile)
+            print(query)
+            result2 = db.runGremlinQuery(query)
+            semanticUnit.update(set(result2))
+            print(result2)
+            print(locationCalleeFile)
+            print(locationTargetFile)
+            
         return result
     else:
         return ""
