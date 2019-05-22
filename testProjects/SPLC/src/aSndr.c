@@ -1,10 +1,12 @@
 /*File: aSndr.c */
 #include "drvUtls.h"
-#include "compUtls.h"
+#include "valCmp.h"
 #include "Sndr.h"
 
 #ifdef analogueSender
-	void sendASignal(int *signal){
+	int sendASignal(int *signal){
 		int var = utilFunction(&signal);
+		doSomethingImportant(var);
+		return var;
 	}
 #endif
