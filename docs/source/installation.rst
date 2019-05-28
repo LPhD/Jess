@@ -44,7 +44,6 @@ The following sections offer a step-by-step guide to the installation
 of Jess, including all of its dependencies.
 
 Building Jess
-
 --------------
 
 **Please make sure Gradle 2.x is installed.** Then clone the repository
