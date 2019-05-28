@@ -1,10 +1,40 @@
-Version 0.2.5 => Version 1.0
+Version 0.2:
+
+New features:
+-------------
+
+- Added example code and example results (for SPLC paper)
+- Updated documentation
+- Allow features (as string input) as entry point for Semantic Unit identification
+- Added more rules for the Semantic Unit identification (see commit logs for details) 
+
+
+
+
+Version 0.1:
+
+New features:
+-------------
+
+- Added custom script (plotDB) for plotting the whole database as AST or full CPG
+- Added custom script (SUI.py) for Semantic Unit identification based on selected entry points
+- Refined preprocessor parsing on module and function level
+- Add include edges for #include statements that include source files
+
+
+Bug fixes:
+----------
+
+- Fixed problems when resolving preprocessor nesting
+
+
+
+Initial Version:
 
 New features:
 -------------
 
 - Added custom script for generation of all different graph types (cfg, ast, etc) as .dot and .pn files for every function in a project 
-
 - Moved to a newer Tinkerpop Version (for better performance)
 
 
@@ -12,45 +42,8 @@ Bug fixes:
 ----------
 
 - Fixed ResultProcessor
-
 - Removed clone of ocopus tools in mutils
-
 - Fixed memory leak in OctopusClientWriter
-
 - Fixed bugs in documentaion
 
-
-
-=============================
-
-Version 0.2.5 introduces some new features and fixes a number of bugs.
-
-New features:
--------------
-
-- Users now have access to a post-dominator tree. The post-dominator
-  tree was stacked onto the code property graph by introduction
-  post-dominator edges that connect statements and conditions to one
-  another. 
-
-- The program dependence graph now also contains control dependence
-  edges as it should be.
-
-- 'True/False' labels have been added to control flow edges since
-  users cannot be expected to know of our implicit labeling scheme.
-
-Bug fixes:
-----------
-
-Three small changes have been made to the abstract syntax tree.
-
-- Unary operators and sizeof-operators are now visible as separate
-  nodes in the AST
-- Exit-edges for while- and for- loops are now attached to the
-  condition node rather than the increment-node.
-- Conditions inside conditional expressions, e.g., 'x = foo? a: b;'
-  now also have separate condition nodes.
-
-Finally, in some cases, DEF/USE edges were added to the program
-dependence graph twice. This is now no longer the case.
 
