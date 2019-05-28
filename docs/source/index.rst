@@ -6,7 +6,7 @@
 Welcome to Jess' documentation!
 =================================
 
-Jess is based on Joern <https://github.com/octopus-platform/joern>.  Jess generates variability-aware *code
+Jess is based on `Joern <https://github.com/octopus-platform/joern>`_.  Jess generates variability-aware *code
 property graphs*, a graph representation that exposes the code's
 syntax, control-flow, data-flow, variability and type information in a joint data
 structure. Code property graphs are stored in an Titan DB graph
@@ -19,8 +19,8 @@ in the graph traversal language Gremlin. Jess uses program slicing to identify s
 - **Code Property Graphs.** Jess creates code property graphs from
   the fuzzy parser output and makes and stores them in a Titan DB graph
   database. For background information on code property graphs, we
-  strongly encourage you to read the paper of Joern's authors on the topic
-  <http://user.informatik.uni-goettingen.de/~fyamagu/pdfs/2014-oakland.pdf>.
+  strongly encourage you to read the `paper <http://user.informatik.uni-goettingen.de/~fyamagu/pdfs/2014-oakland.pdf>`_ of Joern's authors on the topic
+  .
 
 - **Extensible Query Language.** Based on the graph traversal language
   Gremlin, Jess offers an extensible query language based on
