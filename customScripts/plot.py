@@ -9,8 +9,8 @@ from octopus.server.DBInterface import DBInterface
 from joern.shelltool.ProgramGraph import ProgramGraph
 from joern.shelltool.PlotConfiguration import PlotConfiguration
 
-DESCRIPTION = """Retrieve all graph representations of a function with the given
-id. The default output format is graphviz's 'dot'. Invoke with "python3 plot.py [ProjectName]"
+DESCRIPTION = """Retrieve all graph representations of all function for the given
+project. The default output format is graphviz's 'dot'. Invoke with "python3 plot.py [ProjectName]"
 """
 
 class Plot(ProgramGraph):
