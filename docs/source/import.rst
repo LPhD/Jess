@@ -6,21 +6,20 @@ Importing code
 
 Once Jess has been installed, you can start the server and begin to
 import code into the database by executing `jess-import`. In one
-terminal, execute the Jess server:
+terminal, execute the Jess server (where `$JESS` is the Jess root directory):
 
 .. code-block:: none
 
 	cd $JESS
 	./jess-server
 
-where `$JESS` is the Jess root directory. In a second terminal,
-import the code as follows
+In a second terminal, you can now import a project. Therefore, the source code of the project must be first packed as a tarball. Then you can invoke jess-import to import the project.
 
 .. code-block:: none
 
-	`cd $JESS`
-	`tar -cvf testCode.tar.gz testCode`
-	`jess-import testCode.tar.gz`
+	cd $JESS
+	tar -cvzf testCode.tar.gz path/to/your/projectCode
+	jess-import testCode.tar.gz
 
 This will upload the tarball to the server, unpack it, parse the code
 and create a new project and corresponding graph database. The project
