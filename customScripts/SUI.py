@@ -149,10 +149,11 @@ def identifySemanticUnits (currentEntryPoints):
             result = set(getCalledFunctionDef(currentNode))
             # Get related elements of the called function
             identifySemanticUnits (result)
-            
+         
+        # ToDo         
         # Get called function if current vertice is a CallExpression
-        if (type[0] == "CallExpression"):
-            print("CallExpression" +str(currentNode))
+       # if (type[0] == "CallExpression"):
+           # print("CallExpression" +str(currentNode))
             
 ######################################################################################
 ################################## Define relations ##################################
@@ -170,23 +171,23 @@ def identifySemanticUnits (currentEntryPoints):
             identifySemanticUnits (result)
 
             
-            
+ ###### ###### ###### ###### ###### TODO #### ###### ###### ####### #### #############   
         
         # Get XXX if current vertice is a AssignmentExpression
-        if (type[0] == "AssignmentExpression"):  
-            print("CallExpression" +str(currentNode))
+        #if (type[0] == "AssignmentExpression"):  
+            #print("CallExpression" +str(currentNode))
                
         # Get all included variables and methods? if current vertice is an Argument or ArgumentList or Condition or 'UnaryExpression'
-        if (type[0] in ["Argument", "ArgumentList", "Condition", "UnaryExpression"]):
-            print("Argument, ArgumentList, Condition, UnaryExpression" +str(currentNode))
+        #if (type[0] in ["Argument", "ArgumentList", "Condition", "UnaryExpression"]):
+            #print("Argument, ArgumentList, Condition, UnaryExpression" +str(currentNode))
             
         # Get all uses if current vertice is an IdentifierDeclStatement? Make this as configuration option
-        if (type[0] ==  "IdentifierDeclStatement"):
-            print("IdentifierDeclStatement" +str(currentNode))
+        #if (type[0] ==  "IdentifierDeclStatement"):
+            #print("IdentifierDeclStatement" +str(currentNode))
             
         # Get XXX if current vertice is a 'Symbol'
-        if (type[0] ==  "Symbol"):
-            print("Symbol" +str(currentNode))
+        #if (type[0] ==  "Symbol"):
+           # print("Symbol" +str(currentNode))
 
 ######################################################################################
 ##################################### Data Flow ######################################
@@ -371,12 +372,9 @@ def getParentFunction (verticeId):
         query = """g.V().has('functionId', '%s').has('type', 'FunctionDef').id()""" % (result[0])
         result = db.runGremlinQuery(query)
 
-        print(result)
         query = """g.V(%s).out(AST_EDGE).has('type', 'CompoundStatement').id()""" % (result[0])
-        print(db.runGremlinQuery(query))
         
         result.extend(db.runGremlinQuery(query))
-        print(result)
         
         return result
     else :
@@ -425,12 +423,8 @@ def getCalledFunctionDef (verticeId):
         # Look for includes and add them to the semanticUnit
         if (locationCallee != locationTarget):      
             query = """g.V().has('location', textContains('%s')).has('type', 'PreInclude').has('code', textContains('%s')).id()""" % (locationCalleeFile, locationTargetFile)
-            print(query)
             result2 = db.runGremlinQuery(query)
             semanticUnit.update(set(result2))
-            print(result2)
-            print(locationCalleeFile)
-            print(locationTargetFile)
             
         return result
     else:
@@ -440,20 +434,20 @@ def getCalledFunctionDef (verticeId):
         ########################### TO DO ###################################
 # Return id of declaration vertice for the identifier        
 def getDeclaration (verticeId):
-    print("#########################################################################")   
-    print("In edges, in vertices, out edges, out vertices:")
+    #print("#########################################################################")   
+    #print("In edges, in vertices, out edges, out vertices:")
     #ParameterList -> AST Parent ->  FunctionDef
     #ForInit ?
     #IdentifierDeclStatement (int j) -> AST Parent -> IdentifierDecl (j) -> AST Parent -> Identifier (j) and IdentifierDeclType (int)
-    query = """g.V(%s).inE()""" % (verticeId)
+    #query = """g.V(%s).inE()""" % (verticeId)
    # print(db.runGremlinQuery(query))
-    query = """g.V(%s).in()""" % (verticeId)
+   # query = """g.V(%s).in()""" % (verticeId)
     #print(db.runGremlinQuery(query))
-    query = """g.V(%s).outE()""" % (verticeId)
+   # query = """g.V(%s).outE()""" % (verticeId)
     #print(db.runGremlinQuery(query))
-    query = """g.V(%s).out()""" % (verticeId)
+   # query = """g.V(%s).out()""" % (verticeId)
     #print(db.runGremlinQuery(query))  
-    print("#########################################################################")    
+   # print("#########################################################################")    
     return ""
          ########################### TO DO ###################################     
 
