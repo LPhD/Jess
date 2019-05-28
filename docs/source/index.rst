@@ -42,6 +42,7 @@ Contents:
 
 	installation
 	import
+	slicing
 ..
    Indices and tables
    ==================
