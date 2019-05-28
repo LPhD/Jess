@@ -1,7 +1,7 @@
 Semantic Unit Identification
 ==========================
 
-Introduction
+INTRODUCTION
 --------------
 
 The use case of the Semantic Unit identification process is to automatically migrate useful changes between a product line and separated products. These changes can be assigned to Semantic Units.
@@ -12,8 +12,7 @@ We need a user given entry point do identify a Semantic Unit, because the user d
 
 Depending on the entry point, there are different possibilities of what should belong to the Semantic Unit. For example, when the user selects a line of code with an if-statement. Does a following else-statement also belong to the Semantic Unit? This decision is arguable, so the user should have the possibility to configure the desired behavior. The next sections describe the general idea, the input and output relations, the configurable decisions and the default configuration of the Semantic Unit Identification process.
 
-
-General Idea
+GENERAL IDEA
 --------------
 
 The Semantic Unit Identification process identifies semantically related lines of code based on one or more given entry points. The underlaying structure of the process is a graph database, consisting of AST (Abstract Syntax Tree) elements and relations between them. These relations are not only AST relations (is parent of), but also data flow (uses, defines) and control flow (controls) relations.
@@ -38,9 +37,9 @@ The selected elements of the Semantic Unit (output) depend on the type of the gi
 •	Else statement -> Corresponding if statement
 •	Callee, call expression -> Called function or macro definition, #include statement if target is in another file
 •	Function -> Function definition
-• Configuration option -> All #if/#ifdef/#elif nodes and their enclosed content
+•	Configuration option -> All #if/#ifdef/#elif nodes and their enclosed content
 
-• **Todo:**
+• 	**Todo:**
 •	Identifier Declaration
 •	Symbol
 •	Identifier -> Declaration of Identifier (atm not working)
@@ -81,66 +80,54 @@ CONFIGURATION OPTIONS
 
 •	Include enclosed code
 o	Explanation: Whenever a syntax structure is selected that encloses code, this code is included in the Semantic Unit. 
-
 o	Example entry point: A method declaration 
-
 o	Effect on Semantic Unit: All code inside the method belongs to the Semantic Unit (and thus probably makes the result bigger, decreases precision and increases recall)
-
 o	Hint: You should not turn this off when you plan to use structure-based entry points (like class/method declaration), as the result will be empty. You can turn this off when you use behavior-based entry points like assert statements from test cases. Deactivation makes the result strongly rely on the quality of your test case.
 
 •	Select multiple entry points
-
 o	Explanation: The user can select more than one line of code as an entry point.
-
 o	Example entry point: Two declarations of different test methods 
-
 o	Effect on Semantic Unit: The result is a conjunction of the Semantic Units for each entry point
-
 o	Hint: The identification process will take longer, the more lines of code you select as entry points.
 
 •	Connect if with else
-
 o	Explanation: Always connect an existing else-statement, whenever an if-statement is selected
-
 o	Example entry point: An if-statement that has one else statement
-
 o	Effect on Semantic Unit: The else statement is added to the Semantic Unit
-
 o	Hint: Deactivate only if you want to focus on special cases and not on the whole case distinction. Deactivation has no effect, if the include enclosed code option is activated.
 
 •	Search directories recursively
-
 o	Explanation: When a directory node is analyzed, all contained directories are added to the Semantic Unit and then recursively analyzed
-
 o	Example entry point: A directory which contains one or more directories
-
 o	Effect on Semantic Unit: All contained directories (on all levels underneath) are added to the Semantic Unit
-
 o	Hint: Activate if you want to recursively add all directories under a given root node. This can result in very big Semantic Units. Deactivate if you want to stay on the current directory level.
 
 •	Include other features
 o	Explanation: When we search for the semantically related lines for a specific feature, we only expand for the occurrence of this feature name. When we reach an implementation that is connected to another feature (via incoming variability edges), we do not search for all other implementations that are annotated with this other feature. We do include the implementations that were reached through all (except variability) edges. 
-
 o	Example entry point: A feature identifier
-
 o	Effect on Semantic Unit: All blocks that are annotated with an #ifdef that contains the identifier of the entry-point-feature are added to the Semantic Unit. All other variability links (connected to different feature identifiers) will not be followed/analyzed.
-
 o	Hint: Activate if you want to follow all appearing variability links and include all implementations of a feature whenever you reach one of its implementations. This can result in very big Semantic Units. Deactivate if you want to focus on the current feature(s).
 
 
 DEFAULT CONFIGURATION
 --------------
 
-•	Include enclosed code: YES
-•	Select multiple entry points: NO
-•	Connect if with else: YES
-•	Search directories recursively: NO
-•	Include other features: NO
+•	Include enclosed code: TRUE
+•	Select multiple entry points: FALSE
+•	Connect if with else: TRUE
+•	Search directories recursively: TRUE
+•	Include other features: FALSE
 
+
+HOW TO USE
+--------------
+
+First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the custom scripts folder. Edit the name of the project into the SUI.py script (variable projectName), enter an entry point and change the configuration to your needs. Then, you can run the SUI script. 
 
 .. code-block:: none
 
-	cd $JESS
-	./jess-server
+	cd $JESS/customScripts
+	nano SUI.py
+	python3 SUI.py
 
-In a second terminal, you can now import a project. Therefore, the source code of the project must be first packed as a tarball. Then you can invoke jess-import to import the project.
+The script will now iteratively gather all semantically related lines to your given entry point. It will output the result as a Graphviz .dot file and a .png file.
