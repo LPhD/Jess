@@ -6,8 +6,7 @@ System Requirements and Dependencies
 
 Jess is a Java Application and should work on systems offering a Java
 virtual machine, e.g., Microsoft Windows, Mac OS X or GNU/Linux. We
-have tested Jess on Debian Jessie, where OpenJDK-8 and Gradle 2 have
-been installed from jessie backports. If you plan to work with large
+have tested Jess on Debian and Ubuntu. If you plan to work with large
 code bases such as the Linux Kernel, you should have at least 30GB of
 free disk space to store the database and 8GB of RAM to experience
 acceptable performance. In addition, the following software should be
@@ -33,17 +32,13 @@ installed:
 - **Gradle 2.x.** Jess uses the gradle build tool, and some features
   specific to Gradle 2.0 and above.
 
-If you are on a Debian-based system, try the following to download the
+If you are on a Linux-based system, try the following to download the
 necessary dependencies:
 
 .. code-block:: none
 
 	sudo apt-get install openjdk-8-jdk gradle python3 python3-setuptools python3-dev graphviz graphviz-dev
 		
-
-Please note, however, that Debian stable (¨Jessie¨) currently does not
-include openjdk8 nor gradle 2 by default, so for Jess to work on
-Debian stable, please make use of Debian backports.
 	
 The following sections offer a step-by-step guide to the installation
 of Jess, including all of its dependencies.
@@ -58,7 +53,7 @@ automatically download and install dependencies.
 
 .. code-block:: none
 
-	git clone https://github.com/octopus-platform/jess
+	git clone https://github.com/LPhD/Jess.git
 	cd jess
 	./build.sh
 
