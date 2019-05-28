@@ -122,7 +122,7 @@ DEFAULT CONFIGURATION
 HOW TO USE
 --------------
 
-First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the customScripts folder. Edit the name of the project into the SUI.py script (variable projectName), enter an entry point and change the configuration to your needs. Then, you can run the SUI script. 
+First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the customScripts folder. Edit the name of the project into the SUI.py script (variable projectName), enter an entry point (the id of a node or the name of a configuration option) and change the configuration to your needs. Then, you can run the SUI script. 
 
 .. code-block:: none
 
