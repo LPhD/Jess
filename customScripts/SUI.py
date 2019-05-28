@@ -58,264 +58,265 @@ def identifySemanticUnits (currentEntryPoints):
     
     # Check each entry point 
     for currentNode in currentEntryPoints:
-        # Get type of current vertice 
-        query = """g.V(%s).values('type')""" % (currentNode)
-        type = db.runGremlinQuery(query)
-        # Add current entry point to checked list
-        checkedVertices.add(currentNode)
-        # Add current entry point to Semantic Unit 
-        semanticUnit.add(currentNode) 
+        if (currentNode != ""):
+            # Get type of current vertice 
+            query = """g.V(%s).values('type')""" % (currentNode)
+            type = db.runGremlinQuery(query)
+            # Add current entry point to checked list
+            checkedVertices.add(currentNode)
+            # Add current entry point to Semantic Unit 
+            semanticUnit.add(currentNode) 
         
 ################################ Structural relations ################################
-        # Get all included files if current vertice is a Directory
-        if (type[0] == "Directory"):
-            # Add only the contained files
-            if (searchDirsRecursively == False):
-                result = set(getIncludedFiles(currentNode))
-            else:
-                result = set(getIncludedFilesAndDirectories(currentNode))
-            
-            # For every enclosed file, get related elements
-            identifySemanticUnits(result)
-            
-        # Get all enclosed lines of code if current vertice is a File
-        if (type[0] == "File"):
-            result = set(getEnclosedCodeOfFile(currentNode))
-            # For every enclosed code line, get related elements
-            identifySemanticUnits(result)
-                      
-        # Get enclosed vertices if current vertice is a function declaration
-        if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
-            result = set(getEnclosedCodeOfFunction(currentNode))           
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits(result)            
-            
-        # Get enclosed vertices if current vertice is a for-, while- or if-statement
-        if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):    
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
-            
-            result = set(getASTChildren(currentNode))
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result)
-        # Get only the Syntax Elements of the selected statement     
-        elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
-        
-            # Get corresponding else-statement only if the configuration is selected
-            if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
-                result = set(getElse(currentNode))
-                # Just add, no further analysis?
-                semanticUnit.update(result)
-                                
-            result = set(getInitAndCondition(currentNode))
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits(result)             
-                       
-        # Get the corresponding if, if current vertice is an else-statement
-        if (type[0] == "ElseStatement"):            
-            result = set(getIfStatement(currentNode))
-            if (includeEnclosedCode):
-                result.update(set(getASTChildren))
-            # Get related elements of the if/else-statement
-            identifySemanticUnits (result)           
-
-        # Get the AST children and the parent function if current vertice is an expression statement
-        if (type[0] == "ExpressionStatement"):     
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
-                   
-            result = set(getASTChildren(currentNode))
-            # Get related elements of the AST children
-            identifySemanticUnits (result)              
-            
-######################################################################################           
-################################### Call relations ################################### 
-           
-        # Get called function if current vertice is a callee
-        if (type[0] == "Callee"): 
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
-                       
-            result = set(getCalledFunctionDef(currentNode))
-            # Get related elements of the called function
-            identifySemanticUnits (result)
-         
-        # ToDo         
-        # Get called function if current vertice is a CallExpression
-       # if (type[0] == "CallExpression"):
-           # print("CallExpression" +str(currentNode))
-            
-######################################################################################
-################################## Define relations ##################################
-            
-        # Get function definition vertice if current vertice is a function 
-        if (type[0] == "Function"):
-            result = set(getFunctionDefOut(currentNode))           
-            # Add FunctionDef to the Semantic Unit and get related elements
-            identifySemanticUnits(result)
-            
-        # Get declaration  if current vertice is an identifier
-        if (type[0] == "Identifier"):             
-            result = set(getDeclaration(currentNode))
-            # Get related elements of the called function
-            identifySemanticUnits (result)
-
-            
- ###### ###### ###### ###### ###### TODO #### ###### ###### ####### #### #############   
-        
-        # Get XXX if current vertice is a AssignmentExpression
-        #if (type[0] == "AssignmentExpression"):  
-            #print("CallExpression" +str(currentNode))
-               
-        # Get all included variables and methods? if current vertice is an Argument or ArgumentList or Condition or 'UnaryExpression'
-        #if (type[0] in ["Argument", "ArgumentList", "Condition", "UnaryExpression"]):
-            #print("Argument, ArgumentList, Condition, UnaryExpression" +str(currentNode))
-            
-        # Get all uses if current vertice is an IdentifierDeclStatement? Make this as configuration option
-        #if (type[0] ==  "IdentifierDeclStatement"):
-            #print("IdentifierDeclStatement" +str(currentNode))
-            
-        # Get XXX if current vertice is a 'Symbol'
-        #if (type[0] ==  "Symbol"):
-           # print("Symbol" +str(currentNode))
-
-######################################################################################
-##################################### Data Flow ######################################
-
-        # Get all used symbols (variables)
-        if (type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression"]):
-            #Depends on type? For Statement etc. Different behaviour based on config. Include Condition etc
-            result = set(getUsedSymbols(currentNode))
-            # Get related elements of the called function
-            identifySemanticUnits (result)
-        
-        # Get all changes to the used symbols (variables)       
-        if (type[0] == "Symbol"):
-            result = set(getDefinesOfSymbols(currentNode))
-            identifySemanticUnits (result)
-            
-########################################################################################
-#################################### Preprocessor ######################################          
-             
-        # Get enclosed vertices if current vertice is a pre-if-statement
-        if (type[0] == "PreIfStatement"):                       
-            #get variable statements
-            result = set(getVariableStatements(currentNode))
-            
-            if (connectIfWithElse == False): 
-                # Only get #endif and the condition
-                result.update(set(getEndIf(currentNode)))   
-                result.update(set(getPreIfCondition(currentNode)))                      
-            else:
-               # Otherwise get all AST children (condition and one #else/#elif/#endif)     
-               result.update(set(getASTChildren(currentNode)))           
-                     
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result)
-
-                          
-            
-        #Get enclosed vertices if current vertice is a pre-elif-statement       
-        if (type[0] == "PreElIfStatement"):        
-            # Get variable statements
-            result = set(getVariableStatements(currentNode))
-            # Get the starting #if
-            result.update(set(getPreIf(currentNode)))  
-            
-            if (connectIfWithElse == False): 
-                # Only get the condition  
-                result.update(set(getPreIfCondition(currentNode)))                      
-            else:
-               # Otherwise get all AST children (condition and all #else/#elif/#endif)     
-               result.update(set(getASTChildren(currentNode)))  
-            
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result)
-       
-       
-        #Get enclosed vertices if current vertice is a pre-else-statement     
-        if (type[0] == "PreElseStatement"):
-            # Get variable statements
-            result = set(getVariableStatements(currentNode))
-            # Get the starting #if
-            result.update(set(getPreIf(currentNode)))                        
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result)
-            
-        #Get enclosed vertices if current vertice is a pre-endif-statement     
-        if (type[0] == "PreEndIfStatement"):
-            # Get the starting #if and add it to the semanticUnit
-            semanticUnit.update(set(getPreIf(currentNode)))                        
-
-        # Get all preprocessor statements     
-        #if (type[0] == "PreDefine"):
-            #result = set(getDefinesOfSymbols(currentNode))
-            #identifySemanticUnits (result) 
-
-        # Get all preprocessor statements     
-        # What about includenext? Currently its the same implementation as include
-        #if (type[0] == "PreInclude"):
-            #result = set(getDefinesOfSymbols(currentNode))
-            #identifySemanticUnits (result) 
-
-
-#PreUndef?
-#Others currently have no impact on other lines of code
-
-        #Problems: 
-        # Global variables 
-        # ++ i in for (not a real problem, as it is always inside for. But what if method is called?
-        # ++ i in general is not working, only identified as UnaryExpression but not as ExpressionAssignment
-            
-        # Do something for every type where it is necessary
-        # TODO: Missing types from /jpanlib/src/main/java
-        # Do nothing for:
-        # 'AdditiveExpression' a + b
-        # 'PrimaryExpression' 1
-        # 'IncDec' ++
-        # 'UnaryOperator' !
-        # 'UnaryOperationExpression' - 1
-        # 'ArrayIndexing' array[1]
-        # 'ReturnType' void
-        # 'CFGEntryNode' ENRTY
-        # 'CFGExitNode' EXIT
-        # 'InitializerList' 7 (size of list)
-        # 'ForInit' i = 0
-        # 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
-        # 'IdentifierDecl' i (contained in IdentifierDeclStatement)
-        # 'Parameter' i (contained in ParameterList)
-        # 'ParameterType' int (contained in ParameterList)
-        # 'ParameterList' int i (contained in FunctionDef)
-        # 'RelationalExpression' i > 5 (contained in condition)
-        # 'Sizeof' empty?
-        # 'SizeofOperand' empty?
-        # 'Decl' empty?
-        # 'DeclStmt' empty?
-        # 'CompoundStatement' empty?
-        
-        
+            # Get all included files if current vertice is a Directory
+            if (type[0] == "Directory"):
+                # Add only the contained files
+                if (searchDirsRecursively == False):
+                    result = set(getIncludedFiles(currentNode))
+                else:
+                    result = set(getIncludedFilesAndDirectories(currentNode))
                 
-                # Get the parent parameter list if the current Node is a parameter    
-      #  if (type[0] == ("Parameter")):
-       #     result = set(getParameterList(currentNode))
-            # Get related elements 
-        #    identifySemanticUnits (result) 
+                # For every enclosed file, get related elements
+                identifySemanticUnits(result)
+                
+            # Get all enclosed lines of code if current vertice is a File
+            if (type[0] == "File"):
+                result = set(getEnclosedCodeOfFile(currentNode))
+                # For every enclosed code line, get related elements
+                identifySemanticUnits(result)
+                          
+            # Get enclosed vertices if current vertice is a function declaration
+            if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
+                result = set(getEnclosedCodeOfFunction(currentNode))           
+                # For each enclosed vertice, add to the Semantic Unit and get related elements
+                identifySemanticUnits(result)            
+                
+            # Get enclosed vertices if current vertice is a for-, while- or if-statement
+            if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):    
+                # Add the function definition to the Semantic Unit to preserve syntactical correctness  
+                result = set(getParentFunction(currentNode))      
+                # Just add, no further analysis
+                semanticUnit.update(result)
+                
+                result = set(getASTChildren(currentNode))
+                # For each enclosed vertice, add to the Semantic Unit and get related elements
+                identifySemanticUnits (result)
+            # Get only the Syntax Elements of the selected statement     
+            elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):
+                # Add the function definition to the Semantic Unit to preserve syntactical correctness  
+                result = set(getParentFunction(currentNode))      
+                # Just add, no further analysis
+                semanticUnit.update(result)
+            
+                # Get corresponding else-statement only if the configuration is selected
+                if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
+                    result = set(getElse(currentNode))
+                    # Just add, no further analysis?
+                    semanticUnit.update(result)
+                                    
+                result = set(getInitAndCondition(currentNode))
+                # For each enclosed vertice, add to the Semantic Unit and get related elements
+                identifySemanticUnits(result)             
+                           
+            # Get the corresponding if, if current vertice is an else-statement
+            if (type[0] == "ElseStatement"):            
+                result = set(getIfStatement(currentNode))
+                if (includeEnclosedCode):
+                    result.update(set(getASTChildren))
+                # Get related elements of the if/else-statement
+                identifySemanticUnits (result)           
 
-        # Get the parent function definition if the current vertice is a parameter    
-       # if (type[0] == ("ParameterList")):
-        #    result = set(getFunctionDefIn(currentNode))
-            # Get related elements 
-       #     identifySemanticUnits (result)  
+            # Get the AST children and the parent function if current vertice is an expression statement
+            if (type[0] == "ExpressionStatement"):     
+                # Add the function definition to the Semantic Unit to preserve syntactical correctness  
+                result = set(getParentFunction(currentNode))      
+                # Just add, no further analysis
+                semanticUnit.update(result)
+                       
+                result = set(getASTChildren(currentNode))
+                # Get related elements of the AST children
+                identifySemanticUnits (result)              
+                
+    ######################################################################################           
+    ################################### Call relations ################################### 
+               
+            # Get called function if current vertice is a callee
+            if (type[0] == "Callee"): 
+                # Add the function definition to the Semantic Unit to preserve syntactical correctness  
+                result = set(getParentFunction(currentNode))      
+                # Just add, no further analysis
+                semanticUnit.update(result)
+                           
+                result = set(getCalledFunctionDef(currentNode))
+                # Get related elements of the called function
+                identifySemanticUnits (result)
+             
+            # ToDo         
+            # Get called function if current vertice is a CallExpression
+           # if (type[0] == "CallExpression"):
+               # print("CallExpression" +str(currentNode))
+                
+    ######################################################################################
+    ################################## Define relations ##################################
+                
+            # Get function definition vertice if current vertice is a function 
+            if (type[0] == "Function"):
+                result = set(getFunctionDefOut(currentNode))           
+                # Add FunctionDef to the Semantic Unit and get related elements
+                identifySemanticUnits(result)
+                
+            # Get declaration  if current vertice is an identifier
+            if (type[0] == "Identifier"):             
+                result = set(getDeclaration(currentNode))
+                # Get related elements of the called function
+                identifySemanticUnits (result)
+
+                
+     ###### ###### ###### ###### ###### TODO #### ###### ###### ####### #### #############   
+            
+            # Get XXX if current vertice is a AssignmentExpression
+            #if (type[0] == "AssignmentExpression"):  
+                #print("CallExpression" +str(currentNode))
+                   
+            # Get all included variables and methods? if current vertice is an Argument or ArgumentList or Condition or 'UnaryExpression'
+            #if (type[0] in ["Argument", "ArgumentList", "Condition", "UnaryExpression"]):
+                #print("Argument, ArgumentList, Condition, UnaryExpression" +str(currentNode))
+                
+            # Get all uses if current vertice is an IdentifierDeclStatement? Make this as configuration option
+            #if (type[0] ==  "IdentifierDeclStatement"):
+                #print("IdentifierDeclStatement" +str(currentNode))
+                
+            # Get XXX if current vertice is a 'Symbol'
+            #if (type[0] ==  "Symbol"):
+               # print("Symbol" +str(currentNode))
+
+    ######################################################################################
+    ##################################### Data Flow ######################################
+
+            # Get all used symbols (variables)
+            if (type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression"]):
+                #Depends on type? For Statement etc. Different behaviour based on config. Include Condition etc
+                result = set(getUsedSymbols(currentNode))
+                # Get related elements of the called function
+                identifySemanticUnits (result)
+            
+            # Get all changes to the used symbols (variables)       
+            if (type[0] == "Symbol"):
+                result = set(getDefinesOfSymbols(currentNode))
+                identifySemanticUnits (result)
+                
+    ########################################################################################
+    #################################### Preprocessor ######################################          
+                 
+            # Get enclosed vertices if current vertice is a pre-if-statement
+            if (type[0] == "PreIfStatement"):                       
+                #get variable statements
+                result = set(getVariableStatements(currentNode))
+                
+                if (connectIfWithElse == False): 
+                    # Only get #endif and the condition
+                    result.update(set(getEndIf(currentNode)))   
+                    result.update(set(getPreIfCondition(currentNode)))                      
+                else:
+                   # Otherwise get all AST children (condition and one #else/#elif/#endif)     
+                   result.update(set(getASTChildren(currentNode)))           
+                         
+                # For each enclosed vertice, add to the Semantic Unit and get related elements
+                identifySemanticUnits (result)
+
+                              
+                
+            #Get enclosed vertices if current vertice is a pre-elif-statement       
+            if (type[0] == "PreElIfStatement"):        
+                # Get variable statements
+                result = set(getVariableStatements(currentNode))
+                # Get the starting #if
+                result.update(set(getPreIf(currentNode)))  
+                
+                if (connectIfWithElse == False): 
+                    # Only get the condition  
+                    result.update(set(getPreIfCondition(currentNode)))                      
+                else:
+                   # Otherwise get all AST children (condition and all #else/#elif/#endif)     
+                   result.update(set(getASTChildren(currentNode)))  
+                
+                # For each enclosed vertice, add to the Semantic Unit and get related elements
+                identifySemanticUnits (result)
+           
+           
+            #Get enclosed vertices if current vertice is a pre-else-statement     
+            if (type[0] == "PreElseStatement"):
+                # Get variable statements
+                result = set(getVariableStatements(currentNode))
+                # Get the starting #if
+                result.update(set(getPreIf(currentNode)))                        
+                # For each enclosed vertice, add to the Semantic Unit and get related elements
+                identifySemanticUnits (result)
+                
+            #Get enclosed vertices if current vertice is a pre-endif-statement     
+            if (type[0] == "PreEndIfStatement"):
+                # Get the starting #if and add it to the semanticUnit
+                semanticUnit.update(set(getPreIf(currentNode)))                        
+
+            # Get all preprocessor statements     
+            #if (type[0] == "PreDefine"):
+                #result = set(getDefinesOfSymbols(currentNode))
+                #identifySemanticUnits (result) 
+
+            # Get all preprocessor statements     
+            # What about includenext? Currently its the same implementation as include
+            #if (type[0] == "PreInclude"):
+                #result = set(getDefinesOfSymbols(currentNode))
+                #identifySemanticUnits (result) 
+
+
+    #PreUndef?
+    #Others currently have no impact on other lines of code
+
+            #Problems: 
+            # Global variables 
+            # ++ i in for (not a real problem, as it is always inside for. But what if method is called?
+            # ++ i in general is not working, only identified as UnaryExpression but not as ExpressionAssignment
+                
+            # Do something for every type where it is necessary
+            # TODO: Missing types from /jpanlib/src/main/java
+            # Do nothing for:
+            # 'AdditiveExpression' a + b
+            # 'PrimaryExpression' 1
+            # 'IncDec' ++
+            # 'UnaryOperator' !
+            # 'UnaryOperationExpression' - 1
+            # 'ArrayIndexing' array[1]
+            # 'ReturnType' void
+            # 'CFGEntryNode' ENRTY
+            # 'CFGExitNode' EXIT
+            # 'InitializerList' 7 (size of list)
+            # 'ForInit' i = 0
+            # 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
+            # 'IdentifierDecl' i (contained in IdentifierDeclStatement)
+            # 'Parameter' i (contained in ParameterList)
+            # 'ParameterType' int (contained in ParameterList)
+            # 'ParameterList' int i (contained in FunctionDef)
+            # 'RelationalExpression' i > 5 (contained in condition)
+            # 'Sizeof' empty?
+            # 'SizeofOperand' empty?
+            # 'Decl' empty?
+            # 'DeclStmt' empty?
+            # 'CompoundStatement' empty?
+            
+            
+                    
+                    # Get the parent parameter list if the current Node is a parameter    
+          #  if (type[0] == ("Parameter")):
+           #     result = set(getParameterList(currentNode))
+                # Get related elements 
+            #    identifySemanticUnits (result) 
+
+            # Get the parent function definition if the current vertice is a parameter    
+           # if (type[0] == ("ParameterList")):
+            #    result = set(getFunctionDefIn(currentNode))
+                # Get related elements 
+           #     identifySemanticUnits (result)  
        
         
 # Return all vertices of type file that belong to the given directory (not recursive)        
