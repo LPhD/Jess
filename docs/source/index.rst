@@ -6,18 +6,12 @@
 Welcome to Jess' documentation!
 =================================
 
-Jess is based on Joern. Joern is a platform for robust analysis of C/C++ code developed by
-`Fabian Yamaguchi <https://www.tu-braunschweig.de/sec/team/fabs>`_ and
-`Alwin Maier <https://www.tu-braunschweig.de/sec/team/alwin>`_ at the
-`Institute of Systems Security <https://www.tu-braunschweig.de/sec>`_
-of the Technische Universitaet Braunschweig. It is part of the octopus
-project for graph-based program analysis tools. Jess generates *code
-property graphs*, a novel graph representation that exposes the code's
-syntax, control-flow, data-flow and type information in a joint data
+Jess is based on Joern <https://github.com/octopus-platform/joern>.  Jess generates variability-aware *code
+property graphs*, a graph representation that exposes the code's
+syntax, control-flow, data-flow, variability and type information in a joint data
 structure. Code property graphs are stored in an Titan DB graph
 database. This allows code to be mined using search queries formulated
-in the graph traversal language Gremlin. In addition, long-running
-analysis tasks can be implemented as plugins for the platform.
+in the graph traversal language Gremlin. Jess uses program slicing to identify semantically related lines of code for a given entry point. The variability information and structure in those slices (implemented with preprocessor statements) stays intact.
 
 - **Fuzzy Parsing.** Jess employs a fuzzy parser. This allows code to
   be imported even if a working build environment cannot be supplied.
