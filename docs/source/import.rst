@@ -11,19 +11,19 @@ terminal, execute the Jess server (where `$JESS` is the Jess root directory):
 .. code-block:: none
 
 	cd $JESS
-	./jess-server
+	./jess-server.sh
 
 In a second terminal, you can now import a project. Therefore, the source code of the project must be first packed as a tarball. Then you can invoke jess-import to import the project.
 
 .. code-block:: none
 
 	cd $JESS
-	tar -cvzf testCode.tar.gz path/to/your/projectCode
-	jess-import testCode.tar.gz
+	tar -cvzf ProjectName path/to/your/projectCode
+	jess-import ProjectName
 
 This will upload the tarball to the server, unpack it, parse the code
-and create a new project and corresponding graph database. The project
-name corresponds to the name of the tarball.
+and create a new project named ProjectName and corresponding graph database.
+
 
 Parsing code without importing
 ------------------------------
