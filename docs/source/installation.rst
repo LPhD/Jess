@@ -31,13 +31,15 @@ installed:
   
 - **Gradle 2.x.** Jess uses the gradle build tool, and some features
   specific to Gradle 2.0 and above.
+  
+- **Git** Jess is hosted on Github, to contribute (and for an easy installation) you need Git.
 
 If you are on a Linux-based system, try the following to download the
 necessary dependencies:
 
 .. code-block:: none
 
-	sudo apt-get install openjdk-8-jdk gradle python3 python3-setuptools python3-dev graphviz graphviz-dev
+	sudo apt-get install openjdk-8-jdk gradle python3 python3-setuptools python3-dev graphviz graphviz-dev git
 		
 	
 The following sections offer a step-by-step guide to the installation
@@ -53,7 +55,7 @@ automatically download and install dependencies.
 .. code-block:: none
 
 	git clone https://github.com/LPhD/Jess.git
-	cd jess
+	cd Jess
 	./build.sh
 
 Testing the server
@@ -65,20 +67,20 @@ In the jess root directory, invoke the script
 
 	./jess-server.sh
 
-to start the server.
+to start the server. Suspend the server with ctrl + c.
 
 Testing client scripts
 ----------------------
 
 Client scripts are installed into the user script directory, which is
-typically `~/.local/bin`. Please make sure this directory is in your
-path, e.g., by adding the line
+typically `~/.local/bin`. To use these scripts from every location, please make sure this directory is in your
+path, e.g., by adding the line 
 
 .. code-block:: none
 
 	export PATH="$PATH:~/.local/bin"
 
-to your `~/.bashrc`, and restarting the shell. You can execute the
+to your `~/.bashrc`, and restarting the shell. During this process, the server should not be running. You can execute the
 script
 
 .. code-block:: none
