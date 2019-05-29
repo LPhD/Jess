@@ -122,7 +122,7 @@ DEFAULT CONFIGURATION
 HOW TO USE
 --------------
 
-First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the customScripts folder. Edit the name of the project into the SUI.py script (variable projectName), enter an entry point (the id of a node or the name of a configuration option) and change the configuration to your needs. Then, you can run the SUI script. 
+First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the customScripts folder. Edit the name of the project into the SUI.py script (variable projectName, Line 23), enter an entry point (the id of a node in variable entryPointId in Line 43 or the name of a configuration option in variable entryFeatureNames in Line 45) and change the configuration (Lines 11-15) to your needs. Then, you can run the SUI script. 
 
 .. code-block:: none
 
@@ -130,4 +130,4 @@ First, you have to start the jess-server (separate terminal) and import a projec
 	nano SUI.py
 	python3 SUI.py
 
-The script will now iteratively gather all semantically related lines to your given entry point. It will output the result as a Graphviz .dot file and a .png file.
+The script will now iteratively gather all semantically related lines to your given entry point. It will output the result as a Graphviz .dot file and a .png file in the folder $JESS/customScripts/SemanticUnit. 
