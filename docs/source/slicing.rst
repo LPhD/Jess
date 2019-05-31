@@ -1,7 +1,7 @@
 Semantic Unit Identification
 ==========================
 
-INTRODUCTION
+Introduction
 --------------
 
 The use case of the Semantic Unit identification process is to automatically migrate useful changes between a product line and separated products. These changes can be assigned to Semantic Units.
@@ -12,7 +12,7 @@ We need a user given entry point do identify a Semantic Unit, because the user d
 
 Depending on the entry point, there are different possibilities of what should belong to the Semantic Unit. For example, when the user selects a line of code with an if-statement. Does a following else-statement also belong to the Semantic Unit? This decision is arguable, so the user should have the possibility to configure the desired behavior. The next sections describe the general idea, the input and output relations, the configurable decisions and the default configuration of the Semantic Unit Identification process.
 
-GENERAL IDEA
+General Idea
 --------------
 
 The Semantic Unit Identification process identifies semantically related lines of code based on one or more given entry points. The underlaying structure of the process is a graph database, consisting of AST (Abstract Syntax Tree) elements and relations between them. These relations are not only AST relations (is parent of), but also data flow (uses, defines) and control flow (controls) relations.
@@ -24,7 +24,7 @@ The Semantic Unit Identification process identifies semantically related lines o
 -**Function:** Set(Entry Point) -> Set(Semantic Unit) | There is a relation between all elements
 
 
-INPUT/OUTPUT RELATIONS
+Input/Output Relations
 --------------
 
 The selected elements of the Semantic Unit (output) depend on the type of the given entry point (input). All type-based decisions and the resulting input and output relations are listed below and described in form of Input Type -> Resulting Output. Some of these decisions are configurable and described again in detail in the next section **Configuration Options**.
@@ -69,13 +69,13 @@ The selected elements of the Semantic Unit (output) depend on the type of the gi
 	• 'CompoundStatement' (container element)
 
 
-VARIABILITY HANDLING
+Variability Handling
 --------------
 
 In our use-case, variability is realized with conditional compilation through #ifdef preprocessor annotations. The preprocessor-code is parsed into the graph database, like the normal C-code. The AST structure of the preprocessor-code is separated from the C-code structure. Preprocessor statements are either AST children of their parent file, class or function. The only exception are #elif/#else and #endif statements, as they are AST children of their respective blockstarter-statement, e.g. #endif is AST child of #else, which is an AST child of #if. Furthermore, a C-statement is never an AST child of a preprocessor-statement. Instead, whenever a line of code is annotated with an #if/#ifdef statement, it is connected with a variability edge. This allows us to specifically analyze variability relationships.
 
 
-CONFIGURATION OPTIONS
+Configuration Options
 --------------
 
 • Include enclosed code
@@ -109,7 +109,7 @@ CONFIGURATION OPTIONS
 	• Hint: Activate if you want to follow all appearing variability links and include all implementations of a feature whenever you reach one of its implementations. This can result in very big Semantic Units. Deactivate if you want to focus on the current feature(s).
 
 
-DEFAULT CONFIGURATION
+Default Configuration
 --------------
 
 • Include enclosed code: TRUE
@@ -119,7 +119,7 @@ DEFAULT CONFIGURATION
 • Include other features: FALSE
 
 
-HOW TO USE
+How to use
 --------------
 
 First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the customScripts folder. Edit the name of the project into the SUI.py script (variable projectName, Line 23), enter an entry point (the id of a node in variable entryPointId in Line 43 or the name of a configuration option in variable entryFeatureNames in Line 45) and change the configuration (Lines 11-15) to your needs. Then, you can run the SUI script. 
