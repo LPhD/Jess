@@ -5,7 +5,7 @@ from octopus.server.DBInterface import DBInterface
 
 
 #Define target project
-projectName = 'EvoDiss.tar.gz'
+projectName = 'SPLC'
 #Connect do database of project
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -48,6 +48,14 @@ query = """g.V(147584).parents().values('code')"""
 query = """g.V().has('functionId', '341').out(DEFINES_EDGE).values('code')""" 
  # Get code of all vertices that were defined by an argument (outgoing DEF edge of an argument node)
 query = """g.V().has('type', 'Argument').out(DEFINES_EDGE).values('code')""" 
+# Get follow all outgoing edges and include every visited edge in the results
+query = """g.V(8192).emit().repeat(out().id())"""
+# Get follow all outgoing edges of type AST, VARIABILITY, etc and include every visited edge in the results
+query = """g.V(8192).emit().repeat(out('AST_EDGE','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()"""
+# Follow all incoming and outgoing edges of type USE and DEF 
+query = """g.V(8296).both('USE','DEF')"""  
+# Follow all incoming and outgoing edges of type USE and DEF (2 times), and remove cyclic paths
+query = """g.V(8296).both('USE','DEF').both('USE','DEF').simplePath().id()"""  
 
 
 #Convert list of ids to nodes (query prints code of all ids in nodeIDs)
@@ -67,6 +75,7 @@ query = """idListToNodes(%s).out().values('code').toList()""" % (nodeIds)
 query = """idListToNodes(%s).sideEffect{}""" % (nodeIds)
 # Get statements of all nodes defined by nodeIds. sideEffect does not affect the query. Same result as above?
 query = """idListToNodes(%s).sideEffect{}.statements()""" % (nodeIds)
+
 
 
  
