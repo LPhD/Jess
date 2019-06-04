@@ -40,8 +40,9 @@ db.connectToDatabase(projectName)
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices or name of entry feature.
-entryPointId = {'4248'}
 # You can select both, if you want additional entry points.
+# The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
+entryPointId = {'8296'}
 entryFeatureNames = {}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
@@ -67,6 +68,7 @@ def identifySemanticUnits (currentEntryPoints):
             # Add current entry point to Semantic Unit 
             semanticUnit.add(currentNode) 
             
+            # Inform the user if a node id does not exist
             if(len(type)< 1):
                 print("No vertice with the given id found. Please check your database for an existing vertice id.")
         
@@ -90,7 +92,7 @@ def identifySemanticUnits (currentEntryPoints):
                           
             # Get enclosed vertices if current vertice is a function declaration
             if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
-                result = set(getEnclosedCodeOfFunction(currentNode))           
+                result = set(getASTChildren(currentNode))           
                 # For each enclosed vertice, add to the Semantic Unit and get related elements
                 identifySemanticUnits(result)            
                 
@@ -114,7 +116,7 @@ def identifySemanticUnits (currentEntryPoints):
                 # Get corresponding else-statement only if the configuration is selected
                 if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
                     result = set(getElse(currentNode))
-                    # Just add, no further analysis?
+                    # Just add, no further analysis
                     semanticUnit.update(result)
                                     
                 result = set(getInitAndCondition(currentNode))
@@ -145,6 +147,9 @@ def identifySemanticUnits (currentEntryPoints):
                
             # Get called function if current vertice is a callee
             if (type[0] == "Callee"): 
+                # Do not look at CallExpression, one query is enough. We will always have both the Callee and 
+                #the CallExpression in the analysis set, see handling of ExpressionStatement above.
+                
                 # Add the function definition to the Semantic Unit to preserve syntactical correctness  
                 result = set(getParentFunction(currentNode))      
                 # Just add, no further analysis
@@ -154,10 +159,6 @@ def identifySemanticUnits (currentEntryPoints):
                 # Get related elements of the called function
                 identifySemanticUnits (result)
              
-            # ToDo         
-            # Get called function if current vertice is a CallExpression
-           # if (type[0] == "CallExpression"):
-               # print("CallExpression" +str(currentNode))
                 
     ######################################################################################
     ################################## Define relations ##################################
@@ -168,11 +169,7 @@ def identifySemanticUnits (currentEntryPoints):
                 # Add FunctionDef to the Semantic Unit and get related elements
                 identifySemanticUnits(result)
                 
-            # Get declaration  if current vertice is an identifier
-            if (type[0] == "Identifier"):             
-                result = set(getDeclaration(currentNode))
-                # Get related elements of the called function
-                identifySemanticUnits (result)
+
 
                 
      ###### ###### ###### ###### ###### TODO #### ###### ###### ####### #### #############   
@@ -194,19 +191,15 @@ def identifySemanticUnits (currentEntryPoints):
                # print("Symbol" +str(currentNode))
 
     ######################################################################################
-    ##################################### Data Flow ######################################
+    ##################################### Data Flow ######################################    
 
-            # Get all used symbols (variables)
-            if (type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression"]):
-                #Depends on type? For Statement etc. Different behaviour based on config. Include Condition etc
-                result = set(getUsedSymbols(currentNode))
+            # Get all statements that are connected via used and defined relations
+            if (type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression", "ReturnStatement"]):
+                # Maybe some types are missing, needs further testing
+                result = set(getDefinesAndUses(currentNode))
                 # Get related elements of the called function
                 identifySemanticUnits (result)
             
-            # Get all changes to the used symbols (variables)       
-            if (type[0] == "Symbol"):
-                result = set(getDefinesOfSymbols(currentNode))
-                identifySemanticUnits (result)
                 
     ########################################################################################
     #################################### Preprocessor ######################################          
@@ -283,7 +276,9 @@ def identifySemanticUnits (currentEntryPoints):
                 
             # Do something for every type where it is necessary
             # TODO: Missing types from /jpanlib/src/main/java
+            # 
             # Do nothing for:
+            # 'Identifier' + 'Symbol' as it does not directly appear in the code
             # 'AdditiveExpression' a + b
             # 'PrimaryExpression' 1
             # 'IncDec' ++
@@ -309,7 +304,7 @@ def identifySemanticUnits (currentEntryPoints):
             
             
                     
-                    # Get the parent parameter list if the current Node is a parameter    
+          # Get the parent parameter list if the current Node is a parameter    
           #  if (type[0] == ("Parameter")):
            #     result = set(getParameterList(currentNode))
                 # Get related elements 
@@ -336,24 +331,7 @@ def getIncludedFilesAndDirectories (verticeId):
 def getEnclosedCodeOfFile (verticeId):
     query = """g.V(%s).emit().repeat(out('AST_EDGE','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)
     return db.runGremlinQuery(query)   
-       
-# Return all vertices that belong to the same parent function
-def getEnclosedCodeOfFunction (verticeId):
-    # Get (parent) functionId of vertice with verticeId
-    query = """g.V(%s).values('functionId')""" % (verticeId)
-    result = db.runGremlinQuery(query)
-    
-    # If there is a parent function
-    if (len(result) > 0):
-        # Get all enclosed vertices
-        query = """g.V().has('functionId', '%s').id()""" % (result[0])
-        result = db.runGremlinQuery(query)
-    else:
-        # Result is empty if there is no parent
-        result = ""
            
-    return result
-    
 # Return function definition vertice of a given function
 def getFunctionDefOut (verticeId):
     query = """g.V(%s).out().has('type', 'FunctionDef').id()""" % (verticeId)
@@ -387,8 +365,7 @@ def getParentFunction (verticeId):
 def getParameterList (verticeId):
     query = """g.V(%s).in(AST_EDGE).has('type', 'ParameterList')id()""" % (verticeId)
     return db.runGremlinQuery(query)    
-    
-    
+       
 
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
@@ -432,40 +409,15 @@ def getCalledFunctionDef (verticeId):
         return result
     else:
         return ""
+              
 
-        
-        ########################### TO DO ###################################
-# Return id of declaration vertice for the identifier        
-def getDeclaration (verticeId):
-    #print("#########################################################################")   
-    #print("In edges, in vertices, out edges, out vertices:")
-    #ParameterList -> AST Parent ->  FunctionDef
-    #ForInit ?
-    #IdentifierDeclStatement (int j) -> AST Parent -> IdentifierDecl (j) -> AST Parent -> Identifier (j) and IdentifierDeclType (int)
-    #query = """g.V(%s).inE()""" % (verticeId)
-   # print(db.runGremlinQuery(query))
-   # query = """g.V(%s).in()""" % (verticeId)
-    #print(db.runGremlinQuery(query))
-   # query = """g.V(%s).outE()""" % (verticeId)
-    #print(db.runGremlinQuery(query))
-   # query = """g.V(%s).out()""" % (verticeId)
-    #print(db.runGremlinQuery(query))  
-   # print("#########################################################################")    
-    return ""
-         ########################### TO DO ###################################     
-
-# Return all symbols (variables) that were used         
-def getUsedSymbols (verticeId):
-    #USE edges and DEF edges
-    query = """g.V(%s).out(USES_EDGE).id()""" % (verticeId)
-    return db.runGremlinQuery(query) 
-
-    # Only defines before?
-# Return all vertices that change a symbol (variable)         
-def getDefinesOfSymbols (verticeId):
-    #USE edges and DEF edges
-    query = """g.V(%s).in(DEFINES_EDGE).id()""" % (verticeId)
+# Get all statements that are connected via used and defined relations       
+def getDefinesAndUses (verticeId):
+    #U SE edges and DEF edges
+    # Here we can get results that do not appear in the code (e.g. Argument or Parameter nodes)
+    query = """g.V(%s).both('USE','DEF').both('USE','DEF').simplePath().id()"""   % (verticeId)
     return db.runGremlinQuery(query)     
+    
 
 # Return all AST children except the CompoundStatement and the ElseStatement and their children  
 def getInitAndCondition (verticeId):
