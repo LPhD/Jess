@@ -40,7 +40,7 @@ db.connectToDatabase(projectName)
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices or name of entry feature.
-entryPointId = {'8192'}
+entryPointId = {'4248'}
 # You can select both, if you want additional entry points.
 entryFeatureNames = {}
 # Initialize empty Semantic Unit set
@@ -66,6 +66,9 @@ def identifySemanticUnits (currentEntryPoints):
             checkedVertices.add(currentNode)
             # Add current entry point to Semantic Unit 
             semanticUnit.add(currentNode) 
+            
+            if(len(type)< 1):
+                print("No vertice with the given id found. Please check your database for an existing vertice id.")
         
 ################################ Structural relations ################################
             # Get all included files if current vertice is a Directory
