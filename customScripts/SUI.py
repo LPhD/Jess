@@ -40,9 +40,9 @@ db.connectToDatabase(projectName)
 
 ## Work with sets, as they are way faster and allow only unique elements ##
 # Ids of entry point vertices or name of entry feature.
-entryPointId = {''}
+entryPointId = {'8192'}
 # You can select both, if you want additional entry points.
-entryFeatureNames = {'analogueSender'}
+entryFeatureNames = {}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -329,10 +329,9 @@ def getIncludedFilesAndDirectories (verticeId):
     query = """g.V(%s).out().has('type', within('File', 'Directory')).id()""" % (verticeId)
     return db.runGremlinQuery(query)    
        
-# Return all vertices that belong to the given file 
+# Return all AST vertices and their children that belong to the given file 
 def getEnclosedCodeOfFile (verticeId):
-############################# Only adds vertices of type Function? ########################
-    query = """g.V(%s).out().id()""" % (verticeId)
+    query = """g.V(%s).emit().repeat(out('AST_EDGE','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)
     return db.runGremlinQuery(query)   
        
 # Return all vertices that belong to the same parent function
