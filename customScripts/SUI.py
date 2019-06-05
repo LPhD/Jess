@@ -158,7 +158,11 @@ def identifySemanticUnits (currentEntryPoints):
                 result = set(getCalledFunctionDef(currentNode))
                 # Get related elements of the called function
                 identifySemanticUnits (result)
-             
+ 
+            # Get all preprocessor statements     
+            #if (type[0] == "PreDefine"):
+                #result = set(getDefinesOfSymbols(currentNode))
+                #identifySemanticUnits (result)  
                 
     ######################################################################################
     ################################## Define relations ##################################
@@ -174,21 +178,12 @@ def identifySemanticUnits (currentEntryPoints):
                 
      ###### ###### ###### ###### ###### TODO #### ###### ###### ####### #### #############   
             
-            # Get XXX if current vertice is a AssignmentExpression
-            #if (type[0] == "AssignmentExpression"):  
-                #print("CallExpression" +str(currentNode))
                    
             # Get all included variables and methods? if current vertice is an Argument or ArgumentList or Condition or 'UnaryExpression'
             #if (type[0] in ["Argument", "ArgumentList", "Condition", "UnaryExpression"]):
                 #print("Argument, ArgumentList, Condition, UnaryExpression" +str(currentNode))
                 
-            # Get all uses if current vertice is an IdentifierDeclStatement? Make this as configuration option
-            #if (type[0] ==  "IdentifierDeclStatement"):
-                #print("IdentifierDeclStatement" +str(currentNode))
-                
-            # Get XXX if current vertice is a 'Symbol'
-            #if (type[0] ==  "Symbol"):
-               # print("Symbol" +str(currentNode))
+
 
     ######################################################################################
     ##################################### Data Flow ######################################    
@@ -202,7 +197,7 @@ def identifySemanticUnits (currentEntryPoints):
             
                 
     ########################################################################################
-    #################################### Preprocessor ######################################          
+    #################################### Variability ######################################          
                  
             # Get enclosed vertices if current vertice is a pre-if-statement
             if (type[0] == "PreIfStatement"):                       
@@ -252,55 +247,66 @@ def identifySemanticUnits (currentEntryPoints):
             #Get enclosed vertices if current vertice is a pre-endif-statement     
             if (type[0] == "PreEndIfStatement"):
                 # Get the starting #if and add it to the semanticUnit
-                semanticUnit.update(set(getPreIf(currentNode)))                        
+                semanticUnit.update(set(getPreIf(currentNode)))    
 
-            # Get all preprocessor statements     
-            #if (type[0] == "PreDefine"):
-                #result = set(getDefinesOfSymbols(currentNode))
-                #identifySemanticUnits (result) 
+    ########################################################################################
+    #################################### No impact analysis, just call (backward) analysis  ######################################                
 
-            # Get all preprocessor statements     
-            # What about includenext? Currently its the same implementation as include
-            #if (type[0] == "PreInclude"):
-                #result = set(getDefinesOfSymbols(currentNode))
-                #identifySemanticUnits (result) 
+            # Get all AST childs and analyze them      
+            if (type[0] in["PreDiagnostic", "PreOther", "PreLine", "PrePragma"]):
+                result = set(getASTChildren(currentNode))
+                identifySemanticUnits (result) 
 
 
-    #PreUndef?
-    #Others currently have no impact on other lines of code
 
-            #Problems: 
-            # Global variables 
-            # ++ i in for (not a real problem, as it is always inside for. But what if method is called?
-            # ++ i in general is not working, only identified as UnaryExpression but not as ExpressionAssignment
+    
+    # Do nothing for (as intended):
+    # PreInclude, PreIncludeNext (included file possible, but why not just give the file as entry point?)
+    ################# No meaningful connections, no direct appearence in the code, already contained in other analyses ##################
+    # 'Identifier' i 
+    # 'CompoundStatement' empty container object 
+    # 'IncDec' ++
+    # 'UnaryOperator' !
+    # 'AdditiveExpression' a + b
+    # 'PrimaryExpression' 1
+    # 'UnaryOperationExpression' - 1
+    # 'ReturnType' void
+    # 'ForInit' i = 0
+    # 'CFGEntryNode' ENRTY
+    # 'CFGExitNode' EXIT
+    # 'InitializerList' 7 (size of list)
+    # 'PreIfCondition' is a Condition
+    ####################### Already contained in other analyses ###############################################
+    # Symbol (already contained in the dataflow analysis)
+    # 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
+    # 'IdentifierDecl' i (contained in IdentifierDeclStatement)
+    # 'Parameter' i (contained in ParameterList)
+    # 'ParameterType' int (contained in ParameterList)
+    # 'ParameterList' int i (contained in FunctionDef)
+    # 'RelationalExpression' i > 5 (contained in condition)
+    # 'ArrayIndexing' array[1]
+    
+            
+            
+            
+    #Problems: 
+        # Global variables 
+        # ++ i in for (not a real problem, as it is always inside for. But what if method is called?
+        # ++ i in general is not working, only identified as UnaryExpression but not as ExpressionAssignment
                 
-            # Do something for every type where it is necessary
-            # TODO: Missing types from /jpanlib/src/main/java
-            # 
-            # Do nothing for:
-            # 'Identifier' + 'Symbol' as it does not directly appear in the code
-            # 'AdditiveExpression' a + b
-            # 'PrimaryExpression' 1
-            # 'IncDec' ++
-            # 'UnaryOperator' !
-            # 'UnaryOperationExpression' - 1
-            # 'ArrayIndexing' array[1]
-            # 'ReturnType' void
-            # 'CFGEntryNode' ENRTY
-            # 'CFGExitNode' EXIT
-            # 'InitializerList' 7 (size of list)
-            # 'ForInit' i = 0
-            # 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
-            # 'IdentifierDecl' i (contained in IdentifierDeclStatement)
-            # 'Parameter' i (contained in ParameterList)
-            # 'ParameterType' int (contained in ParameterList)
-            # 'ParameterList' int i (contained in FunctionDef)
-            # 'RelationalExpression' i > 5 (contained in condition)
-            # 'Sizeof' empty?
-            # 'SizeofOperand' empty?
-            # 'Decl' empty?
-            # 'DeclStmt' empty?
-            # 'CompoundStatement' empty?
+    # Do something for every type where it is necessary
+    # TODO: Missing types from /jpanlib/src/main/java             
+        # 'Sizeof' empty?
+        # 'SizeofOperand' empty?
+        # 'Decl' empty?
+        # 'DeclStmt' empty?
+        # 'PreUndef' Undefined macro
+
+        # PreDefine
+        # PreMacroIdentifier
+        # PreMacroParameters
+        # PreMacro
+
             
             
                     
