@@ -138,7 +138,7 @@ def identifySemanticUnits (currentEntryPoints):
             if (includeEnclosedCode):
                 result.update(set(getASTChildren))
             # Get related elements of the if/else-statement
-            identifySemanticUnits (result)           
+            identifySemanticUnits(result)           
 
         # Get the AST children and the parent function if current vertice is an expression statement
         if (type[0] == "ExpressionStatement"):     
@@ -149,7 +149,7 @@ def identifySemanticUnits (currentEntryPoints):
                    
             result = set(getASTChildren(currentNode))
             # Get related elements of the AST children
-            identifySemanticUnits (result)              
+            identifySemanticUnits(result)              
             
 ######################################################################################           
 ################################### Call relations ################################### 
@@ -166,17 +166,17 @@ def identifySemanticUnits (currentEntryPoints):
                        
             result = set(getCalledFunctionDef(currentNode))
             # Get related elements of the called function
-            identifySemanticUnits (result)
+            identifySemanticUnits(result)
             
         # Get macro identifier    
         if (type[0] in ["PreUndef","PreDefine"]):    
             result = set(getMacroIdentifier(currentNode))
-            identifySemanticUnits (result) 
+            identifySemanticUnits(result) 
 
         # Get all statements connected to the PreMacroIdentifier     
         if (type[0] == "PreMacroIdentifier"):  
             result = set(getRelationsToMacro(currentNode))
-            identifySemanticUnits (result)  
+            identifySemanticUnits(result)  
 
             
 ######################################################################################
@@ -208,7 +208,7 @@ def identifySemanticUnits (currentEntryPoints):
             # Maybe some types are missing, needs further testing
             result = set(getDefinesAndUses(currentNode))
             # Get related elements of the called function
-            identifySemanticUnits (result)
+            identifySemanticUnits(result)
         
             
 ########################################################################################
@@ -228,7 +228,7 @@ def identifySemanticUnits (currentEntryPoints):
                result.update(set(getASTChildren(currentNode)))           
                      
             # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result)
+            identifySemanticUnits(result)
 
                           
             
@@ -247,7 +247,7 @@ def identifySemanticUnits (currentEntryPoints):
                result.update(set(getASTChildren(currentNode)))  
             
             # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result)
+            identifySemanticUnits(result)
        
        
         #Get enclosed vertices if current vertice is a pre-else-statement     
@@ -257,7 +257,7 @@ def identifySemanticUnits (currentEntryPoints):
             # Get the starting #if
             result.update(set(getPreIf(currentNode)))                        
             # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result)
+            identifySemanticUnits(result)
             
         #Get enclosed vertices if current vertice is a pre-endif-statement     
         if (type[0] == "PreEndIfStatement"):
@@ -270,9 +270,9 @@ def identifySemanticUnits (currentEntryPoints):
         # Get all AST childs and analyze them      
         if (type[0] in["PreDiagnostic", "PreOther", "PreLine", "PrePragma"]):
             result = set(getASTChildren(currentNode))
-            identifySemanticUnits (result) 
+            identifySemanticUnits(result) 
 
-
+        identifySemanticUnits(currentEntryPoints)
 
     
     # Do nothing for (as intended):
