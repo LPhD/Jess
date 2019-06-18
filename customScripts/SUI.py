@@ -17,10 +17,10 @@ includeOtherFeatures = False
 
 
 # Connect to project DB
-#projectName = 'JoernTest'
+projectName = 'JoernTest.tar.gz'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-projectName = 'SPLC'
+#projectName = 'SPLC'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -42,7 +42,7 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature.
 # You can select both, if you want additional entry points.
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointId = {'8296'}
+entryPointId = {'368688'}
 entryFeatureNames = {}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
@@ -158,11 +158,21 @@ def identifySemanticUnits (currentEntryPoints):
                 result = set(getCalledFunctionDef(currentNode))
                 # Get related elements of the called function
                 identifySemanticUnits (result)
+                
+            # Get macro identifier    
+            if (type[0] in ["PreUndef","PreDefine"]):    
+                result = set(getMacroIdentifier(currentNode))
+                identifySemanticUnits (result) 
  
             # Get all preprocessor statements     
             #if (type[0] == "PreDefine"):
+                #look for macro identifier in the same file
+                #look for macro identifier in files that include the file of the #define
+                
                 #result = set(getDefinesOfSymbols(currentNode))
                 #identifySemanticUnits (result)  
+                #PreUndef
+                #PreMacroIdentifier
                 
     ######################################################################################
     ################################## Define relations ##################################
@@ -276,6 +286,8 @@ def identifySemanticUnits (currentEntryPoints):
     # 'CFGExitNode' EXIT
     # 'InitializerList' 7 (size of list)
     # 'PreIfCondition' is a Condition
+    # 'PreMacroParameters' parameters of a function-like macro
+    # 'PreMacro' the macro content
     ####################### Already contained in other analyses ###############################################
     # Symbol (already contained in the dataflow analysis)
     # 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
@@ -300,27 +312,8 @@ def identifySemanticUnits (currentEntryPoints):
         # 'SizeofOperand' empty?
         # 'Decl' empty?
         # 'DeclStmt' empty?
-        # 'PreUndef' Undefined macro
 
-        # PreDefine
-        # PreMacroIdentifier
-        # PreMacroParameters
-        # PreMacro
 
-            
-            
-                    
-          # Get the parent parameter list if the current Node is a parameter    
-          #  if (type[0] == ("Parameter")):
-           #     result = set(getParameterList(currentNode))
-                # Get related elements 
-            #    identifySemanticUnits (result) 
-
-            # Get the parent function definition if the current vertice is a parameter    
-           # if (type[0] == ("ParameterList")):
-            #    result = set(getFunctionDefIn(currentNode))
-                # Get related elements 
-           #     identifySemanticUnits (result)  
        
         
 # Return all vertices of type file that belong to the given directory (not recursive)        
@@ -440,7 +433,7 @@ def getElse (verticeId):
     query = """g.V(%s).out(AST_EDGE).has('type', 'ElseStatement').id()""" % (verticeId)
     return db.runGremlinQuery(query)    
 
-# Return the corresponding #endif-statement an #if-statement 
+# Return the corresponding #endif-statement of an #if-statement 
 def getEndIf (verticeId):
     # Find the #endif
     query = """g.V(%s).until(has('type', 'PreEndIfStatement')).repeat(out(AST_EDGE)).has('type', 'PreEndIfStatement').id()""" % (verticeId)   
@@ -450,8 +443,11 @@ def getEndIf (verticeId):
 def getPreIfCondition (verticeId):
     # Get all AST childs that belong to the condition
     query = """g.V(%s).out(AST_EDGE).has('type', 'PreIfCondition').emit().repeat(out(AST_EDGE)).id()""" % (verticeId) 
-    return db.runGremlinQuery(query)     
-  
+    return db.runGremlinQuery(query) 
+
+def getMacroIdentifier (verticeId):
+    query = """g.V(%s).out(AST_EDGE).has('type', 'PreMacroIdentifier').id()""" % (verticeId) 
+    return db.runGremlinQuery(query) 
 
 ###################################### Variability ###############################################################
 
