@@ -9,6 +9,7 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
 generateOnlyAST = True
+generateOnlyVisibleCode = True
 includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
@@ -42,7 +43,7 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature.
 # You can select both, if you want additional entry points.
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointId = {90144}
+entryPointId = {282760}
 entryFeatureNames = {}
 # Initialize empty Semantic Unit set
 semanticUnit = set()
@@ -173,7 +174,7 @@ def identifySemanticUnits (currentEntryPoints):
             result = set(getMacroIdentifier(currentNode))
             identifySemanticUnits(result) 
 
-        # Get all statements connected to the PreMacroIdentifier     
+        # Get all statements (limited to preprocessor and function-like macro calls) connected to the PreMacroIdentifier     
         if (type[0] == "PreMacroIdentifier"):  
             result = set(getRelationsToMacro(currentNode))
             identifySemanticUnits(result)  
@@ -187,8 +188,13 @@ def identifySemanticUnits (currentEntryPoints):
             result = set(getFunctionDefOut(currentNode))           
             # Add FunctionDef to the Semantic Unit and get related elements
             identifySemanticUnits(result)
-            
-
+        
+        # Get definition of the element that contains the condition or parameter
+        # We need this for identification of statements that are connected to a #define       
+        if (type[0] in ('Condition', 'PreIfCondition', 'Parameter', 'ParameterList')):
+            result = set(getParent(currentNode))
+            # Add FunctionDef to the Semantic Unit and get related elements
+            identifySemanticUnits(result)
 
             
  ###### ###### ###### ###### ###### TODO #### ###### ###### ####### #### #############   
@@ -363,13 +369,17 @@ def getParentFunction (verticeId):
         
         return result
     else :
-        return ""    
+        return ""  
+
+# Return AST parent of a given node (can be empty)
+def getParent (verticeId):
+    query = """g.V(%s).out(AST_EDGE).id()""" % (verticeId)
+    return db.runGremlinQuery(query)          
     
 # Return parameter list of a parameter
 def getParameterList (verticeId):
     query = """g.V(%s).in(AST_EDGE).has('type', 'ParameterList')id()""" % (verticeId)
-    return db.runGremlinQuery(query)    
-       
+    return db.runGremlinQuery(query)          
 
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
@@ -417,7 +427,7 @@ def getCalledFunctionDef (verticeId):
 
 # Get all statements that are connected via used and defined relations       
 def getDefinesAndUses (verticeId):
-    #U SE edges and DEF edges
+    # USE edges and DEF edges
     # Here we can get results that do not appear in the code (e.g. Argument or Parameter nodes)
     query = """g.V(%s).both('USE','DEF').both('USE','DEF').simplePath().id()"""   % (verticeId)
     return db.runGremlinQuery(query)     
@@ -468,7 +478,11 @@ def getRelationsToMacro (verticeId):
     # Same location as file
     #query = """g.V().has('location', textContains('%s')).has('type', 'PreMacroIdentifier').has('code', '%s').in(AST_EDGE).id()""" % (result[1], result[0])
     # Look for all occurences? Or only identifiers?
-    query = """g.V().has('location', textContains('%s')).has('type', within('PreMacroIdentifier', 'Identifier')).has('code', '%s').in(AST_EDGE).id()""" % (result[1], result[0]) 
+    #query = """g.V().has('location', textContains('%s')).has('type', within('PreMacroIdentifier', 'Identifier')).has('code', '%s').in(AST_EDGE).id()""" % (result[1], result[0])
+    # All occurences? 
+    query = """g.V().has('location', textContains('%s')).has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (result[1], result[0])    
+    # If identifier (Callee oder Condition (mehr parents) -> Bis zum Statement im Code
+    # Until .inE(isFileOf) oder has('isCFGNode')
     #look for macro identifier in files that include the file of the #define
     print(query)
               
@@ -530,6 +544,20 @@ def nodeOutput ():
         code.append(db.runGremlinQuery(query)) 
     
     for x in code: print(x)
+    
+def fileOutput ():    
+    #Get node ids of semanticUnit (either as only AST or full property graph)
+    if (generateOnlyAST):
+        if(generateOnlyVisibleCode):
+            print("Get visible AST nodes")
+            nodes = getVisibleASTNodes()      
+        else:
+            print("Get AST nodes")
+            nodes = getASTNodes()    
+        
+    with open('result.txt', 'w') as file_handler:
+        for item in semanticUnit:
+            file_handler.write("{}\n".format(item))
    
 ####################################### Plotting ###############################################    
  
@@ -544,10 +572,16 @@ def plotResults ():
     
     #Get nodes and edges of semanticUnit (either as AST or full property graph)
     if (generateOnlyAST):
-        print("Get AST nodes")
-        nodes = getASTNodes()    
-        print("Get AST edges")
-        edges = getASTEdges()    
+        if(generateOnlyVisibleCode):
+            print("Get visible AST nodes")
+            nodes = getVisibleASTNodes()    
+            print("Get visible edges")
+            edges = getASTEdges()   
+        else:
+            print("Get AST nodes")
+            nodes = getASTNodes()    
+            print("Get AST edges")
+            edges = getASTEdges()    
     else:
         print("Get nodes")
         nodes = getNodes()    
@@ -567,10 +601,29 @@ def plotResults ():
 
 # Returns all AST vertices of the SemanticUnit    
 def getASTNodes():
+    global semanticUnit 
     # Remove unneeded nodes
-    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode')))
-        """ % (list(semanticUnit))  
-    return db.runGremlinQuery(query)
+    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).id()""" % (list(semanticUnit))  
+    result = db.runGremlinQuery(query)
+    # Update SU so that only the ids of the relevant nodes are inside (needed for fileOutput)
+    semanticUnit = result
+    # Get the whole nodes, not only the ids
+    query = """idListToNodes(%s)""" % (list(result))  
+    result = db.runGremlinQuery(query)
+    return result    
+    
+# Returns all AST vertices of the SemanticUnit that directly appear in the code (CFG nodes or direct children of file nodes)    
+def getVisibleASTNodes():
+    global semanticUnit 
+    # Remove unneeded nodes
+    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).or(__.has('isCFGNode'),__.in().has('type', 'File')).id() """ % (list(semanticUnit))  
+    result = db.runGremlinQuery(query)
+    # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
+    semanticUnit = result
+    # Get the whole nodes, not only the ids
+    query = """idListToNodes(%s)""" % (list(result))  
+    result = db.runGremlinQuery(query)
+    return result    
 
 # Returns all vertices of the SemanticUnit    
 def getNodes():
@@ -655,6 +708,9 @@ identifySemanticUnits(entryPointId)
 
 # Plot resulting graph
 plotResults()
+
+# Write resulting Ids to file
+fileOutput()
     
 # Output resulting Ids on console
 #for x in semanticUnit: print(x)
