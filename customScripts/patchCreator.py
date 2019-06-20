@@ -44,16 +44,19 @@ for code, location in zip(resultCode,resultLocation):
 structuredPatchList = sorted(structuredPatchList, key=itemgetter(0,1))
 
 
+#Create folder and files for the patch (if its not already there)
+foldername = "Patch"
+if os.path.exists(foldername):
+    shutil.rmtree(foldername)
+    
+os.makedirs(foldername)
+
+
+
 # Print results
 for x in structuredPatchList: 
-    print(x)
-    #Create folder for the patch (if its not already there)
-    foldername = "Patch"
-    if os.path.exists(foldername):
-        shutil.rmtree('foldername')
-    
-    os.makedirs(foldername)
-    file = open(foldername+"/"+x[0]+"{}\n", 'a')
-    file.write(x[2])
+    print(x) 
+    file = open(foldername+"/"+x[0], 'a')
+    file.write(x[2]+"\n")
     file.close()
 
