@@ -107,22 +107,12 @@ def identifySemanticUnits (currentEntryPoints):
             identifySemanticUnits(result)            
             
         # Get enclosed vertices if current vertice is a for-, while- or if-statement
-        if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):    
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
-            
+        if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):             
             result = set(getASTChildren(currentNode))
             # For each enclosed vertice, add to the Semantic Unit and get related elements
             identifySemanticUnits (result)
         # Get only the Syntax Elements of the selected statement     
-        elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
-        
+        elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):       
             # Get corresponding else-statement only if the configuration is selected
             if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
                 result = set(getElse(currentNode))
@@ -142,12 +132,7 @@ def identifySemanticUnits (currentEntryPoints):
             identifySemanticUnits(result)           
 
         # Get the AST children and the parent function if current vertice is an expression statement
-        if (type[0] == "ExpressionStatement"):     
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
-                   
+        if (type[0] == "ExpressionStatement"):                       
             result = set(getASTChildren(currentNode))
             # Get related elements of the AST children
             identifySemanticUnits(result)              
@@ -159,11 +144,6 @@ def identifySemanticUnits (currentEntryPoints):
         if (type[0] == "Callee"): 
             # Do not look at CallExpression, one query is enough. We will always have both the Callee and 
             #the CallExpression in the analysis set, see handling of ExpressionStatement above.
-            
-            # Add the function definition to the Semantic Unit to preserve syntactical correctness  
-            result = set(getParentFunction(currentNode))      
-            # Just add, no further analysis
-            semanticUnit.update(result)
                        
             result = set(getCalledFunctionDef(currentNode))
             # Get related elements of the called function
@@ -352,24 +332,8 @@ def getFunctionDefIn (verticeId):
     query = """g.V(%s).in(AST_EDGE).has('type', 'FunctionDef').id()""" % (verticeId)
     return db.runGremlinQuery(query)      
 
-# Return parent function of a given node (can be empty)
-def getParentFunction (verticeId):
-    query = """g.V(%s).values('functionId')""" % (verticeId)
-    result = db.runGremlinQuery(query)  
-    if (len(result) > 0 and not (result[0] in checkedVertices)) :
-        # Do this check only once
-        checkedVertices.add(result[0])
-        
-        query = """g.V().has('functionId', '%s').has('type', 'FunctionDef').id()""" % (result[0])
-        result = db.runGremlinQuery(query)
 
-        query = """g.V(%s).out(AST_EDGE).has('type', 'CompoundStatement').id()""" % (result[0])
-        
-        result.extend(db.runGremlinQuery(query))
-        
-        return result
-    else :
-        return ""  
+
 
 # Return AST parent of a given node (can be empty)
 def getParent (verticeId):
@@ -525,7 +489,22 @@ def getFeatureBlocks (featureName):
               
     return finalResult  
 
+######################################### Syntax Checking #################################################################
+
+# Return parent function of a given set of node ids (can be empty)
+def addParentFunction ():
+    global semanticUnit
+    # Get the compound statements and add them to the SemanticUnit
+    query = """idListToNodes(%s).has('isCFGNode').in(AST_EDGE).has('type', 'CompoundStatement').dedup().id()""" % (list(semanticUnit))   
+    result = db.runGremlinQuery(query)
+    semanticUnit.update(result)
+    # Get the function definitions and add them to the SemanticUnit
+    query = """idListToNodes(%s).in(AST_EDGE).has('type', 'FunctionDef').dedup().id()""" % (list(result))    
+    semanticUnit.update(db.runGremlinQuery(query))
+
 ###################################### Output ###############################################################
+
+
 
 # Output of the code of the Semantic Unit        
 def codeOutput ():
@@ -616,7 +595,8 @@ def getASTNodes():
 def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
-    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).or(__.has('isCFGNode'),__.in().has('type', 'File'),__.has('type', within('PreElIfStatement','PreElseStatement','PreEndIfStatement'))).id() """ % (list(semanticUnit))  
+    # CompoundStatement is included for a better visualization (nesting), it is not needed for patch generation
+    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).or(__.has('isCFGNode'),__.in().has('type', 'File'),__.has('type', within('PreElIfStatement','PreElseStatement','PreEndIfStatement','FunctionDef','CompoundStatement'))).id() """ % (list(semanticUnit))  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
     semanticUnit = result
@@ -705,6 +685,11 @@ if (len(entryFeatureNames) > 0):
     
 # Start identification process    
 identifySemanticUnits(entryPointId)    
+
+# Adapt results for syntactical correctness
+# Add the function definition for CFG nodes 
+addParentFunction()      
+# Get the #ifndef #def and #endif for header files?
 
 # Plot resulting graph
 plotResults()
