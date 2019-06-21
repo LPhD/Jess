@@ -407,7 +407,7 @@ def getCalledFunctionDef (verticeId):
         locationTarget = db.runGremlinQuery(query) 
         #Get only the filename 
         locationTargetFile = ntpath.basename(locationTarget[0])
-        locationTargetFile = locationTargetFile.split(',', 1)[0]
+        locationTargetFile = locationTargetFile.split(' ,', 1)[0]
         query = """g.V(%s).values('location')""" % (verticeId)
         locationCallee = db.runGremlinQuery(query)
         #Get only the filename 
@@ -616,7 +616,7 @@ def getASTNodes():
 def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
-    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).or(__.has('isCFGNode'),__.in().has('type', 'File')).id() """ % (list(semanticUnit))  
+    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).or(__.has('isCFGNode'),__.in().has('type', 'File'),__.has('type', within('PreElIfStatement','PreElseStatement','PreEndIfStatement'))).id() """ % (list(semanticUnit))  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
     semanticUnit = result
