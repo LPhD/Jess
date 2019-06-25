@@ -18,28 +18,26 @@ db.connectToDatabase(projectName)
 idList = [line.rstrip('\n') for line in open('result.txt')]
 
 # Get the code of the statements
-query = """idListToNodes(%s).values('code')""" % (idList)
+query = """idListToNodes(%s).valueMap('code', 'location')""" % (idList)
 # Execute equery
-resultCode = db.runGremlinQuery(query)
-
-# Get the location of the statements
-query = """idListToNodes(%s).values('location')""" % (idList)
-# Execute equery
-resultLocation = db.runGremlinQuery(query)
+result = db.runGremlinQuery(query)
 
 # List that contains the filename, linenumber and code of each statement of the SemanticUnit
 structuredPatchList = []
 
-for code, location in zip(resultCode,resultLocation):
+for r in result:
     # Get the filename (we need the path later)
-    locationFile = ntpath.basename(location)
+    locationFile = ntpath.basename((r['location'])[0])
     locationFile = locationFile.split(' ,', 1)[0]
-    # Get the linenumber
-    locationLine = location.split(', Startline: ', 1)[1]
-    # Append filename, linenumber and code to the list
-    structuredPatchList.append([locationFile, int(locationLine), code])
     
+    # Get the linenumber
+    locationLine = ((r['location'])[0]).split(', Startline: ', 1)[1]
+    
+    # Append filename, linenumber and code (if exists) to the list
+    if len(r) > 1:
+        structuredPatchList.append([locationFile, int(locationLine), (r['code'])[0]])
 
+    
 # Sort the list content by file and then by line
 structuredPatchList = sorted(structuredPatchList, key=itemgetter(0,1))
 
@@ -50,7 +48,6 @@ if os.path.exists(foldername):
     shutil.rmtree(foldername)
     
 os.makedirs(foldername)
-
 
 
 # Print results
