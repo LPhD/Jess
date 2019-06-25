@@ -18,10 +18,10 @@ includeOtherFeatures = False
 
 
 # Connect to project DB
-projectName = 'JoernTest.tar.gz'
+#projectName = 'JoernTest.tar.gz'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-#projectName = 'SPLC'
+projectName = 'SPLC'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -40,225 +40,269 @@ db.connectToDatabase(projectName)
 # [622680] Callee compareResults in threeElmArray
 
 ## Work with sets, as they are way faster and allow only unique elements ##
-# Ids of entry point vertices or name of entry feature.
-# You can select both, if you want additional entry points.
+# Ids of entry point vertices or name of entry feature
+# You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointId = {282760}
-entryFeatureNames = {}
-# Initialize empty Semantic Unit set
+entryPointIds = set()
+entryFeatureNames = {'AnalogueSender'}
+# Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
 checkedVertices = set()
+# Initialize empty set of vertices that will be checked
+analysisList = list()
+
+
+# Main function 
+def identifySemanticUnits ():
+# Check if a feature is selected as entry point
+    if (len(entryFeatureNames) > 0):
+        print("Found feature as entry point") 
+        result = set(getFeatureBlocks(entryFeatureNames))
+        print(result) 
+        entryPointIds.update(result)
+        
+    # Add the initial list of nodes to the analysis set
+    analysisList.extend(entryPointIds)
+    
+    # For elements that change?
+    for node in analysisList:
+        # Check nodes only once
+        if ((not node in checkedVertices) and node != ""):
+            analyzeNode(node)
+            checkedVertices.add(node)
+            semanticUnit.add(node)
+            
+        # Remove node after the analysis
+        # analysisList.remove(node)          
+        
+
+    # Adapt results for syntactical correctness
+    # Add the function definition for CFG nodes 
+    addParentFunction()      
+    # Get the #ifndef #def and #endif for header files?
+
+    # Plot resulting graph
+    plotResults()
+
+    # Write resulting Ids to file
+    fileOutput()
+        
+    # Output resulting Ids on console
+    #for x in semanticUnit: print(x)
+
+    # Print code results
+    #codeOutput()
+
+    # Print node results
+    #nodeOutput()
+
+
+####################################### Rules ###############################################   
+
 
 # Main function (recursively called). Decides based on the vertice type, what methods are called 
 # The currentEntryPoints are always added to the Semantic Unit
-def identifySemanticUnits (currentEntryPoints):
+def analyzeNode (currentNode):
     # Reset current result
     result = ""   
-    # Remove vertices from currentEntryPoints, that are already checked
-    currentEntryPoints = currentEntryPoints - checkedVertices
     
-    print("Current entry points")
-    print(currentEntryPoints)
-    print("Already checked")
+    print("Current")
+    print(currentNode)
+    print("Checked")
     print(checkedVertices)
+    print("SU")
+    print(semanticUnit)
     
-    # Check top node of set
-    if (len(currentEntryPoints) > 0):
-        currentNode = currentEntryPoints.pop()
-    else:
-        currentNode = ""
+    # Get type of current vertice 
+    query = """g.V(%s).values('type')""" % (currentNode)
+    type = db.runGremlinQuery(query)     
     
-    if (currentNode != ""):
-        # Get type of current vertice 
-        query = """g.V(%s).values('type')""" % (currentNode)
-        type = db.runGremlinQuery(query)
-        # Add current entry point to checked list
-        checkedVertices.add(currentNode)
-        # Add current entry point to Semantic Unit 
-        semanticUnit.add(currentNode) 
+    # Inform the user if a node id does not exist
+    if(len(type)< 1):
+        print("No vertice with the given id found. Please check your database for an existing vertice id.")
+
+################################ Structural relations ###################################################################
+    # Get all included files if current vertice is a Directory
+    if (type[0] == "Directory"):
+        # Add only the contained files
+        if (searchDirsRecursively == False):
+            result = set(getIncludedFiles(currentNode))
+        else:
+            result = set(getIncludedFilesAndDirectories(currentNode))
         
-        # Inform the user if a node id does not exist
-        if(len(type)< 1):
-            print("No vertice with the given id found. Please check your database for an existing vertice id.")
+        # For every enclosed file, get related elements
+        analysisList.extend(result)
+        
+    # Get all enclosed lines of code if current vertice is a File
+    if (type[0] == "File"):
+        result = set(getEnclosedCodeOfFile(currentNode))
+        # For every enclosed code line, get related elements
+        analysisList.extend(result)
+                  
+    # Get enclosed vertices if current vertice is a function declaration
+    if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
+        result = set(getASTChildren(currentNode))           
+        # For each enclosed vertice, add to the Semantic Unit and get related elements
+        analysisList.extend(result)         
+        
+    # Get enclosed vertices if current vertice is a for-, while- or if-statement
+    if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):             
+        result = set(getASTChildren(currentNode))
+        # For each enclosed vertice, add to the Semantic Unit and get related elements
+        identifySemanticUnits (result)
+    # Get only the Syntax Elements of the selected statement     
+    elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):       
+        # Get corresponding else-statement only if the configuration is selected
+        if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
+            result = set(getElse(currentNode))
+            
+            
+            if(result in semanticUnit):
+                print("Already contained in SU!")
+                                   
+            # Just add, no further analysis
+            semanticUnit.update(result)
+                        
+            print("Added to SU (connectIfWithElse):")
+            print(result)
+                            
+        result = set(getInitAndCondition(currentNode))
+        # For each enclosed vertice, add to the Semantic Unit and get related elements
+        analysisList.extend(result)         
+                   
+    # Get the corresponding if, if current vertice is an else-statement
+    if (type[0] == "ElseStatement"):            
+        result = set(getIfStatement(currentNode))
+        if (includeEnclosedCode):
+            result.update(set(getASTChildren))
+        # Get related elements of the if/else-statement
+        analysisList.extend(result)         
+
+    # Get the AST children and the parent function if current vertice is an expression statement
+    if (type[0] == "ExpressionStatement"):                       
+        result = set(getASTChildren(currentNode))
+        # Get related elements of the AST children
+        analysisList.extend(result)          
+        
+##################################################################################################################           
+################################### Call relations ############################################################### 
+       
+    # Get called function if current vertice is a callee
+    if (type[0] == "Callee"): 
+        # Do not look at CallExpression, one query is enough. We will always have both the Callee and 
+        #the CallExpression in the analysis set, see handling of ExpressionStatement above.
+                   
+        result = set(getCalledFunctionDef(currentNode))
+        # Get related elements of the called function
+        analysisList.extend(result)
+        
+    # Get macro identifier    
+    if (type[0] in ["PreUndef","PreDefine"]):    
+        result = set(getMacroIdentifier(currentNode))
+        analysisList.extend(result)
+
+    # Get all statements (limited to preprocessor and function-like macro calls) connected to the PreMacroIdentifier     
+    if (type[0] == "PreMacroIdentifier"):  
+        result = set(getRelationsToMacro(currentNode))
+        analysisList.extend(result)
+
+        
+##################################################################################################################
+################################## Define relations ##############################################################
+        
+    # Get function definition vertice if current vertice is a function 
+    if (type[0] == "Function"):
+        result = set(getFunctionDefOut(currentNode))           
+        # Add FunctionDef to the Semantic Unit and get related elements
+        analysisList.extend(result)
     
-################################ Structural relations ################################
-        # Get all included files if current vertice is a Directory
-        if (type[0] == "Directory"):
-            # Add only the contained files
-            if (searchDirsRecursively == False):
-                result = set(getIncludedFiles(currentNode))
-            else:
-                result = set(getIncludedFilesAndDirectories(currentNode))
-            
-            # For every enclosed file, get related elements
-            identifySemanticUnits(result)
-            
-        # Get all enclosed lines of code if current vertice is a File
-        if (type[0] == "File"):
-            result = set(getEnclosedCodeOfFile(currentNode))
-            # For every enclosed code line, get related elements
-            identifySemanticUnits(result)
+    # Get definition of the element that contains the condition or parameter
+    # We need this for identification of statements that are connected to a #define       
+    if (type[0] in ('Condition', 'PreIfCondition', 'Parameter', 'ParameterList')):
+        result = set(getParent(currentNode))
+        # Add FunctionDef to the Semantic Unit and get related elements
+        analysisList.extend(result)
+
+
+##################################################################################################################
+##################################### Data Flow ##################################################################   
+
+    # Get all statements that are connected via used and defined relations
+    if (type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression", "ReturnStatement"]):
+        # Maybe some types are missing, needs further testing
+        result = set(getDefinesAndUses(currentNode))
+        # Get related elements of the called function
+        analysisList.extend(result)
+    
+        
+####################################################################################################################
+#################################### Variability ##################################################################          
+         
+    # Get enclosed vertices if current vertice is a pre-if-statement
+    if (type[0] == "PreIfStatement"):                       
+        #get variable statements
+        result = set(getVariableStatements(currentNode))
+        
+        if (connectIfWithElse == False): 
+            # Only get #endif and the condition
+            result.update(set(getEndIf(currentNode)))   
+            result.update(set(getPreIfCondition(currentNode)))                      
+        else:
+           # Otherwise get all AST children (condition and one #else/#elif/#endif)     
+           result.update(set(getASTChildren(currentNode)))           
+                 
+        # For each enclosed vertice, add to the Semantic Unit and get related elements
+        analysisList.extend(result)
+
                       
-        # Get enclosed vertices if current vertice is a function declaration
-        if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
-            result = set(getASTChildren(currentNode))           
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits(result)            
-            
-        # Get enclosed vertices if current vertice is a for-, while- or if-statement
-        if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):             
-            result = set(getASTChildren(currentNode))
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits (result)
-        # Get only the Syntax Elements of the selected statement     
-        elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):       
-            # Get corresponding else-statement only if the configuration is selected
-            if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
-                result = set(getElse(currentNode))
-                # Just add, no further analysis
-                semanticUnit.update(result)
-                                
-            result = set(getInitAndCondition(currentNode))
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits(result)             
-                       
-        # Get the corresponding if, if current vertice is an else-statement
-        if (type[0] == "ElseStatement"):            
-            result = set(getIfStatement(currentNode))
-            if (includeEnclosedCode):
-                result.update(set(getASTChildren))
-            # Get related elements of the if/else-statement
-            identifySemanticUnits(result)           
-
-        # Get the AST children and the parent function if current vertice is an expression statement
-        if (type[0] == "ExpressionStatement"):                       
-            result = set(getASTChildren(currentNode))
-            # Get related elements of the AST children
-            identifySemanticUnits(result)              
-            
-######################################################################################           
-################################### Call relations ################################### 
-           
-        # Get called function if current vertice is a callee
-        if (type[0] == "Callee"): 
-            # Do not look at CallExpression, one query is enough. We will always have both the Callee and 
-            #the CallExpression in the analysis set, see handling of ExpressionStatement above.
-                       
-            result = set(getCalledFunctionDef(currentNode))
-            # Get related elements of the called function
-            identifySemanticUnits(result)
-            
-        # Get macro identifier    
-        if (type[0] in ["PreUndef","PreDefine"]):    
-            result = set(getMacroIdentifier(currentNode))
-            identifySemanticUnits(result) 
-
-        # Get all statements (limited to preprocessor and function-like macro calls) connected to the PreMacroIdentifier     
-        if (type[0] == "PreMacroIdentifier"):  
-            result = set(getRelationsToMacro(currentNode))
-            identifySemanticUnits(result)  
-
-            
-######################################################################################
-################################## Define relations ##################################
-            
-        # Get function definition vertice if current vertice is a function 
-        if (type[0] == "Function"):
-            result = set(getFunctionDefOut(currentNode))           
-            # Add FunctionDef to the Semantic Unit and get related elements
-            identifySemanticUnits(result)
         
-        # Get definition of the element that contains the condition or parameter
-        # We need this for identification of statements that are connected to a #define       
-        if (type[0] in ('Condition', 'PreIfCondition', 'Parameter', 'ParameterList')):
-            result = set(getParent(currentNode))
-            # Add FunctionDef to the Semantic Unit and get related elements
-            identifySemanticUnits(result)
-
-            
- ###### ###### ###### ###### ###### TODO #### ###### ###### ####### #### #############   
+    #Get enclosed vertices if current vertice is a pre-elif-statement       
+    if (type[0] == "PreElIfStatement"):        
+        # Get variable statements
+        result = set(getVariableStatements(currentNode))
+        # Get the starting #if
+        result.update(set(getPreIf(currentNode)))  
         
-               
-        # Get all included variables and methods? if current vertice is an Argument or ArgumentList or Condition or 'UnaryExpression'
-        #if (type[0] in ["Argument", "ArgumentList", "Condition", "UnaryExpression"]):
-            #print("Argument, ArgumentList, Condition, UnaryExpression" +str(currentNode))
-            
-
-
-######################################################################################
-##################################### Data Flow ######################################    
-
-        # Get all statements that are connected via used and defined relations
-        if (type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression", "ReturnStatement"]):
-            # Maybe some types are missing, needs further testing
-            result = set(getDefinesAndUses(currentNode))
-            # Get related elements of the called function
-            identifySemanticUnits(result)
+        if (connectIfWithElse == False): 
+            # Only get the condition  
+            result.update(set(getPreIfCondition(currentNode)))                      
+        else:
+           # Otherwise get all AST children (condition and all #else/#elif/#endif)     
+           result.update(set(getASTChildren(currentNode)))  
         
-            
-########################################################################################
-#################################### Variability ######################################          
-             
-        # Get enclosed vertices if current vertice is a pre-if-statement
-        if (type[0] == "PreIfStatement"):                       
-            #get variable statements
-            result = set(getVariableStatements(currentNode))
-            
-            if (connectIfWithElse == False): 
-                # Only get #endif and the condition
-                result.update(set(getEndIf(currentNode)))   
-                result.update(set(getPreIfCondition(currentNode)))                      
-            else:
-               # Otherwise get all AST children (condition and one #else/#elif/#endif)     
-               result.update(set(getASTChildren(currentNode)))           
-                     
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits(result)
+        # For each enclosed vertice, add to the Semantic Unit and get related elements
+        analysisList.extend(result)
+   
+   
+    #Get enclosed vertices if current vertice is a pre-else-statement     
+    if (type[0] == "PreElseStatement"):
+        # Get variable statements
+        result = set(getVariableStatements(currentNode))
+        # Get the starting #if
+        result.update(set(getPreIf(currentNode)))                        
+        # For each enclosed vertice, add to the Semantic Unit and get related elements
+        analysisList.extend(result)
+        
+    #Get enclosed vertices if current vertice is a pre-endif-statement     
+    if (type[0] == "PreEndIfStatement"):
+        # Get the starting #if and add it to the semanticUnit
+        semanticUnit.update(set(getPreIf(currentNode)))    
+        
+        print("Added to SU:")
+        print("#endifStatement")
 
-                          
-            
-        #Get enclosed vertices if current vertice is a pre-elif-statement       
-        if (type[0] == "PreElIfStatement"):        
-            # Get variable statements
-            result = set(getVariableStatements(currentNode))
-            # Get the starting #if
-            result.update(set(getPreIf(currentNode)))  
-            
-            if (connectIfWithElse == False): 
-                # Only get the condition  
-                result.update(set(getPreIfCondition(currentNode)))                      
-            else:
-               # Otherwise get all AST children (condition and all #else/#elif/#endif)     
-               result.update(set(getASTChildren(currentNode)))  
-            
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits(result)
-       
-       
-        #Get enclosed vertices if current vertice is a pre-else-statement     
-        if (type[0] == "PreElseStatement"):
-            # Get variable statements
-            result = set(getVariableStatements(currentNode))
-            # Get the starting #if
-            result.update(set(getPreIf(currentNode)))                        
-            # For each enclosed vertice, add to the Semantic Unit and get related elements
-            identifySemanticUnits(result)
-            
-        #Get enclosed vertices if current vertice is a pre-endif-statement     
-        if (type[0] == "PreEndIfStatement"):
-            # Get the starting #if and add it to the semanticUnit
-            semanticUnit.update(set(getPreIf(currentNode)))    
-
-########################################################################################
+##############################################################################################################################
 #################################### No impact analysis, just call (backward) analysis  ######################################                
 
-        # Get all AST childs and analyze them      
-        if (type[0] in["PreDiagnostic", "PreOther", "PreLine", "PrePragma"]):
-            result = set(getASTChildren(currentNode))
-            identifySemanticUnits(result) 
+    # Get all AST childs and analyze them      
+    if (type[0] in["PreDiagnostic", "PreOther", "PreLine", "PrePragma"]):
+        result = set(getASTChildren(currentNode))
+        analysisList.extend(result)
+                
+#####################################################################################################################
+#################################### End of rules  ##################################################################                     
 
-        identifySemanticUnits(currentEntryPoints)
 
     
     # Do nothing for (as intended):
@@ -276,21 +320,15 @@ def identifySemanticUnits (currentEntryPoints):
     # 'CFGEntryNode' ENRTY
     # 'CFGExitNode' EXIT
     # 'InitializerList' 7 (size of list)
-    # 'PreIfCondition' is a Condition
     # 'PreMacroParameters' parameters of a function-like macro
     # 'PreMacro' the macro content
     ####################### Already contained in other analyses ###############################################
-    # Symbol (already contained in the dataflow analysis)
+    # 'Symbol' (already contained in the dataflow analysis)
     # 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
     # 'IdentifierDecl' i (contained in IdentifierDeclStatement)
-    # 'Parameter' i (contained in ParameterList)
     # 'ParameterType' int (contained in ParameterList)
-    # 'ParameterList' int i (contained in FunctionDef)
     # 'RelationalExpression' i > 5 (contained in condition)
-    # 'ArrayIndexing' array[1]
-    
-            
-            
+    # 'ArrayIndexing' array[1]           
             
     #Problems: 
         # Global variables 
@@ -305,7 +343,7 @@ def identifySemanticUnits (currentEntryPoints):
         # 'DeclStmt' empty?
 
 
-       
+################################ Definition of helper methods ########################################################     
         
 # Return all vertices of type file that belong to the given directory (not recursive)        
 def getIncludedFiles (verticeId):
@@ -325,25 +363,12 @@ def getEnclosedCodeOfFile (verticeId):
 # Return function definition vertice of a given function
 def getFunctionDefOut (verticeId):
     query = """g.V(%s).out().has('type', 'FunctionDef').id()""" % (verticeId)
-    return db.runGremlinQuery(query)
-    
-# Return parent function definition vertice of a vertice
-def getFunctionDefIn (verticeId):
-    query = """g.V(%s).in(AST_EDGE).has('type', 'FunctionDef').id()""" % (verticeId)
-    return db.runGremlinQuery(query)      
-
-
-
+    return db.runGremlinQuery(query)        
 
 # Return AST parent of a given node (can be empty)
 def getParent (verticeId):
     query = """g.V(%s).out(AST_EDGE).id()""" % (verticeId)
-    return db.runGremlinQuery(query)          
-    
-# Return parameter list of a parameter
-def getParameterList (verticeId):
-    query = """g.V(%s).in(AST_EDGE).has('type', 'ParameterList')id()""" % (verticeId)
-    return db.runGremlinQuery(query)          
+    return db.runGremlinQuery(query)                 
 
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
@@ -382,7 +407,15 @@ def getCalledFunctionDef (verticeId):
         if (locationCallee != locationTarget):      
             query = """g.V().has('location', textContains('%s')).has('type', 'PreInclude').has('code', textContains('%s')).id()""" % (locationCalleeFile, locationTargetFile)
             result2 = db.runGremlinQuery(query)
+            
+            if(set(result2) in semanticUnit):
+                    print("Already contained in SU!")         
+            
             semanticUnit.update(set(result2))
+            
+            print("Added to SU (getCalledFunctionDef):")
+            print(set(result2))
+            print(query)
             
         return result
     else:
@@ -470,10 +503,8 @@ def getVariableStatements (verticeId):
 def getFeatureBlocks (featureName):
     finalResult = set()
     
-    for currentNode in featureName:
-    
-    ###one query?
-    
+    for currentNode in featureName:   
+    ###one query?   
         # Find all #if/#elfif nodes that contain the name of the feature
         query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).id()""" % (currentNode)
         result = db.runGremlinQuery(query) 
@@ -494,16 +525,23 @@ def getFeatureBlocks (featureName):
 # Return parent function of a given set of node ids (can be empty)
 def addParentFunction ():
     global semanticUnit
-    # Get the compound statements and add them to the SemanticUnit
+    # Get the compound statements and add them to the SemanticUnit (without dupes)
     query = """idListToNodes(%s).has('isCFGNode').in(AST_EDGE).has('type', 'CompoundStatement').dedup().id()""" % (list(semanticUnit))   
     result = db.runGremlinQuery(query)
+    
+    if(set(result) in semanticUnit):
+        print("Already contained in SU!")
+        
     semanticUnit.update(result)
-    # Get the function definitions and add them to the SemanticUnit
+    
+    print("Added to SU (addParentFunction):")
+    print(result)
+    
+    # Get the function definitions and add them to the SemanticUnit (without dupes)
     query = """idListToNodes(%s).in(AST_EDGE).has('type', 'FunctionDef').dedup().id()""" % (list(result))    
     semanticUnit.update(db.runGremlinQuery(query))
 
 ###################################### Output ###############################################################
-
 
 
 # Output of the code of the Semantic Unit        
@@ -596,7 +634,7 @@ def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
     # CompoundStatement is included for a better visualization (nesting), it is not needed for patch generation
-    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).or(__.has('isCFGNode'),__.in().has('type', 'File'),__.has('type', within('PreElIfStatement','PreElseStatement','PreEndIfStatement','FunctionDef','CompoundStatement'))).id() """ % (list(semanticUnit))  
+    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode', 'Parameter'))).or(__.has('isCFGNode'),__.in().has('type', 'File'),__.has('type', within('PreElIfStatement','PreElseStatement','PreEndIfStatement','FunctionDef','CompoundStatement'))).id() """ % (list(semanticUnit))  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
     semanticUnit = result
@@ -672,36 +710,11 @@ def output(G):
     # Use terminal output to convert .dot to .png
     os.system("dot -Tpng 'SemanticUnit/SemanticUnit.dot' -o 'SemanticUnit/SemanticUnit.png'")
     #Print status update
-    print("Creation of plot was successfull!")
+    print("Creation of plot was successfull!")    
     
-####################################### Plotting ###############################################   
- 
-# Check if a feature is selected as entry point
-if (len(entryFeatureNames) > 0):
-    print("Found feature as entry point") 
-    result = set(getFeatureBlocks(entryFeatureNames))
-    print(result) 
-    entryPointId.update(result)
     
+################################################### Start of program #################################################################
+
 # Start identification process    
-identifySemanticUnits(entryPointId)    
-
-# Adapt results for syntactical correctness
-# Add the function definition for CFG nodes 
-addParentFunction()      
-# Get the #ifndef #def and #endif for header files?
-
-# Plot resulting graph
-plotResults()
-
-# Write resulting Ids to file
-fileOutput()
+identifySemanticUnits() 
     
-# Output resulting Ids on console
-#for x in semanticUnit: print(x)
-
-# Print code results
-#codeOutput()
-
-# Print node results
-#nodeOutput()
