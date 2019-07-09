@@ -8,8 +8,8 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
-generateOnlyAST = False
-generateOnlyVisibleCode = False
+generateOnlyAST = True
+generateOnlyVisibleCode = True
 includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
@@ -45,7 +45,7 @@ db.connectToDatabase(projectName)
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
 entryPointIds = set()
-entryFeatureNames = {'otherFeature'}
+entryFeatureNames = {'analogueSender'}
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -584,13 +584,12 @@ def plotResults ():
     labels = ["IS_AST_PARENT"] 
     
     #Get nodes and edges of semanticUnit (either as AST or full property graph)
-    if (generateOnlyAST):
-        if(generateOnlyVisibleCode):
-            if (DEBUG) : print("Get visible AST nodes")
-            nodes = getVisibleASTNodes()    
-            if (DEBUG) : print("Get visible edges")
-            edges = getASTEdges()   
-        else:
+    if(generateOnlyVisibleCode):
+        if (DEBUG) : print("Get visible AST nodes")
+        nodes = getVisibleASTNodes()    
+        if (DEBUG) : print("Get visible edges")
+        edges = getASTEdges() 
+    elif (generateOnlyAST):
             if (DEBUG) : print("Get AST nodes")
             nodes = getASTNodes()    
             if (DEBUG) : print("Get AST edges")
