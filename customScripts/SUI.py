@@ -14,7 +14,7 @@ includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
-DEBUG = False
+DEBUG = True
 ###############################################
 
 
@@ -515,10 +515,14 @@ def getFeatureBlocks (featureName):
 
 # Return parent function of a given set of node ids (can be empty)
 def addParentFunction ():
+    if (DEBUG) : print("Checking for syntactic correctness...")
+    
     global semanticUnit
     # Get the compound statements and add them to the SemanticUnit (without dupes)
     query = """idListToNodes(%s).has('isCFGNode').in(AST_EDGE).has('type', 'CompoundStatement').dedup().id()""" % (list(semanticUnit))   
     result = db.runGremlinQuery(query)
+    
+    if (DEBUG) : print("Found additional nodes (CompoundStatement): "+str(result))
     
     if(set(result) in semanticUnit):
         print("Already contained in SU!")
@@ -526,8 +530,12 @@ def addParentFunction ():
     semanticUnit.update(result)   
     
     # Get the function definitions and add them to the SemanticUnit (without dupes)
-    query = """idListToNodes(%s).in(AST_EDGE).has('type', 'FunctionDef').dedup().id()""" % (list(result))    
-    semanticUnit.update(db.runGremlinQuery(query))
+    query = """idListToNodes(%s).in(AST_EDGE).has('type', 'FunctionDef').dedup().id()""" % (list(semanticUnit))    
+    result = db.runGremlinQuery(query)
+    
+    if (DEBUG) : print("Found additional nodes (FunctionDef): "+str(result)+"\n")
+    
+    semanticUnit.update(result)
 
 ###################################### Output ###############################################################
 
@@ -690,7 +698,7 @@ def output(G):
     filename = 'SemanticUnit.dot'
     
     #Write to file
-    print("Making graph finished, creating "+filename+" ...")
+    print("Making of graph finished, creating "+filename+" ...")
     print("--------------------------------------------------------------------------------- \n")
 
     file = open("SemanticUnit/SemanticUnit.dot", 'w')
