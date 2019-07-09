@@ -8,12 +8,13 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
-generateOnlyAST = True
-generateOnlyVisibleCode = True
+generateOnlyAST = False
+generateOnlyVisibleCode = False
 includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
+DEBUG = False
 ###############################################
 
 
@@ -44,7 +45,7 @@ db.connectToDatabase(projectName)
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
 entryPointIds = set()
-entryFeatureNames = {'AnalogueSender'}
+entryFeatureNames = {'otherFeature'}
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -56,19 +57,21 @@ analysisList = list()
 # Main function 
 def identifySemanticUnits ():
 # Check if a feature is selected as entry point
-    if (len(entryFeatureNames) > 0):
-        print("Found feature as entry point") 
+    if (len(entryFeatureNames) > 0):        
         result = set(getFeatureBlocks(entryFeatureNames))
-        print(result) 
+        print("Found feature as entry point, updated entry points: "+str(result)+"\n") 
         entryPointIds.update(result)
         
     # Add the initial list of nodes to the analysis set
     analysisList.extend(entryPointIds)
     
+    print("Starting analysis...")
+    print("--------------------------------------------------------------------------------- \n")
+    
     # For elements that change?
     for node in analysisList:
         # Check nodes only once
-        if ((not node in checkedVertices) and node != ""):
+        if ((not node in checkedVertices) and node != ""):         
             analyzeNode(node)
             checkedVertices.add(node)
             semanticUnit.add(node)
@@ -81,6 +84,9 @@ def identifySemanticUnits ():
     # Add the function definition for CFG nodes 
     addParentFunction()      
     # Get the #ifndef #def and #endif for header files?
+    
+    print("Analysis finished, making graph...")
+    print("--------------------------------------------------------------------------------- \n")
 
     # Plot resulting graph
     plotResults()
@@ -105,18 +111,13 @@ def identifySemanticUnits ():
 # The currentEntryPoints are always added to the Semantic Unit
 def analyzeNode (currentNode):
     # Reset current result
-    result = ""   
-    
-    print("Current")
-    print(currentNode)
-    print("Checked")
-    print(checkedVertices)
-    print("SU")
-    print(semanticUnit)
+    result = ""       
     
     # Get type of current vertice 
     query = """g.V(%s).values('type')""" % (currentNode)
-    type = db.runGremlinQuery(query)     
+    type = db.runGremlinQuery(query)   
+
+    if (DEBUG) : print("Check current node: "+str(currentNode)+" with type: "+str(type))    
     
     # Inform the user if a node id does not exist
     if(len(type)< 1):
@@ -155,17 +156,13 @@ def analyzeNode (currentNode):
     elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):       
         # Get corresponding else-statement only if the configuration is selected
         if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
-            result = set(getElse(currentNode))
-            
+            result = set(getElse(currentNode))           
             
             if(result in semanticUnit):
                 print("Already contained in SU!")
                                    
             # Just add, no further analysis
-            semanticUnit.update(result)
-                        
-            print("Added to SU (connectIfWithElse):")
-            print(result)
+            semanticUnit.update(result)                        
                             
         result = set(getInitAndCondition(currentNode))
         # For each enclosed vertice, add to the Semantic Unit and get related elements
@@ -288,9 +285,7 @@ def analyzeNode (currentNode):
     if (type[0] == "PreEndIfStatement"):
         # Get the starting #if and add it to the semanticUnit
         semanticUnit.update(set(getPreIf(currentNode)))    
-        
-        print("Added to SU:")
-        print("#endifStatement")
+
 
 ##############################################################################################################################
 #################################### No impact analysis, just call (backward) analysis  ######################################                
@@ -303,7 +298,7 @@ def analyzeNode (currentNode):
 #####################################################################################################################
 #################################### End of rules  ##################################################################                     
 
-
+    if (DEBUG): print("Result: "+str(result)+"\n")
     
     # Do nothing for (as intended):
     # PreInclude, PreIncludeNext (included file possible, but why not just give the file as entry point?)
@@ -411,11 +406,7 @@ def getCalledFunctionDef (verticeId):
             if(set(result2) in semanticUnit):
                     print("Already contained in SU!")         
             
-            semanticUnit.update(set(result2))
-            
-            print("Added to SU (getCalledFunctionDef):")
-            print(set(result2))
-            print(query)
+            semanticUnit.update(set(result2))           
             
         return result
     else:
@@ -468,8 +459,8 @@ def getRelationsToMacro (verticeId):
     query = """g.V(%s).values('code','location')""" % (verticeId)
     result = db.runGremlinQuery(query) 
     result[1] = result[1].split(',', 1)[0]    
-    print(result[0])
-    print(result[1])
+    #print(result[0])
+    #print(result[1])
     #look for macro identifier in the same file
     # Could be something else than direct parent (condition?)
     # Same location as file
@@ -481,7 +472,7 @@ def getRelationsToMacro (verticeId):
     # If identifier (Callee oder Condition (mehr parents) -> Bis zum Statement im Code
     # Until .inE(isFileOf) oder has('isCFGNode')
     #look for macro identifier in files that include the file of the #define
-    print(query)
+    #print(query)
               
     
     return db.runGremlinQuery(query)     
@@ -532,10 +523,7 @@ def addParentFunction ():
     if(set(result) in semanticUnit):
         print("Already contained in SU!")
         
-    semanticUnit.update(result)
-    
-    print("Added to SU (addParentFunction):")
-    print(result)
+    semanticUnit.update(result)   
     
     # Get the function definitions and add them to the SemanticUnit (without dupes)
     query = """idListToNodes(%s).in(AST_EDGE).has('type', 'FunctionDef').dedup().id()""" % (list(result))    
@@ -590,27 +578,27 @@ def plotResults ():
     #Get nodes and edges of semanticUnit (either as AST or full property graph)
     if (generateOnlyAST):
         if(generateOnlyVisibleCode):
-            print("Get visible AST nodes")
+            if (DEBUG) : print("Get visible AST nodes")
             nodes = getVisibleASTNodes()    
-            print("Get visible edges")
+            if (DEBUG) : print("Get visible edges")
             edges = getASTEdges()   
         else:
-            print("Get AST nodes")
+            if (DEBUG) : print("Get AST nodes")
             nodes = getASTNodes()    
-            print("Get AST edges")
+            if (DEBUG) : print("Get AST edges")
             edges = getASTEdges()    
     else:
-        print("Get nodes")
+        if (DEBUG) : print("Get nodes")
         nodes = getNodes()    
-        print("Get edges")
+        if (DEBUG) : print("Get edges")
         edges = getEdges()
 
     #Make the graph
-    print("Make graph")
+    if (DEBUG) : print("Make graph")
     G = pgv.AGraph(directed=True, strict=False)
-    print("_addNodes")
+    if (DEBUG) : print("_addNodes")
     addNodes(plot_configuration, G, nodes)
-    print("_addEdges")
+    if (DEBUG) : print("_addEdges")
     if (len(edges) > 0):
         addEdges(plot_configuration, G, edges)
     #Output result
@@ -702,7 +690,9 @@ def output(G):
     filename = 'SemanticUnit.dot'
     
     #Write to file
-    print("Creating "+filename+" ...")
+    print("Making graph finished, creating "+filename+" ...")
+    print("--------------------------------------------------------------------------------- \n")
+
     file = open("SemanticUnit/SemanticUnit.dot", 'w')
     file.write(outputString)
     file.close()
