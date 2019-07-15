@@ -21,7 +21,7 @@ public class ClassDefDatabaseNode extends DatabaseNode {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(NodeKeys.NODE_TYPE, "ClassDef");
 		map.put(NodeKeys.CODE, name);
-		map.put(NodeKeys.LINE, stmt.getLine());
+		map.put(NodeKeys.LINE, ""+stmt.getLine());
 		map.put(NodeKeys.PATH, stmt.getPath());
 		return map;
 	}

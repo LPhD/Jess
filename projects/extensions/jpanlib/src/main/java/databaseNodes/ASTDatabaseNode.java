@@ -50,7 +50,7 @@ public class ASTDatabaseNode extends DatabaseNode {
 		return properties;
 	}
 
-	private int getCorrectedLineString() {
+	private String getCorrectedLineString() {
 
 		int line = astNode.getLine();
 
@@ -60,7 +60,7 @@ public class ASTDatabaseNode extends DatabaseNode {
 			line += funcLocation - 1;
 		}
 
-		return line;
+		return ""+line;
 	}
 	
 	
