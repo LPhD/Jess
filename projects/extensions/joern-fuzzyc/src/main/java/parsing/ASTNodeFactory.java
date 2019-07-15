@@ -20,7 +20,9 @@ public class ASTNodeFactory {
 	public static void initializeFromContext(ASTNode node, ParserRuleContext ctx) {
 		if (ctx == null)
 			return;
-		node.setLocation(CodeLocationExtractor.extractFromContext(ctx));
+		
+		//We can not set the path here, only the line?
+		node.setLine(ctx.start.getLine());
 		node.setCodeStr(escapeCodeStr(ParseTreeUtils.childTokenString(ctx)));
 	}
 

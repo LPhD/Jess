@@ -217,7 +217,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		} else if (preASTItemStack.size() == 1)  {
 			//Remove orphaned #endif statements
 			PreBlockstarter lastNode = (PreBlockstarter) preASTItemStack.pop();
-			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation());
+			System.err.println("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getPath()+ " line: "+lastNode.getLine());
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class)
 			p.notifyObserversOfItem(lastNode);
 		}

@@ -89,7 +89,7 @@ public class Neo4JFunctionExporter extends FunctionExporter {
 		mainNodeId = nodeStore.getIdForObject(dbNode);
 		dbNode.setNodeId(nodeStore.getIdForObject(dbNode));
 
-		properties.remove(NodeKeys.LOCATION);
+		//properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);
 	}
 

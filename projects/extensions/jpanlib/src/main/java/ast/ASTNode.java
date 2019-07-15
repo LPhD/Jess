@@ -9,7 +9,8 @@ import ast.walking.ASTNodeVisitor;
 
 public class ASTNode {
 	private Map<String, String> properties;
-	private CodeLocation location = new CodeLocation();
+	private String path = "-1";
+	private int line = -1;
 	private Long nodeId;
 
 	private boolean isInCFG = false;
@@ -31,7 +32,8 @@ public class ASTNode {
 
 	private void copyAttributes(ASTNode otherNode) {
 		setCodeStr(otherNode.getCodeStr());
-		location = otherNode.location;
+		path = otherNode.path;
+		line = otherNode.line;
 		setChildNumber(otherNode.childNumber);
 		if (otherNode.isInCFG())
 			markAsCFGNode();
@@ -132,7 +134,7 @@ public class ASTNode {
 		Long id;
 		if (nodeId == null) {
 			System.err.println("Trying to retrieve node ID for node " + super.toString() + ", but none is set " + "(type = "
-							+ getTypeAsString() + ", location = " + getLocation() + ", code = " + getCodeStr() + ")");
+							+ getTypeAsString() + ", path = "+ path + ", line = " + line + ", code = " + getCodeStr() + ")");
 			id = -1l;
 		} else {
 			id = this.nodeId;
@@ -144,34 +146,40 @@ public class ASTNode {
 		setProperty(ASTNodeProperties.NODE_ID, Long.toString(id));
 		this.nodeId = id;
 	}
-
-	public String getLocationString() {
-		return this.location.toString();
+	
+	/**
+	 * Set the linenumber 
+	 * 
+	 * @param path
+	 */
+	public void setLine(int line) {
+		this.line = line;
 	}
-
-	public CodeLocation getLocation() {
-		return this.location;
+	
+	/**
+	 * Get the linenumber 
+	 * 
+	 */
+	public int getLine() {
+		return line;
 	}
-
-	public void setLocation(CodeLocation location) {
-		this.location = location;
-	}
+	
 
 	/**
-	 * Set the filepath in the location object
+	 * Set the filepath 
 	 * 
 	 * @param path
 	 */
 	public void setPath(String path) {
-		this.location.path = path;
+		this.path = path;
 	}
 	
 	/**
-	 * Get the filepath from the location object
+	 * Get the filepath
 	 * 
 	 */
 	public String getPath() {
-		return location.path;
+		return path;
 	}
 
 	public String getTypeAsString() {

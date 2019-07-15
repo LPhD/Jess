@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ast.ASTNode;
-import ast.CodeLocation;
 import ast.functionDef.FunctionDefBase;
 import cdg.CDG;
 import cdg.CDGCreator;
@@ -25,8 +24,7 @@ import udg.useDefGraph.UseDefGraph;
 // as a container for the Function. That's not very
 // clean. We should have a sep. Function-Class.
 
-public class FunctionDatabaseNode extends DatabaseNode
-{
+public class FunctionDatabaseNode extends DatabaseNode {
 	FunctionDefBase astRoot;
 	CFG cfg;
 	UseDefGraph udg;
@@ -44,19 +42,16 @@ public class FunctionDatabaseNode extends DatabaseNode
 	DDGCreator ddgCreator = new DDGCreator();
 	CDGCreator cdgCreator = new CDGCreator();
 
-	public void setCFGFactory(CFGFactory factory)
-	{
+	public void setCFGFactory(CFGFactory factory) {
 		astToCFG.setFactory(factory);
 	}
 
-	public void setASTDefUseAnalyzer(ASTDefUseAnalyzer analyzer)
-	{
+	public void setASTDefUseAnalyzer(ASTDefUseAnalyzer analyzer) {
 		cfgToUDG.setASTDefUseAnalyzer(analyzer);
 	}
 
 	@Override
-	public void initialize(Object node)
-	{
+	public void initialize(Object node) {
 		astRoot = (FunctionDefBase) node;
 		cfg = astToCFG.convert(astRoot);
 		dom = DominatorTree.newDominatorTree(cfg);
@@ -70,72 +65,64 @@ public class FunctionDatabaseNode extends DatabaseNode
 	}
 
 	@Override
-	public Map<String, Object> createProperties()
-	{
+	public Map<String, Object> createProperties() {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(NodeKeys.NODE_TYPE, "Function");
-		properties.put(NodeKeys.LOCATION, this.getLocation());
+		properties.put(NodeKeys.LINE, this.getLine());
+		properties.put(NodeKeys.PATH, this.getPath());
 		properties.put(NodeKeys.CODE, this.getName());
 		return properties;
 	}
 
-	public String getName()
-	{
+	public String getName() {
 		return astRoot.getName();
 	}
 
-	public ASTNode getASTRoot()
-	{
+	public ASTNode getASTRoot() {
 		return astRoot;
 	}
 
-	public CFG getCFG()
-	{
+	public CFG getCFG() {
 		return cfg;
 	}
 
-	public UseDefGraph getUDG()
-	{
+	public UseDefGraph getUDG() {
 		return udg;
 	}
 
-	public DDG getDDG()
-	{
+	public DDG getDDG() {
 		return ddg;
 	}
 
-	public CDG getCDG()
-	{
+	public CDG getCDG() {
 		return cdg;
 	}
 
-	public DominatorTree<CFGNode> getDominatorTree()
-	{
+	public DominatorTree<CFGNode> getDominatorTree() {
 		return dom;
 	}
 
-	public DominatorTree<CFGNode> getPostDominatorTree()
-	{
+	public DominatorTree<CFGNode> getPostDominatorTree() {
 		return postDom;
 	}
 
-	public String getLocation()
-	{
-		return astRoot.getLocationString();
+	public int getLine() {
+		return astRoot.getLine();
+	}
+	
+	public String getPath() {
+		return astRoot.getPath();
 	}
 
-	public CodeLocation getContentLocation()
-	{
-		return astRoot.getContent().getLocation();
+	public int getContentLine() {
+		return astRoot.getContent().getLine();
 	}
 
-	public String getSignature()
-	{
+	public String getSignature() {
 		return signature;
 	}
 
-	private void setSignature(FunctionDefBase node)
-	{
+	private void setSignature(FunctionDefBase node) {
 		signature = node.getFunctionSignature();
 	}
 

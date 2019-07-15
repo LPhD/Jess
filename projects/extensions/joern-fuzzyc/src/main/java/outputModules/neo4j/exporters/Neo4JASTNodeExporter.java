@@ -30,7 +30,7 @@ public abstract class Neo4JASTNodeExporter extends ASTNodeExporter {
 		// mainNodeId));
 
 		// index, but do not index location
-		properties.remove(NodeKeys.LOCATION);
+		//properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);
 
 	}

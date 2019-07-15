@@ -100,7 +100,7 @@ public class NestingReconstructor {
 						lastIf.setElseNode((ElseStatement) curBlockStarter);
 					}
 					else {
-						System.err.println("Warning: cannot find if for else in: "+node.getLocationString());
+						System.err.println("Warning: cannot find if for else in file: "+node.getPath()+" line: "+node.getLine());
 					}
 					return;
 
@@ -122,7 +122,7 @@ public class NestingReconstructor {
 							tryStatement.setCatchList(new CatchList());
 						tryStatement.getCatchList().addCatchStatement((CatchStatement) curBlockStarter);
 					} else {
-						System.err.println("Warning: cannot find try for catch in: "+node.getLocationString());
+						System.err.println("Warning: cannot find try for catch in file: "+node.getPath()+" line: "+node.getLine());
 					}
 
 					return;

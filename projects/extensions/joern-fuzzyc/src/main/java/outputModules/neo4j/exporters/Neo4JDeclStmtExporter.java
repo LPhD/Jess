@@ -46,7 +46,7 @@ public class Neo4JDeclStmtExporter extends DeclStmtExporter {
 		// mainNodeId));
 
 		// index, but do not index location
-		properties.remove(NodeKeys.LOCATION);
+		//properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(dbNode, properties);
 
 	}

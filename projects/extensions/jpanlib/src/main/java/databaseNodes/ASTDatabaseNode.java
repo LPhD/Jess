@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ast.ASTNode;
-import ast.CodeLocation;
 import ast.expressions.Expression;
 
 public class ASTDatabaseNode extends DatabaseNode {
@@ -30,7 +29,8 @@ public class ASTDatabaseNode extends DatabaseNode {
 		properties.put(NodeKeys.CODE, astNode.getEscapedCodeStr());
 
 		//Always get the location
-		properties.put(NodeKeys.LOCATION, getCorrectedLocationString());
+		properties.put(NodeKeys.LINE, getCorrectedLineString());
+		properties.put(NodeKeys.PATH, astNode.getPath());
 
 		if (astNode.isInCFG()) {
 			properties.put(NodeKeys.IS_CFG_NODE, "True");
@@ -50,17 +50,17 @@ public class ASTDatabaseNode extends DatabaseNode {
 		return properties;
 	}
 
-	private String getCorrectedLocationString() {
+	private int getCorrectedLineString() {
 
-		CodeLocation location = astNode.getLocation();
+		int line = astNode.getLine();
 
 		if (this.isInsideFunctionBlock()) {
-			CodeLocation funcLocation = currentFunction.getContentLocation();
+			int funcLocation = currentFunction.getContentLine();
 
-			location.startLine += funcLocation.startLine - 1;
+			line += funcLocation - 1;
 		}
 
-		return location.toString();
+		return line;
 	}
 	
 	

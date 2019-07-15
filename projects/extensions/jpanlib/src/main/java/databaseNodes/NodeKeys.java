@@ -5,7 +5,8 @@ public class NodeKeys
 
 	public static final String NODE_TYPE = "type";
 	public static final String CODE = "code";
-	public static final String LOCATION = "location";
+	public static final String LINE = "line";
+	public static final String PATH = "path";
 
 	public static final String FUNCTION_ID = "functionId";
 	public static final String CHILD_NUMBER = "childNum";

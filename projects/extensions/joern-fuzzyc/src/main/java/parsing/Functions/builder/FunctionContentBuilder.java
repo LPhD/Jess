@@ -651,7 +651,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		} else if (preASTItemStack.size() == 1)  {
 			//Remove orphaned #endif statements
 			PreBlockstarter lastNode = (PreBlockstarter) preASTItemStack.pop();
-			logger.debug("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getLocation()+ " on function level");
+			logger.debug("Removed orphan: "+lastNode.getEscapedCodeStr()+ " in: "+lastNode.getPath()+ " line: "+lastNode.getLine()+" on function level");
 		}
 	}
 
