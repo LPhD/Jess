@@ -7,15 +7,18 @@ from octopus.server.DBInterface import DBInterface
 from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
-####### Configuration options #################
-generateOnlyAST = True
-generateOnlyVisibleCode = True
+################# Configuration options for Semantic Unit identification #################
 includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
+externalCallsToFunctionLikeMacrosOnly = True
+######################### Configuration options for graph output #########################
+generateOnlyAST = False
+generateOnlyVisibleCode = False
+#################### Configuration options for debug output (console) ####################
 DEBUG = True
-###############################################
+##########################################################################################
 
 
 # Connect to project DB
@@ -44,8 +47,8 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = set()
-entryFeatureNames = {'analogueSender'}
+entryPointIds = {65688}
+entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -185,7 +188,7 @@ def analyzeNode (currentNode):
 ##################################################################################################################           
 ################################### Call relations ############################################################### 
        
-    # Get called function if current vertice is a callee
+    # Get called function or function-like macro if current vertice is a callee
     if (type[0] == "Callee"): 
         # Do not look at CallExpression, one query is enough. We will always have both the Callee and 
         #the CallExpression in the analysis set, see handling of ExpressionStatement above.
@@ -193,6 +196,9 @@ def analyzeNode (currentNode):
         result = set(getCalledFunctionDef(currentNode))
         # Get related elements of the called function
         analysisList.extend(result)
+        
+    ### TODO getCallsOfFunction
+    ### For a given function name, return all possible callees    
         
     # Get macro identifier    
     if (type[0] in ["PreUndef","PreDefine"]):    
@@ -251,9 +257,7 @@ def analyzeNode (currentNode):
                  
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result)
-
-                      
-        
+                             
     #Get enclosed vertices if current vertice is a pre-elif-statement       
     if (type[0] == "PreElIfStatement"):        
         # Get variable statements
@@ -270,8 +274,7 @@ def analyzeNode (currentNode):
         
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result)
-   
-   
+      
     #Get enclosed vertices if current vertice is a pre-else-statement     
     if (type[0] == "PreElseStatement"):
         # Get variable statements
@@ -457,25 +460,29 @@ def getMacroIdentifier (verticeId):
 def getRelationsToMacro (verticeId):
     # Get name result[0] and location result[1] of the macro
     query = """g.V(%s).values('code','location')""" % (verticeId)
-    result = db.runGremlinQuery(query) 
-    result[1] = result[1].split(',', 1)[0]    
-    #print(result[0])
-    #print(result[1])
-    #look for macro identifier in the same file
-    # Could be something else than direct parent (condition?)
-    # Same location as file
-    #query = """g.V().has('location', textContains('%s')).has('type', 'PreMacroIdentifier').has('code', '%s').in(AST_EDGE).id()""" % (result[1], result[0])
-    # Look for all occurences? Or only identifiers?
-    #query = """g.V().has('location', textContains('%s')).has('type', within('PreMacroIdentifier', 'Identifier')).has('code', '%s').in(AST_EDGE).id()""" % (result[1], result[0])
-    # All occurences? 
-    query = """g.V().has('location', textContains('%s')).has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (result[1], result[0])    
-    # If identifier (Callee oder Condition (mehr parents) -> Bis zum Statement im Code
-    # Until .inE(isFileOf) oder has('isCFGNode')
-    #look for macro identifier in files that include the file of the #define
-    #print(query)
-              
+    tempResult = db.runGremlinQuery(query) 
+    tempResult[1] = tempResult[1].split(',', 1)[0]    
     
-    return db.runGremlinQuery(query)     
+    # Look for all statements (not limited to callees) that contain the macro identifier in the current file (=same as macro definition)
+    # and get the AST element that appears in the code (either a CFGNode or a direct child of a file node)
+    query = """g.V().has('location', textContains('%s')).has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (tempResult[1], tempResult[0]) 
+    
+    result = db.runGremlinQuery(query)
+   
+    if(externalCallsToFunctionLikeMacrosOnly): 
+        # get files that include the current file
+        # follow inluce lines
+        
+        #look for macro identifier in callee nodes in files that include the file of the #define
+        query = """g.V().has('type', 'Callee').has('code', '%s').emit().until(has('isCFGNode')).repeat(__.in(AST_EDGE)).id()""" % (tempResult[0])   
+        result.extend(db.runGremlinQuery(query))
+    else:
+        #look for macro identifier in files that include the file of the #define
+        #query = """g.V().has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (result[0]) 
+        result.extend(db.runGremlinQuery(query))
+
+    
+    return result     
 
 ###################################### Variability ###############################################################
 
