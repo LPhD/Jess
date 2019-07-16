@@ -48,11 +48,25 @@ if os.path.exists(foldername):
     
 os.makedirs(foldername)
 
+# Counter
+n = 1
+lastFile = foldername+"/"+structuredPatchList[0][0]
 
 # Print results
 for x in structuredPatchList: 
     print(x) 
     file = open(foldername+"/"+x[0], 'a')
-    file.write(x[2]+"\n")
+    
+    #Reset counter if filename changed
+    if (not (lastFile == foldername+"/"+x[0])):
+        n = 1
+        lastFile = foldername+"/"+x[0]
+    
+    #Add empty lines until we reach the line of the current statement
+    while (n < x[1]):
+        file.write("\n")
+        n += 1
+    
+    file.write(x[2])
     file.close()
 
