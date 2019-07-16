@@ -7,10 +7,10 @@ from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
 
 # Connect to project DB
-projectName = 'JoernTest.tar.gz'
+#projectName = 'JoernTest.tar.gz'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-#projectName = 'SPLC'
+projectName = 'SPLC'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -18,23 +18,22 @@ db.connectToDatabase(projectName)
 idList = [line.rstrip('\n') for line in open('result.txt')]
 
 # Get the code of the statements
-query = """idListToNodes(%s).valueMap('code', 'location')""" % (idList)
+query = """idListToNodes(%s).valueMap('code', 'path', 'line')""" % (idList)
 # Execute equery
 result = db.runGremlinQuery(query)
 
-# List that contains the filename, linenumber and code of each statement of the SemanticUnit
+# List that contains the code, filename, and linenumber of each statement of the SemanticUnit
 structuredPatchList = []
 
-for r in result:
+for r in result:  
     # Get the filename (we need the path later)
-    locationFile = ntpath.basename((r['location'])[0])
-    locationFile = locationFile.split(' ,', 1)[0]
+    locationFile = ntpath.basename((r['path'])[0])
     
     # Get the linenumber
-    locationLine = ((r['location'])[0]).split(', Startline: ', 1)[1]
+    locationLine = ((r['line'])[0])
     
     # Append filename, linenumber and code (if exists) to the list
-    if len(r) > 1:
+    if len(r) > 2:
         structuredPatchList.append([locationFile, int(locationLine), (r['code'])[0]])
 
     
