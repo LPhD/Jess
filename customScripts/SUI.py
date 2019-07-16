@@ -14,8 +14,8 @@ searchDirsRecursively = True
 includeOtherFeatures = False
 externalCallsToFunctionLikeMacrosOnly = True
 ######################### Configuration options for graph output #########################
-generateOnlyAST = False
-generateOnlyVisibleCode = False
+generateOnlyAST = True
+generateOnlyVisibleCode = True
 #################### Configuration options for debug output (console) ####################
 DEBUG = True
 ##########################################################################################
@@ -47,8 +47,8 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {65688}
-entryFeatureNames = set()
+entryPointIds = set()
+entryFeatureNames = {'AnalogueSender'}
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -390,20 +390,19 @@ def getCalledFunctionDef (verticeId):
     # Check if result is in DB (could also be a C function like puts())
     if (len(result) > 0):   
         # Check whether target and callee are in the same file
-        query = """g.V(%s).values('location')""" % (result[0])
+        query = """g.V(%s).values('path')""" % (result[0])
         locationTarget = db.runGremlinQuery(query) 
         #Get only the filename 
         locationTargetFile = ntpath.basename(locationTarget[0])
-        locationTargetFile = locationTargetFile.split(' ,', 1)[0]
-        query = """g.V(%s).values('location')""" % (verticeId)
+
+        query = """g.V(%s).values('path')""" % (verticeId)
         locationCallee = db.runGremlinQuery(query)
         #Get only the filename 
         locationCalleeFile = ntpath.basename(locationCallee[0])
-        locationCalleeFile = locationCalleeFile.split(' ,', 1)[0]
         
         # Look for includes and add them to the semanticUnit
         if (locationCallee != locationTarget):      
-            query = """g.V().has('location', textContains('%s')).has('type', 'PreInclude').has('code', textContains('%s')).id()""" % (locationCalleeFile, locationTargetFile)
+            query = """g.V().has('path', textContains('%s')).has('type', 'PreInclude').has('code', textContains('%s')).id()""" % (locationCallee[0], locationTargetFile)
             result2 = db.runGremlinQuery(query)
             
             if(set(result2) in semanticUnit):
@@ -459,13 +458,12 @@ def getMacroIdentifier (verticeId):
 # Return all statements that are connected to a macro identifier (uses and defines)    
 def getRelationsToMacro (verticeId):
     # Get name result[0] and location result[1] of the macro
-    query = """g.V(%s).values('code','location')""" % (verticeId)
-    tempResult = db.runGremlinQuery(query) 
-    tempResult[1] = tempResult[1].split(',', 1)[0]    
+    query = """g.V(%s).values('code','path')""" % (verticeId)
+    tempResult = db.runGremlinQuery(query)    
     
     # Look for all statements (not limited to callees) that contain the macro identifier in the current file (=same as macro definition)
     # and get the AST element that appears in the code (either a CFGNode or a direct child of a file node)
-    query = """g.V().has('location', textContains('%s')).has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (tempResult[1], tempResult[0]) 
+    query = """g.V().has('path', textContains('%s')).has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (tempResult[1], tempResult[0]) 
     
     result = db.runGremlinQuery(query)
    
