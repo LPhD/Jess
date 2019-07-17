@@ -5,8 +5,8 @@ from octopus.server.DBInterface import DBInterface
 
 
 #Define target project
-#projectName = 'SPLC'
-projectName = 'JoernTest.tar.gz'
+projectName = 'SPLC'
+#projectName = 'JoernTest.tar.gz'
 #Connect do database of project
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -59,6 +59,12 @@ query = """g.V(8296).both('USE','DEF')"""
 query = """g.V(8296).both('USE','DEF').both('USE','DEF').simplePath().id()"""  
 # Follow all outgoing edges until an Expression is reached, and include every visited vertice (including the starting vertice) in the results (while loop; repeat().until() is do while)
 query = """g.V(8192).emit().until(has('type', 'Expression').repeat(out().id())"""
+# Follow all incoming edges of type AST, FILE, FUNCTION until a file node is reached (navigate to the parent file node of a statement)
+query = """g.V(77840).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())""" 
+# Go to the parent file 
+query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).id()""" % (77840)
+# Go to the parent file and then look in all children for nodes with the given code
+query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', '%s').id()""" % (77840, "doSomethingImportant")
 
 #Convert list of ids to nodes (query prints code of all ids in nodeIDs)
 #Callee 'mainTest', Argument 0 in Array, Function SelectionSort
@@ -77,6 +83,15 @@ query = """idListToNodes(%s).out().values('code').toList()""" % (nodeIds)
 query = """idListToNodes(%s).sideEffect{}""" % (nodeIds)
 # Get statements of all nodes defined by nodeIds. sideEffect does not affect the query. Same result as above?
 query = """idListToNodes(%s).sideEffect{}.statements()""" % (nodeIds)
+# Maps code and location values for each node (returns a list() of dict() data structure)
+query = """idListToNodes(%s).valueMap('code', 'path')""" % (nodeIds)
+
+
+
+
+query = "g.V(77840)"
+
+
 
  
 # Execute equery
