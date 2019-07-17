@@ -76,6 +76,25 @@ query = """g.V(%s).sideEffect{println "first: ${it}"}""" % (40960)
 # Adds results to the same label and emits the results (id of every node that was added to result) without duplicates and with one result per line
 query = """g.V(%s).outV().in('IS_AST_PARENT').as("result").has('code', textContains('%s')).as("result").select("result").unfold().dedup().id()
         """ % (40960, "doSomethingImportant")  
+# Go to the parent file: 
+# if there is an include edge: follow all include edges, then look inside all children of the including files for nodes with the given code (get all nodes in other files that include the macro definition)
+# if this result is not empty: also add the include statements to the result (solely the ones where the macro is used)
+# else (not include egdes): look in all children of the file for nodes with the given code (get all nodes in the current file)
+query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
+    .bothE().choose(hasLabel('INCLUDES'), 
+        outV().in('IS_AST_PARENT').as("includes")
+            .until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
+            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).as("result")
+                .choose(count().is(gt(0)),
+                local(__.select("includes").as("result")),
+                id()    
+                )           
+        , 
+        inV().has('type', 'File')
+            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().dedup().has('code', textContains('%s')).as("result")
+        )
+        .select("result").unfold().dedup().id()
+        """ % (40960, "doSomethingImportant", "doSomethingImportant")  
 
 #Convert list of ids to nodes (query prints code of all ids in nodeIDs)
 #Callee 'mainTest', Argument 0 in Array, Function SelectionSort
@@ -102,12 +121,6 @@ query = """idListToNodes(%s).valueMap('code', 'path')""" % (nodeIds)
 
 query = "g.V(77840)"
 
-# Go to the parent file and then look in all children (not limited to callees) for nodes with the given code
-query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).id()""" % (40960, "doSomethingImportant")
-
-
-# Go to the parent file, follow all include edges, then look in all children (not limited to callees) of the including files for nodes with the given code
-query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).in("INCLUDES").until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).id()""" % (40960, "doSomethingImportant")
 
  
 
@@ -117,9 +130,14 @@ query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FIL
 # else: look in all children of the file for nodes with the given code (get all nodes in the current file)
 query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
     .bothE().choose(hasLabel('INCLUDES'), 
-        outV().in('IS_AST_PARENT').as("result")
+        outV().in('IS_AST_PARENT').as("includes")
             .until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
-            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).as("result"), 
+            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).as("result")
+                .choose(count().is(gt(0)),
+                local(__.select("includes").as("result")),
+                id()    
+                )           
+        , 
         inV().has('type', 'File')
             .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().dedup().has('code', textContains('%s')).as("result")
         )

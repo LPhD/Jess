@@ -469,20 +469,24 @@ def getRelationsToMacro (verticeId):
     
     # Go to the parent file: 
     # if there is an include edge: follow all include edges, then look inside all children of the including files for nodes with the given code (get all nodes in other files that include the macro definition)
-    # also add the include statements to the result (caution: currently all include statements are added, but we solely need the ones where the macro is used
-    # else: look in all children of the file for nodes with the given code (get all nodes in the current file)
+    # if this result is not empty: also add the include statements to the result (solely the ones where the macro is used)
+    # else (not include egdes): look in all children of the file for nodes with the given code (get all nodes in the current file)
     query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
         .bothE().choose(hasLabel('INCLUDES'), 
-            outV().in('IS_AST_PARENT').as("result")
+            outV().in('IS_AST_PARENT').as("includes")
                 .until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
-                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).as("result"), 
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).as("result")
+                    .choose(count().is(gt(0)),
+                    local(__.select("includes").as("result")),
+                    id()    
+                    )           
+            , 
             inV().has('type', 'File')
                 .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().dedup().has('code', textContains('%s')).as("result")
             )
             .select("result").unfold().dedup().id()
             """ % (verticeId, tempResult[0], tempResult[0])  
-        
-    
+   
     return db.runGremlinQuery(query)     
 
 ###################################### Variability ###############################################################
