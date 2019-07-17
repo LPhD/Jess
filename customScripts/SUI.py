@@ -47,8 +47,8 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = set()
-entryFeatureNames = {'AnalogueSender'}
+entryPointIds = {77840}
+entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -457,30 +457,33 @@ def getMacroIdentifier (verticeId):
 
 # Return all statements that are connected to a macro identifier (uses and defines)    
 def getRelationsToMacro (verticeId):
-    # Get name result[0] and location result[1] of the macro
+    # Get name result[0] and path result[1] of the macro
     query = """g.V(%s).values('code','path')""" % (verticeId)
     tempResult = db.runGremlinQuery(query)    
     
     # Look for all statements (not limited to callees) that contain the macro identifier in the current file (=same as macro definition)
     # and get the AST element that appears in the code (either a CFGNode or a direct child of a file node)
-    query = """g.V().has('path', textContains('%s')).has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (tempResult[1], tempResult[0]) 
+    # This one is slower than the one below for big DBs?
+    #query = """g.V().has('path', textContains('%s')).has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (tempResult[1], tempResult[0])     
+    #result = db.runGremlinQuery(query)
     
-    result = db.runGremlinQuery(query)
-   
-    if(externalCallsToFunctionLikeMacrosOnly): 
-        # get files that include the current file
-        # follow inluce lines
+    # Go to the parent file: 
+    # if there is an include edge: follow all include edges, then look inside all children of the including files for nodes with the given code (get all nodes in other files that include the macro definition)
+    # also add the include statements to the result (caution: currently all include statements are added, but we solely need the ones where the macro is used
+    # else: look in all children of the file for nodes with the given code (get all nodes in the current file)
+    query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
+        .bothE().choose(hasLabel('INCLUDES'), 
+            outV().in('IS_AST_PARENT').as("result")
+                .until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).as("result"), 
+            inV().has('type', 'File')
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().dedup().has('code', textContains('%s')).as("result")
+            )
+            .select("result").unfold().dedup().id()
+            """ % (verticeId, tempResult[0], tempResult[0])  
         
-        #look for macro identifier in callee nodes in files that include the file of the #define
-        query = """g.V().has('type', 'Callee').has('code', '%s').emit().until(has('isCFGNode')).repeat(__.in(AST_EDGE)).id()""" % (tempResult[0])   
-        result.extend(db.runGremlinQuery(query))
-    else:
-        #look for macro identifier in files that include the file of the #define
-        #query = """g.V().has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (result[0]) 
-        result.extend(db.runGremlinQuery(query))
-
     
-    return result     
+    return db.runGremlinQuery(query)     
 
 ###################################### Variability ###############################################################
 
