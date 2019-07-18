@@ -590,17 +590,43 @@ def consoleInput ():
     # Feature or statement as entry point?
     while True:
         selection = input("Do you want to start with a feature/configuration option (1) or a code statement (2) ? \n")      
+        
         # Feature
         if (selection == "1" or selection == "(1)" or selection == "feature" or selection == "configuration option"):
             feature = input("Please type in the name of the feature/configuration option \n")
             print("You selected \""+feature+"\" as entry point \n")
             entryFeatureNames = {feature}
             break;
+            
         # Statement
         elif (selection == "2" or selection == "(12)" or selection == "code" or selection == "statement" or selection == "code statement"):
-            print("Statement")
-            ## TODO -> Output node id
+            while True:
+                print("Please type in the path to the file containing the statement relative to the project root")
+                statementPath = input("e.g., \"projectname/src/functions/FileContainingEntryPoint.C\"\n")
+                statementLine = input("Please type in the line number of your statement \n")
+                query = """g.V().has('path', textContains('%s')).has('line', '%s').or(
+                __.has('isCFGNode'),
+                __.in().has('type', 'File'),
+                __.has('type', within('PreElIfStatement','PreElseStatement','PreEndIfStatement','FunctionDef'))
+                ).values('path', 'code', 'type').as('r').id().as('r').select('r').unfold()""" % (statementPath, statementLine)
+                result = db.runGremlinQuery(query)
+                
+                #Problem here with as and select
+                
+                print(result)
+                
+                if(len(result) > 0):
+                    print("The following statement(s) match(es) your request: \n")
+                    for r in result:
+                        print(r)
+                        
+                    break
+                else:
+                    print(" ### No results found. Please try again ### \n")
+
+            # Break for the first while (feature or statement)   
             break;
+            
         # Wrong entry
         else:
             print("Please select option (1) or (2)")
