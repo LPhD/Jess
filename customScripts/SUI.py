@@ -17,7 +17,7 @@ externalCallsToFunctionLikeMacrosOnly = True
 generateOnlyAST = True
 generateOnlyVisibleCode = True
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 ##########################################################################################
 
 
@@ -47,8 +47,8 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {77840}
-entryFeatureNames = set()
+entryPointIds = set()
+entryFeatureNames = {'otherFeature'}
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -62,8 +62,9 @@ def identifySemanticUnits ():
 # Check if a feature is selected as entry point
     if (len(entryFeatureNames) > 0):        
         result = set(getFeatureBlocks(entryFeatureNames))
-        print("Found feature as entry point, updated entry points: "+str(result)+"\n") 
-        entryPointIds.update(result)
+        if (len(result) > 1):
+            print("Found feature as entry point, updated entry points: "+str(result)+"\n") 
+            entryPointIds.update(result)
         
     # Add the initial list of nodes to the analysis set
     analysisList.extend(entryPointIds)
@@ -511,15 +512,18 @@ def getFeatureBlocks (featureName):
         # Find all #if/#elfif nodes that contain the name of the feature
         query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).id()""" % (currentNode)
         result = db.runGremlinQuery(query) 
-        # Add the #if/#elif nodes to the final result        
-        finalResult.update(result)
-        # Remove brackets to allow direct injection into a query
-        result = repr(result)
-        result = result.replace("[","")
-        result = result.replace("]","")
-        # Find all nodes that belong to the variability blocks
-        query = """g.V(%s).out('VARIABILITY').id()""" % (result)
-        finalResult.update(set(db.runGremlinQuery(query)))
+        if (len(result) > 0):
+            # Add the #if/#elif nodes to the final result        
+            finalResult.update(result)
+            # Remove brackets to allow direct injection into a query
+            result = repr(result)
+            result = result.replace("[","")
+            result = result.replace("]","")
+            # Find all nodes that belong to the variability blocks
+            query = """g.V(%s).out('VARIABILITY').id()""" % (result)
+            finalResult.update(set(db.runGremlinQuery(query)))
+        else:
+            print("##### Warning! No #if/#ifdef/#elif statements found for feature: "+currentNode+" #### \n")
               
     return finalResult  
 
@@ -548,6 +552,61 @@ def addParentFunction ():
     if (DEBUG) : print("Found additional nodes (FunctionDef): "+str(result)+"\n")
     
     semanticUnit.update(result)
+    
+###################################### Input ###############################################################    
+
+# Let the user interactively set the project and entry points via console inputs
+def consoleInput ():
+    global entryFeatureNames, projectName
+    
+    print("--------------------------------------------------------------------------------- \n")
+    print("Starting with project selection...")    
+    
+    currentDirname = os.getcwd()
+    dataDirname = currentDirname.replace("/customScripts","/projects/octopus/data/projects")
+    
+    while True:
+
+        # r=root, d=directories, f = files (only output the top level folder names)
+        for r, d, f in os.walk(dataDirname):
+            print("The following projects are currently in the database:")
+            projectNames = d
+            print(projectNames)
+            break
+            
+        selectedProject = input("\nPlease type in the name of the project you would like to analyze  \n")
+        
+        # Only allow existing projects
+        if (len(selectedProject) > 0 and selectedProject in projectNames):
+            print("Current project is set to \""+selectedProject+"\"\n")
+            projectName = selectedProject
+            break
+        else:
+            print("Please type in a valid project name \n")
+    
+    print("--------------------------------------------------------------------------------- \n")
+    print("Starting with entry point selection...")
+    
+    # Feature or statement as entry point?
+    while True:
+        selection = input("Do you want to start with a feature/configuration option (1) or a code statement (2) ? \n")      
+        # Feature
+        if (selection == "1" or selection == "(1)" or selection == "feature" or selection == "configuration option"):
+            feature = input("Please type in the name of the feature/configuration option \n")
+            print("You selected \""+feature+"\" as entry point \n")
+            entryFeatureNames = {feature}
+            break;
+        # Statement
+        elif (selection == "2" or selection == "(12)" or selection == "code" or selection == "statement" or selection == "code statement"):
+            print("Statement")
+            ## TODO -> Output node id
+            break;
+        # Wrong entry
+        else:
+            print("Please select option (1) or (2)")
+    
+    print("--------------------------------------------------------------------------------- \n")
+    
 
 ###################################### Output ###############################################################
 
@@ -723,6 +782,9 @@ def output(G):
     
     
 ################################################### Start of program #################################################################
+
+# Input of entry points
+consoleInput()
 
 # Start identification process    
 identifySemanticUnits() 
