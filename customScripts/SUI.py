@@ -83,29 +83,31 @@ def identifySemanticUnits ():
         # Remove node after the analysis
         # analysisList.remove(node)          
         
-
-    # Adapt results for syntactical correctness
-    # Add the function definition for CFG nodes 
-    addParentFunction()      
-    # Get the #ifndef #def and #endif for header files?
-    
-    print("Analysis finished, making graph...")
-    print("--------------------------------------------------------------------------------- \n")
-
-    # Plot resulting graph
-    plotResults()
-
-    # Write resulting Ids to file
-    fileOutput()
+    if (len(semanticUnit) > 0):
+        # Adapt results for syntactical correctness
+        # Add the function definition for CFG nodes 
+        addParentFunction()      
+        # Get the #ifndef #def and #endif for header files?
         
-    # Output resulting Ids on console
-    #for x in semanticUnit: print(x)
+        print("Analysis finished, making graph...")
+        print("--------------------------------------------------------------------------------- \n")
 
-    # Print code results
-    #codeOutput()
+        # Plot resulting graph
+        plotResults()
 
-    # Print node results
-    #nodeOutput()
+        # Write resulting Ids to file
+        fileOutput()
+            
+        # Output resulting Ids on console
+        #for x in semanticUnit: print(x)
+
+        # Print code results
+        #codeOutput()
+
+        # Print node results
+        #nodeOutput()
+    else:
+        print("SemanticUnit is empty!")
 
 
 ####################################### Rules ###############################################   
@@ -125,7 +127,10 @@ def analyzeNode (currentNode):
     
     # Inform the user if a node id does not exist
     if(len(type)< 1):
-        print("No vertice with the given id found. Please check your database for an existing vertice id.")
+        print("################################################################################################")
+        print("No vertice with the given id \""+str(currentNode)+"\" found. Please check your database for an existing vertice id.")
+        print("################################################################################################")
+        return
 
 ################################ Structural relations ###################################################################
     # Get all included files if current vertice is a Directory
@@ -531,8 +536,8 @@ def getFeatureBlocks (featureName):
 
 # Return parent function of a given set of node ids (can be empty)
 def addParentFunction ():
-    if (DEBUG) : print("Checking for syntactic correctness...")
-    
+    if (DEBUG) : print("Checking for syntactic correctness...")    
+
     global semanticUnit
     # Get the compound statements and add them to the SemanticUnit (without dupes)
     query = """idListToNodes(%s).has('isCFGNode').in(AST_EDGE).has('type', 'CompoundStatement').dedup().id()""" % (list(semanticUnit))   
@@ -552,12 +557,13 @@ def addParentFunction ():
     if (DEBUG) : print("Found additional nodes (FunctionDef): "+str(result)+"\n")
     
     semanticUnit.update(result)
+
     
 ###################################### Input ###############################################################    
 
 # Let the user interactively set the project and entry points via console inputs
 def consoleInput ():
-    global entryFeatureNames, projectName
+    global entryFeatureNames, entryPointIds, projectName
     
     print("--------------------------------------------------------------------------------- \n")
     print("Starting with project selection...")    
@@ -596,30 +602,44 @@ def consoleInput ():
             feature = input("Please type in the name of the feature/configuration option \n")
             print("You selected \""+feature+"\" as entry point \n")
             entryFeatureNames = {feature}
+            entryPointIds = set()
             break;
             
-        # Statement
+        # Statement input loop
         elif (selection == "2" or selection == "(12)" or selection == "code" or selection == "statement" or selection == "code statement"):
             while True:
-                print("Please type in the path to the file containing the statement relative to the project root")
-                statementPath = input("e.g., \"projectname/src/functions/FileContainingEntryPoint.C\"\n")
+                statementPath = input("Please type in the path to the file containing the statement you would like to analyze relative to the project root \""+selectedProject+"\" e.g., \"/src/functions/FileContainingEntryPoint.c\"\n")
                 statementLine = input("Please type in the line number of your statement \n")
                 query = """g.V().has('path', textContains('%s')).has('line', '%s').or(
                 __.has('isCFGNode'),
                 __.in().has('type', 'File'),
                 __.has('type', within('PreElIfStatement','PreElseStatement','PreEndIfStatement','FunctionDef'))
-                ).values('path', 'code', 'type').as('r').id().as('r').select('r').unfold()""" % (statementPath, statementLine)
+                ).union(values('path', 'code', 'type').fold(), id())""" % (statementPath, statementLine) 
                 result = db.runGremlinQuery(query)
-                
-                #Problem here with as and select
-                
-                print(result)
+                                
                 
                 if(len(result) > 0):
                     print("The following statement(s) match(es) your request: \n")
-                    for r in result:
-                        print(r)
+                    print("##########################################################")
+                    # Print the statement properties together with their id (the strange loop is due to the result structure)
+                    for index, item in enumerate(result):
+                        if ((index < len(result)-1) and (index % 2 == 0)):
+                            print("Statement: "+str(item)+" with id: "+str(result[index+1]))     
+                    print("########################################################## \n")   
+                    
+                    # Id input loop
+                    while True:
+                        selectedID = input("Please type in the id of the statement you would like to analyze \n")   
+                        if( selectedID.isdigit()):                   
+                            print("You selected \""+selectedID+"\" as entry point \n")
+                            entryFeatureNames = set()
+                            entryPointIds = {int(selectedID)}    
+                            # Stop the id input loop if we get valid results        
+                            break
+                        else:
+                            print("Please insert a valid number")
                         
+                    # Stop the statement input loop if we get valid results        
                     break
                 else:
                     print(" ### No results found. Please try again ### \n")
