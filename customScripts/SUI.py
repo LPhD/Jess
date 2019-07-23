@@ -185,8 +185,8 @@ def analyzeNode (currentNode):
         # Get related elements of the if/else-statement
         analysisList.extend(result)         
 
-    # Get the AST children and the parent function if current vertice is an expression statement
-    if (type[0] == "ExpressionStatement"):                       
+    # Get the AST children if current vertice is an expression or identifierDecl statement
+    if (type[0] in ["ExpressionStatement", "IdentifierDeclStatement"]):                       
         result = set(getASTChildren(currentNode))
         # Get related elements of the AST children
         analysisList.extend(result)          
