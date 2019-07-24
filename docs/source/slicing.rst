@@ -32,20 +32,18 @@ The selected elements of the Semantic Unit (output) depend on the type of the gi
 • **Working:**
 	• Directory -> All included files in this directory
 	• File -> All included code elements in this file 
-	• Function Ddefinition -> All enclosed code elements (configurable)
+	• Function definition -> All enclosed code elements (configurable)
 	• If, for, while statements -> All enclosed code elements (configurable)
 	• Else statement -> Corresponding if statement
 	• Callee, call expression -> Called function or macro definition, #include statement if target is in another file
 	• Function -> Function definition
 	• Configuration option -> All #if/#ifdef/#elif nodes and their enclosed content
+	• Identifier declare statement, parameter, expression statement, argument, condition, return statement -> All uses and defines of the contained variables
+	• Macro definition -> All uses and defines of the macro (in the current file and files that include the macro definition)
+	• Include statements -> Whenever a function or macro is called from an external file, the correspoding include statement in that files is added to the Semantic Unit	
 
 • **Todo:**
-	• Identifier Declaration
-	• Symbol
-	• Identifier -> Declaration of Identifier (atm not working)
-	• Assignment Expression
-	• Argument, Argument List, Condition, Unary Expression -> All variable and function definitions?
-	• Function, macro definition -> Callees
+	• Function definition -> Callees
 
 • **Do nothing for:**
 	• 'AdditiveExpression' a + b
@@ -61,9 +59,8 @@ The selected elements of the Semantic Unit (output) depend on the type of the gi
 	• 'ForInit' i = 0
 	• 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
 	• 'IdentifierDecl' i (contained in IdentifierDeclStatement)
-	• 'Parameter' i (contained in ParameterList)
 	• 'ParameterType' int (contained in ParameterList)
-	• 'ParameterList' int i (contained in FunctionDef)
+	• 'ParameterList' int i (contained in Parameter)
 	• 'RelationalExpression' i > 5 (contained in condition)
 	• 'Sizeof', 'SizeofOperand'  (contained in call expression)
 	• 'CompoundStatement' (container element)
