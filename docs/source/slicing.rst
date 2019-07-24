@@ -133,6 +133,7 @@ HOW TO USE
 First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the customScripts folder. There, you can invoke the SUI script.
 
 .. code-block:: none
+
 	cd $JESS/customScripts
 	python3 SUI.py
 
@@ -140,4 +141,8 @@ You were now asked to provide some information (Project name and entry point) be
 
 The script will now iteratively gather all semantically related lines to your given entry point. It will output the result as a Graphviz .dot file and a .png file in the folder $JESS/customScripts/SemanticUnit. 
 
-After the analysis is finished (and the "GenerateOnlyVisibleCode" option is TRUE), you can invoke the patchCreator script to generate a project slice. This slice has the same structure as the original project (File/Folder names and nesting as well as line numbers of the code statements), but only contains the lines of code that are part of the Semantic Unit. Empty directories or files, as well as non *.c or *.h are not contained either. You can use this result as basis for patch generation or code inspection. 
+.. code-block:: none
+
+	python3 patchCreator.py
+
+After the analysis is finished (The "GenerateOnlyVisibleCode" option must be TRUE and there must be a result.txt file), you can invoke the patchCreator script to generate a project slice. This slice has the same structure as the original project (File/Folder names and nesting as well as line numbers of the code statements), but only contains the lines of code that are part of the Semantic Unit. Empty directories or files, as well as non *.c or *.h are not contained either. You can use this result as basis for patch generation or code inspection. 
