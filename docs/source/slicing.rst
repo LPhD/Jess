@@ -130,12 +130,14 @@ DEFAULT CONFIGURATION
 HOW TO USE
 --------------
 
-First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the customScripts folder. Edit the name of the project into the SUI.py script (variable projectName, Line 23), enter an entry point (the id of a node in variable entryPointId in Line 43 or the name of a configuration option in variable entryFeatureNames in Line 45) and change the configuration (Lines 11-15) to your needs. Then, you can run the SUI script. 
+First, you have to start the jess-server (separate terminal) and import a project. Then open a new terminal and navigate to the customScripts folder. There, you can invoke the SUI script.
 
 .. code-block:: none
-
 	cd $JESS/customScripts
-	nano SUI.py
 	python3 SUI.py
 
+You were now asked to provide some information (Project name and entry point) before the analysis can start. The project name is the same name you used for the "jess-import" command. A feature/configuration option refers to the name of the symbol that is used with the #if/#ifdef statements to include or exclude a specific feature. If you would like to set a statement as entry point, the script will interactively give you several IDs to choose from a list of AST nodes. Therefore, you need to specify the location (path and line number) of the statement. As there are often several AST nodes at the same location (e.g. a FunctionDef and a Parameter node), these nodes were displayed and you can choose the desired entry point by typing in the displayed ID of the node.
+
 The script will now iteratively gather all semantically related lines to your given entry point. It will output the result as a Graphviz .dot file and a .png file in the folder $JESS/customScripts/SemanticUnit. 
+
+After the analysis is finished (and the "GenerateOnlyVisibleCode" option is TRUE), you can invoke the patchCreator script to generate a project slice. This slice has the same structure as the original project (File/Folder names and nesting as well as line numbers of the code statements), but only contains the lines of code that are part of the Semantic Unit. Empty directories or files, as well as non *.c or *.h are not contained either. You can use this result as basis for patch generation or code inspection. 
