@@ -12,7 +12,6 @@ includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
-externalCallsToFunctionLikeMacrosOnly = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = True
 generateOnlyVisibleCode = True
@@ -113,8 +112,7 @@ def identifySemanticUnits ():
 ####################################### Rules ###############################################   
 
 
-# Main function (recursively called). Decides based on the vertice type, what methods are called 
-# The currentEntryPoints are always added to the Semantic Unit
+# Decides based on the vertice type, which functions are called 
 def analyzeNode (currentNode):
     # Reset current result
     result = ""       
@@ -347,7 +345,7 @@ def analyzeNode (currentNode):
         # 'DeclStmt' empty?
 
 
-################################ Definition of helper methods ########################################################     
+################################ Definition of helper functions ########################################################     
         
 # Return all vertices of type file that belong to the given directory (not recursive)        
 def getIncludedFiles (verticeId):
@@ -466,13 +464,7 @@ def getRelationsToMacro (verticeId):
     # Get name result[0] and path result[1] of the macro
     query = """g.V(%s).values('code','path')""" % (verticeId)
     tempResult = db.runGremlinQuery(query)    
-    
-    # Look for all statements (not limited to callees) that contain the macro identifier in the current file (=same as macro definition)
-    # and get the AST element that appears in the code (either a CFGNode or a direct child of a file node)
-    # This one is slower than the one below for big DBs?
-    #query = """g.V().has('path', textContains('%s')).has('code', '%s').until(has('isCFGNode')).repeat(__.in(AST_EDGE)).emit().id()""" % (tempResult[1], tempResult[0])     
-    #result = db.runGremlinQuery(query)
-    
+       
     # Go to the parent file: 
     # if there is an include edge: follow all include edges, then look inside all children of the including files for nodes with the given code (get all nodes in other files that include the macro definition)
     # if this result is not empty: also add the include statements to the result (solely the ones where the macro is used)
@@ -510,27 +502,15 @@ def getVariableStatements (verticeId):
     
 # Return all variable statements of the current feature, this is done once in the beginning of the entry point is a feature   
 def getFeatureBlocks (featureName):
-    finalResult = set()
-    
-    for currentNode in featureName:   
-    ###one query?   
-        # Find all #if/#elfif nodes that contain the name of the feature
-        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).id()""" % (currentNode)
-        result = db.runGremlinQuery(query) 
-        if (len(result) > 0):
-            # Add the #if/#elif nodes to the final result        
-            finalResult.update(result)
-            # Remove brackets to allow direct injection into a query
-            result = repr(result)
-            result = result.replace("[","")
-            result = result.replace("]","")
-            # Find all nodes that belong to the variability blocks
-            query = """g.V(%s).out('VARIABILITY').id()""" % (result)
-            finalResult.update(set(db.runGremlinQuery(query)))
-        else:
-            print("##### Warning! No #if/#ifdef/#elif statements found for feature: "+currentNode+" #### \n")
-              
-    return finalResult  
+    for currentNode in featureName:    
+        # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
+        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').id())""" % (currentNode)       
+        result = db.runGremlinQuery(query)      
+        if (len(result) == 0):
+            print("##### Warning! No #if/#ifdef/#elif statements found for feature: "+currentNode+" #### \n")            
+
+    return result              
+
 
 ######################################### Syntax Checking #################################################################
 
@@ -539,22 +519,11 @@ def addParentFunction ():
     if (DEBUG) : print("Checking for syntactic correctness...")    
 
     global semanticUnit
-    # Get the compound statements and add them to the SemanticUnit (without dupes)
-    query = """idListToNodes(%s).has('isCFGNode').in(AST_EDGE).has('type', 'CompoundStatement').dedup().id()""" % (list(semanticUnit))   
-    result = db.runGremlinQuery(query)
+    # Get the compound statements and function definitions, add them to the SemanticUnit (without dupes)
+    query = """idListToNodes(%s).union(has('isCFGNode').in(AST_EDGE).has('type', 'CompoundStatement').dedup().id(), in(AST_EDGE).has('type', 'FunctionDef').dedup().id())""" % (list(semanticUnit))   
+    result = db.runGremlinQuery(query)   
     
-    if (DEBUG) : print("Found additional nodes (CompoundStatement): "+str(result))
-    
-    if(set(result) in semanticUnit):
-        print("Already contained in SU!")
-        
-    semanticUnit.update(result)   
-    
-    # Get the function definitions and add them to the SemanticUnit (without dupes)
-    query = """idListToNodes(%s).in(AST_EDGE).has('type', 'FunctionDef').dedup().id()""" % (list(semanticUnit))    
-    result = db.runGremlinQuery(query)
-    
-    if (DEBUG) : print("Found additional nodes (FunctionDef): "+str(result)+"\n")
+    if (DEBUG) : print("Found additional nodes (FunctionDef and CompundStatement): "+str(result)+"\n")
     
     semanticUnit.update(result)
 
