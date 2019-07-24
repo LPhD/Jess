@@ -105,6 +105,14 @@ CONFIGURATION OPTIONS
 	• Effect on Semantic Unit: All blocks that are annotated with an #ifdef that contains the identifier of the entry-point-feature are added to the Semantic Unit. All other variability links (connected to different feature identifiers) will not be followed/analyzed.
 	• Hint: Activate if you want to follow all appearing variability links and include all implementations of a feature whenever you reach one of its implementations. This can result in very big Semantic Units. Deactivate if you want to focus on the current feature(s).
 
+• Generate only AST
+	• Explanation: The resulting slice contains only AST elements to clarify the illustration. This has no effect on the Semantic Unit identification process.
+
+• Generate only visible code
+	• Explanation: The resulting slice contains only top level AST statements (the statements that contain the lines of code as you see them when you are programming). This has no effect on the Semantic Unit identification process. This option is mandatory if you would like to use the patch creator script.
+
+• DEBUG
+	• Explanation: Activate to get more outputs on the console, e.g., in which order the statements are added to the Semantic Unit. This has no effect on the Semantic Unit identification process.	
 
 DEFAULT CONFIGURATION
 --------------
@@ -114,6 +122,9 @@ DEFAULT CONFIGURATION
 • Connect if with else: TRUE
 • Search directories recursively: TRUE
 • Include other features: FALSE
+• Generate only AST: TRUE
+• Generate only visible code: TRUE
+• DEBUG: FALSE
 
 
 HOW TO USE
