@@ -12,6 +12,7 @@ includeEnclosedCode = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
+LookForAllFunctionCalls = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = True
 generateOnlyVisibleCode = True
@@ -203,7 +204,9 @@ def analyzeNode (currentNode):
         
     ### TODO getCallsOfFunction
     ### For a given function name, return all possible callees    
-        
+    if (type[0] == "FunctionDef" and LookForAllFunctionCalls == true): 
+        print("Look for all calls to this function")
+    
     # Get macro identifier    
     if (type[0] in ["PreUndef","PreDefine"]):    
         result = set(getMacroIdentifier(currentNode))
@@ -732,7 +735,7 @@ def getNodes():
 # Returns all AST edges of the Semantic Unit    
 def getASTEdges():
     # Get all incoming edges that are part of the AST  
-    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY')""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY', 'DECLARES', 'INCLUDES')""" % (list(semanticUnit))   
     return db.runGremlinQuery(query)
     
 # Returns all edges of the Semantic Unit    
