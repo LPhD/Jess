@@ -7,14 +7,14 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
-generateOnlyAST = False
+generateOnlyAST = True
 ###############################################
 
 
 # Connect to project DB
-#projectName = 'EvoDiss.tar.gz'
+projectName = 'EvoDiss.tar.gz'
 #projectName = 'TestCommit'
-projectName = 'JoernTest.tar.gz'
+#projectName = 'JoernTest.tar.gz'
 #projectName = 'SPLC'
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -29,7 +29,6 @@ def plotResults ():
     #Config is read from plotconfig.cfg in same folder as plotDB.py
     f = open((os.path.join(os.path.dirname(__file__), 'plotconfig.cfg')) , "r")
     plot_configuration.parse(f)
-    labels = ["IS_AST_PARENT"] 
     
     #Get nodes and edges of DB (either as AST or full property graph)
     if (generateOnlyAST):
@@ -68,7 +67,7 @@ def getNodes():
 # Returns all AST edges of the DB   
 def getASTEdges():
     # Get all incoming edges that are part of the AST
-    query = "g.V().inE('IS_AST_PARENT')"  
+    query = "g.V().inE('IS_AST_PARENT', 'IS_FILE_OF', 'IS_PARENT_DIR_OF', 'IS_FUNCTION_OF_AST', 'VARIABILITY', 'DECLARES', 'INCLUDES')"  
     return db.runGremlinQuery(query)
     
 # Returns all edges of the DB    
