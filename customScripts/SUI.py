@@ -14,8 +14,8 @@ searchDirsRecursively = True
 includeOtherFeatures = False
 LookForAllFunctionCalls = True
 ######################### Configuration options for graph output #########################
-generateOnlyAST = False
-generateOnlyVisibleCode = False
+generateOnlyAST = True
+generateOnlyVisibleCode = True
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 ##########################################################################################
@@ -55,6 +55,9 @@ semanticUnit = set()
 checkedVertices = set()
 # Initialize empty set of vertices that will be checked
 analysisList = list()
+# List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
+# VarDecl? DeclByClass? DeclByType? InitDeclarator?
+visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt' 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'OpeningCurly', 'ClosingCurly']
 
 
 # Main function 
@@ -86,7 +89,7 @@ def identifySemanticUnits ():
     if (len(semanticUnit) > 0):
         # Adapt results for syntactical correctness
         # Add the function definition for CFG nodes 
-        addParentFunction()      
+        addParentFunctions()      
         # Get the #ifndef #def and #endif for header files?
         
         print("Analysis finished, making graph...")
@@ -199,6 +202,10 @@ def analyzeNode (currentNode):
         #the CallExpression in the analysis set, see handling of ExpressionStatement above.
                    
         result = set(getCalledFunctionDef(currentNode))
+        
+        print("We looked at a Callee and got: "+str(result))
+        print("")
+        
         # Get related elements of the called function
         analysisList.extend(result)
         
@@ -362,7 +369,7 @@ def getIncludedFilesAndDirectories (verticeId):
        
 # Return all AST vertices and their children that belong to the given file 
 def getEnclosedCodeOfFile (verticeId):
-    query = """g.V(%s).emit().repeat(out('AST_EDGE','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)
+    query = """g.V(%s).emit().repeat(out('IS_AST_PARENT','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)
     return db.runGremlinQuery(query)   
            
 # Return function definition vertice of a given function
@@ -372,12 +379,12 @@ def getFunctionDefOut (verticeId):
 
 # Return AST parent of a given node (can be empty)
 def getParent (verticeId):
-    query = """g.V(%s).out(AST_EDGE).id()""" % (verticeId)
+    query = """g.V(%s).out('IS_AST_PARENT').id()""" % (verticeId)
     return db.runGremlinQuery(query)                 
 
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
-    query = """g.V(%s).emit().repeat(out(AST_EDGE)).unfold().id()""" % (verticeId)
+    query = """g.V(%s).emit().repeat(out('IS_AST_PARENT')).unfold().id()""" % (verticeId)
     return db.runGremlinQuery(query)
     
 # Return the called function id
@@ -425,34 +432,34 @@ def getDefinesAndUses (verticeId):
 
 # Return all AST children except the CompoundStatement and the ElseStatement and their children  
 def getInitAndCondition (verticeId):
-    query = """g.V(%s).out(AST_EDGE).has('type', without('CompoundStatement', 'ElseStatement')).emit().repeat(out(AST_EDGE)).id()""" % (verticeId)
+    query = """g.V(%s).out('IS_AST_PARENT').has('type', without('CompoundStatement', 'ElseStatement')).emit().repeat(out('IS_AST_PARENT')).id()""" % (verticeId)
     return db.runGremlinQuery(query) 
     
 # Return the If of an else statement    
 def getIfStatement (verticeId):
-    query = """g.V(%s).in(AST_EDGE).has('type','IfStatement').id()""" % (verticeId)
+    query = """g.V(%s).in('IS_AST_PARENT').has('type','IfStatement').id()""" % (verticeId)
     return db.runGremlinQuery(query)  
 
 # Return the corresponding else-statement of an if-statement    
 def getElse (verticeId):
-    query = """g.V(%s).out(AST_EDGE).has('type', 'ElseStatement').id()""" % (verticeId)
+    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'ElseStatement').id()""" % (verticeId)
     return db.runGremlinQuery(query)    
 
 # Return the corresponding #endif-statement of an #if-statement 
 def getEndIf (verticeId):
     # Find the #endif
-    query = """g.V(%s).until(has('type', 'PreEndIfStatement')).repeat(out(AST_EDGE)).has('type', 'PreEndIfStatement').id()""" % (verticeId)   
+    query = """g.V(%s).until(has('type', 'PreEndIfStatement')).repeat(out('IS_AST_PARENT')).has('type', 'PreEndIfStatement').id()""" % (verticeId)   
     return db.runGremlinQuery(query)     
     
 # Return the corresponding the condition of an #if/#elif-statement    
 def getPreIfCondition (verticeId):
     # Get all AST childs that belong to the condition
-    query = """g.V(%s).out(AST_EDGE).has('type', 'PreIfCondition').emit().repeat(out(AST_EDGE)).id()""" % (verticeId) 
+    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'PreIfCondition').emit().repeat(out('IS_AST_PARENT')).id()""" % (verticeId) 
     return db.runGremlinQuery(query) 
 
 # Return the corresponding macro identifier of an #define/#undefine statement
 def getMacroIdentifier (verticeId):
-    query = """g.V(%s).out(AST_EDGE).has('type', 'PreMacroIdentifier').id()""" % (verticeId) 
+    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'PreMacroIdentifier').id()""" % (verticeId) 
     return db.runGremlinQuery(query) 
 
 # Return all statements that are connected to a macro identifier (uses and defines)    
@@ -488,7 +495,7 @@ def getRelationsToMacro (verticeId):
 # Return the blockstarter #if
 def getPreIf (verticeId):
     # We need the __. before in, so Groovy doesn't confuse it with its own keyword in
-    query = """g.V(%s).until(has('type', 'PreIfStatement')).repeat(__.in(AST_EDGE)).id()""" % (verticeId)
+    query = """g.V(%s).until(has('type', 'PreIfStatement')).repeat(__.in('IS_AST_PARENT')).id()""" % (verticeId)
     return db.runGremlinQuery(query) 
         
 # Return all variable statements of the current node   
@@ -511,13 +518,20 @@ def getFeatureBlocks (featureName):
 ######################################### Syntax Checking #################################################################
 
 # Return parent function of a given set of node ids (can be empty)
-def addParentFunction ():
+def addParentFunctions ():
     if (DEBUG) : print("Checking for syntactic correctness...")    
 
     global semanticUnit
     # Get the compound statements and function definitions, add them to the SemanticUnit (without dupes)
-    query = """idListToNodes(%s).union(has('isCFGNode').in(AST_EDGE).has('type', 'CompoundStatement').dedup().id(), in(AST_EDGE).has('type', 'FunctionDef').dedup().id())""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).union(
+        __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().id(), 
+        __.in('IS_AST_PARENT').has('type', 'FunctionDef').dedup().id(), 
+        __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef').dedup().id()
+        )""" % (list(semanticUnit))   
+   
     result = db.runGremlinQuery(query)   
+    
+    print(result)
     
     if (DEBUG) : print("Found additional nodes (FunctionDef and CompundStatement): "+str(result)+"\n")
     
@@ -711,7 +725,7 @@ def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
     # CompoundStatement is included for a better visualization (nesting), it is not needed for patch generation
-    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode', 'Parameter'))).or(__.has('isCFGNode'),__.in().has('type', 'File'),__.has('type', within('PreElIfStatement','PreElseStatement','PreEndIfStatement','FunctionDef','CompoundStatement'))).id() """ % (list(semanticUnit))  
+    query = """idListToNodes(%s).has('type', within(%s)).id()""" % (list(semanticUnit), visibleStatementTypes)  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
     semanticUnit = result
