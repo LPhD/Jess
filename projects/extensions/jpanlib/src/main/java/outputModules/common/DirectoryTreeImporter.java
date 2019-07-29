@@ -88,7 +88,7 @@ public abstract class DirectoryTreeImporter {
 	/**
 	 * Matches the fileDatabaseNodes in IncludeAnalyzer.fileNodeList with the
 	 * includeNodes in IncludeAnalyzer.includeNodeList and connects them with
-	 * an include link. Them removes the includeNode from the list.
+	 * an include link. Then removes the includeNode from the list.
 	 */
 	public void matchIncludeToFile() {
 		String filename = "";
@@ -107,5 +107,5 @@ public abstract class DirectoryTreeImporter {
 	}
 
 	protected abstract void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node);
-
+	protected abstract void linkHeaderToCFile(FileDatabaseNode header, FileDatabaseNode cFile);
 }

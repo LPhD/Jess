@@ -56,6 +56,11 @@ public class EdgeTypes
 	public static final String INCLUDES = "INCLUDES";
 	
 	/**
+	 * Shows the connection of a *.c file and its header file
+	 */
+	public static final String HEADER = "IS_HEADER_OF";
+	
+	/**
 	 * Links an #if/#ifdef/#elif/#else with its contained block
 	 */
 	public static final String VARIABILITY = "VARIABILITY";

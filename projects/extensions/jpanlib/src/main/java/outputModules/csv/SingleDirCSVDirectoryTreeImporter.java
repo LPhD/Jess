@@ -39,4 +39,13 @@ public class SingleDirCSVDirectoryTreeImporter extends DirectoryTreeImporter {
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.INCLUDES);		
 	}
 
+	/**
+	 * Connect a header file with its *.c file 
+	 */
+	@Override
+	protected void linkHeaderToCFile(FileDatabaseNode header, FileDatabaseNode cFile) {
+		long srcId = header.getNodeId();
+		long dstId = cFile.getId();
+		Writer.addEdge(srcId, dstId, null, EdgeTypes.HEADER);		
+	}
 }
