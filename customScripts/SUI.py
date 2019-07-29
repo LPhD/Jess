@@ -14,8 +14,8 @@ searchDirsRecursively = True
 includeOtherFeatures = False
 LookForAllFunctionCalls = True
 ######################### Configuration options for graph output #########################
-generateOnlyAST = True
-generateOnlyVisibleCode = True
+generateOnlyAST = False
+generateOnlyVisibleCode = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 ##########################################################################################
@@ -23,9 +23,9 @@ DEBUG = False
 
 # Connect to project DB
 #projectName = 'JoernTest.tar.gz'
-#projectName = 'EvoDiss.tar.gz'
+projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-projectName = 'SPLC'
+#projectName = 'SPLC'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -47,8 +47,8 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = set()
-entryFeatureNames = {'otherFeature'}
+entryPointIds = {393304}
+entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -159,7 +159,7 @@ def analyzeNode (currentNode):
     if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):             
         result = set(getASTChildren(currentNode))
         # For each enclosed vertice, add to the Semantic Unit and get related elements
-        identifySemanticUnits (result)
+        analysisList.extend(result) 
     # Get only the Syntax Elements of the selected statement     
     elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):       
         # Get corresponding else-statement only if the configuration is selected
@@ -204,8 +204,8 @@ def analyzeNode (currentNode):
         
     ### TODO getCallsOfFunction
     ### For a given function name, return all possible callees    
-    if (type[0] == "FunctionDef" and LookForAllFunctionCalls == true): 
-        print("Look for all calls to this function")
+    if ((type[0] == "FunctionDef") and (LookForAllFunctionCalls == True)): 
+        print("Look for all calls to this function: "+str(currentNode))
     
     # Get macro identifier    
     if (type[0] in ["PreUndef","PreDefine"]):    
@@ -294,7 +294,7 @@ def analyzeNode (currentNode):
     #Get enclosed vertices if current vertice is a pre-endif-statement     
     if (type[0] == "PreEndIfStatement"):
         # Get the starting #if and add it to the semanticUnit
-        semanticUnit.update(set(getPreIf(currentNode)))    
+        analysisList.extend(set(getPreIf(currentNode)))    
 
 
 ##############################################################################################################################
@@ -382,44 +382,37 @@ def getASTChildren (verticeId):
     
 # Return the called function id
 def getCalledFunctionDef (verticeId):
-### We do it like that because there is no explicit link from callee to called function. ####
-### Runs into problems if there is more than one function with the given name ###############
+    # First: Get the name of the called function
+    query = """g.V(%s).out().has('type', 'Identifier').values('code', 'path')""" % (verticeId)
+    nameAndPath = db.runGremlinQuery(query)
 
-    # Get name of the called function
-    query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
-    result = db.runGremlinQuery(query)   
-         
-    # Get the id of the called function (parent of identifier with code from result of last query)
-    query = """g.V().has('type', within('PreMacroIdentifier', 'Identifier')).has('code', '%s')
-        .in().has('type', within('FunctionDef', 'PreDefine')).id()""" % (result[0])
-    result = db.runGremlinQuery(query)     
-
-    # Check if result is in DB (could also be a C function like puts())
-    if (len(result) > 0):   
-        # Check whether target and callee are in the same file
-        query = """g.V(%s).values('path')""" % (result[0])
-        locationTarget = db.runGremlinQuery(query) 
-        #Get only the filename 
-        locationTargetFile = ntpath.basename(locationTarget[0])
-
-        query = """g.V(%s).values('path')""" % (verticeId)
-        locationCallee = db.runGremlinQuery(query)
-        #Get only the filename 
-        locationCalleeFile = ntpath.basename(locationCallee[0])
-        
-        # Look for includes and add them to the semanticUnit
-        if (locationCallee != locationTarget):      
-            query = """g.V().has('path', textContains('%s')).has('type', 'PreInclude').has('code', textContains('%s')).id()""" % (locationCallee[0], locationTargetFile)
-            result2 = db.runGremlinQuery(query)
+    # Second: Go to parent file of the current node (Callee)
+    # Branch 1: Look in its AST children for a functionDef with the given name
+    # Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
+    # Branch 2.1: Emit the id of the external function def
+    # Branch 2.2: Go to the parent file of the external function def
+    # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
+    # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
+    query = """g.V(%s).until(has('type', 'File'))
+        .repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).as('parentFileNode')
+        .union(
+            until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+            ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
+            .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).as('externalFileResult')
+                .union(
+                    id().as('idOfExternalDeclaration'),
+                    select('externalFileResult').until(has('type', 'File'))
+                        .repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).as('externalParentFileNode')
+                        .union(
+                        __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
+                        sideEffect{print("Follow IS_HEADER_OF relation from ${it} here \\n")}.has('none')
+                        )
+                )
+        )""" % (verticeId, nameAndPath[0], nameAndPath[0])                  
             
-            if(set(result2) in semanticUnit):
-                    print("Already contained in SU!")         
-            
-            semanticUnit.update(set(result2))           
-            
-        return result
-    else:
-        return ""
+    return db.runGremlinQuery(query)
               
 
 # Get all statements that are connected via used and defined relations       
@@ -802,7 +795,7 @@ def output(G):
 ################################################### Start of program #################################################################
 
 # Input of entry points
-consoleInput()
+#consoleInput()
 
 # Start identification process    
 identifySemanticUnits() 
