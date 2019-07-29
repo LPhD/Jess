@@ -26,7 +26,6 @@ public abstract class DirectoryTreeImporter {
 		FileDatabaseNode node = new FileDatabaseNode();
 		insertDirectoryNode(dir, node);
 		linkWithParentDirectory(node);
-
 		directoryStack.push(node);
 	}
 
