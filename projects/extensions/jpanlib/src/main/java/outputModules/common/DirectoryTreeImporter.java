@@ -11,11 +11,6 @@ import outputModules.parser.ParserState;
 public abstract class DirectoryTreeImporter {
 	protected ParserState state;
 	protected Stack<FileDatabaseNode> directoryStack = new Stack<FileDatabaseNode>();
-
-	protected abstract void linkWithParentDirectory(FileDatabaseNode node);
-
-	protected abstract void insertNode(FileDatabaseNode node);
-
 	protected String outputDir;
 
 	public void setState(ParserState aState) {
@@ -104,7 +99,9 @@ public abstract class DirectoryTreeImporter {
 			}	
 		}
 	}
-
+	
+	protected abstract void linkWithParentDirectory(FileDatabaseNode node);
+	protected abstract void insertNode(FileDatabaseNode node);
 	protected abstract void linkIncludeToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode node);
 	protected abstract void linkHeaderToCFile(FileDatabaseNode header, FileDatabaseNode cFile);
 }
