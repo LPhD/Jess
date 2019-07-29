@@ -13,6 +13,7 @@ connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
 LookForAllFunctionCalls = True
+includeVariabilityInformation = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = True
 generateOnlyVisibleCode = True
@@ -87,9 +88,14 @@ def identifySemanticUnits ():
         # analysisList.remove(node)          
         
     if (len(semanticUnit) > 0):
-        # Adapt results for syntactical correctness
-        # Add the function definition for CFG nodes 
-        addParentFunctions()      
+        # Adapt results for syntactical correctness       
+        # Add the function definition 
+        addParentFunctions()  
+
+        #Check for variability information
+        if(includeVariabilityInformation):
+            addVariability()
+        
         # Get the #ifndef #def and #endif for header files?
         
         print("Analysis finished, making graph...")
@@ -524,19 +530,32 @@ def addParentFunctions ():
     global semanticUnit
     # Get the compound statements and function definitions, add them to the SemanticUnit (without dupes)
     query = """idListToNodes(%s).union(
-        __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().id(), 
-        __.in('IS_AST_PARENT').has('type', 'FunctionDef').dedup().id(), 
-        __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef').dedup().id()
-        )""" % (list(semanticUnit))   
+        __.in('IS_AST_PARENT').has('type', 'CompoundStatement'), 
+        __.in('IS_AST_PARENT').has('type', 'FunctionDef'), 
+        __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef')
+        ).dedup().id()""" % (list(semanticUnit))   
    
-    result = db.runGremlinQuery(query)   
-    
-    print(result)
+    result = db.runGremlinQuery(query)       
     
     if (DEBUG) : print("Found additional nodes (FunctionDef and CompundStatement): "+str(result)+"\n")
     
     semanticUnit.update(result)
 
+######################################### Variability Checking #################################################################
+
+# Return parent variability information for each statement in the SemanticUnit (without further analysis)
+def addVariability ():
+    if (DEBUG) : print("Checking for variability information...")    
+
+    global semanticUnit
+    # Get the parent variability nodes, add them to the SemanticUnit (without dupes)
+    query = """idListToNodes(%s).in('VARIABILITY').emit().repeat(out('IS_AST_PARENT')).id()""" % (list(semanticUnit))   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found additional variability nodes (#ifdef etc): "+str(result)+"\n")
+    
+    semanticUnit.update(result)
     
 ###################################### Input ###############################################################    
 
@@ -665,6 +684,7 @@ def fileOutput ():
             nodes = getASTNodes()    
         
     with open('result.txt', 'w') as file_handler:
+        file_handler.write(projectName+"\n")
         for item in semanticUnit:
             file_handler.write("{}\n".format(item))
    

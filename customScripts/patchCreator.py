@@ -6,16 +6,14 @@ import shutil
 from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
 
+# Get the ids from the SemanticUnit (first line is the projectName)
+idList = [line.rstrip('\n') for line in open('result.txt')]
+
 # Connect to project DB
-#projectName = 'JoernTest.tar.gz'
-#projectName = 'EvoDiss.tar.gz'
-#projectName = 'Revamp'
-projectName = 'SPLC'
+projectName = idList.pop(0)
 db = DBInterface()
 db.connectToDatabase(projectName)
 
-# Get the ids from the SemanticUnit
-idList = [line.rstrip('\n') for line in open('result.txt')]
 
 # Get the code of the statements
 query = """idListToNodes(%s).valueMap('code', 'path', 'line')""" % (idList)
