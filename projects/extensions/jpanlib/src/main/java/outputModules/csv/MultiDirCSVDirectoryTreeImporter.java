@@ -53,4 +53,10 @@ public class MultiDirCSVDirectoryTreeImporter extends DirectoryTreeImporter
 		
 	}
 
+	@Override
+	protected void linkHeaderToCFile(FileDatabaseNode header, FileDatabaseNode cFile) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

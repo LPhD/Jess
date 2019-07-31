@@ -1,6 +1,9 @@
 package outputModules.common;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 import databaseNodes.ASTDatabaseNode;
@@ -11,6 +14,8 @@ import outputModules.parser.ParserState;
 public abstract class DirectoryTreeImporter {
 	protected ParserState state;
 	protected Stack<FileDatabaseNode> directoryStack = new Stack<FileDatabaseNode>();
+	protected HashMap<String, FileDatabaseNode> headerList = new HashMap<String, FileDatabaseNode>();
+	protected HashMap<String, FileDatabaseNode> cFileList = new HashMap<String, FileDatabaseNode>();
 	protected String outputDir;
 
 	public void setState(ParserState aState) {
@@ -34,10 +39,15 @@ public abstract class DirectoryTreeImporter {
 //		for (ASTDatabaseNode node : IncludeAnalyzer.includeNodeList) {
 //			System.out.println(node.toString());			
 //		}
+		//matchHeaderToFile();
 		matchIncludeToFile();
 		//Clears list of include statements and files in this directory
 		IncludeAnalyzer.includeNodeList.clear();
 		IncludeAnalyzer.fileNodeList.clear();
+		//Clears list of header and c files in this directory
+		headerList.clear();
+		cFileList.clear();
+		//Leave directory
 		directoryStack.pop();
 	}
 
@@ -48,6 +58,14 @@ public abstract class DirectoryTreeImporter {
 		state.setCurrentFileNode(node);
 		//Adds file to list of files for this directory
 		IncludeAnalyzer.fileNodeList.add(node);
+		// Adds file to header list or c file list (or none of them)
+		if(node.getFileName().endsWith(".h")) {
+			System.out.println("Header file found: "+node.getFileName());
+			headerList.put(node.getFileName(), node);
+		} else if (node.getFileName().endsWith(".c")) {
+			System.out.println("C file found: "+node.getFileName());
+			cFileList.put(node.getFileName(), node);
+		}
 	}
 
 	protected void insertDirectoryNode(Path dir, FileDatabaseNode node) {
