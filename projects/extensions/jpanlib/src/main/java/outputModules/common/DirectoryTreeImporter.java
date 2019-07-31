@@ -47,7 +47,7 @@ public abstract class DirectoryTreeImporter {
 		linkWithParentDirectory(node);
 		state.setCurrentFileNode(node);
 		//Adds file to list of files for this directory
-		IncludeAnalyzer.fileNodeList.add(node);
+		IncludeAnalyzer.fileNodeList.put(node.getFileName(), node);
 		// Adds file to header list or c file list (or none of them)
 		String nodeName = node.getFileName();
 		if(nodeName.endsWith(".h")) {
@@ -112,20 +112,16 @@ public abstract class DirectoryTreeImporter {
 	 * Matches the nodes in headerList with the nodes in cFileList and connects them with
 	 * an "IS_HEADER_OF" link. Then removes both files from the list.
 	 */
-	public void matchIncludeToFile() {
+	public void matchIncludeToFile() {	
 		String filename = "";
-		for (FileDatabaseNode fileDatabaseNode : IncludeAnalyzer.fileNodeList) {
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
 				//Remove whitespaces and quotes from filename
-				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s", "");
+				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s+", "");
 				//Draw includes-connection if filename and included filename match
-				if(filename.equals(fileDatabaseNode.getFileName())) {
-					linkIncludeToFileNode(includeNode, fileDatabaseNode);
-					 //Remove the include node as it can only include one file (does not work -> breaks for/each loop)
-					//IncludeAnalyzer.includeNodeList.remove(includeNode);
+				if(IncludeAnalyzer.fileNodeList.containsKey(filename)) {
+					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename));
 				}	
 			}	
-		}
 	}
 	
 	protected abstract void linkWithParentDirectory(FileDatabaseNode node);
