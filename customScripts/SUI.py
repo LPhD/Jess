@@ -8,17 +8,18 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ################# Configuration options for Semantic Unit identification #################
-includeEnclosedCode = True
+includeEnclosedCode = False
+followDataflows = False
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
 LookForAllFunctionCalls = True
-includeVariabilityInformation = True
+includeVariabilityInformation = False
 ######################### Configuration options for graph output #########################
 generateOnlyAST = True
 generateOnlyVisibleCode = True
 #################### Configuration options for debug output (console) ####################
-DEBUG = False
+DEBUG = True
 ##########################################################################################
 
 
@@ -48,7 +49,7 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {241816}
+entryPointIds = {20520}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -189,7 +190,7 @@ def analyzeNode (currentNode):
     if (type[0] == "ElseStatement"):            
         result = set(getIfStatement(currentNode))
         if (includeEnclosedCode):
-            result.update(set(getASTChildren))
+            result.update(set(getASTChildren(currentNode)))
         # Get related elements of the if/else-statement
         analysisList.extend(result)         
 
@@ -205,20 +206,15 @@ def analyzeNode (currentNode):
     # Get called function or function-like macro if current vertice is a callee
     if (type[0] == "Callee"): 
         # Do not look at CallExpression, one query is enough. We will always have both the Callee and 
-        #the CallExpression in the analysis set, see handling of ExpressionStatement above.
-                   
-        result = set(getCalledFunctionDef(currentNode))
-        
-        print("We looked at a Callee and got: "+str(result))
-        print("")
-        
+        #the CallExpression in the analysis set, see handling of ExpressionStatement above.                   
+        result = set(getCalledFunctionDef(currentNode))                
         # Get related elements of the called function
         analysisList.extend(result)
         
-    ### TODO getCallsOfFunction
-    ### For a given function name, return all possible callees    
+    # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (LookForAllFunctionCalls == True)): 
-        print("Look for all calls to this function: "+str(currentNode))
+        result = set(getCallsToFunction(currentNode))
+        analysisList.extend(result)
     
     # Get macro identifier    
     if (type[0] in ["PreUndef","PreDefine"]):    
@@ -252,7 +248,7 @@ def analyzeNode (currentNode):
 ##################################### Data Flow ##################################################################   
 
     # Get all statements that are connected via used and defined relations
-    if (type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression", "ReturnStatement"]):
+    if (followDataflows == True and type[0] in ["ForInit", "IdentifierDeclStatement", "Parameter", "AssignmentExpression", "ExpressionStatement", "Argument", "ArgumentList", "Condition", "UnaryExpression", "ReturnStatement"]):
         # Maybe some types are missing, needs further testing
         result = set(getDefinesAndUses(currentNode))
         # Get related elements of the called function
@@ -396,8 +392,8 @@ def getASTChildren (verticeId):
 # Return the called function id
 def getCalledFunctionDef (verticeId):
     # First: Get the name of the called function
-    query = """g.V(%s).out().has('type', 'Identifier').values('code', 'path')""" % (verticeId)
-    nameAndPath = db.runGremlinQuery(query)
+    query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
+    functionName = db.runGremlinQuery(query)
 
     # Second: Go to parent file of the current node (Callee)
     # Branch 1: Look in its AST children for a functionDef with the given name
@@ -413,20 +409,50 @@ def getCalledFunctionDef (verticeId):
             .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
             ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
             .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
-                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).as('externalFileResult')
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).as('externalHeaderFileResult')
                 .union(
                     id().as('idOfExternalDeclaration'),
-                    select('externalFileResult').until(has('type', 'File'))
+                    select('externalHeaderFileResult').until(has('type', 'File'))
                         .repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).as('externalParentFileNode')
                         .union(
                         __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
-                        sideEffect{print("Follow IS_HEADER_OF relation from ${it} here \\n")}.has('none')
+                        __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
                         )
                 )
-        )""" % (verticeId, nameAndPath[0], nameAndPath[0])                  
+        )""" % (verticeId, functionName[0], functionName[0], functionName[0])                  
             
     return db.runGremlinQuery(query)
-              
+    
+    
+# Return the ids of all callees for this function
+def getCallsToFunction (verticeId):      
+    # First: Get the name of the called function
+    query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
+    functionName = db.runGremlinQuery(query)
+     
+    # Go to the parent file of the current function node
+    # Branch 1: Search in all children of this file for callees of the function
+    # Branch 2: Look for include connections. Go from include to parent. Look in children for callee. If callee found, also add the include statement. 
+    # Branch 3: Look for IS_HEADER_OF connections. Look for declares and store them.
+    # Branch 3.2: Then follow includes. Go from include to parent. Look in children for callee. If callee found, also add the include and the declares statement.
+    query = """g.V(%s).until(has('type', 'File'))
+            .repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).as('parentFileNode').
+            union(
+                until(has('type', 'Callee').has('code', '%s'))
+                    .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).in('IS_AST_PARENT').in('IS_AST_PARENT').id().as('sameFileResult')
+                ,__.in('INCLUDES').in('IS_AST_PARENT').as('result').in('IS_FILE_OF')
+                    .until(has('type', 'Callee').has('code', '%s'))
+                        .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().id()
+                ,__.in('IS_HEADER_OF').as('hFile').out('IS_FILE_OF').has('type', 'DeclStmt').has('code', textContains('%s')).as('result')
+                    .select('hFile').in('INCLUDES').in('IS_AST_PARENT').as('result').in('IS_FILE_OF')
+                    .until(has('type', 'Callee').has('code', '%s'))
+                        .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().id()       
+            )         
+            """ % (verticeId, functionName[0], functionName[0], functionName[0], functionName[0])  
+            
+    return db.runGremlinQuery(query)
+
 
 # Get all statements that are connected via used and defined relations       
 def getDefinesAndUses (verticeId):
