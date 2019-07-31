@@ -3,7 +3,10 @@ package outputModules.common;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import databaseNodes.ASTDatabaseNode;
@@ -30,16 +33,9 @@ public abstract class DirectoryTreeImporter {
 	}
 
 	public void exitDir(Path dir) {
-//		//Test outputs
-//		System.out.println("Current files: ");		
-//		for (FileDatabaseNode node : IncludeAnalyzer.fileNodeList) {
-//			System.out.println(node.getFileName());			
-//		}
-//		System.out.println("Current includes: ");		
-//		for (ASTDatabaseNode node : IncludeAnalyzer.includeNodeList) {
-//			System.out.println(node.toString());			
-//		}
-		//matchHeaderToFile();
+		//Connect c files with its header files
+		matchHeaderToFile();
+		//Connect files with included files
 		matchIncludeToFile();
 		//Clears list of include statements and files in this directory
 		IncludeAnalyzer.includeNodeList.clear();
@@ -59,12 +55,15 @@ public abstract class DirectoryTreeImporter {
 		//Adds file to list of files for this directory
 		IncludeAnalyzer.fileNodeList.add(node);
 		// Adds file to header list or c file list (or none of them)
-		if(node.getFileName().endsWith(".h")) {
-			System.out.println("Header file found: "+node.getFileName());
-			headerList.put(node.getFileName(), node);
-		} else if (node.getFileName().endsWith(".c")) {
-			System.out.println("C file found: "+node.getFileName());
-			cFileList.put(node.getFileName(), node);
+		String nodeName = node.getFileName();
+		if(nodeName.endsWith(".h")) {
+			//Remove the file ending
+			nodeName = nodeName.substring(0, nodeName.length() - 2);
+			headerList.put(nodeName, node);
+		} else if (nodeName.endsWith(".c")) {
+			//Remove the file ending
+			nodeName = nodeName.substring(0, nodeName.length() - 2);
+			cFileList.put(nodeName, node);
 		}
 	}
 
@@ -99,8 +98,25 @@ public abstract class DirectoryTreeImporter {
 	
 	/**
 	 * Matches the fileDatabaseNodes in IncludeAnalyzer.fileNodeList with the
-	 * includeNodes in IncludeAnalyzer.includeNodeList and connects them with
-	 * an include link. Then removes the includeNode from the list.
+	 * includeNodes in IncludeAnalyzer.includeNodeList and connects them with an
+	 * include link. Then removes the includeNode from the list.
+	 */
+	public void matchHeaderToFile() {
+		//For each c file
+		cFileList.forEach((cKey,cValue) -> {
+			// If there exists a header with the same name
+			if (headerList.containsKey(cKey)) {
+				// Connect the header file to the c file
+				linkHeaderToCFile(headerList.get(cKey), cValue);
+				// Then remove the header file from the list
+				headerList.remove(cKey);
+			}
+		});
+	}
+	
+	/**
+	 * Matches the nodes in headerList with the nodes in cFileList and connects them with
+	 * an "IS_HEADER_OF" link. Then removes both files from the list.
 	 */
 	public void matchIncludeToFile() {
 		String filename = "";
