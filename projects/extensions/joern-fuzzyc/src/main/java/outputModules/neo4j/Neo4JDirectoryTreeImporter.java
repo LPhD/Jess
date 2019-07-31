@@ -11,7 +11,6 @@ import databaseNodes.FileDatabaseNode;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.DirectoryTreeImporter;
-import outputModules.common.Writer;
 
 public class Neo4JDirectoryTreeImporter extends DirectoryTreeImporter {
 	
@@ -51,7 +50,7 @@ public class Neo4JDirectoryTreeImporter extends DirectoryTreeImporter {
 	protected void linkHeaderToCFile(FileDatabaseNode header, FileDatabaseNode cFile) {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.HEADER);
 
-		long idSrc = header.getNodeId();
+		long idSrc = header.getId();
 		long idDst = cFile.getId();
 		Map<String, Object> properties = null;
 		Neo4JBatchInserter.addRelationship(idSrc, idDst, rel, properties);

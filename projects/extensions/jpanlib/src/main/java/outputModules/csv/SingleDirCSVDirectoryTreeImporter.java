@@ -44,7 +44,7 @@ public class SingleDirCSVDirectoryTreeImporter extends DirectoryTreeImporter {
 	 */
 	@Override
 	protected void linkHeaderToCFile(FileDatabaseNode header, FileDatabaseNode cFile) {
-		long srcId = header.getNodeId();
+		long srcId = header.getId();
 		long dstId = cFile.getId();
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.HEADER);		
 	}

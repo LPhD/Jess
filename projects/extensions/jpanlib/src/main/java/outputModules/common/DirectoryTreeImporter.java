@@ -1,14 +1,8 @@
 package outputModules.common;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
-
 import databaseNodes.ASTDatabaseNode;
 import databaseNodes.FileDatabaseNode;
 import includeAnalysis.IncludeAnalyzer;
