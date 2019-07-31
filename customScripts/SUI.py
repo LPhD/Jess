@@ -762,7 +762,7 @@ def getNodes():
 # Returns all AST edges of the Semantic Unit    
 def getASTEdges():
     # Get all incoming edges that are part of the AST  
-    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY', 'DECLARES', 'INCLUDES')""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF')""" % (list(semanticUnit))   
     return db.runGremlinQuery(query)
     
 # Returns all edges of the Semantic Unit    

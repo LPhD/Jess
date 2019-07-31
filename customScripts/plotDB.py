@@ -67,7 +67,7 @@ def getNodes():
 # Returns all AST edges of the DB   
 def getASTEdges():
     # Get all incoming edges that are part of the AST
-    query = "g.V().inE('IS_AST_PARENT', 'IS_FILE_OF', 'IS_PARENT_DIR_OF', 'IS_FUNCTION_OF_AST', 'VARIABILITY', 'DECLARES', 'INCLUDES')"  
+    query = "g.V().inE('IS_AST_PARENT', 'IS_FILE_OF', 'IS_PARENT_DIR_OF', 'IS_FUNCTION_OF_AST', 'VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF')"  
     return db.runGremlinQuery(query)
     
 # Returns all edges of the DB    
