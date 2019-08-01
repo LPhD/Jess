@@ -3,6 +3,15 @@
 #include "InclC.c"
 #include "InclH.h"
 
+#ifdef A
+	#error "A is defined"
+#elif B
+	#line 5
+	#pragma  GCC poison B
+#else
+	#null
+#endif
+
 int main(void) {
 	int i = 0;
 	struct scsi_device {
