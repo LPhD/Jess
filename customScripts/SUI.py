@@ -340,7 +340,6 @@ def analyzeNode (currentNode):
     # Do nothing for (as intended):
     # PreInclude, PreIncludeNext (included file possible, but why not just give the file as entry point?)
     ################# No meaningful connections, no direct appearence in the code, already contained in other analyses ##################
-    # 'Identifier' i 
     # 'CompoundStatement' empty container object 
     # 'IncDec' ++
     # 'UnaryOperator' !
@@ -348,7 +347,6 @@ def analyzeNode (currentNode):
     # 'PrimaryExpression' 1
     # 'UnaryOperationExpression' - 1
     # 'ReturnType' void
-    # 'ForInit' i = 0
     # 'CFGEntryNode' ENRTY
     # 'CFGExitNode' EXIT
     # 'InitializerList' 7 (size of list)
@@ -363,6 +361,7 @@ def analyzeNode (currentNode):
     # 'RelationalExpression' i > 5 (contained in condition)
     # 'ArrayIndexing' array[1]    
     # 'Decl', DeclStmt (already contained in DeclStmt/FunctionDef/Callee. For entry point: Choose FunctionDef instead)    
+    # 'PreInclude', 'PreIncludeNext' (choose the file instead)
     ####################### C ++ specific (maybe done later) ###############################################
     # 'ClassDef'
     # 'TryStatement', 'CatchStatement', 'ThrowStatement'
