@@ -19,7 +19,7 @@ includeVariabilityInformation = False
 generateOnlyAST = True
 generateOnlyVisibleCode = True
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 ##########################################################################################
 
 
@@ -27,8 +27,8 @@ DEBUG = True
 #projectName = 'JoernTest.tar.gz'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-#projectName = 'SPLC'
-projectName = 'Collection'
+projectName = 'SPLC'
+#projectName = 'Collection'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -50,8 +50,8 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {135416}
-entryFeatureNames = set()
+entryPointIds = set()
+entryFeatureNames = {'analogueSender'}
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -60,7 +60,7 @@ checkedVertices = set()
 analysisList = list()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
-visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'Label', 'OpeningCurly', 'ClosingCurly']
+visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'OpeningCurly', 'ClosingCurly']
 
 
 # Main function 
@@ -354,6 +354,7 @@ def analyzeNode (currentNode):
     # 'InitializerList' 7 (size of list)
     # 'PreMacroParameters' parameters of a function-like macro
     # 'PreMacro' the macro content
+    # 'BreakStatement', 'ContinueStatement'
     ####################### Already contained in other analyses ###############################################
     # 'Symbol' (already contained in the dataflow analysis)
     # 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
@@ -365,20 +366,7 @@ def analyzeNode (currentNode):
     ####################### C ++ specific (maybe done later) ###############################################
     # 'ClassDef'
     # 'TryStatement', 'CatchStatement', 'ThrowStatement'
-
-     
-    #Problems: 
-        # Global variables 
-        # ++ i in for (not a real problem, as it is always inside for. But what if method is called?
-        # ++ i in general is not working, only identified as UnaryExpression but not as ExpressionAssignment
-                
-    # Do something for every type where it is necessary
-    # TODO: Missing types from /jpanlib/src/main/java             
-        # 'Sizeof' empty?
-        # 'SizeofOperand' empty?
-
-
-
+    # 'UsingDirective'
 
 
 ################################ Definition of helper functions ########################################################     
@@ -914,7 +902,7 @@ def output(G):
 ################################################### Start of program #################################################################
 
 # Input of entry points
-#consoleInput()
+consoleInput()
 
 # Start identification process    
 identifySemanticUnits() 

@@ -7,15 +7,16 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
-generateOnlyAST = True
+generateOnlyAST = False
 ###############################################
 
 
 # Connect to project DB
-projectName = 'EvoDiss.tar.gz'
-#projectName = 'TestCommit'
+#projectName = 'EvoDiss.tar.gz'
+#projectName = 'Revamp'
 #projectName = 'JoernTest.tar.gz'
-#projectName = 'SPLC'
+projectName = 'SPLC'
+#projectName = 'Collection'
 db = DBInterface()
 db.connectToDatabase(projectName)
 

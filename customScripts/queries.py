@@ -6,7 +6,10 @@ from octopus.server.DBInterface import DBInterface
 
 #Define target project
 projectName = 'SPLC'
+#projectName = 'EvoDiss.tar.gz'
 #projectName = 'JoernTest.tar.gz'
+#projectName = 'Linux.tar.gz'
+#projectName = 'Collection'
 #Connect do database of project
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -27,6 +30,8 @@ query = "g.V().has('type', 'Argument').id()"
 query = "g.V().has('functionId', '341').values('code')""" 
 # Get all code vertices of type argument of a function
 query = "g.V().has('functionId', '341').has('type', 'Argument').values('code')" 
+# Get all edges with the label "IS_HEADER_OF" and emit the code of the connected vertices
+query = "g.E().hasLabel('IS_HEADER_OF').bothV().values('code')"
 
 
 ##### Titan DB specific queries #####
@@ -35,6 +40,10 @@ query = "g.V().has('functionId', '341').has('type', 'Argument').values('code')"
 query = "g.V().has('code', textContains('bubble')).values('code')"
 # Get vertices that contain a word starting with bubble 
 query = "g.V().has('code', textContainsPrefix('bubble')).values('code')"
+# Get vertices that match a certain Regex (here: code of include statements that include header files)
+query = "g.V().has('code', textRegex('[\"][a-zA-Z]+[.][h][\"]')).values('code', 'type')"
+# Get vertices that match a certain Regex (here: code of PreIncludeLocalFile statements that include header files). Only gives the first 10 results.
+query = "g.V().has('type', 'PreIncludeLocalFile').has('code', textRegex('[\"][a-zA-Z]+[.][h][\"]')).limit(10).values('code')"
  
 
 ##### Groovy Gremlin queries (with closures and custom steps) #####
@@ -107,6 +116,8 @@ query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FIL
         )
         .select("result").unfold().dedup().id()
         """ % (40960, "doSomethingImportant", "doSomethingImportant")  
+# Save node as 'a', then select its code        
+query = """g.V(%s).as('a').select('a').by('code')""" % (40960)
 
 #Convert list of ids to nodes (query prints code of all ids in nodeIDs)
 #Callee 'mainTest', Argument 0 in Array, Function SelectionSort
@@ -128,118 +139,8 @@ query = """idListToNodes(%s).sideEffect{}.statements()""" % (nodeIds)
 # Maps code and location values for each node (returns a list() of dict() data structure)
 query = """idListToNodes(%s).valueMap('code', 'path')""" % (nodeIds)
 
-
-
-
-query = "g.V(77840)"
-
-verticeId = 20720  
-#verticeId = 28680 
-
-# Get name of the called function
-# query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
-# result = db.runGremlinQuery(query)   
-
-# print(result)
-     
-# Get the id of the called function (parent of identifier with code from result of last query)
-# query = """g.V().has('type', within('PreMacroIdentifier', 'Identifier')).has('code', '%s')
-    # .in().has('type', within('FunctionDef', 'PreDefine')).id()""" % (result[0])
-# result = db.runGremlinQuery(query)     
-
-# Check if result is in DB (could also be a C function like puts())
-# if (len(result) > 0):   
-    # # Check whether target and callee are in the same file
-    # query = """g.V(%s).values('path')""" % (result[0])
-    # locationTarget = db.runGremlinQuery(query) 
-    # #Get only the filename 
-    # locationTargetFile = ntpath.basename(locationTarget[0])
-
-    # query = """g.V(%s).values('path')""" % (verticeId)
-    # locationCallee = db.runGremlinQuery(query)
-    # #Get only the filename 
-    # locationCalleeFile = ntpath.basename(locationCallee[0])
-    
-    # # Look for includes and add them to the semanticUnit
-    # if (locationCallee != locationTarget):      
-        # query = """g.V().has('path', textContains('%s')).has('type', 'PreInclude').has('code', textContains('%s')).id()""" % (locationCallee[0], locationTargetFile)
-        # result2 = db.runGremlinQuery(query)
-        
-        # if(set(result2) in semanticUnit):
-                # print("Already contained in SU!")         
-        
-        # semanticUnit.update(set(result2))           
-        
-    # return result
-# else:
-    # return ""
-
-
-# Get name of the called function
-query = """g.V(%s).out().has('type', 'Identifier').values('code').as('code')""" % (verticeId)
-result = db.runGremlinQuery(query)  
-
-# Go to parent file
-query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())""" % (verticeId)
-
-
-# Go to parent file, then look in its AST children for a functionDef with the given name
-query = """g.V(%s).union(out().has('type', 'Identifier').values('code').as('functionCallName'),
-until(has('type', 'File'))
-.repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
-.until(has('type', 'FunctionDef').out().has('type', 'Identifier').has('code', eq('functionCallName')))
-.repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV().as('functionDefInSameFile')))
-""" % (verticeId)
-
-
-
-
-
-# Branch 1: Get the name of the called function
-# Branch 2: Go to parent file, then look in its AST children for a functionDef with the given name
-# Branch 3 (if no def in the current file was found): Go to parent file, then look for include statements. Follow them to the included files. Look in those files until you find a functionDef.
-query = """g.V(%s).union(
-    out().has('type', 'Identifier').values('code').as('functionCallName')
-    ,
-    until(has('type', 'File'))
-    .repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
-        .choose(
-            until(has('type', 'FunctionDef').out().has('type', 'Identifier').has('code', eq('functionCallName')))
-            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).as('functionDefInSameFile')
-            ,
-            select('functionDefInSameFile')
-            ,
-            out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').out('INCLUDES')
-            .until(has('type', 'FunctionDef').out().has('type', 'Identifier').has('code', eq('functionCallName')))
-            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).as('functionDefInOtherFile')
-        )
-)
-""" % (verticeId)
-
-
-
-    # Go to the parent file: 
-    # if there is an include edge: follow all include edges, then look inside all children of the including files for nodes with the given code (get all nodes in other files that include the macro definition)
-    # if this result is not empty: also add the include statements to the result (solely the ones where the macro is used)
-    # else (not include egdes): look in all children of the file for nodes with the given code (get all nodes in the current file)
-    #query = """g.V(%s).until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
-        # .bothE().choose(hasLabel('INCLUDES'), 
-            # outV().in('IS_AST_PARENT').as("includes")
-                # .until(has('type', 'File')).repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV())
-                # .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().has('code', textContains('%s')).as("result")
-                    # .choose(count().is(gt(0)),
-                    # local(__.select("includes").as("result")),
-                    # id()    
-                    # )           
-            # , 
-            # inV().has('type', 'File')
-                # .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().dedup().has('code', textContains('%s')).as("result")
-            # )
-            # .select("result").unfold().dedup().id()
-            # """ % (verticeId, tempResult[0], tempResult[0]) 
-
-              
-
+query = "g.V(12358)"
+ 
 # Execute equery
 result = db.runGremlinQuery(query)
 
@@ -254,8 +155,6 @@ for x in result: print(x)
 
 # Empty, because you need the full qualified name
 query = """getFunctionsByFilename("C.c")"""
-# Empty, because Regex doesnt seem to work
-query = """g.V().has('code', textRegex('*C.c*'))"""
 # Another regex problem
 query = """getCallsToRegex("bubblesor*").values('code')"""
 # No signature of method: org.apache.tinkerpop.gremlin.process.traversal.traverser.O_Traverser.codeContains() is applicable for argument types: (java.lang.String) values: [bubblesort]
