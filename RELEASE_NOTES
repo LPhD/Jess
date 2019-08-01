@@ -1,3 +1,19 @@
+Version 0.3:
+
+New features:
+-------------
+
+- Added more and refined existing example code and example results 
+- Added an interactive input option for Semantic Unit identification (lets you choose project name and entry points)
+- Finished adding rules for the Semantic Unit identification for C code (we now have a rule for each statement type where it makes sense, more information in the documentation)
+- Added more configuration options for the Semantic Unit identification process, like debug output, variability information, different output formats, etc. (see documentation for more details)
+- Added a patchGenerator script that transforms the result of the Semantic Unit identification process into a reduced slice of a software project (folders and *.c/*.h code files). 
+This can be used as a foundation for patch generation (e.g. with "git merge"). See documentation for more details.
+- Improved performance of include analysis
+- Added a "IS_HEADER_OF" relation to improve the Semantic Unit identification process
+
+
+
 Version 0.2:
 
 New features:
