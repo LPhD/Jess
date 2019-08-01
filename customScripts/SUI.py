@@ -13,7 +13,7 @@ followDataflows = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
-LookForAllFunctionCalls = True
+LookForAllFunctionCalls = False
 includeVariabilityInformation = False
 ######################### Configuration options for graph output #########################
 generateOnlyAST = True
