@@ -29,5 +29,26 @@ int main(void) {
 		puts("Default");
 	}
 
+	LOOPLABEL:do {
+	   i++;
+	   if ( i == 2){
+		   goto LOOPLABEL;
+	   }
+	} while( i < 5 );
+
+	while( i < 5 ) {
+	   i++;
+	}
+
+	for ( int j = 0; j < 7; j = j + 1){
+		i++;
+		continue;
+	}
+
+	if (i < 3)
+		puts("Failure");
+	else
+		puts("Success");
+
 	return EXIT_SUCCESS;
 }
