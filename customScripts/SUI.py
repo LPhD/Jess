@@ -8,8 +8,8 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ################# Configuration options for Semantic Unit identification #################
-includeEnclosedCode = False
-followDataflows = False
+includeEnclosedCode = True
+followDataflows = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
@@ -25,9 +25,10 @@ DEBUG = True
 
 # Connect to project DB
 #projectName = 'JoernTest.tar.gz'
-projectName = 'EvoDiss.tar.gz'
+#projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
 #projectName = 'SPLC'
+projectName = 'Collection'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -49,7 +50,7 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {20520}
+entryPointIds = {135416}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -59,7 +60,7 @@ checkedVertices = set()
 analysisList = list()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
-visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'OpeningCurly', 'ClosingCurly']
+visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'Label', 'OpeningCurly', 'ClosingCurly']
 
 
 # Main function 
@@ -166,7 +167,7 @@ def analyzeNode (currentNode):
         analysisList.extend(result)         
         
     # Get enclosed vertices if current vertice is a for-, while- or if-statement
-    if ((type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (includeEnclosedCode == True)):             
+    if ((type[0] in ["IfStatement","ForStatement","WhileStatement", "SwitchStatement"]) and (includeEnclosedCode == True)):             
         result = set(getASTChildren(currentNode))
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result) 
@@ -253,10 +254,27 @@ def analyzeNode (currentNode):
         result = set(getDefinesAndUses(currentNode))
         # Get related elements of the called function
         analysisList.extend(result)
+        
+##################################################################################################################
+##################################### Control Flow ###############################################################       
+
+    # Get enclosed vertices if current vertice is a label statement
+    if (type[0] == "Label"): 
+        # Get all goto statements that refer to this label
+        result = set(getGotos(currentNode))  
+        # Just add, no further analysis (we do not need to look at the gotos again, as they will result in the used labels)
+        semanticUnit.update(result) 
+        
+    # Get enclosed vertices if current vertice is a GotoStatement 
+    if (type[0] == "GotoStatement"): 
+        # Get all labels that were refered by this goto
+        result = set(getLabels(currentNode))  
+        # Just add, no further analysis (we do not need to look at the labels again, as they will result in the used gotos)
+        semanticUnit.update(result) 
     
         
 ####################################################################################################################
-#################################### Variability ##################################################################          
+#################################### Variability ###################################################################          
          
     # Get enclosed vertices if current vertice is a pre-if-statement
     if (type[0] == "PreIfStatement"):                       
@@ -342,8 +360,13 @@ def analyzeNode (currentNode):
     # 'IdentifierDecl' i (contained in IdentifierDeclStatement)
     # 'ParameterType' int (contained in ParameterList)
     # 'RelationalExpression' i > 5 (contained in condition)
-    # 'ArrayIndexing' array[1]           
-            
+    # 'ArrayIndexing' array[1]    
+    # 'Decl', DeclStmt (already contained in DeclStmt/FunctionDef/Callee. For entry point: Choose FunctionDef instead)    
+    ####################### C ++ specific (maybe done later) ###############################################
+    # 'ClassDef'
+    # 'TryStatement', 'CatchStatement', 'ThrowStatement'
+
+     
     #Problems: 
         # Global variables 
         # ++ i in for (not a real problem, as it is always inside for. But what if method is called?
@@ -353,8 +376,9 @@ def analyzeNode (currentNode):
     # TODO: Missing types from /jpanlib/src/main/java             
         # 'Sizeof' empty?
         # 'SizeofOperand' empty?
-        # 'Decl' empty?
-        # 'DeclStmt' empty?
+
+
+
 
 
 ################################ Definition of helper functions ########################################################     
@@ -371,7 +395,7 @@ def getIncludedFilesAndDirectories (verticeId):
        
 # Return all AST vertices and their children that belong to the given file 
 def getEnclosedCodeOfFile (verticeId):
-    query = """g.V(%s).emit().repeat(out('IS_AST_PARENT','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)
+    query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)
     return db.runGremlinQuery(query)   
            
 # Return function definition vertice of a given function
@@ -384,10 +408,42 @@ def getParent (verticeId):
     query = """g.V(%s).out('IS_AST_PARENT').id()""" % (verticeId)
     return db.runGremlinQuery(query)                 
 
+# Return all GotoStatements that use the given label
+def getGotos (verticeId):
+    # Get code of the referenced label
+    query = """g.V(%s).out('IS_AST_PARENT').values('code')""" % (verticeId) 
+    name = db.runGremlinQuery(query)
+
+    # Go to parent filenode
+    # Look in all children for the the goto that references the label
+    query = """g.V(%s)
+        .until(has('type', 'File'))
+        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+        .until(has('type', 'GotoStatement').out('IS_AST_PARENT').has('code', '%s'))
+        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()
+    """ % (verticeId, name[0]) 
+    return db.runGremlinQuery(query)
+
+# Return all Labels and the connected code that were refered by the given GotoStatement
+def getLabels (verticeId):
+    # Get code of the referenced label
+    query = """g.V(%s).out('IS_AST_PARENT').values('code')""" % (verticeId) 
+    name = db.runGremlinQuery(query)
+
+    # Go to parent filenode
+    # Look in all children for the referenced label
+    query = """g.V(%s)
+        .until(has('type', 'File'))
+        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+        .until(has('type', 'Label').out('IS_AST_PARENT').has('code', '%s'))
+        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()
+    """ % (verticeId, name[0]) 
+    return db.runGremlinQuery(query)
+    
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
-    query = """g.V(%s).emit().repeat(out('IS_AST_PARENT')).unfold().id()""" % (verticeId)
-    return db.runGremlinQuery(query)
+    query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT')).unfold().id()""" % (verticeId)
+    return db.runGremlinQuery(query)    
     
 # Return the called function id
 def getCalledFunctionDef (verticeId):
@@ -403,17 +459,17 @@ def getCalledFunctionDef (verticeId):
     # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
     # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
     query = """g.V(%s).until(has('type', 'File'))
-        .repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).as('parentFileNode')
+        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode')
         .union(
             until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
             .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
             ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
             .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
-                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).as('externalHeaderFileResult')
+                .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
                 .union(
                     id().as('idOfExternalDeclaration'),
                     select('externalHeaderFileResult').until(has('type', 'File'))
-                        .repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).as('externalParentFileNode')
+                        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
                         .union(
                         __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
                         __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
@@ -437,17 +493,20 @@ def getCallsToFunction (verticeId):
     # Branch 3: Look for IS_HEADER_OF connections. Look for declares and store them.
     # Branch 3.2: Then follow includes. Go from include to parent. Look in children for callee. If callee found, also add the include and the declares statement.
     query = """g.V(%s).until(has('type', 'File'))
-            .repeat(inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').outV()).as('parentFileNode').
+            .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode').
             union(
                 until(has('type', 'Callee').has('code', '%s'))
-                    .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).in('IS_AST_PARENT').in('IS_AST_PARENT').id().as('sameFileResult')
+                    .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+                    .in('IS_AST_PARENT').in('IS_AST_PARENT').id().as('sameFileResult')
                 ,__.in('INCLUDES').in('IS_AST_PARENT').as('result').in('IS_FILE_OF')
-                    .until(has('type', 'Callee').has('code', '%s'))
-                        .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().id()
+                    .until(has('type', 'Callee').has('code', '%s'))                        
+                    .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+                    .in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().id()
                 ,__.in('IS_HEADER_OF').as('hFile').out('IS_FILE_OF').has('type', 'DeclStmt').has('code', textContains('%s')).as('result')
                     .select('hFile').in('INCLUDES').in('IS_AST_PARENT').as('result').in('IS_FILE_OF')
-                    .until(has('type', 'Callee').has('code', '%s'))
-                        .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().id()       
+                    .until(has('type', 'Callee').has('code', '%s'))                        
+                    .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+                    .in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().id()       
             )         
             """ % (verticeId, functionName[0], functionName[0], functionName[0], functionName[0])  
             
