@@ -7,30 +7,30 @@ import ast.declarations.IdentifierDecl;
 
 public class DeclDatabaseNode extends DeclStmtDatabaseNode {
 
-	IdentifierDecl decl;
-	String baseType;
-	String completeType;
-	String identifierString;
+	private IdentifierDecl decl;
 
 
 	@Override
 	public void initialize(Object obj) {
-		decl = (IdentifierDecl) obj;
-		baseType = decl.getType().baseType;
-		completeType = decl.getType().completeType;
-		identifierString = decl.getName().getEscapedCodeStr();
-		code = decl.getEscapedCodeStr();
+		this.decl = (IdentifierDecl) obj;
 	}
 
 	@Override
 	public Map<String, Object> createProperties() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put(NodeKeys.NODE_TYPE, "Decl");
-		map.put(NodeKeys.BASE_TYPE, baseType);
-		map.put(NodeKeys.COMPLETE_TYPE, completeType);
-		map.put(NodeKeys.IDENTIFIER, identifierString);
-		map.put(NodeKeys.CODE, code);
+		map.put(NodeKeys.BASE_TYPE, decl.getType().baseType);
+		map.put(NodeKeys.COMPLETE_TYPE, decl.getType().completeType);
+		map.put(NodeKeys.IDENTIFIER, decl.getName().getEscapedCodeStr());
+		map.put(NodeKeys.CODE, decl.getEscapedCodeStr());
+		//Always get the location
+		map.put(NodeKeys.LINE, decl.getLine());
+		map.put(NodeKeys.PATH, decl.getPath());
 		return map;
+	}
+	
+	public IdentifierDecl getIdentifierDecl() {
+		return decl;
 	}
 
 }
