@@ -20,7 +20,7 @@ public class DeclStmtDatabaseNode extends DatabaseNode {
 		map.put(NodeKeys.NODE_TYPE, "DeclStmt");
 		map.put(NodeKeys.CODE, stmt.getEscapedCodeStr());
 		//Always get the location
-		map.put(NodeKeys.LINE, stmt.getLine());
+		map.put(NodeKeys.LINE, ""+stmt.getLine());
 		map.put(NodeKeys.PATH, stmt.getPath());
 		return map;
 	}
