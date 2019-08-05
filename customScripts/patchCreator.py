@@ -16,7 +16,7 @@ db.connectToDatabase(projectName)
 
 
 # Get the code of the statements
-query = """idListToNodes(%s).valueMap('code', 'path', 'line')""" % (idList)
+query = """idListToNodes(%s).valueMap('code', 'path', 'line', 'type')""" % (idList)
 # Execute equery
 result = db.runGremlinQuery(query)
 
@@ -24,15 +24,17 @@ result = db.runGremlinQuery(query)
 structuredPatchList = []
 
 for r in result:  
-    # Get the filename (we need the path later)
-    locationFile = ntpath.basename((r['path'])[0])
-    
-    # Get the linenumber
-    locationLine = ((r['line'])[0])
-    
-    # Append filename, linenumber and code (if exists) to the list
-    if len(r) > 2:
-        structuredPatchList.append([locationFile, int(locationLine), (r['code'])[0]])
+    # Just add the statements to the results which contain all necessary information
+    if (('path' in r) and ('line' in r) and ('code' in r)):
+        # Get the filename (we need the path later)
+        locationFile = ntpath.basename((r['path'])[0])
+        
+        # Get the linenumber
+        locationLine = ((r['line'])[0])
+        
+        # Append filename, linenumber and code (if exists) to the list
+        if len(r) > 2:
+            structuredPatchList.append([locationFile, int(locationLine), (r['code'])[0]])
 
     
 # Sort the list content by file and then by line
