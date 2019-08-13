@@ -9,8 +9,5 @@ The extended version named Jess contains some bugfixes and adations for the use 
 A Semantic Unit contains semantically related lines of code, that share the same purpose.
 Joern's property graph is extended by parsing preprocessor-statements to make the graph variability-aware. The graph is used to identify Semantic Units with the help of program slicing. The slices can contain C, C++ (limited functionality) and C preprocessor code.
 
-The current status of the dev branch is work-in-progress, that means sometimes the tool will just not work. 
-For a more stable version, check out the stable branch or the dedicated releases.
 
-
-The documentation can be found [here](https://jess.readthedocs.io/en/)
+The documentation can be found [here](https://jess.readthedocs.io/en/stable/)
