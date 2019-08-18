@@ -13,4 +13,4 @@ The current status of the dev branch is work-in-progress, that means sometimes t
 For a more stable version, check out the stable branch or the dedicated releases.
 
 
-The documentation can be found [here](https://jess.readthedocs.io/en/)
+The documentation can be found [here](https://jess.readthedocs.io/en/dev/)
