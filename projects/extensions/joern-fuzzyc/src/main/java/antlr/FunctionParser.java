@@ -117,7 +117,7 @@ public class FunctionParser extends Parser {
 		null, "'virtual'", "'try'", "'catch'", "'throw'", "'using'", "'namespace'", 
 		"'auto'", "'register'", null, "'#elif'", "'#else'", "'#endif'", "'#define'", 
 		"'#undef'", null, null, null, "'#include_next'", "'#line'", "'#pragma'", 
-		"'GCC'", null, "'#'", "'operator'", "'template'", "'new'", null, null, 
+		"'GCC'", null, null, "'operator'", "'template'", "'new'", null, null, 
 		"'{'", "'}'", null, null, null, null, null, null, null, "'\\'", null, 
 		null, null, "'...'"
 	};

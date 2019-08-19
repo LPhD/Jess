@@ -203,7 +203,6 @@ OTHER=116
 '#line'=92
 '#pragma'=93
 'GCC'=94
-'#'=96
 'operator'=97
 'template'=98
 'new'=99

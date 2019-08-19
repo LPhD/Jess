@@ -124,8 +124,8 @@ public class ModuleParser extends Parser {
 		"'try'", "'catch'", "'throw'", "'using'", "'namespace'", "'auto'", "'register'", 
 		null, "'#elif'", "'#else'", "'#endif'", "'#define'", "'#undef'", null, 
 		null, null, "'#include_next'", "'#line'", "'#pragma'", "'GCC'", null, 
-		"'#'", "'operator'", "'template'", "'new'", null, null, "'{'", "'}'", 
-		null, null, null, null, null, null, null, "'\\'", null, null, null, "'...'"
+		null, "'operator'", "'template'", "'new'", null, null, "'{'", "'}'", null, 
+		null, null, null, null, null, null, "'\\'", null, null, null, "'...'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
