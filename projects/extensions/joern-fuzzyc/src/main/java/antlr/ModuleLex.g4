@@ -39,6 +39,7 @@ PRE_LINE: '#line';
 PRE_PRAGMA: '#pragma';
 PRE_GCC: 'GCC';
 PRE_PRAGMA_KEYWORDS: ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning');
+PRE_STR: '#';
 //PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
 
 
