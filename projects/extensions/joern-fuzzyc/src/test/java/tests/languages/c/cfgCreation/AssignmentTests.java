@@ -19,7 +19,7 @@ public class AssignmentTests extends CCFGCreatorTest {
 	public void testAssignmentASTLink() {
 		String input = "x = 10;";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(getNodeByCode(cfg, "x = 10") != null);
+		assertTrue(getNodeByCode(cfg, "x = 10;") != null);
 	}
 
 	@Test
