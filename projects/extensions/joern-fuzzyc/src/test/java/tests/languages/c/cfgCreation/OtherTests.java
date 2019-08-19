@@ -1,5 +1,6 @@
 package tests.languages.c.cfgCreation;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -17,21 +18,21 @@ public class OtherTests extends CCFGCreatorTest {
 	public void testSingleCallBlockNumber() {
 		String input = "foo();";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.size() == 3);
+		assertEquals(3, cfg.size());
 	}
 
 	@Test
 	public void testWhileNumberOfBlocks() {
 		String input = "while(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.size() == 4);
+		assertEquals(5, cfg.size());
 	}
 
 	@Test
 	public void testDoNumberOfBlocks() {
 		String input = "do{ bar(); }while(foo);";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.size() == 4);
+		assertEquals(5, cfg.size());
 	}
 
 	@Test
@@ -50,7 +51,7 @@ public class OtherTests extends CCFGCreatorTest {
 	public void testForNumberOfBlocks() {
 		String input = "for(i = 0; i < 10; i ++){ foo(); }";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.size() == 6);
+		assertEquals(7, cfg.size());
 	}
 
 	@Test
@@ -59,42 +60,42 @@ public class OtherTests extends CCFGCreatorTest {
 		CFG cfg = getCFGForCode(input);
 		CFGNode node = getNodeByCode(cfg, "INFINITE FOR");
 		assertTrue(node instanceof InfiniteForNode);
-		assertTrue(cfg.size() == 3);
+		assertEquals(4, cfg.size());
 	}
 
 	@Test
 	public void testSwitchNumberOfEdges() {
 		String input = "switch(foo){ case 1: case2: case 3: }";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.numberOfEdges() == 8);
+		assertEquals(9, cfg.numberOfEdges());
 	}
 
 	@Test
 	public void testSwitchWithBreakNumberOfEdges() {
 		String input = "switch(foo){ case 1: break; case2: break; case 3: }";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.numberOfEdges() == 10);
+		assertEquals(11, cfg.numberOfEdges());
 	}
 
 	@Test
 	public void testSwitchWithDefaultLabelNumberOfEdges() {
 		String input = "switch(foo){ case 1: case2: default: }";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.numberOfEdges() == 7);
+		assertEquals(8, cfg.numberOfEdges());
 	}
 
 	@Test
 	public void testTwoInstructions() {
 		String input = "x = 10; y = 20;";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.size() == 4);
+		assertEquals(4, cfg.size());
 	}
 
 	@Test
 	public void testLinkBetweenBlocks() {
 		String input = "x = 10; y = 20;";
 		CFG cfg = getCFGForCode(input);
-		assertTrue(cfg.numberOfEdges() == 3);
+		assertEquals(3, cfg.numberOfEdges());
 	}
 
 	@Test
@@ -118,7 +119,7 @@ public class OtherTests extends CCFGCreatorTest {
 		CFG cfg = getCFGForCode(input);
 
 		assertTrue(isConnected(cfg, "y = x", "EXIT"));
-		assertTrue(cfg.outDegree(getNodeByCode(cfg, "y = x")) == 1);
+		assertEquals(1, cfg.outDegree(getNodeByCode(cfg, "y = x")));
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package tests.languages.c.parseTreeToAST;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -79,14 +80,14 @@ public class IfNestingTests {
 
 		ElseStatement elseNode = ifItem.getElseNode();
 		CompoundStatement innerCompound = (CompoundStatement) elseNode.getStatement();
-		assertTrue(innerCompound.getChildCount() == 1);
+		assertEquals(2, innerCompound.getChildCount());
 		IfStatement innerIf = (IfStatement) innerCompound.getChild(0);
 		assertTrue(innerIf.getCondition() != null);
 	}
 
 	private void assertFirstChildIsIfStatement(CompoundStatement compound) {
 		IfStatement ifStatement = (IfStatement) compound.getStatements().get(0);
-		assertTrue(compound.getStatements().size() == 1);
+		assertEquals(1, compound.getStatements().size());
 		assertTrue(ifStatement.getCondition() != null);
 	}
 

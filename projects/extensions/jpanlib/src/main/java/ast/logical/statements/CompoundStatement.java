@@ -36,7 +36,7 @@ public class CompoundStatement extends Statement implements Iterable<ASTNode>
 	
 	public String getEscapedCodeStr()
 	{
-		return "";
+		return "{";
 	}
 
 	@Override

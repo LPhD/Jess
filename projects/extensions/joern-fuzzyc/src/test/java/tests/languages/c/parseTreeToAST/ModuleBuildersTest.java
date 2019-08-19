@@ -55,7 +55,7 @@ public class ModuleBuildersTest {
 		String input = "struct foo{};";
 		List<ASTNode> codeItems = parseInput(input);
 		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		assertEquals("", codeItem.content.getEscapedCodeStr());
+		assertEquals("{", codeItem.content.getEscapedCodeStr());
 	}
 
 	@Test
