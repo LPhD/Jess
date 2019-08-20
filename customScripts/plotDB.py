@@ -8,6 +8,7 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
 generateOnlyAST = False
+custom = False
 ###############################################
 
 
@@ -16,12 +17,16 @@ generateOnlyAST = False
 #projectName = 'Revamp'
 #projectName = 'JoernTest.tar.gz'
 projectName = 'SPLC'
+#projectName = 'ICSE'
 #projectName = 'Collection'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
 
-####################################### Plotting ###############################################    
+####################################### Plotting ###############################################   
+ 
+customStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Symbol', 'CFGEntryNode', 'CFGExitNode']
+cNodeIDs = set()
  
 # Plots the results    
 def plotResults ():
@@ -31,12 +36,17 @@ def plotResults ():
     f = open((os.path.join(os.path.dirname(__file__), 'plotconfig.cfg')) , "r")
     plot_configuration.parse(f)
     
-    #Get nodes and edges of DB (either as AST or full property graph)
+    #Get nodes and edges of DB (either as AST, custom view, or full property graph)
     if (generateOnlyAST):
         print("Get AST nodes")
         nodes = getASTNodes()    
         print("Get AST edges")
-        edges = getASTEdges()    
+        edges = getASTEdges()  
+    elif (custom):
+        print("Get custom nodes")
+        nodes = getCustomNodes() 
+        print("Get custom edges")
+        edges = getCustomEdges()     
     else:
         print("Get nodes")
         nodes = getNodes()    
@@ -59,6 +69,16 @@ def getASTNodes():
     # Remove unneeded nodes
     query = "g.V().not(has('type', within('Symbol','CFGExitNode','CFGEntryNode')))"  
     return db.runGremlinQuery(query)
+    
+# Returns custom vertices of the DB   
+def getCustomNodes():
+    global cNodeIDs
+    # Get custom nodes
+    query = """g.V().has('type', within(%s))""" % (customStatementTypes)  
+    cNodes = db.runGremlinQuery(query)
+    query = """g.V().has('type', within(%s)).id()""" % (customStatementTypes) 
+    cNodeIDs = db.runGremlinQuery(query) 
+    return cNodes   
 
 # Returns all vertices of the DB    
 def getNodes():
@@ -75,7 +95,14 @@ def getASTEdges():
 def getEdges():
     # Get all incoming edges 
     query = "g.E()" 
-    return db.runGremlinQuery(query)       
+    return db.runGremlinQuery(query)  
+
+# Returns custom edges of the DB    
+def getCustomEdges():
+    global cNodeIDs
+    # Get all incoming edges 
+    query = """idListToNodes(%s).inE()""" % (cNodeIDs)
+    return db.runGremlinQuery(query)     
 
 # Adds nodes to the graph G    
 def addNodes(plot_configuration, G, nodes):
