@@ -688,9 +688,14 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	private void closeCompoundStatement() {
+		System.out.println("###################################Close compound!");
 		BlockCloser bc = (BlockCloser) stack.pop(); // remove 'CloseBlock'
 		CompoundStatement compoundItem = (CompoundStatement) stack.pop();
 		compoundItem.addChild(bc);
+		System.out.println("###################################Children:");
+		for(int i = 0; i < compoundItem.getChildCount(); i++) {
+			System.out.println("###################################"+compoundItem.getChild(i).getEscapedCodeStr());
+		}
 		nesting.consolidateBlockStarters(compoundItem);
 	}
 
