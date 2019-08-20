@@ -244,9 +244,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		p.notifyObserversOfItem(builder.getItem());
 		
 		// Connect to parent blockstarters if they exist
-		checkVariability(builder.getItem());
-		
-
+		checkVariability(builder.getItem());		
 	}
 
 	@Override

@@ -40,7 +40,8 @@ public class ModuleFunctionParserInterface {
 		CharStream inputStream = compound_statement.start.getInputStream();
 		int startIndex = compound_statement.start.getStopIndex();
 		int stopIndex = compound_statement.stop.getStopIndex();
-		return inputStream.getText(new Interval(startIndex + 1, stopIndex - 1));
+		//The last item is the closing bracket of the compound statement
+		return inputStream.getText(new Interval(startIndex + 1, stopIndex));
 	}
 
 }

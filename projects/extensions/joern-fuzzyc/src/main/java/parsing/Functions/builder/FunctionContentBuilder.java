@@ -675,7 +675,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		consolidate = preprocessorHandling(itemToRemove);
 				
 		if (itemToRemove instanceof BlockCloser) {
-			closeCompoundStatement();
+			//Check if the BlockCloser is the last item on the stack
+			if(stack.size() == 2) {
+				closeParentCompountStatement();
+			} else {
+				closeCompoundStatement();
+			}
 			return;
 		}
 
@@ -688,15 +693,19 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	private void closeCompoundStatement() {
-		System.out.println("###################################Close compound!");
 		BlockCloser bc = (BlockCloser) stack.pop(); // remove 'CloseBlock'
 		CompoundStatement compoundItem = (CompoundStatement) stack.pop();
 		compoundItem.addChild(bc);
-		System.out.println("###################################Children:");
-		for(int i = 0; i < compoundItem.getChildCount(); i++) {
-			System.out.println("###################################"+compoundItem.getChild(i).getEscapedCodeStr());
-		}
 		nesting.consolidateBlockStarters(compoundItem);
+	}
+	
+	/**
+	 * Only use this once if the parent compound statement content has been parsed.
+	 */
+	private void closeParentCompountStatement() {
+		BlockCloser bc = (BlockCloser) stack.pop(); 
+		CompoundStatement compoundItem = (CompoundStatement) stack.peek();
+		compoundItem.addChild(bc);
 	}
 
 	/**
