@@ -25,14 +25,14 @@ public class OtherTests extends CCFGCreatorTest {
 	public void testWhileNumberOfBlocks() {
 		String input = "while(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
-		assertEquals(5, cfg.size());
+		assertEquals(4, cfg.size());
 	}
 
 	@Test
 	public void testDoNumberOfBlocks() {
 		String input = "do{ bar(); }while(foo);";
 		CFG cfg = getCFGForCode(input);
-		assertEquals(5, cfg.size());
+		assertEquals(4, cfg.size());
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class OtherTests extends CCFGCreatorTest {
 	public void testForNumberOfBlocks() {
 		String input = "for(i = 0; i < 10; i ++){ foo(); }";
 		CFG cfg = getCFGForCode(input);
-		assertEquals(7, cfg.size());
+		assertEquals(6, cfg.size());
 	}
 
 	@Test

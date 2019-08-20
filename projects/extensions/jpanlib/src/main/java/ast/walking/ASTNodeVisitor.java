@@ -14,6 +14,7 @@ import ast.expressions.UnaryExpression;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
+import ast.logical.statements.BlockCloser;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
@@ -125,6 +126,10 @@ public abstract class ASTNodeVisitor {
 	}
 
 	public void visit(CompoundStatement expression) {
+		defaultHandler(expression);
+	}
+	
+	public void visit(BlockCloser expression) {
 		defaultHandler(expression);
 	}
 

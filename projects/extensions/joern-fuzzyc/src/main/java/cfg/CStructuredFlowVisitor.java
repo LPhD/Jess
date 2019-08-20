@@ -3,6 +3,7 @@ package cfg;
 
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
+import ast.logical.statements.BlockCloser;
 import ast.logical.statements.Label;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.ForStatement;
@@ -98,6 +99,11 @@ public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 	public void visit(ThrowStatement node)
 	{
 		returnCFG = CCFGFactory.newInstance(node);
+	}
+	
+
+	public void visit(BlockCloser node)	{
+	// Do nothing
 	}
 	
 }
