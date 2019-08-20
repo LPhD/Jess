@@ -50,23 +50,42 @@ os.makedirs(foldername)
 
 # Counter
 n = 1
+index = 0
 lastFile = foldername+"/"+structuredPatchList[0][0]
 
 # Print results
-for x in structuredPatchList: 
-    print(x) 
-    file = open(foldername+"/"+x[0], 'a')
+while index in range(len(structuredPatchList)): 
+
+    file = open(foldername+"/"+structuredPatchList[index][0], 'a')
     
     #Reset counter if filename changed
-    if (not (lastFile == foldername+"/"+x[0])):
+    if (not (lastFile == foldername+"/"+structuredPatchList[index][0])):
         n = 1
-        lastFile = foldername+"/"+x[0]
+        lastFile = foldername+"/"+structuredPatchList[index][0]
     
     #Add empty lines until we reach the line of the current statement
-    while (n < x[1]):
+    while (n < structuredPatchList[index][1]):
         file.write("\n")
         n += 1
-    
-    file.write(x[2])
+        
+    #Check if opening bracket and code are in the right order (first code, then bracket)    
+    if ((index < len(structuredPatchList) -1) 
+        and (structuredPatchList[index][2] == "{") 
+        and (structuredPatchList[index][1] == structuredPatchList[index+1][1])
+        and (structuredPatchList[index][0] == structuredPatchList[index+1][0])):
+        
+        #Write the code first
+        file.write(structuredPatchList[index+1][2])
+        print(structuredPatchList[index+1]) 
+        #Then the bracket
+        file.write(structuredPatchList[index][2])
+        print(structuredPatchList[index]) 
+        #Then move index forward
+        index = index + 2
+    else:    
+        file.write(structuredPatchList[index][2])
+        print(structuredPatchList[index]) 
+        index = index + 1
+        
     file.close()
 
