@@ -69,6 +69,7 @@ public class FunctionDatabaseNode extends DatabaseNode {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(NodeKeys.NODE_TYPE, "Function");
 		properties.put(NodeKeys.LINE, ""+this.getLine());
+		properties.put(NodeKeys.CLINE, ""+this.getCharAtLine());
 		properties.put(NodeKeys.PATH, this.getPath());
 		properties.put(NodeKeys.CODE, this.getName());
 		return properties;
@@ -112,6 +113,10 @@ public class FunctionDatabaseNode extends DatabaseNode {
 	
 	public String getPath() {
 		return astRoot.getPath();
+	}
+	
+	public int getCharAtLine() {
+		return astRoot.getCharAtLine();
 	}
 
 	public int getContentLine() {

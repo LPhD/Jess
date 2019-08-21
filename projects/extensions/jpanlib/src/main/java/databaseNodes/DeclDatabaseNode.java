@@ -26,6 +26,7 @@ public class DeclDatabaseNode extends DeclStmtDatabaseNode {
 		//Always get the location
 		map.put(NodeKeys.LINE, ""+decl.getLine());
 		map.put(NodeKeys.PATH, decl.getPath());
+		map.put(NodeKeys.CLINE, ""+decl.getCharAtLine());
 		return map;
 	}
 	

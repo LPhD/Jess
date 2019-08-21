@@ -23,6 +23,7 @@ public class ClassDefDatabaseNode extends DatabaseNode {
 		map.put(NodeKeys.CODE, name);
 		map.put(NodeKeys.LINE, ""+stmt.getLine());
 		map.put(NodeKeys.PATH, stmt.getPath());
+		map.put(NodeKeys.CLINE, ""+stmt.getCharAtLine());
 		return map;
 	}
 

@@ -23,6 +23,7 @@ public class ASTNodeFactory {
 		
 		//We can not set the path here, only the line?
 		node.setLine(ctx.start.getLine());
+		node.setCharAtLine(ctx.start.getCharPositionInLine());
 		node.setCodeStr(escapeCodeStr(ParseTreeUtils.childTokenString(ctx)));
 	}
 
