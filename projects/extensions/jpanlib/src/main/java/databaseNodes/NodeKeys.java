@@ -1,7 +1,6 @@
 package databaseNodes;
 
-public class NodeKeys
-{
+public class NodeKeys {
 
 	public static final String NODE_TYPE = "type";
 	public static final String CODE = "code";
