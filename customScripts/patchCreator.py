@@ -52,27 +52,86 @@ if os.path.exists(foldername):
 os.makedirs(foldername)
 
 # Counter
-n = 1
+nChar = 0
 lastFile = foldername+"/"+structuredPatchList[0][0]
+lastLine = 1
+lineContent = ""
+fileContent = ['']
 
 # Print results
 for statement in structuredPatchList: 
+    
+    #Reset variables if line changed
+    if (not (len(fileContent) == statement[1])):
+        lineContent = ""   
+        nChar = 0
+        lChanged = True
+    else:
+        lChanged = False
 
-    file = open(foldername+"/"+statement[0], 'a')
-    
-    #Reset counter if filename changed
+        
+    #Reset variables if filename changed
     if (not (lastFile == foldername+"/"+statement[0])):
-        n = 1
-        lastFile = foldername+"/"+statement[0]
+        #We need this for later
+        outputFileContent = fileContent
+        #Reset counters and content
+        nChar = 0
+        lineContent = "" 
+        fileContent = ['']
+        lChanged = True
+        fChanged = True
+    else:
+        fChanged = False
     
-    #Add empty lines until we reach the line of the current statement
-    while (n < statement[1]):
-        file.write("\n")
-        n += 1
+    #Add empty lines until we reach the line of the current statement (index begins with 1)
+    while (len(fileContent) < statement[1]-1):
+        fileContent.append("")
+            
+    #Index for iterating throug the chars of the code statement
+    sIndex = 0
+    #Iterate through every char of the line (number of spaces + number of chars in statement)
+    while (nChar <= (statement[2] + (len(statement[3])-1))):
         
-    #Write code to the file
-    file.write(statement[3])
-    print(statement) 
+        #If we are not at the starting char of the statement
+        if (nChar < statement[2]):
+            #Only write tabs if the current index is at an empty field (dont overwrite results for the same line)
+            if(nChar >= len(lineContent)):
+                #Add a space
+                lineContent = lineContent + "\t"
+        #If we reach the beginning of the statement    
+        else:
+            #Add the statement character by character
+            lineContent = lineContent + statement[3][sIndex]
+            sIndex = sIndex + 1
+            
+        # Do not increment counter if the loop runs for the last time, just break
+        if (not (nChar == (statement[2] + (len(statement[3])-1)))):    
+            nChar = nChar + 1
+        else:
+            break
+            
+    #Overwrite the current line if we are still at the same line as last iteration
+    if (lChanged):
+        fileContent.append(lineContent)
+    else:
+        fileContent[statement[1]-1] = lineContent
         
-    file.close()
+    
+    if(fChanged):
+        file = open(lastFile, 'w')   
+        #Write code to the file (that is now finished)
+        file.write("\n".join(outputFileContent))            
+        file.close()
+        #Change temp variable to the new file
+        lastFile = foldername+"/"+statement[0]
+        
+        #print(outputFileContent)    
+        
+    print(statement)  
+
+#Finally write the last file        
+file = open(lastFile, 'w')   
+#Write code to the file (that is now finished)
+file.write("\n".join(fileContent))
+file.close()    
 
