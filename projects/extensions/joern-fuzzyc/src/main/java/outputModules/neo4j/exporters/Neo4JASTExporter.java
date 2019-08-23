@@ -11,6 +11,7 @@ import databaseNodes.NodeKeys;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.ASTExporter;
+import outputModules.common.Writer;
 
 public class Neo4JASTExporter extends ASTExporter {
 	GraphNodeStore nodeStore;
@@ -47,6 +48,15 @@ public class Neo4JASTExporter extends ASTExporter {
 	protected void drawVariabilityEdge(long parentNodeID, long childNodeID) {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.VARIABILITY);
 		Neo4JBatchInserter.addRelationship(parentNodeID, childNodeID, rel, null);
+	}
+	
+	/**
+	 * Link the given comment (parentNodeID) with its commentee (childNodeID)
+	 */
+	@Override
+	protected void drawCommentsEdge(long parentNodeID, long childNodeID) {
+		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.COMMENTS);
+		Neo4JBatchInserter.addRelationship(parentNodeID, childNodeID, rel, null);	
 	}
 
 }

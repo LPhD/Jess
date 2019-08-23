@@ -123,4 +123,5 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 	protected abstract void addASTLink(long parentNodeID, long childNodeID);
 	protected abstract void linkPreStatementToFileNode(ASTDatabaseNode preDBNode, FileDatabaseNode fileNode);
 	protected abstract void drawVariabilityEdge(long parentNodeID, long childNodeID);
+	protected abstract void drawCommentsEdge(long parentNodeID, long childNodeID);
 }

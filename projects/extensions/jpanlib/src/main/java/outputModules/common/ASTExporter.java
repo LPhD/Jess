@@ -1,6 +1,7 @@
 package outputModules.common;
 
 import ast.ASTNode;
+import ast.Comment;
 import ast.logical.statements.CompoundStatement;
 import ast.preprocessor.PreBlockstarter;
 import databaseNodes.ASTDatabaseNode;
@@ -71,6 +72,18 @@ public abstract class ASTExporter {
 		}
 	}
 	
+	/**
+	 * Look for comment nodes and draw COMMENTS links to their commentees
+	 * @param node
+	 */
+	protected void addCommentAnalysis(ASTNode node) {
+		if(node instanceof Comment) {
+			if(((Comment) node).getCommentee() != null) {
+				drawCommentsEdge(node.getNodeId(), ((Comment) node).getCommentee().getNodeId());
+			}
+		}		
+	}
+	
 	protected void addASTChildren(ASTNode astNodeParent) {
 
 		final int nChildren = astNodeParent.getChildCount();
@@ -100,5 +113,6 @@ public abstract class ASTExporter {
 	protected abstract void addASTNode(ASTDatabaseNode astDatabaseNode);
 	protected abstract void addASTLink(long parentNodeID, long childNodeID);
 	protected abstract void drawVariabilityEdge(long parentNodeID, long childNodeID);
+	protected abstract void drawCommentsEdge(long parentNodeID, long childNodeID);
 
 }

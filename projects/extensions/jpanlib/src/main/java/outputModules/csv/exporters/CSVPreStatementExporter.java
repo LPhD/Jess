@@ -63,4 +63,12 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	protected void drawVariabilityEdge(long parentNodeID, long childNodeID) {
 		Writer.addEdge(parentNodeID, childNodeID, null, EdgeTypes.VARIABILITY);
 	}
+	
+	/**
+	 * Link the given comment (parentNodeID) with its commentee (childNodeID)
+	 */
+	@Override
+	protected void drawCommentsEdge(long parentNodeID, long childNodeID) {
+		Writer.addEdge(parentNodeID, childNodeID, null, EdgeTypes.COMMENTS);		
+	}
 }

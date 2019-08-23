@@ -64,5 +64,10 @@ public class EdgeTypes
 	 * Links an #if/#ifdef/#elif/#else with its contained block
 	 */
 	public static final String VARIABILITY = "VARIABILITY";
+	
+	/**
+	 * Links a comment with its commentee
+	 */
+	public static final String COMMENTS = "COMMENTS";
 
 }

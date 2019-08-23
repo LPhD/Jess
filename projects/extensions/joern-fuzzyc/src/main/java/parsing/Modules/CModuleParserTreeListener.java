@@ -247,7 +247,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			// Remove comments from stack
 			Comment comment = commentStack.pop();
 			// Add the current node (which is underneath the comment) as commentee
-			comment.addCommentee(node);
+			comment.setCommentee(node);
 			// TODO: Comments in the same line
 		}
 
