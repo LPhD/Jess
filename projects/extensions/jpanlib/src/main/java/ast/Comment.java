@@ -6,7 +6,7 @@ public class Comment extends ASTNode {
 
 	protected LinkedList<ASTNode> commentees;
 	
-	public void addChild(ASTNode node) {
+	public void addCommentee(ASTNode node) {
 		if (commentees == null)
 			commentees = new LinkedList<ASTNode>();
 		commentees.add(node);

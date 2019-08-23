@@ -112,7 +112,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		//VARIABILITY ANALYSIS first
 		variabilityAnalysis(thisItem);
 		//AST ANALYSIS second
-		astAnalysis(thisItem);				
+		astAnalysis(thisItem);	
+		//Check if commented third
+		checkIfCommented(thisItem);
 	}
 	
 	/**
@@ -240,6 +242,17 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		p.notifyObserversOfItem(comment);
 	}	
 	
+	private void checkIfCommented(ASTNode node) {
+		while (!commentStack.isEmpty()) {
+			// Remove comments from stack
+			Comment comment = commentStack.pop();
+			// Add the current node (which is underneath the comment) as commentee
+			comment.addCommentee(node);
+			// TODO: Comments in the same line
+		}
+
+	}
+	
 	
 // -------------------------------------- Function Def -------------------------------------------------------------------------	
 	@Override
@@ -257,10 +270,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	@Override
 	public void exitFunction_def(ModuleParser.Function_defContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.pop();
-		p.notifyObserversOfItem(builder.getItem());
+		ASTNode fdef = builder.getItem();
+		p.notifyObserversOfItem(fdef);
 		
 		// Connect to parent blockstarters if they exist
-		checkVariability(builder.getItem());		
+		checkVariability(fdef);	
+		// Connect to parrent comment if existing
+		checkIfCommented(fdef);
 	}
 
 	@Override
@@ -305,7 +321,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		ASTNodeFactory.initializeFromContext(stmt, ctx);	
 		logger.debug("Node "+stmt.getEscapedCodeStr()+" intialized");
+		// Connect to parrent #ifdef if existing
 		checkVariability(stmt);
+		// Connect to parrent comment if existing
+		checkIfCommented(stmt);
 
 		Iterator<IdentifierDecl> it = declarations.iterator();
 		while (it.hasNext()) {
@@ -333,12 +352,15 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		CompoundStatement content = parseClassContent(ctx);
 		builder.setContent(content);
+		ASTNode node = builder.getItem();
 		
-		p.notifyObserversOfItem(builder.getItem());
+		p.notifyObserversOfItem(node);
 		emitDeclarationsForClass(ctx);
 				
 		//Connect to parent blockstarters if they exist
-		checkVariability(builder.getItem());
+		checkVariability(node);
+		//Connect to parent comment if existing
+		checkIfCommented(node);
 	}
 
 	@Override
