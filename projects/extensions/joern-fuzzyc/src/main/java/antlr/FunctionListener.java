@@ -480,6 +480,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_pragma(FunctionParser.Pre_pragmaContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void enterComment(FunctionParser.CommentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void exitComment(FunctionParser.CommentContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#unary_operator}.
 	 * @param ctx the parse tree
 	 */

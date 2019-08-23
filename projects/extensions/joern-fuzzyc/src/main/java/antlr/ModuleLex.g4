@@ -118,14 +118,14 @@ NEWLINE: [\r\n]+;
 ESCAPE: '\\';
 
 COMMENT
-    :   '/*' .*? '*/'    -> skip 
+    :   '/*' .*? '*/'     
     ;
     
 WHITESPACE  :   [ \t\u000C]+ -> skip
     ;
 
 CPPCOMMENT
-    : '//' ~[\r\n]* '\r'? '\n' -> skip
+    : '//' ~[\r\n]* '\r'? '\n' 
     ;
     
 ELLIPSIS : '...';

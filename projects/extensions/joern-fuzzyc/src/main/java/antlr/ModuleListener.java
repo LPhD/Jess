@@ -620,6 +620,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPrimary_expression(ModuleParser.Primary_expressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void enterComment(ModuleParser.CommentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#comment}.
+	 * @param ctx the parse tree
+	 */
+	void exitComment(ModuleParser.CommentContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#unary_operator}.
 	 * @param ctx the parse tree
 	 */
