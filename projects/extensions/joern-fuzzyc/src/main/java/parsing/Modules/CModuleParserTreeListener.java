@@ -234,21 +234,22 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 // -------------------------------------- Comment -------------------------------------------------------------------------	
 	@Override
 	public void enterComment(ModuleParser.CommentContext ctx) {
-		logger.debug("Enter comment (module)");
-		
+		logger.debug("Enter comment (module)");		
 		Comment comment = new Comment();
 		ASTNodeFactory.initializeFromContext(comment, ctx);
-		commentStack.push(comment);
-		p.notifyObserversOfItem(comment);
+		commentStack.push(comment);		
 	}	
 	
+	// TODO: Comments in the same line	
 	private void checkIfCommented(ASTNode node) {
 		while (!commentStack.isEmpty()) {
 			// Remove comments from stack
 			Comment comment = commentStack.pop();
 			// Add the current node (which is underneath the comment) as commentee
 			comment.setCommentee(node);
-			// TODO: Comments in the same line
+
+			//Notify here, because we need the commentee to be initialized
+			p.notifyObserversOfItem(comment);
 		}
 
 	}
@@ -321,10 +322,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		ASTNodeFactory.initializeFromContext(stmt, ctx);	
 		logger.debug("Node "+stmt.getEscapedCodeStr()+" intialized");
-		// Connect to parrent #ifdef if existing
-		checkVariability(stmt);
-		// Connect to parrent comment if existing
-		checkIfCommented(stmt);
+
+
 
 		Iterator<IdentifierDecl> it = declarations.iterator();
 		while (it.hasNext()) {
@@ -334,6 +333,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		p.notifyObserversOfItem(stmt);
 		
+		// Connect to parrent #ifdef if existing
+		checkVariability(stmt);
+		// Connect to parrent comment if existing
+		checkIfCommented(stmt);		
 	}
 
 // -------------------------------------- Decl by Class -------------------------------------------------------------------------

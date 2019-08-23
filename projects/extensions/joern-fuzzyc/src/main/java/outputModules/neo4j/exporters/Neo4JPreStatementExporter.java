@@ -82,13 +82,4 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.VARIABILITY);
 		Neo4JBatchInserter.addRelationship(parentNodeID, childNodeID, rel, null);
 	}
-	
-	/**
-	 * Link the given comment (parentNodeID) with its commentee (childNodeID)
-	 */
-	@Override
-	protected void drawCommentsEdge(long parentNodeID, long childNodeID) {
-		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.COMMENTS);
-		Neo4JBatchInserter.addRelationship(parentNodeID, childNodeID, rel, null);	
-	}
 }

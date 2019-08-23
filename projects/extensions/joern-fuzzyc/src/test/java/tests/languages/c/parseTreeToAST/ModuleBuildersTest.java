@@ -271,7 +271,8 @@ public class ModuleBuildersTest {
 	public void commentForFunction() {
 		String input = "//This is a function comment \n int foo(){}";
 		List<ASTNode> codeItems = parseInput(input);
-		Comment codeItem = (Comment) codeItems.get(0);
+		//Comment is the second item, because we need the commentee to be processed first
+		Comment codeItem = (Comment) codeItems.get(1);
 		assertEquals("Comment", codeItem.getTypeAsString());
 		assertEquals("//This is a function comment \\n", codeItem.getEscapedCodeStr());
 		assertEquals("FunctionDef", codeItem.getCommentee().getTypeAsString());
