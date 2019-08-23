@@ -15,6 +15,7 @@ import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
 import antlr.ModuleParser.Type_nameContext;
 import ast.ASTNode;
+import ast.Comment;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.IdentifierDecl;
@@ -47,6 +48,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
 	 */
 	private Stack<ASTNode> preASTItemStack = new Stack<ASTNode>();	
+	/**
+	 * This stack contains Comments
+	 */
+	private Stack<Comment> commentStack = new Stack<Comment>();
 	private static final Logger logger = LoggerFactory.getLogger(CModuleParserTreeListener.class);
 
 
@@ -224,8 +229,19 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	}
 
 
-// --------------------------------------Preprocessor end-------------------------------------------------------------------------
-
+// -------------------------------------- Comment -------------------------------------------------------------------------	
+	@Override
+	public void enterComment(ModuleParser.CommentContext ctx) {
+		logger.debug("Enter comment (module)");
+		
+		Comment comment = new Comment();
+		ASTNodeFactory.initializeFromContext(comment, ctx);
+		commentStack.push(comment);
+		p.notifyObserversOfItem(comment);
+	}	
+	
+	
+// -------------------------------------- Function Def -------------------------------------------------------------------------	
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx) {
 		logger.debug("Enter functionDef");
@@ -271,7 +287,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		builder.addParameter(ctx, p.builderStack);
 	}
 
-	// DeclByType
+// -------------------------------------- Decl by Type -------------------------------------------------------------------------	
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
@@ -301,7 +317,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		
 	}
 
-	// DeclByClass
+// -------------------------------------- Decl by Class -------------------------------------------------------------------------
 
 	@Override
 	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx) {

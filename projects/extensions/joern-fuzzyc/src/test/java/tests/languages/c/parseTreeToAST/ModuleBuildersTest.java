@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import antlr.ModuleLexer;
 import ast.ASTNode;
+import ast.Comment;
 import ast.c.functionDef.ParameterType;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
@@ -263,6 +264,26 @@ public class ModuleBuildersTest {
 		//#endif
 		codeItem = (PreBlockstarter) codeItem.getChild(0);		
 		assertEquals("PreEndIfStatement", codeItem.getTypeAsString());
+	}
+	
+	@Test
+	public void commentForFunction() {
+		String input = "//This is a function comment \n int foo(){}";
+		List<ASTNode> codeItems = parseInput(input);
+		Comment codeItem = (Comment) codeItems.get(0);
+		assertEquals("Comment", codeItem.getTypeAsString());
+		assertEquals("//This is a function comment \\n", codeItem.getEscapedCodeStr());
+		assertEquals(1, codeItem.getCommenteeCount());
+	}
+	
+	@Test
+	public void commentInsideFunction() {
+		String input = "int foo(){/*Comment inside function */ int i; }";
+		List<ASTNode> codeItems = parseInput(input);
+		Comment codeItem = (Comment) codeItems.get(1);
+		assertEquals("Comment", codeItem.getTypeAsString());
+		assertEquals("/*Comment inside function */", codeItem.getEscapedCodeStr());
+		assertEquals(1, codeItem.getCommenteeCount());
 	}
 
 	private List<ASTNode> parseInput(String input) {

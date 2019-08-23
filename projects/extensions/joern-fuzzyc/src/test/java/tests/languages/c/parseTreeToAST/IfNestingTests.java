@@ -47,6 +47,7 @@ public class IfNestingTests {
 		Expression condition = ((Condition) starter.getCondition()).getExpression();
 		assertTrue(condition.getEscapedCodeStr().equals("foo"));
 	}
+	
 
 	@Test
 	public void ifElse() {
