@@ -62,11 +62,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	@Override
 	public void enterCode(ModuleParser.CodeContext ctx) {
 		p.notifyObserversOfUnitStart(ctx);
+		System.out.println("Enter code");
 	}
 
 	@Override
 	public void exitCode(ModuleParser.CodeContext ctx) {
 		p.notifyObserversOfUnitEnd(ctx);
+		System.out.println("Leave code");
 	}
 
 	// /////////////////////////////////////////////////////////////
