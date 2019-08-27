@@ -3,6 +3,7 @@ package ast.walking;
 import java.util.Stack;
 
 import ast.ASTNode;
+import ast.Comment;
 import ast.declarations.ClassDefStatement;
 import ast.expressions.Argument;
 import ast.expressions.AssignmentExpression;
@@ -50,6 +51,11 @@ public abstract class ASTNodeVisitor {
 
 	// Preprocessor
 	public void visit(PreStatementBase item) {
+		defaultHandler(item);
+	}
+	
+	// Comments
+	public void visit(Comment item) {
 		defaultHandler(item);
 	}
 

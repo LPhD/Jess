@@ -1,6 +1,7 @@
 package cfg;
 
 
+import ast.Comment;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
 import ast.logical.statements.BlockCloser;
@@ -103,6 +104,10 @@ public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 	
 
 	public void visit(BlockCloser node)	{
+	// Do nothing
+	}
+	
+	public void visit(Comment node)	{
 	// Do nothing
 	}
 	

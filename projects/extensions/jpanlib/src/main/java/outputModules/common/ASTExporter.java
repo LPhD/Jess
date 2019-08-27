@@ -12,6 +12,10 @@ public abstract class ASTExporter {
 	protected FunctionDatabaseNode currentFunction;
 	protected int ancestorCompoundStatements;
 
+	/**
+	 * This is for every AST node on function level (functions/classes + their content)
+	 * @param node The current AST node that shall be added to the DB
+	 */
 	public void addASTToDatabase(ASTNode node) {
 		//The current node path is the same as the ASTRoot path
 		node.setPath(currentFunction.getASTRoot().getPath());
@@ -28,9 +32,7 @@ public abstract class ASTExporter {
 		// Link include statement with included file
 		if (node.getTypeAsString().equals("PreIncludeLocalFile")) {
 			IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
-		}
-		
-		System.out.println("This node is: "+node.getEscapedCodeStr()+" of type "+node.getTypeAsString());
+		}		
 		
 		visit(node);
 		addASTChildren(node);	
