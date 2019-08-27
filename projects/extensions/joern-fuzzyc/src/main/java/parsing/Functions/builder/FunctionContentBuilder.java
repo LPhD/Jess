@@ -2,6 +2,8 @@ package parsing.Functions.builder;
 
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -202,6 +204,15 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 */
 	private Stack<ASTNode> preASTItemStack = new Stack<ASTNode>();	
 	/**
+	 * This stack contains Comments
+	 */
+	private Stack<Comment> commentStack = new Stack<Comment>();
+	/**
+	 * Pending items list for all statements that should be visited after the whole file content is parsed
+	 * Currently only for comments
+	 */
+	private List<Comment> pendingList = new LinkedList<Comment>();
+	/**
 	 * This is needed for returning the current item when we call the function parser via the module parser
 	 * We need this for #else/#elif/#endif because they are not children of the top level compound statement
 	 */
@@ -223,7 +234,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			}
 			// throw new RuntimeException("Broken stack while parsing");
 		}
-
+		
+		//Clear all stacks + lists,	as the analysis is (currently) function-local
+		this.variabilityItemStack.clear();
+		this.preASTItemStack.clear();
+		this.commentStack.clear();
+		this.pendingList.clear();
 	}
 	
 
