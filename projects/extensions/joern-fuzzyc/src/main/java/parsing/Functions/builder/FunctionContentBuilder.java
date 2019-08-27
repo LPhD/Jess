@@ -663,6 +663,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	public void enterComment(CommentContext ctx) {
 		replaceTopOfStack(new Comment(), ctx);	
+		System.out.println("Comment!");
 	}
 	
 	// ----------------------------------Comment handling end------------------------------------------------------------------	
