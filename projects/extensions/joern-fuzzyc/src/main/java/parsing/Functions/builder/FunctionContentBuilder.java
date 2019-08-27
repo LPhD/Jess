@@ -682,6 +682,18 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		System.out.println("Comment!");
 	}
 	
+	// TODO: Comments in the same line	
+	private void checkIfCommented(ASTNode node) {
+		while (!commentStack.isEmpty()) {
+			// Remove comments from stack
+			Comment comment = commentStack.pop();
+			// Add the current node (which is underneath the comment) as commentee
+			comment.setCommentee(node);
+			//Save for later, because we need the commentee to be initialized
+			pendingList.add(comment);
+		}
+
+	}
 	// ----------------------------------Comment handling end------------------------------------------------------------------	
 
 	/**
@@ -700,6 +712,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 		
 		consolidate = preprocessorHandling(itemToRemove);
+		
+		//Collect comments
+		if(itemToRemove instanceof Comment) {
+			commentStack.push((Comment) itemToRemove);
+			System.out.println("Collected "+itemToRemove.getEscapedCodeStr());
+		}
 				
 		if (itemToRemove instanceof BlockCloser) {
 			//Check if the BlockCloser is the last item on the stack
