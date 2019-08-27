@@ -43,7 +43,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	/**
 	 * This stack contains PreBlockstarters that can implement variability
 	 */
-	private Stack<ASTNode> variabilityItemStack = new Stack<ASTNode>();
+	private Stack<ASTNode> variabilityItemStack = new Stack<ASTNode>();;
 	/**
 	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
 	 */
@@ -59,16 +59,21 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		p = aP;
 	}
 
+	//Called once when a file is entered
 	@Override
-	public void enterCode(ModuleParser.CodeContext ctx) {
+	public void enterCode(ModuleParser.CodeContext ctx) {	
 		p.notifyObserversOfUnitStart(ctx);
-		System.out.println("Enter code");
 	}
 
+	//Called once when a file is left
 	@Override
 	public void exitCode(ModuleParser.CodeContext ctx) {
-		p.notifyObserversOfUnitEnd(ctx);
-		System.out.println("Leave code");
+		//Clear all stacks,	as the analysis is file-local
+		this.variabilityItemStack.clear();
+		this.preASTItemStack.clear();
+		this.commentStack.clear();
+		
+		p.notifyObserversOfUnitEnd(ctx);		
 	}
 
 	// /////////////////////////////////////////////////////////////
