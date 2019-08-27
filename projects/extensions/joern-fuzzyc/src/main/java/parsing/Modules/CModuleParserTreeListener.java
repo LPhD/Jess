@@ -247,6 +247,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			Comment comment = commentStack.pop();
 			// Add the current node (which is underneath the comment) as commentee
 			comment.setCommentee(node);
+			
+			System.out.println("Added commentee "+node.getEscapedCodeStr()+" to comment "+comment.getEscapedCodeStr());
 
 			//Notify here, because we need the commentee to be initialized
 			p.notifyObserversOfItem(comment);
