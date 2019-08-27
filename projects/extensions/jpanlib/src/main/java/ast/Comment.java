@@ -1,5 +1,7 @@
 package ast;
 
+import ast.walking.ASTNodeVisitor;
+
 public class Comment extends ASTNode {
 
 	protected ASTNode commentee;
@@ -13,4 +15,7 @@ public class Comment extends ASTNode {
 		return commentee;
 	}
 	
+	public void accept(ASTNodeVisitor visitor) {
+		visitor.visit(this);
+	}
 }
