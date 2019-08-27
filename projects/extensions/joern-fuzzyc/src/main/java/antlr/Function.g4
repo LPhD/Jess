@@ -17,6 +17,7 @@ statement:newline
          | label 
          | simple_decl
          | expr_statement
+         | comment
          | water
         ;
 
