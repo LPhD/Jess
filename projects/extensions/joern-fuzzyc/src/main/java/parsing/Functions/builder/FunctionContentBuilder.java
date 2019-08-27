@@ -19,6 +19,7 @@ import antlr.FunctionParser.Cast_expressionContext;
 import antlr.FunctionParser.Cast_targetContext;
 import antlr.FunctionParser.Catch_statementContext;
 import antlr.FunctionParser.Closing_curlyContext;
+import antlr.FunctionParser.CommentContext;
 import antlr.FunctionParser.ConditionContext;
 import antlr.FunctionParser.Conditional_expressionContext;
 import antlr.FunctionParser.ContinueStatementContext;
@@ -90,6 +91,7 @@ import antlr.FunctionParser.Unary_operatorContext;
 import antlr.FunctionParser.While_statementContext;
 import ast.ASTNode;
 import ast.ASTNodeBuilder;
+import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
 import ast.c.preprocessor.blockstarter.PreElIfStatement;
@@ -656,6 +658,14 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	// ----------------------------------Preprocessor handling end-------------------------------------------------------------
+	// ----------------------------------Comment handling ---------------------------------------------------------------------
+	
+
+	public void enterComment(CommentContext ctx) {
+		replaceTopOfStack(new Comment(), ctx);	
+	}
+	
+	// ----------------------------------Comment handling end------------------------------------------------------------------	
 
 	/**
 	 * This is called for every AST node that is classified as a statement (based on grammar, e.g. expressionStatement is a statement)
@@ -1298,4 +1308,5 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		stack.pop();
 
 	}
+
 }
