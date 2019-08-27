@@ -1,6 +1,7 @@
 package parsing.Modules;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -52,6 +53,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 * This stack contains Comments
 	 */
 	private Stack<Comment> commentStack = new Stack<Comment>();
+	/**
+	 * Pending items list for all statements that should be visited after the whole file content is parsed
+	 * Currently only for comments
+	 */
+	private List<Comment> pendingList = new LinkedList<Comment>();
 	private static final Logger logger = LoggerFactory.getLogger(CModuleParserTreeListener.class);
 
 
@@ -68,10 +74,15 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	//Called once when a file is left
 	@Override
 	public void exitCode(ModuleParser.CodeContext ctx) {
-		//Clear all stacks,	as the analysis is file-local
+		for (Comment comment : pendingList) {
+			//Notify here, because we need the commentee to be initialized
+			p.notifyObserversOfItem(comment);
+		}
+		//Clear all stacks + lists,	as the analysis is file-local
 		this.variabilityItemStack.clear();
 		this.preASTItemStack.clear();
 		this.commentStack.clear();
+		this.pendingList.clear();
 		
 		p.notifyObserversOfUnitEnd(ctx);		
 	}
@@ -254,11 +265,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			Comment comment = commentStack.pop();
 			// Add the current node (which is underneath the comment) as commentee
 			comment.setCommentee(node);
-			
-			System.out.println("Added commentee "+node.getEscapedCodeStr()+" to comment "+comment.getEscapedCodeStr());
-
-			//Notify here, because we need the commentee to be initialized
-			p.notifyObserversOfItem(comment);
+			//Save for later, because we need the commentee to be initialized
+			pendingList.add(comment);
 		}
 
 	}
