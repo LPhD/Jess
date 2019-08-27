@@ -22,6 +22,7 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	@Override
 	public void visit(FunctionDefBase node) {
 		ASTNodeExporter importer = functionExporter;
+		System.out.println("Import function");
 		importNode(importer, node);
 	}
 
@@ -42,6 +43,7 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	@Override
 	public void visit(PreStatementBase node) {
 		ASTNodeExporter importer = new CSVPreStatementExporter();
+		System.out.println("Import pre statement");
 		importNode(importer, node);
 	}
 	

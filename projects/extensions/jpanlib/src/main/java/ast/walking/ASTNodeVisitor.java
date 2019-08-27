@@ -52,13 +52,11 @@ public abstract class ASTNodeVisitor {
 	// Preprocessor
 	public void visit(PreStatementBase item) {
 		defaultHandler(item);
-		System.out.println("Default handler preprocessor");
 	}
 	
 	// Comments
 	public void visit(Comment item) {
 		defaultHandler(item);
-		System.out.println("Default handler comment");
 	}
 
 	public void visit(ParameterList item) {
