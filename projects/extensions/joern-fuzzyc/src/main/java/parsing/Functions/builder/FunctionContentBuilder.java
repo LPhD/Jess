@@ -679,7 +679,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	public void enterComment(CommentContext ctx) {
 		replaceTopOfStack(new Comment(), ctx);	
-		System.out.println("Comment!");
 	}
 	
 	// TODO: Comments in the same line	
@@ -689,6 +688,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			Comment comment = commentStack.pop();
 			// Add the current node (which is underneath the comment) as commentee
 			comment.setCommentee(node);
+			System.out.println("Found commentee "+node.getEscapedCodeStr());
 			//Save for later, because we need the commentee to be initialized
 			pendingList.add(comment);
 		}
@@ -713,10 +713,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		
 		consolidate = preprocessorHandling(itemToRemove);
 		
-		//Collect comments
+		//Collect comments and check potential commentees
 		if(itemToRemove instanceof Comment) {
 			commentStack.push((Comment) itemToRemove);
-			System.out.println("Collected "+itemToRemove.getEscapedCodeStr());
+		} else {
+			checkIfCommented(itemToRemove);
 		}
 				
 		if (itemToRemove instanceof BlockCloser) {
