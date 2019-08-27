@@ -49,6 +49,7 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	@Override
 	public void visit(Comment node) {
 		ASTNodeExporter importer = new CSVCommentExporter();
+		System.out.println("Import comment");
 		importNode(importer, node);
 	}
 
