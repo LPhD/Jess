@@ -30,6 +30,8 @@ public abstract class ASTExporter {
 			IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
 		}
 		
+		System.out.println("This node is: "+node.getEscapedCodeStr()+" of type "+node.getTypeAsString());
+		
 		visit(node);
 		addASTChildren(node);	
 		leave(node);
