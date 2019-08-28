@@ -14,10 +14,10 @@ custom = False
 
 
 # Connect to project DB
-#projectName = 'EvoDiss.tar.gz'
+projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
 #projectName = 'JoernTest.tar.gz'
-projectName = 'SPLC'
+#projectName = 'SPLC'
 #projectName = 'ICSE'
 #projectName = 'Collection'
 db = DBInterface()
@@ -54,6 +54,8 @@ def plotResults ():
         nodes = getVisibleNodes()    
         print("Get visible edges")
         edges = getVisibleEdges() 
+        print("Writing files...")
+        fileOutput()
     elif (custom):
         print("Get custom nodes")
         nodes = getCustomNodes() 
@@ -163,6 +165,12 @@ def createGraphElementLabel(labeldata):
 # Formatting
 def escape(label):
     return str(label).replace("\\", "\\\\")
+
+def fileOutput ():    
+    with open('result.txt', 'w') as file_handler:
+        file_handler.write(projectName+"\n")
+        for item in resultIDs:
+            file_handler.write("{}\n".format(item))    
 
 # Writes output as .dot and .png in a folder named DB                   
 def output(G):
