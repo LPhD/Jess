@@ -32,7 +32,12 @@ public abstract class ASTExporter {
 		// Link include statement with included file
 		if (node.getTypeAsString().equals("PreIncludeLocalFile")) {
 			IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
-		}		
+		}	
+		
+		// Link include statement with included file
+		if (node instanceof Comment) {
+			addCommentAnalysis(node);
+		}
 		
 		visit(node);
 		addASTChildren(node);	

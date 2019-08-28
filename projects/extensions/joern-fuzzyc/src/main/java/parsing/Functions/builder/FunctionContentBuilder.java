@@ -688,7 +688,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			Comment comment = commentStack.pop();
 			// Add the current node (which is underneath the comment) as commentee
 			comment.setCommentee(node);
-			System.out.println("Found commentee "+node.getEscapedCodeStr());
+			logger.debug("Found commentee "+node.getEscapedCodeStr());
 			//Save for later, because we need the commentee to be initialized
 			pendingList.add(comment);
 		}
