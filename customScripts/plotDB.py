@@ -8,6 +8,7 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
 generateOnlyAST = False
+generateOnlyVisibleCode = True
 custom = False
 ###############################################
 
@@ -24,9 +25,15 @@ db.connectToDatabase(projectName)
 
 
 ####################################### Plotting ###############################################   
+result = set()
+resultIDs = set()
  
-customStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Symbol', 'CFGEntryNode', 'CFGExitNode']
+customStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Symbol', 'CFGEntryNode', 'CFGExitNode', 'Comment']
 cNodeIDs = set()
+
+visibleStatementTypes = ['File', 'Function', 'ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment']
+
+
  
 # Plots the results    
 def plotResults ():
@@ -42,6 +49,11 @@ def plotResults ():
         nodes = getASTNodes()    
         print("Get AST edges")
         edges = getASTEdges()  
+    elif(generateOnlyVisibleCode):
+        print("Get visible nodes")
+        nodes = getVisibleNodes()    
+        print("Get visible edges")
+        edges = getVisibleEdges() 
     elif (custom):
         print("Get custom nodes")
         nodes = getCustomNodes() 
@@ -64,45 +76,65 @@ def plotResults ():
     #Output result
     output(G)  
 
-# Returns all AST vertices of the DB   
-def getASTNodes():
-    # Remove unneeded nodes
-    query = "g.V().not(has('type', within('Symbol','CFGExitNode','CFGEntryNode')))"  
-    return db.runGremlinQuery(query)
-    
-# Returns custom vertices of the DB   
-def getCustomNodes():
-    global cNodeIDs
-    # Get custom nodes
-    query = """g.V().has('type', within(%s))""" % (customStatementTypes)  
-    cNodes = db.runGremlinQuery(query)
-    query = """g.V().has('type', within(%s)).id()""" % (customStatementTypes) 
-    cNodeIDs = db.runGremlinQuery(query) 
-    return cNodes   
 
 # Returns all vertices of the DB    
 def getNodes():
     query = "g.V()"
     return db.runGremlinQuery(query)
-           
-# Returns all AST edges of the DB   
-def getASTEdges():
-    # Get all incoming edges that are part of the AST
-    query = "g.V().inE('IS_AST_PARENT', 'IS_FILE_OF', 'IS_PARENT_DIR_OF', 'IS_FUNCTION_OF_AST', 'VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF')"  
+    
+# Returns all AST vertices of the DB   
+def getASTNodes():
+    # Remove unneeded nodes
+    query = "g.V().not(has('type', within('Symbol','CFGExitNode','CFGEntryNode')))"  
     return db.runGremlinQuery(query)
+
+# Returns all AST vertices of the SemanticUnit that directly appear in the code (CFG nodes or direct children of file nodes)    
+def getVisibleNodes():
+    global result, resultIDs
+    # Remove unneeded nodes
+    query = """g.V().has('type', within(%s))""" % (visibleStatementTypes)
+    result = db.runGremlinQuery(query)
+    query = """g.V().has('type', within(%s)).id()""" % (visibleStatementTypes)  
+    resultIDs = db.runGremlinQuery(query)
+    return result    
+    
+# Returns custom vertices of the DB   
+def getCustomNodes():
+    global result, resultIDs
+    # Get custom nodes
+    query = """g.V().has('type', within(%s))""" % (customStatementTypes)
+    result = db.runGremlinQuery(query)
+    query = """g.V().has('type', within(%s)).id()""" % (customStatementTypes)  
+    resultIDs = db.runGremlinQuery(query)
+    return result   
+
     
 # Returns all edges of the DB    
 def getEdges():
-    # Get all incoming edges 
     query = "g.E()" 
-    return db.runGremlinQuery(query)  
+    return db.runGremlinQuery(query) 
+    
+# Returns all AST edges of the DB   
+def getASTEdges():
+    # Get all incoming edges that are part of the AST
+    query = "g.V().inE('IS_AST_PARENT', 'IS_FILE_OF', 'IS_PARENT_DIR_OF', 'IS_FUNCTION_OF_AST', 'VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF', 'COMMENTS')"  
+    return db.runGremlinQuery(query) 
+
+# Returns custom edges of the DB    
+def getVisibleEdges():
+    global result
+    # Get all incoming  edges 
+    query = """idListToNodes(%s).inE('IS_AST_PARENT', 'IS_FILE_OF', 'IS_PARENT_DIR_OF', 'IS_FUNCTION_OF_AST', 'VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF', 'COMMENTS')""" % (resultIDs)
+    result = db.runGremlinQuery(query) 
+    return result 
 
 # Returns custom edges of the DB    
 def getCustomEdges():
-    global cNodeIDs
+    global result
     # Get all incoming edges 
-    query = """idListToNodes(%s).inE()""" % (cNodeIDs)
-    return db.runGremlinQuery(query)     
+    query = """idListToNodes(%s).inE()""" % (resultIDs)
+    result = db.runGremlinQuery(query) 
+    return result     
 
 # Adds nodes to the graph G    
 def addNodes(plot_configuration, G, nodes):
