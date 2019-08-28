@@ -10,7 +10,6 @@ import org.junit.Test;
 import antlr.ModuleLexer;
 import ast.ASTNode;
 import ast.Comment;
-import ast.c.functionDef.FunctionDef;
 import ast.c.functionDef.ParameterType;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
@@ -277,16 +276,7 @@ public class ModuleBuildersTest {
 		assertEquals("//This is a function comment \\n", codeItem.getEscapedCodeStr());
 		assertEquals("FunctionDef", codeItem.getCommentee().getTypeAsString());
 	}
-	
-	@Test
-	public void commentInsideFunction() {
-		String input = "int foo(){/*Comment inside function */ int i; }";
-		List<ASTNode> codeItems = parseInput(input);
-		Comment codeItem = (Comment) codeItems.get(1);
-		assertEquals("Comment", codeItem.getTypeAsString());
-		assertEquals("/*Comment inside function */", codeItem.getEscapedCodeStr());
-		assertEquals("ExpressionStatement", codeItem.getCommentee().getTypeAsString());
-	}
+
 
 	private List<ASTNode> parseInput(String input) {
 		ANTLRCModuleParserDriver parser = new ANTLRCModuleParserDriver();

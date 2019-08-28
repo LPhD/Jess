@@ -3,9 +3,13 @@ package tests.languages.c.parseTreeToAST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import antlr.FunctionParser.StatementsContext;
+import ast.ASTNode;
+import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.c.statements.blockstarters.IfStatement;
 import ast.declarations.ClassDefStatement;
@@ -139,9 +143,10 @@ public class CodeNestingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement stmt = (ExpressionStatement) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) stmt.getChild(0);
-		assertTrue(expr.getTargetFunc().getEscapedCodeStr().equals("foo"));
+		assertEquals("foo", expr.getTargetFunc().getEscapedCodeStr());
 		ArgumentList argList = (ArgumentList) expr.getChild(1);
 		Argument arg = (Argument) argList.getChild(0);
+		assertEquals("x", arg.getEscapedCodeStr());
 	}
 
 	@Test
@@ -151,6 +156,17 @@ public class CodeNestingTest {
 		ExpressionStatement stmt = (ExpressionStatement) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) stmt.getChild(0);
 		assertTrue(expr.getTargetFunc().getEscapedCodeStr().equals("foo"));
+	}
+	
+	
+	@Test
+	public void commentInsideFunction() {
+		String input = "/*Comment inside function */ int i; ";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		Comment codeItem = (Comment) contentItem.getStatements().get(0);
+		assertEquals("Comment", codeItem.getTypeAsString());
+		assertEquals("/*Comment inside function */", codeItem.getEscapedCodeStr());
+		assertEquals("IdentifierDeclStatement", codeItem.getCommentee().getTypeAsString());
 	}
 
 }

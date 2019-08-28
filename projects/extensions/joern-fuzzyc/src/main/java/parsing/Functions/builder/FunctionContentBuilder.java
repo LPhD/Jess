@@ -933,6 +933,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 		checkVariability(expr);
+		checkIfCommented(expr);
 	}
 
 	public void exitSizeof(SizeofContext ctx) {
@@ -999,8 +1000,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ClassDefBuilder classDefBuilder = new ClassDefBuilder();
 		classDefBuilder.createNew(ctx);
 		classDefBuilder.setName(ctx.class_def().class_name());
-		replaceTopOfStack(classDefBuilder.getItem(), ctx);
-		checkVariability(classDefBuilder.getItem());
+		ASTNode node = classDefBuilder.getItem();
+		replaceTopOfStack(node, ctx);
+		checkVariability(node);
+		checkIfCommented(node);
 	}
 
 	public void exitDeclByClass() {
@@ -1260,6 +1263,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		}
 		
 		checkVariability(declStmt);
+		checkIfCommented(declStmt);
 	}
 
 	public void exitDeclByType() {
