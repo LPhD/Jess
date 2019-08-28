@@ -6,12 +6,13 @@ from octopus.server.DBInterface import DBInterface
 from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
+
 ####### Configuration options #################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 custom = False
+evaluation = False
 ###############################################
-
 
 # Connect to project DB
 projectName = 'EvoDiss.tar.gz'
@@ -21,8 +22,6 @@ projectName = 'EvoDiss.tar.gz'
 #projectName = 'ICSE'
 #projectName = 'Collection'
 db = DBInterface()
-db.connectToDatabase(projectName)
-
 
 ####################################### Plotting ###############################################   
 result = set()
@@ -37,11 +36,9 @@ visibleStatementTypes = ['File', 'Function', 'ClassDef', 'FunctionDef', 'Compoun
  
 # Plots the results    
 def plotResults ():
-    # Get plot configuration
-    plot_configuration = PlotConfiguration()
-    #Config is read from plotconfig.cfg in same folder as plotDB.py
-    f = open((os.path.join(os.path.dirname(__file__), 'plotconfig.cfg')) , "r")
-    plot_configuration.parse(f)
+    db.connectToDatabase(projectName)
+    
+    plot_configuration = configure()
     
     #Get nodes and edges of DB (either as AST, custom view, or full property graph)
     if (generateOnlyAST):
@@ -54,8 +51,6 @@ def plotResults ():
         nodes = getVisibleNodes()    
         print("Get visible edges")
         edges = getVisibleEdges() 
-        print("Writing files...")
-        fileOutput()
     elif (custom):
         print("Get custom nodes")
         nodes = getCustomNodes() 
@@ -78,6 +73,14 @@ def plotResults ():
     #Output result
     output(G)  
 
+
+def configure():
+    # Get plot configuration
+    plot_configuration = PlotConfiguration()
+    #Config is read from plotconfig.cfg in same folder as plotDB.py
+    f = open((os.path.join(os.path.dirname(__file__), 'plotconfig.cfg')) , "r")
+    plot_configuration.parse(f)
+    return plot_configuration
 
 # Returns all vertices of the DB    
 def getNodes():
@@ -165,12 +168,7 @@ def createGraphElementLabel(labeldata):
 # Formatting
 def escape(label):
     return str(label).replace("\\", "\\\\")
-
-def fileOutput ():    
-    with open('result.txt', 'w') as file_handler:
-        file_handler.write(projectName+"\n")
-        for item in resultIDs:
-            file_handler.write("{}\n".format(item))    
+  
 
 # Writes output as .dot and .png in a folder named DB                   
 def output(G):
