@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import ast.c.preprocessor.blockstarter.PreElseStatement;
+import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.logical.statements.CompoundStatement;
 import ast.preprocessor.PreBlockstarter;
 import ast.preprocessor.PreStatementBase;
@@ -61,9 +62,11 @@ public class PreprocessorTests {
 	public void testPreIfStatementInsideIfBlock() {
 		String input = "if(bool) { #if foo  int i; #endif }";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		//TODO
 		//This is wrong, pre statement should be AST child of the file
-		PreStatementBase preStmt = (PreStatementBase) contentItem.getStatement(1);
+		PreIfStatement preStmt = (PreIfStatement) contentItem.getStatement(0).getChild(1).getChild(0);
 		assertEquals("PreIfStatement", preStmt.getTypeAsString());
+		assertEquals("IdentifierDeclStatement", preStmt.getVariableStatement(0).getTypeAsString());
 	}
 	
 	@Test
