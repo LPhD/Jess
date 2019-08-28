@@ -593,13 +593,13 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			preASTItemStack.push(itemToRemove);
 			logger.debug(itemToRemove.getEscapedCodeStr()+" collected on AST and variability stack");
 			// Connect only the #if with the function content compound statement
-			if (itemToRemove instanceof PreIfStatement) {
+//			if (itemToRemove instanceof PreIfStatement) {
 				//Do not connect preprocessor statements with c statements
 				//nesting.consolidate();
-			} else {
+//			} else {
 				// Remove item from the stack. The nesting will be resolved in the closeASTBlock function
 				stack.pop();
-			}
+//			}
 			return false;
 		} else {
 			// Check variability for all other types (except the top last compound statement, which is needed for function content building)
