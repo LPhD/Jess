@@ -163,7 +163,7 @@ public class CodeNestingTest {
 	public void commentInsideFunction() {
 		String input = "/*Comment inside function */ int i; ";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
-		Comment codeItem = (Comment) contentItem.getStatements().get(0);
+		Comment codeItem = (Comment) contentItem.getStatements().get(1);
 		assertEquals("Comment", codeItem.getTypeAsString());
 		assertEquals("/*Comment inside function */", codeItem.getEscapedCodeStr());
 		assertEquals("IdentifierDeclStatement", codeItem.getCommentee().getTypeAsString());

@@ -235,6 +235,14 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			// throw new RuntimeException("Broken stack while parsing");
 		}
 		
+		//Resolve in the right order, comments last
+		CompoundStatement parentC = (CompoundStatement) stack.peek();
+		
+		for (Comment comment : pendingList) {
+			//Add here, because we need the commentee to be initialized first
+			parentC.addChild(comment);
+		}
+		
 		//Clear all stacks + lists,	as the analysis is (currently) function-local
 		this.variabilityItemStack.clear();
 		this.preASTItemStack.clear();
@@ -711,15 +719,17 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNode itemToRemove = stack.peek();
 		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 		
-		consolidate = preprocessorHandling(itemToRemove);
-		
 		//Collect comments and check potential commentees
 		if(itemToRemove instanceof Comment) {
 			commentStack.push((Comment) itemToRemove);
+			stack.pop();
+			return;
 		} else {
 			checkIfCommented(itemToRemove);
 		}
 				
+		consolidate = preprocessorHandling(itemToRemove);
+						
 		if (itemToRemove instanceof BlockCloser) {
 			//Check if the BlockCloser is the last item on the stack
 			if(stack.size() == 2) {
