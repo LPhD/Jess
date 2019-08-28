@@ -594,8 +594,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			logger.debug(itemToRemove.getEscapedCodeStr()+" collected on AST and variability stack");
 			// Connect only the #if with the function content compound statement
 			if (itemToRemove instanceof PreIfStatement) {
-				//Do not connect preprocessor statements with c statements
-				//nesting.consolidate();
+				nesting.consolidate();
 			} else {
 				// Remove item from the stack. The nesting will be resolved in the closeASTBlock function
 				stack.pop();
