@@ -251,8 +251,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 // -------------------------------------- Comment -------------------------------------------------------------------------	
 	@Override
-	public void enterComment(ModuleParser.CommentContext ctx) {
-		logger.debug("Enter comment (module)");		
+	public void enterComment(ModuleParser.CommentContext ctx) {	
 		Comment comment = new Comment();
 		ASTNodeFactory.initializeFromContext(comment, ctx);
 		commentStack.push(comment);		
@@ -267,6 +266,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			comment.setCommentee(node);
 			//Save for later, because we need the commentee to be initialized
 			pendingList.add(comment);
+			logger.debug("Found commentee "+node.getEscapedCodeStr());
 		}
 
 	}
