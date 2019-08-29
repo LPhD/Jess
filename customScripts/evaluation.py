@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 from octopus.server.DBInterface import DBInterface
-#import random
+from patchCreator import createPatch
+import subprocess
+
 
 
 projectName = 'EvoDiss.tar.gz'
+pathToOriginalProject = 'Patch/'
+pathToCompareProject = '/home/lea/Downloads/Joern_Advanced/projects/octopus/data/projects/EvoDiss.tar.gz/src/home/lea/Downloads/EvoDiss/src/'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
 visibleStatementTypes = ['File', 'Function', 'ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment']
-
 
 
 
@@ -26,26 +29,14 @@ def fileOutput (result):
             file_handler.write("{}\n".format(item))  
             
                
-print("Writing files...")
+print("Export visible node ids to file...")
 fileOutput(getVisibleNodes() )            
-
-#plotDB
-#patchCreator
-#git Diff with project
-
-#db = DBInterface()
-#db.connectToDatabase(projectName)
-
-
-#i =  random.randint(274411528,83153600000);
-#print(str(i));
-
-#query = """g.V(%s)""" % (i)
+print("Convert project back to source code...")
+createPatch()
+print("Compare with original source code...")
+with open('EvaluationResult.txt', 'w') as f:
+    # No history, ignore whitespaces
+    subprocess.call(["git", "diff", "--no-index", "-w", pathToOriginalProject, pathToCompareProject], stdout=f)
 
 
 
-# Execute equery
-#result = db.runGremlinQuery(query)
-
-# Print results
-#for x in result: print(x)
