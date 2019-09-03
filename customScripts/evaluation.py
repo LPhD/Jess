@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 from octopus.server.DBInterface import DBInterface
-from patchCreator import createPatch
 import subprocess
 
-
-
-projectName = 'EvoDiss.tar.gz'
-pathToOriginalProject = 'Patch/'
-pathToCompareProject = '/home/lea/Downloads/Joern_Advanced/projects/octopus/data/projects/EvoDiss.tar.gz/src/home/lea/Downloads/EvoDiss/src/'
+projectName = 'SPLC'
+pathToPatch = 'Patch/'
+pathToOriginalProject = '/home/lea/Downloads/Joern_Advanced/projects/octopus/data/projects/'+projectName+'/src/'+projectName+'/src/'
 db = DBInterface()
 db.connectToDatabase(projectName)
 
@@ -30,13 +27,13 @@ def fileOutput (result):
             
                
 print("Export visible node ids to file...")
-fileOutput(getVisibleNodes() )            
+fileOutput(getVisibleNodes())            
 print("Convert project back to source code...")
-createPatch()
+from patchCreator import createPatch
 print("Compare with original source code...")
 with open('EvaluationResult.txt', 'w') as f:
     # No history, ignore whitespaces
-    subprocess.call(["git", "diff", "--no-index", "-w", pathToOriginalProject, pathToCompareProject], stdout=f)
+    subprocess.call(["git", "diff", "--no-index", "-w", pathToOriginalProject, pathToPatch], stdout=f)
 
 
 
