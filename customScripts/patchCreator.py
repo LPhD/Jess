@@ -59,87 +59,85 @@ def writeOutput(structuredPatchList):
 
     # Counter
     nChar = 0
-    lastFile = foldername+"/"+structuredPatchList[0][0]
-    lastLine = 1
+    lastFile = ""
+    lastLine = 0
     lineContent = ""
-    fileContent = ['']
+    outputFileContent = []
 
     # Print results
     for statement in structuredPatchList: 
-        
+        print(statement)
+
         #Reset variables if line changed
-        if (not (len(fileContent) == statement[1])):
-            lineContent = ""   
+        if (not lastLine == statement[1]):
             nChar = 0
-            lChanged = True
+#            lineContent = ""   
+            lastLine = statement[1]
+            lChanged = True           
         else:
             lChanged = False
-
             
-        #Reset variables if filename changed
+            
+        #Write last file and reset variables if filename changed
         if (not (lastFile == foldername+"/"+statement[0])):
-            #We need this for later
-            outputFileContent = fileContent
-            #Reset counters and content
+            #Write content of the finished file
+            if(len(outputFileContent) > 0):
+                writeToFile(lastFile, outputFileContent)
+                outputFileContent = ['']
+                
+            #Reset variables                  
+            lastFile = foldername+"/"+statement[0]            
             nChar = 0
-            lineContent = "" 
-            fileContent = ['']
+#            lineContent = "" 
             lChanged = True
             fChanged = True
         else:
             fChanged = False
         
+        
         #Add empty lines until we reach the line of the current statement (index begins with 1)
-        while (len(fileContent) < statement[1]-1):
-            fileContent.append("")
+        while (len(outputFileContent) < statement[1]-1):
+            outputFileContent.append("")
                 
         #Index for iterating throug the chars of the code statement
-        sIndex = 0
+#        sIndex = 0
         #Iterate through every char of the line (number of spaces + number of chars in statement)
         while (nChar <= (statement[2] + (len(statement[3])-1))):
             
             #If we are not at the starting char of the statement
-            if (nChar < statement[2]):
+#            if (nChar < statement[2]):
                 #Only write tabs if the current index is at an empty field (dont overwrite results for the same line)
-                if(nChar >= len(lineContent)):
+#                if(nChar >= len(lineContent)):
                     #Add a space
-                    lineContent = lineContent + "\t"
+#                    lineContent = lineContent + "\t"
             #If we reach the beginning of the statement    
-            else:
+#            else:
                 #Add the statement character by character
-                lineContent = lineContent + statement[3][sIndex]
-                sIndex = sIndex + 1
+#                lineContent = lineContent + statement[3][sIndex]
+#                sIndex = sIndex + 1
                 
             # Do not increment counter if the loop runs for the last time, just break
-            if (not (nChar == (statement[2] + (len(statement[3])-1)))):    
-                nChar = nChar + 1
-            else:
-                break
+#            if (not (nChar == (statement[2] + (len(statement[3])-1)))):    
+            nChar = nChar + 1
+#            else:
+#                break
                 
         #Overwrite the current line if we are still at the same line as last iteration
-        if (lChanged):
-            fileContent.append(lineContent)
-        else:
-            fileContent[statement[1]-1] = lineContent
-            
-        
-        if(fChanged):
-            file = open(lastFile, 'w')   
-            #Write code to the file (that is now finished)
-            file.write("\n".join(outputFileContent))            
-            file.close()
-            #Change temp variable to the new file
-            lastFile = foldername+"/"+statement[0]
-            
-            #print(outputFileContent)    
-            
+#        if (lChanged):
+#            fileContent.append(lineContent)
+#        else:
+#            fileContent[statement[1]-1] = lineContent
+                       
         print(statement)  
 
-    #Finally write the last file        
-    file = open(lastFile, 'w')   
-    #Write code to the file (that is now finished)
+    #Finally write the current file (last of the list)
+    writeToFile(foldername+"/"+statement[0], outputFileContent)
+
+#Write a string to a file
+def writeToFile(fileName, fileContent):           
+    file = open(fileName, 'w')   
     file.write("\n".join(fileContent))
-    file.close()    
+    file.close() 
 
 def createPatch():
     input = initialize()
