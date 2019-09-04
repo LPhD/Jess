@@ -54,6 +54,8 @@ public class CFGAndUDGToDefUseCFG {
 			}
 			if (statement instanceof ASTNodeContainer) {
 				statement = ((ASTNodeContainer) statement).getASTNode();
+				System.out.println("Initialize");
+				System.out.println(((ASTNodeContainer) statement).getEscapedCodeStr());
 			}
 			defUseCFG.addStatement(statement);
 		}
@@ -76,6 +78,9 @@ public class CFGAndUDGToDefUseCFG {
 				if(record.getAstNode() instanceof ParameterBase && ((ParameterBase) record.getAstNode()).isVoid) {
 					System.out.println("Found void2");
 					continue;
+				} else {
+					System.out.println("DefUse");
+					System.out.println(record.getAstNode() .getEscapedCodeStr());
 				}
 
 				if (record.isDef())
