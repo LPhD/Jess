@@ -62,15 +62,15 @@ public abstract class CFGExporter {
 			
 			if (src instanceof ASTNodeContainer) {
 				src = ((ASTNodeContainer) src).getASTNode();
+				System.out.println(((ASTNode) src).getEscapedCodeStr());
 			}
 			
 			if (dst instanceof ASTNodeContainer) {
 				dst = ((ASTNodeContainer) dst).getASTNode();
+				System.out.println(((ASTNode) dst).getEscapedCodeStr());
 			}
 			
-			System.out.println(((ASTNode) src).getEscapedCodeStr());
-			System.out.println(((ASTNode) dst).getEscapedCodeStr());
-			
+					
 			addFlowToLink(src, dst, edge.getProperties());
 		}
 	}
