@@ -142,8 +142,6 @@ public class ModuleBuildersTest {
 		String input = "int foo(int x){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-
-
 		assertEquals(4, codeItem.getChildCount());
 	}
 
@@ -152,8 +150,7 @@ public class ModuleBuildersTest {
 		String input = "int foo(char *myParam, myType x){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		String codeStr = codeItem.getParameterList().getEscapedCodeStr();
-		
+		String codeStr = codeItem.getParameterList().getEscapedCodeStr();		
 		assertEquals("char * myParam , myType x", codeStr);
 	}
 
@@ -163,8 +160,7 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		ParameterBase parameter = codeItem.getParameterList().getParameter(0);
-		String codeStr = parameter.getEscapedCodeStr();
-		
+		String codeStr = parameter.getEscapedCodeStr();		
 		assertEquals("char * myParam", codeStr);
 	}
 
@@ -182,8 +178,7 @@ public class ModuleBuildersTest {
 		String input = "int foo(char *myParam){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		ParameterType type = (ParameterType) codeItem.getParameterList().getParameter(0).getType();
-		
+		ParameterType type = (ParameterType) codeItem.getParameterList().getParameter(0).getType();		
 		assertEquals("char *", type.getEscapedCodeStr());
 	}
 
@@ -191,8 +186,7 @@ public class ModuleBuildersTest {
 	public void testFunctionPtrParam() {
 		String input = "int foo(void (*ptr)(char *)){}";
 		List<ASTNode> codeItems = parseInput(input);
-		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		
+		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);		
 		assertEquals("foo", codeItem.getName());
 	}
 
@@ -203,6 +197,15 @@ public class ModuleBuildersTest {
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		assertEquals(4, codeItem.getChildCount());
 		assertEquals("", codeItem.getParameterList().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testVoidParam() {
+		String input = "int foo(void){}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
+		assertEquals(4, codeItem.getChildCount());
+		assertEquals("void", codeItem.getParameterList().getEscapedCodeStr());
 	}
 
 	@Test

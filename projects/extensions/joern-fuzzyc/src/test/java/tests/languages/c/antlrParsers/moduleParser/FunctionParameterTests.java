@@ -1,5 +1,6 @@
 package tests.languages.c.antlrParsers.moduleParser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -22,10 +23,9 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 	@Test
 	public void testVoidParamList() {
 		String input = "static int altgid(void){}";
-
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
-		assertTrue(output.startsWith("(function_def "));
+		assertEquals("(function_def (return_type (function_decl_specifiers static) (type_name (base_type int))) (function_name (identifier altgid)) (function_param_list ( (parameter_decl_clause (parameter_decl void)) )) (compound_statement { }))", output);
 	}
 
 	@Test

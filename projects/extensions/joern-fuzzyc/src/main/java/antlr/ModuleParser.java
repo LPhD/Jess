@@ -5598,7 +5598,6 @@ public class ModuleParser extends Parser {
 		public Parameter_declContext parameter_decl(int i) {
 			return getRuleContext(Parameter_declContext.class,i);
 		}
-		public TerminalNode VOID() { return getToken(ModuleParser.VOID, 0); }
 		public Parameter_decl_clauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5619,54 +5618,41 @@ public class ModuleParser extends Parser {
 		int _la;
 		try {
 			int _alt;
-			setState(782);
+			enterOuterAlt(_localctx, 1);
+			{
+			{
+			setState(769);
+			parameter_decl();
+			setState(774);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,68,_ctx) ) {
-			case 1:
-				enterOuterAlt(_localctx, 1);
-				{
-				{
-				setState(769);
-				parameter_decl();
-				setState(774);
+			_alt = getInterpreter().adaptivePredict(_input,66,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(770);
+					match(T__4);
+					setState(771);
+					parameter_decl();
+					}
+					} 
+				}
+				setState(776);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,66,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
-					if ( _alt==1 ) {
-						{
-						{
-						setState(770);
-						match(T__4);
-						setState(771);
-						parameter_decl();
-						}
-						} 
-					}
-					setState(776);
-					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,66,_ctx);
-				}
-				}
-				setState(779);
-				_la = _input.LA(1);
-				if (_la==T__4) {
-					{
-					setState(777);
-					match(T__4);
-					setState(778);
-					match(ELLIPSIS);
-					}
-				}
-
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
+			}
+			}
+			setState(779);
+			_la = _input.LA(1);
+			if (_la==T__4) {
 				{
-				setState(781);
-				match(VOID);
+				setState(777);
+				match(T__4);
+				setState(778);
+				match(ELLIPSIS);
 				}
-				break;
+			}
+
 			}
 		}
 		catch (RecognitionException re) {
@@ -5681,6 +5667,7 @@ public class ModuleParser extends Parser {
 	}
 
 	public static class Parameter_declContext extends ParserRuleContext {
+		public TerminalNode VOID() { return getToken(ModuleParser.VOID, 0); }
 		public Param_decl_specifiersContext param_decl_specifiers() {
 			return getRuleContext(Param_decl_specifiersContext.class,0);
 		}
@@ -5705,12 +5692,25 @@ public class ModuleParser extends Parser {
 		Parameter_declContext _localctx = new Parameter_declContext(_ctx, getState());
 		enterRule(_localctx, 162, RULE_parameter_decl);
 		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(784);
-			param_decl_specifiers();
 			setState(785);
-			parameter_id();
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,68,_ctx) ) {
+			case 1:
+				enterOuterAlt(_localctx, 1);
+				{
+				setState(781);
+				match(VOID);
+				}
+				break;
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(782);
+				param_decl_specifiers();
+				setState(783);
+				parameter_id();
+				}
+				break;
 			}
 		}
 		catch (RecognitionException re) {
@@ -8277,7 +8277,7 @@ public class ModuleParser extends Parser {
 		"O\u02dc\nO\3O\5O\u02df\nO\3O\3O\3O\5O\u02e4\nO\3O\3O\3P\7P\u02e9\nP\f"+
 		"P\16P\u02ec\13P\3P\3P\3P\7P\u02f1\nP\fP\16P\u02f4\13P\3Q\3Q\5Q\u02f8\n"+
 		"Q\3Q\3Q\7Q\u02fc\nQ\fQ\16Q\u02ff\13Q\3Q\5Q\u0302\nQ\3R\3R\3R\7R\u0307"+
-		"\nR\fR\16R\u030a\13R\3R\3R\5R\u030e\nR\3R\5R\u0311\nR\3S\3S\3S\3T\5T\u0317"+
+		"\nR\fR\16R\u030a\13R\3R\3R\5R\u030e\nR\3S\3S\3S\3S\5S\u0314\nS\3T\5T\u0317"+
 		"\nT\3T\3T\3T\3T\3T\5T\u031e\nT\3T\5T\u0321\nT\3U\3U\3U\3V\3V\3V\3V\7V"+
 		"\u032a\nV\fV\16V\u032d\13V\3W\3W\3W\3X\5X\u0333\nX\3X\3X\3Y\3Y\5Y\u0339"+
 		"\nY\3Y\3Y\3Z\3Z\3Z\3Z\3Z\3Z\3Z\5Z\u0344\nZ\3[\3[\3[\3[\3[\3\\\7\\\u034c"+
@@ -8330,8 +8330,8 @@ public class ModuleParser extends Parser {
 		"\2\2\u0088\u02c6\3\2\2\2\u008a\u02c8\3\2\2\2\u008c\u02ca\3\2\2\2\u008e"+
 		"\u02cc\3\2\2\2\u0090\u02ce\3\2\2\2\u0092\u02d0\3\2\2\2\u0094\u02d2\3\2"+
 		"\2\2\u0096\u02d4\3\2\2\2\u0098\u02d6\3\2\2\2\u009a\u02d8\3\2\2\2\u009c"+
-		"\u02db\3\2\2\2\u009e\u02ea\3\2\2\2\u00a0\u02f5\3\2\2\2\u00a2\u0310\3\2"+
-		"\2\2\u00a4\u0312\3\2\2\2\u00a6\u0316\3\2\2\2\u00a8\u0322\3\2\2\2\u00aa"+
+		"\u02db\3\2\2\2\u009e\u02ea\3\2\2\2\u00a0\u02f5\3\2\2\2\u00a2\u0303\3\2"+
+		"\2\2\u00a4\u0313\3\2\2\2\u00a6\u0316\3\2\2\2\u00a8\u0322\3\2\2\2\u00aa"+
 		"\u0325\3\2\2\2\u00ac\u032e\3\2\2\2\u00ae\u0332\3\2\2\2\u00b0\u0336\3\2"+
 		"\2\2\u00b2\u0343\3\2\2\2\u00b4\u0345\3\2\2\2\u00b6\u034d\3\2\2\2\u00b8"+
 		"\u035e\3\2\2\2\u00ba\u0378\3\2\2\2\u00bc\u037f\3\2\2\2\u00be\u0384\3\2"+
@@ -8531,8 +8531,8 @@ public class ModuleParser extends Parser {
 		"S\2\u0306\u0304\3\2\2\2\u0307\u030a\3\2\2\2\u0308\u0306\3\2\2\2\u0308"+
 		"\u0309\3\2\2\2\u0309\u030d\3\2\2\2\u030a\u0308\3\2\2\2\u030b\u030c\7\7"+
 		"\2\2\u030c\u030e\7u\2\2\u030d\u030b\3\2\2\2\u030d\u030e\3\2\2\2\u030e"+
-		"\u0311\3\2\2\2\u030f\u0311\7G\2\2\u0310\u0303\3\2\2\2\u0310\u030f\3\2"+
-		"\2\2\u0311\u00a3\3\2\2\2\u0312\u0313\5\u00dan\2\u0313\u0314\5\u00a6T\2"+
+		"\u00a3\3\2\2\2\u030f\u0314\7G\2\2\u0310\u0311\5\u00dan\2\u0311\u0312\5"+
+		"\u00a6T\2\u0312\u0314\3\2\2\2\u0313\u030f\3\2\2\2\u0313\u0310\3\2\2\2"+
 		"\u0314\u00a5\3\2\2\2\u0315\u0317\5\u00e8u\2\u0316\u0315\3\2\2\2\u0316"+
 		"\u0317\3\2\2\2\u0317\u031d\3\2\2\2\u0318\u0319\7\4\2\2\u0319\u031a\5\u00a6"+
 		"T\2\u031a\u031b\7\5\2\2\u031b\u031e\3\2\2\2\u031c\u031e\5\u00dco\2\u031d"+
@@ -8664,7 +8664,7 @@ public class ModuleParser extends Parser {
 		"\u01b0\u01b5\u01ba\u01bf\u01c4\u01c9\u01cf\u01d5\u01da\u01df\u01e4\u01ec"+
 		"\u01f2\u01fa\u01fd\u0203\u0208\u020e\u0212\u021f\u022a\u0230\u023c\u024b"+
 		"\u0251\u0256\u0258\u0260\u0263\u026d\u0280\u02aa\u02be\u02c0\u02db\u02de"+
-		"\u02e3\u02ea\u02f2\u02f7\u02fd\u0301\u0308\u030d\u0310\u0316\u031d\u0320"+
+		"\u02e3\u02ea\u02f2\u02f7\u02fd\u0301\u0308\u030d\u0313\u0316\u031d\u0320"+
 		"\u032b\u0332\u0338\u0343\u034d\u0356\u035b\u0361\u0366\u0369\u036d\u0370"+
 		"\u0378\u037f\u0384\u0393\u0398\u039d\u03a3\u03b2\u03b7\u03bc\u03c2\u03cb"+
 		"\u03d0\u03d4\u03d7\u03dd\u03e2\u03e9\u03f5\u03fc\u0401\u0404\u0411\u0415"+

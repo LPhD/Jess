@@ -58,7 +58,7 @@ public class ASTNodeFactory {
 	public static Parameter create(Parameter_declContext ctx) {
 		Parameter param = new Parameter();
 
-		Parameter_declContext paramCtx = ctx;
+		Parameter_declContext paramCtx = ctx;	
 		Parameter_nameContext paramName = getNameOfParameter(paramCtx);
 
 		Identifier name = new Identifier();
@@ -69,6 +69,18 @@ public class ASTNodeFactory {
 
 		param.addChild(type);
 		param.addChild(name);
+
+		return param;
+	}
+	
+	public static Parameter createVoid(Parameter_declContext ctx) {
+		Parameter param = new Parameter();
+		
+		ParameterType type = new ParameterType();
+		initializeFromContext(type, ctx);
+		initializeFromContext(param, ctx);
+
+		param.addChild(type);
 
 		return param;
 	}
