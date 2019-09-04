@@ -47,13 +47,13 @@ public class CFGAndUDGToDefUseCFG {
 
 	private void initializeStatements(CFG cfg, DefUseCFG defUseCFG) {
 		for (Object statement : cfg.getVertices()) {
-			if((statement instanceof ParameterBase) && (((ParameterBase) statement).isVoid)) {
-				System.out.println("Found void");
-				//Do not add void parameters to cfg analysis
-				continue;
-			}
 			if (statement instanceof ASTNodeContainer) {
 				statement = ((ASTNodeContainer) statement).getASTNode();
+				if((statement instanceof ParameterBase) && (((ParameterBase) statement).isVoid)) {
+					System.out.println("Found void");
+					//Do not add void parameters to cfg analysis
+					continue;
+				}
 				System.out.println("Initialize");
 				System.out.println(((ASTNode) statement).getEscapedCodeStr());
 			}
