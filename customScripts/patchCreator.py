@@ -58,7 +58,7 @@ def writeOutput(structuredPatchList):
     os.makedirs(foldername)
 
     # Counter
-    nChar = 0
+    currentChar = 0
     lastFile = ""
     lastLine = 0
     lineContent = ""
@@ -70,9 +70,14 @@ def writeOutput(structuredPatchList):
 
         #Reset variables if line changed
         if (not lastLine == statement[1]):
-            nChar = 0
-#            lineContent = ""   
-            lastLine = statement[1]
+            if(len(lineContent) > 0):
+                #Write finished line to output (done after we switch lines)
+                outputFileContent.append(lineContent)
+                print(lineContent)
+            #Reset temp variables
+            currentChar = 0
+            lineContent = ""   
+            lastLine = statement[1]            
             lChanged = True           
         else:
             lChanged = False
@@ -83,12 +88,12 @@ def writeOutput(structuredPatchList):
             #Write content of the finished file
             if(len(outputFileContent) > 0):
                 writeToFile(lastFile, outputFileContent)
-                outputFileContent = ['']
+                outputFileContent = []
                 
-            #Reset variables                  
+            #Reset temp variables                 
             lastFile = foldername+"/"+statement[0]            
-            nChar = 0
-#            lineContent = "" 
+            currentChar = 0
+            lineContent = "" 
             lChanged = True
             fChanged = True
         else:
@@ -98,11 +103,24 @@ def writeOutput(structuredPatchList):
         #Add empty lines until we reach the line of the current statement (index begins with 1)
         while (len(outputFileContent) < statement[1]-1):
             outputFileContent.append("")
-                
+
+        #If we are not at the starting char of the statement
+        while (currentChar < statement[2]):
+            #Add a space
+            lineContent = lineContent + "\t"
+            currentChar = currentChar +1
+            
+        #Finally add the statement to the line
+        lineContent = lineContent + statement[3]
+        
+
+        
+        
+        
         #Index for iterating throug the chars of the code statement
 #        sIndex = 0
         #Iterate through every char of the line (number of spaces + number of chars in statement)
-        while (nChar <= (statement[2] + (len(statement[3])-1))):
+#        while (nChar <= (statement[2] + (len(statement[3])-1))):
             
             #If we are not at the starting char of the statement
 #            if (nChar < statement[2]):
@@ -118,7 +136,7 @@ def writeOutput(structuredPatchList):
                 
             # Do not increment counter if the loop runs for the last time, just break
 #            if (not (nChar == (statement[2] + (len(statement[3])-1)))):    
-            nChar = nChar + 1
+#            nChar = nChar + 1
 #            else:
 #                break
                 
@@ -128,7 +146,6 @@ def writeOutput(structuredPatchList):
 #        else:
 #            fileContent[statement[1]-1] = lineContent
                        
-        print(statement)  
 
     #Finally write the current file (last of the list)
     writeToFile(foldername+"/"+statement[0], outputFileContent)
@@ -137,6 +154,8 @@ def writeOutput(structuredPatchList):
 def writeToFile(fileName, fileContent):           
     file = open(fileName, 'w')   
     file.write("\n".join(fileContent))
+    #End each file with a newline character
+    file.write("\n")
     file.close() 
 
 def createPatch():
