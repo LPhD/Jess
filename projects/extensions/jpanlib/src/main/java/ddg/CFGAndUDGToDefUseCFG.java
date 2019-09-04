@@ -25,10 +25,15 @@ public class CFGAndUDGToDefUseCFG {
 		initializeDefUses(udg, defUseCFG);
 
 		LinkedList<String> parameters = new LinkedList<String>();
+		
 		for (CFGNode parameterCFGNode : cfg.getParameters()) {
 			ASTNode astNode = ((ASTNodeContainer) parameterCFGNode).getASTNode();
-			String symbol = astNode.getChild(1).getEscapedCodeStr();
-			parameters.add(symbol);
+			//Skip void nodes
+			if(!(astNode instanceof ParameterBase && ((ParameterBase) astNode).isVoid)) {
+				String symbol = astNode.getChild(1).getEscapedCodeStr();
+				parameters.add(symbol);
+			} else
+				System.out.println("Found void3");
 		}
 
 		defUseCFG.setExitNode(cfg.getExitNode());
@@ -43,6 +48,7 @@ public class CFGAndUDGToDefUseCFG {
 	private void initializeStatements(CFG cfg, DefUseCFG defUseCFG) {
 		for (Object statement : cfg.getVertices()) {
 			if((statement instanceof ParameterBase) && (((ParameterBase) statement).isVoid)) {
+				System.out.println("Found void");
 				//Do not add void parameters to cfg analysis
 				continue;
 			}
@@ -67,8 +73,10 @@ public class CFGAndUDGToDefUseCFG {
 				if (!record.getAstNode().isInCFG())
 					continue;
 				
-				if(record.getAstNode() instanceof ParameterBase && ((ParameterBase) record.getAstNode()).isVoid)
+				if(record.getAstNode() instanceof ParameterBase && ((ParameterBase) record.getAstNode()).isVoid) {
+					System.out.println("Found void2");
 					continue;
+				}
 
 				if (record.isDef())
 					defUseCFG.addSymbolDefined(record.getAstNode(), symbol);
@@ -103,13 +111,17 @@ public class CFGAndUDGToDefUseCFG {
 
 		Object src;
 		Object dst;
+		
 		for (CFGEdge edge : cfg.getEdges()) {
 			src = edge.getSource();
 			dst = edge.getDestination();
+			
 			if (src instanceof ASTNodeContainer)
 				src = ((ASTNodeContainer) src).getASTNode();
+			
 			if (dst instanceof ASTNodeContainer)
 				dst = ((ASTNodeContainer) dst).getASTNode();
+			
 			defUseCFG.addChildBlock(src, dst);
 			defUseCFG.addParentBlock(dst, src);
 		}
