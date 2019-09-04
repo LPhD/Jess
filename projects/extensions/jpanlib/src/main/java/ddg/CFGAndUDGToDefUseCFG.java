@@ -55,7 +55,7 @@ public class CFGAndUDGToDefUseCFG {
 			if (statement instanceof ASTNodeContainer) {
 				statement = ((ASTNodeContainer) statement).getASTNode();
 				System.out.println("Initialize");
-				System.out.println(((ASTNodeContainer) statement).getEscapedCodeStr());
+				System.out.println(((ASTNode) statement).getEscapedCodeStr());
 			}
 			defUseCFG.addStatement(statement);
 		}
