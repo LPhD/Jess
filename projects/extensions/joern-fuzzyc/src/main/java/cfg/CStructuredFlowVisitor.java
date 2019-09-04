@@ -24,7 +24,7 @@ public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 
 	public void visit(ParameterList paramList) {
 		//Skip parameter lists of void parameters
-		if(((ParameterBase) paramList.getChild(0)).isVoid) {
+		if(!((ParameterBase) paramList.getChild(0)).isVoid) {
 			returnCFG = CCFGFactory.newInstance(paramList);
 		}
 	}
