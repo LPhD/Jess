@@ -27,9 +27,7 @@ public abstract class ASTExporter {
 		
 		addASTNode(astDatabaseNode);
 		//Set nodeID in AST node to draw variability and AST edges
-		node.setNodeId(astDatabaseNode.getNodeId());
-		
-		System.out.println("NodeID "+node.getNodeId()+" for node "+node.getEscapedCodeStr());
+		node.setNodeId(astDatabaseNode.getNodeId());		
 				
 		// Link include statement with included file
 		if (node.getTypeAsString().equals("PreIncludeLocalFile")) {
