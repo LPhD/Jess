@@ -23,7 +23,10 @@ import cfg.nodes.CFGNode;
 public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 
 	public void visit(ParameterList paramList) {
-		returnCFG = CCFGFactory.newInstance(paramList);
+		//Skip parameter lists of void parameters
+		if(((ParameterBase) paramList.getChild(0)).isVoid) {
+			returnCFG = CCFGFactory.newInstance(paramList);
+		}
 	}
 
 	public void visit(ParameterBase param) {
