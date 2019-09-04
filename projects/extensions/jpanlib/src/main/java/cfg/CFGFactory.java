@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ast.ASTNode;
+import ast.Comment;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
+import ast.logical.statements.BlockCloser;
 import ast.logical.statements.BreakOrContinueStatement;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Label;
@@ -418,9 +420,17 @@ public class CFGFactory {
 		if (node == null)
 			return newInstance();
 		
-		if(node instanceof ParameterBase && ((ParameterBase) node).isVoid)
+		if(node instanceof ParameterBase && ((ParameterBase) node).isVoid) {
 			System.out.println("Found void in cfg factory");
+			return newInstance();
+		}
 
+		if(node instanceof Comment)
+			System.out.println("Found comment");
+		
+		if(node instanceof BlockCloser)
+			System.out.println("Found BlockCloser");
+		
 		node.accept(structuredFlowVisitior);
 		return structuredFlowVisitior.getCFG();
 	}
