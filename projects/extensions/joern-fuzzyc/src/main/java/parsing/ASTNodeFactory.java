@@ -73,15 +73,15 @@ public class ASTNodeFactory {
 		return param;
 	}
 	
+	/**
+	 * Special creator for void parameters (C only)
+	 * @param ctx
+	 * @return
+	 */
 	public static Parameter createVoid(Parameter_declContext ctx) {
 		Parameter param = new Parameter();
-		
-		ParameterType type = new ParameterType();
-		initializeFromContext(type, ctx);
+		param.isVoid = true;
 		initializeFromContext(param, ctx);
-
-		param.addChild(type);
-
 		return param;
 	}
 
