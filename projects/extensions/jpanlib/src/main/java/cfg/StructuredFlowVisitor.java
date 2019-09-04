@@ -21,8 +21,10 @@ public class StructuredFlowVisitor extends ASTNodeVisitor {
 
 	public void visit(ASTNode expression) {
 		//Do not add void expressions to CFG
-		if(!(expression instanceof ParameterBase && ((ParameterBase) expression).isVoid))
+		if(!(expression instanceof ParameterBase && ((ParameterBase) expression).isVoid)) {
 			returnCFG = CFGFactory.newInstance(expression);
+		} else
+			System.out.println("Do not add void");
 	}
 	
 	public void visit(BlockCloser node) {
