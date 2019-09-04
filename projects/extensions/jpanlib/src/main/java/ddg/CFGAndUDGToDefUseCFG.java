@@ -42,10 +42,6 @@ public class CFGAndUDGToDefUseCFG {
 
 	private void initializeStatements(CFG cfg, DefUseCFG defUseCFG) {
 		for (Object statement : cfg.getVertices()) {
-			if((statement instanceof ParameterBase) && (((ParameterBase) statement).isVoid)) {
-				//Do not add void parameters to cfg analysis
-				continue;
-			}
 			if (statement instanceof ASTNodeContainer) {
 				statement = ((ASTNodeContainer) statement).getASTNode();
 			}
@@ -65,9 +61,6 @@ public class CFGAndUDGToDefUseCFG {
 			for (UseOrDefRecord record : defUseRecords) {
 
 				if (!record.getAstNode().isInCFG())
-					continue;
-				
-				if(record.getAstNode() instanceof ParameterBase && ((ParameterBase) record.getAstNode()).isVoid)
 					continue;
 
 				if (record.isDef())
