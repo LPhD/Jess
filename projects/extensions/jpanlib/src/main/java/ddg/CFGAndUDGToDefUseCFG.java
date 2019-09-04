@@ -32,8 +32,7 @@ public class CFGAndUDGToDefUseCFG {
 			if(!(astNode instanceof ParameterBase && ((ParameterBase) astNode).isVoid)) {
 				String symbol = astNode.getChild(1).getEscapedCodeStr();
 				parameters.add(symbol);
-			} else
-				System.out.println("Found void3");
+			} 
 		}
 
 		defUseCFG.setExitNode(cfg.getExitNode());
@@ -50,12 +49,9 @@ public class CFGAndUDGToDefUseCFG {
 			if (statement instanceof ASTNodeContainer) {
 				statement = ((ASTNodeContainer) statement).getASTNode();
 				if((statement instanceof ParameterBase) && (((ParameterBase) statement).isVoid)) {
-					System.out.println("Found void");
 					//Do not add void parameters to cfg analysis
 					continue;
 				}
-				System.out.println("Initialize");
-				System.out.println(((ASTNode) statement).getEscapedCodeStr());
 			}
 			defUseCFG.addStatement(statement);
 		}
@@ -76,12 +72,8 @@ public class CFGAndUDGToDefUseCFG {
 					continue;
 				
 				if(record.getAstNode() instanceof ParameterBase && ((ParameterBase) record.getAstNode()).isVoid) {
-					System.out.println("Found void2");
 					continue;
-				} else {
-					System.out.println("DefUse");
-					System.out.println(record.getAstNode() .getEscapedCodeStr());
-				}
+				} 
 
 				if (record.isDef())
 					defUseCFG.addSymbolDefined(record.getAstNode(), symbol);

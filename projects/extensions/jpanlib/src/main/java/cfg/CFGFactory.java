@@ -417,6 +417,9 @@ public class CFGFactory {
 	public static CFG convert(ASTNode node) {
 		if (node == null)
 			return newInstance();
+		
+		if(node instanceof ParameterBase && ((ParameterBase) node).isVoid)
+			System.out.println("Found void in cfg factory");
 
 		node.accept(structuredFlowVisitior);
 		return structuredFlowVisitior.getCFG();
