@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ast.ASTNode;
+import ast.Comment;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
+import ast.logical.statements.BlockCloser;
 import ast.logical.statements.BreakOrContinueStatement;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Label;
@@ -415,7 +417,7 @@ public class CFGFactory {
 	}
 
 	public static CFG convert(ASTNode node) {
-		if (node == null)
+		if (node == null || node instanceof Comment || node instanceof BlockCloser)
 			return newInstance();
 
 		node.accept(structuredFlowVisitior);
