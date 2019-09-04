@@ -68,12 +68,6 @@ public abstract class CFGExporter {
 				dst = ((ASTNodeContainer) dst).getASTNode();
 			}
 			
-			System.out.println(src.toString());
-			System.out.println(dst.toString());
-			System.out.println(edge.toString());
-			System.out.println(edge.getProperties());
-			System.out.println(edge.getLabel());
-			
 			if(src != null && dst != null && edge.getProperties() != null)		
 				addFlowToLink(src, dst, edge.getProperties());
 		}

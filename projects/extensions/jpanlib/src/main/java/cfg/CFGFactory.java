@@ -420,17 +420,11 @@ public class CFGFactory {
 		if (node == null)
 			return newInstance();
 		
+		//Dont include void parameter nodes
 		if(node instanceof ParameterBase && ((ParameterBase) node).isVoid) {
-			System.out.println("Found void in cfg factory");
 			return newInstance();
 		}
 
-		if(node instanceof Comment)
-			System.out.println("Found comment");
-		
-		if(node instanceof BlockCloser)
-			System.out.println("Found BlockCloser");
-		
 		node.accept(structuredFlowVisitior);
 		return structuredFlowVisitior.getCFG();
 	}
