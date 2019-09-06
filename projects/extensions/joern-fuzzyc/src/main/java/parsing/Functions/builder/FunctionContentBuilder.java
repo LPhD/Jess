@@ -208,6 +208,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 */
 	private Stack<Comment> commentStack = new Stack<Comment>();
 	/**
+	 * Saves the previous statement to be able to connect comments with statements in the same line
+	 */
+	private ASTNode previousStatement = null;
+	/**
 	 * Pending items list for all statements that should be visited after the whole file content is parsed
 	 * Currently only for comments
 	 */
@@ -248,6 +252,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		this.preASTItemStack.clear();
 		this.commentStack.clear();
 		this.pendingList.clear();
+		this.previousStatement = null;
 	}
 	
 
@@ -610,8 +615,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			return false;
 		} else {
 			// Check variability for all other types (except the top last compound statement, which is needed for function content building)
-			if (stack.size() > 1 && !(itemToRemove instanceof CompoundStatement))
+			if (stack.size() > 1 && !(itemToRemove instanceof CompoundStatement)) {
+				//Set previous statement
+				previousStatement = itemToRemove;
 				checkVariability(itemToRemove);
+			}
 			return true;
 		}
 	}
@@ -688,8 +696,29 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterComment(CommentContext ctx) {
 		replaceTopOfStack(new Comment(), ctx);	
 	}
+
+	/**
+	 * Checks if there is a comment in the same line as a statement and connects both if so
+	 * @return True if there is a comment in the same line, false otherwise
+	 */
+	private Boolean checkIfCommentInSameLine(Comment comment) {
+		//If there are statement and comment in the same line
+		if(previousStatement != null && previousStatement.getLine() == comment.getLine()) {
+			comment.setCommentee(previousStatement);
+			//Save for later, because we need the commentee to be initialized
+			pendingList.add(comment);
+			
+			logger.debug("Found commentee in same line "+previousStatement.getEscapedCodeStr());
+			return true;
+		} else {
+			return false;
+		}		
+	}
 	
-	// TODO: Comments in the same line	
+	/**
+	 * Checks if there is a comment above a statement and connects both if so
+	 * @param node
+	 */
 	private void checkIfCommented(ASTNode node) {
 		while (!commentStack.isEmpty()) {
 			// Remove comments from stack
@@ -721,10 +750,18 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		
 		//Collect comments and check potential commentees
 		if(itemToRemove instanceof Comment) {
-			commentStack.push((Comment) itemToRemove);
+			//Check if there was a previous statement in the same line
+			Boolean commentInSameLine = checkIfCommentInSameLine((Comment) itemToRemove);
+			
+			//Put comment on the stack only if it was not already connected to something in the same line
+			if(!commentInSameLine) {
+				commentStack.push((Comment) itemToRemove);	
+			}
+			
 			stack.pop();
 			return;
 		} else {
+			previousStatement = itemToRemove;
 			checkIfCommented(itemToRemove);
 		}
 				
@@ -942,6 +979,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		Sizeof expr = new Sizeof();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		//Set previous statement
+		previousStatement = expr;
 		checkVariability(expr);
 		checkIfCommented(expr);
 	}
@@ -1012,6 +1051,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		classDefBuilder.setName(ctx.class_def().class_name());
 		ASTNode node = classDefBuilder.getItem();
 		replaceTopOfStack(node, ctx);
+		//Set previous statement
+		previousStatement = node;
 		checkVariability(node);
 		checkIfCommented(node);
 	}
@@ -1272,6 +1313,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			stack.push(declStmt);
 		}
 		
+		//Set previous statement
+		previousStatement = declStmt;
 		checkVariability(declStmt);
 		checkIfCommented(declStmt);
 	}

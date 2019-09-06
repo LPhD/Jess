@@ -1,9 +1,11 @@
 package tests.languages.c.parseTreeToAST;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.declarations.IdentifierDecl;
 import ast.expressions.AdditiveExpression;
@@ -173,6 +175,17 @@ public class ExpressionParsingTest {
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) ((Condition) starter.getCondition()).getExpression();
 		assertTrue(expr.getTargetFunc().getEscapedCodeStr().equals("foo"));
+	}
+	
+	@Test
+	public void commentInSameLineAsStatement() {
+		String input = "x = 5; /*x is set to 5*/";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		Comment comment = (Comment) contentItem.getStatements().get(1);
+		assertEquals("x = 5;", statementItem.getEscapedCodeStr());
+		assertEquals("/*x is set to 5*/", comment.getEscapedCodeStr());
+		assertEquals("ExpressionStatement", comment.getCommentee().getTypeAsString());
 	}
 
 }
