@@ -278,11 +278,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	private Boolean checkIfCommentInSameLine(Comment comment) {
 		if(previousStatement != null) {
-			System.out.println(previousStatement.getEscapedCodeStr() +" char "+ previousStatement.getCharAtLine());
-			System.out.println(comment.getEscapedCodeStr() +" char "+ comment.getCharAtLine());
+			System.out.println(previousStatement.getEscapedCodeStr() +" char "+ previousStatement.getLine());
+			System.out.println(comment.getEscapedCodeStr() +" char "+ comment.getLine());
 		}
 		//If there are statement and comment in the same line
-		if(previousStatement != null && previousStatement.getCharAtLine() == comment.getCharAtLine()) {
+		if(previousStatement != null && previousStatement.getLine() == comment.getLine()) {
 			comment.setCommentee(previousStatement);
 			//Save for later, because we need the commentee to be initialized
 			pendingList.add(comment);
