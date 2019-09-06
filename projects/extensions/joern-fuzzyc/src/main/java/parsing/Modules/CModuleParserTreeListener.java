@@ -277,6 +277,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 * @return True if there is a comment in the same line, false otherwise
 	 */
 	private Boolean checkIfCommentInSameLine(Comment comment) {
+		if(previousStatement != null) {
+			System.out.println(previousStatement.getEscapedCodeStr() +" char "+ previousStatement.getCharAtLine());
+			System.out.println(comment.getEscapedCodeStr() +" char "+ comment.getCharAtLine());
+		}
 		//If there are statement and comment in the same line
 		if(previousStatement != null && previousStatement.getCharAtLine() == comment.getCharAtLine()) {
 			comment.setCommentee(previousStatement);
