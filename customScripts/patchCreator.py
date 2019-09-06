@@ -66,14 +66,13 @@ def writeOutput(structuredPatchList):
 
     # Print results
     for statement in structuredPatchList: 
-        print(statement)
+        #print(statement)
 
         #Reset variables if line changed
         if (not lastLine == statement[1]):
             if(len(lineContent) > 0):
                 #Write finished line to output (done after we switch lines)
                 outputFileContent.append(lineContent)
-                print(lineContent)
             #Reset temp variables
             currentChar = 0
             lineContent = ""   
@@ -105,48 +104,17 @@ def writeOutput(structuredPatchList):
             outputFileContent.append("")
 
         #If we are not at the starting char of the statement
-        while (currentChar < statement[2]):
+        if (currentChar < statement[2]):
             #Add a space
             lineContent = lineContent + "\t"
-            currentChar = currentChar +1
+            currentChar = statement[2]
             
         #Finally add the statement to the line
         lineContent = lineContent + statement[3]
-        
-
-        
-        
-        
-        #Index for iterating throug the chars of the code statement
-#        sIndex = 0
-        #Iterate through every char of the line (number of spaces + number of chars in statement)
-#        while (nChar <= (statement[2] + (len(statement[3])-1))):
-            
-            #If we are not at the starting char of the statement
-#            if (nChar < statement[2]):
-                #Only write tabs if the current index is at an empty field (dont overwrite results for the same line)
-#                if(nChar >= len(lineContent)):
-                    #Add a space
-#                    lineContent = lineContent + "\t"
-            #If we reach the beginning of the statement    
-#            else:
-                #Add the statement character by character
-#                lineContent = lineContent + statement[3][sIndex]
-#                sIndex = sIndex + 1
                 
-            # Do not increment counter if the loop runs for the last time, just break
-#            if (not (nChar == (statement[2] + (len(statement[3])-1)))):    
-#            nChar = nChar + 1
-#            else:
-#                break
-                
-        #Overwrite the current line if we are still at the same line as last iteration
-#        if (lChanged):
-#            fileContent.append(lineContent)
-#        else:
-#            fileContent[statement[1]-1] = lineContent
-                       
-
+    
+    #Finally write the current line (last of the list)
+    outputFileContent.append(lineContent)
     #Finally write the current file (last of the list)
     writeToFile(foldername+"/"+statement[0], outputFileContent)
 
