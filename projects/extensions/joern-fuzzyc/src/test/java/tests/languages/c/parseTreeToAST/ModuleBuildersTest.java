@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.junit.Test;
 
 import antlr.ModuleLexer;
+import antlr.ModuleParser;
 import ast.ASTNode;
 import ast.Comment;
 import ast.c.functionDef.ParameterType;
@@ -277,6 +278,18 @@ public class ModuleBuildersTest {
 		Comment codeItem = (Comment) codeItems.get(1);
 		assertEquals("Comment", codeItem.getTypeAsString());
 		assertEquals("//This is a function comment \\n", codeItem.getEscapedCodeStr());
+		assertEquals("FunctionDef", codeItem.getCommentee().getTypeAsString());
+	}
+	
+	
+	@Test
+	public void testMCommentInSameLine() {
+		String input = "/*This is a comment in the same line */ int (foo)(){}";
+		List<ASTNode> codeItems = parseInput(input);
+		//Comment is the second item, because we need the commentee to be processed first
+		Comment codeItem = (Comment) codeItems.get(1);
+		assertEquals("Comment", codeItem.getTypeAsString());
+		assertEquals("/*This is a comment in the same line */", codeItem.getEscapedCodeStr());
 		assertEquals("FunctionDef", codeItem.getCommentee().getTypeAsString());
 	}
 

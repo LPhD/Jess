@@ -54,6 +54,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	private Stack<Comment> commentStack = new Stack<Comment>();
 	/**
+	 * Saves the previous statement to be able to connect comments with statements in the same line
+	 */
+	private ASTNode previousStatement = null;
+	/**
 	 * Pending items list for all statements that should be visited after the whole file content is parsed
 	 * Currently only for comments
 	 */
@@ -83,6 +87,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		this.preASTItemStack.clear();
 		this.commentStack.clear();
 		this.pendingList.clear();
+		this.previousStatement = null;
 		
 		p.notifyObserversOfUnitEnd(ctx);		
 	}
@@ -126,6 +131,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		
 		//Initalize again to set correct location string
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		
+		//Set previous statement
+		previousStatement = thisItem;
 		
 		//VARIABILITY ANALYSIS first
 		variabilityAnalysis(thisItem);
@@ -254,10 +262,39 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	public void enterComment(ModuleParser.CommentContext ctx) {	
 		Comment comment = new Comment();
 		ASTNodeFactory.initializeFromContext(comment, ctx);
-		commentStack.push(comment);		
+		
+		//Check if there was a previous statement in the same line
+		Boolean commentInSameLine = checkIfCommentInSameLine(comment);
+		
+		//Put comment on the stack only if it was not already connected to something in the same line
+		if(!commentInSameLine) {
+			commentStack.push(comment);		
+		}
 	}	
 	
-	// TODO: Comments in the same line	
+	/**
+	 * Checks if there is a comment in the same line as a statement and connects both if so
+	 * @return True if there is a comment in the same line, false otherwise
+	 */
+	private Boolean checkIfCommentInSameLine(Comment comment) {
+		//If there are statement and comment in the same line
+		if(previousStatement != null && previousStatement.getCharAtLine() == comment.getCharAtLine()) {
+			comment.setCommentee(previousStatement);
+			//Save for later, because we need the commentee to be initialized
+			pendingList.add(comment);
+			
+			System.out.println("Found commentee in same line "+previousStatement.getEscapedCodeStr());
+			logger.debug("Found commentee in same line "+previousStatement.getEscapedCodeStr());
+			return true;
+		} else {
+			return false;
+		}		
+	}
+	
+	/**
+	 * Checks if there is a comment above a statement and connects both if so
+	 * @param node
+	 */
 	private void checkIfCommented(ASTNode node) {
 		while (!commentStack.isEmpty()) {
 			// Remove comments from stack
@@ -290,6 +327,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.pop();
 		ASTNode fdef = builder.getItem();
 		p.notifyObserversOfItem(fdef);
+		
+		//Set previous statement
+		previousStatement = fdef;
 		
 		// Connect to parent blockstarters if they exist
 		checkVariability(fdef);	
@@ -350,6 +390,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		p.notifyObserversOfItem(stmt);
 		
+		//Set previous statement
+		previousStatement = stmt;
+		
 		// Connect to parrent #ifdef if existing
 		checkVariability(stmt);
 		// Connect to parrent comment if existing
@@ -376,6 +419,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		
 		p.notifyObserversOfItem(node);
 		emitDeclarationsForClass(ctx);
+		
+		//Set previous statement
+		previousStatement = node;
 				
 		//Connect to parent blockstarters if they exist
 		checkVariability(node);
