@@ -37,7 +37,11 @@ public class ASTNodeFactory {
 		
 		node.setLine(ctx.start.getLine());
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
-		node.setCodeStr(escapeCodeStr(ParseTreeUtils.childTokenString(ctx)));
+		String code = ParseTreeUtils.childTokenString(ctx);
+		code  = code.replace("\n", "");
+		code  = code.replace("\r", "");
+		code  = code.replace("\t", "");
+		node.setCodeStr(code);
 		
 		System.out.println("Comment initialized with code: "+node.getEscapedCodeStr());
 	}
