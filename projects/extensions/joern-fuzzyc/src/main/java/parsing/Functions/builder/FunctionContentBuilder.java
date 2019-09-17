@@ -745,11 +745,13 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
 		}
 
-		ASTNode itemToRemove = stack.peek();
-		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
+		ASTNode itemToRemove = stack.peek();		
 		
 		//Collect comments and check potential commentees
 		if(itemToRemove instanceof Comment) {
+			//Use the dedicated comment creation function
+			ASTNodeFactory.initializeFromContext((Comment) itemToRemove, ctx);
+			
 			//Check if there was a previous statement in the same line
 			Boolean commentInSameLine = checkIfCommentInSameLine((Comment) itemToRemove);
 			
@@ -764,6 +766,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			previousStatement = itemToRemove;
 			checkIfCommented(itemToRemove);
 		}
+		
+		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 				
 		consolidate = preprocessorHandling(itemToRemove);
 						
