@@ -128,7 +128,7 @@ grammar Common;
 }
 
 
-comment: CPPCOMMENT | COMMENT;
+comment: LINE_COMMENT | COMMENT;
 unary_operator : '&' | '*' | '+'| '-' | '~' | '!';
 relational_operator: ('<'|'>'|'<='|'>=');
 

@@ -116,17 +116,13 @@ HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
 NEWLINE: [\r\n]+;
 
 ESCAPE: '\\';
-
-COMMENT
-    :   '/*' .*? '*/'     
-    ;
     
-WHITESPACE  :   [ \t\u000C]+ -> skip
-    ;
+WHITESPACE :  [ \t\u000C]+ -> skip  ;
 
-CPPCOMMENT
-    : '//' ~[\r\n]* '\r'? '\n' 
-    ;
+COMMENT : '/*' (~'\n'|~'\r'|COMMENT|.)*? '*/' ;
+
+LINE_COMMENT  : '//' ~('\n'|'\r')* '\r'? '\n' ;
+   
     
 ELLIPSIS : '...';
 
