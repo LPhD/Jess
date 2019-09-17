@@ -8,6 +8,7 @@ import antlr.ModuleParser.Parameter_declContext;
 import antlr.ModuleParser.Parameter_idContext;
 import antlr.ModuleParser.Parameter_nameContext;
 import ast.ASTNode;
+import ast.Comment;
 import ast.c.functionDef.Parameter;
 import ast.c.functionDef.ParameterType;
 import ast.expressions.AssignmentExpression;
@@ -25,6 +26,20 @@ public class ASTNodeFactory {
 		node.setLine(ctx.start.getLine());
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
 		node.setCodeStr(escapeCodeStr(ParseTreeUtils.childTokenString(ctx)));
+	}
+	
+	/**
+	 * Separate function for comments to remove line breaks from the code
+	 */
+	public static void initializeFromContext(Comment node, ParserRuleContext ctx) {
+		if (ctx == null)
+			return;
+		
+		node.setLine(ctx.start.getLine());
+		node.setCharAtLine(ctx.start.getCharPositionInLine());
+		node.setCodeStr(escapeCodeStr(ParseTreeUtils.childTokenString(ctx)));
+		
+		System.out.println("Comment initialized with code: "+node.getEscapedCodeStr());
 	}
 
 	public static void initializeFromContext(Expression node, ParserRuleContext ctx) {

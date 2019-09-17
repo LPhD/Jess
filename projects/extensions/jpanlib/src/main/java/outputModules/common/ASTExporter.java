@@ -89,7 +89,6 @@ public abstract class ASTExporter {
 		if(node instanceof Comment) {
 			if(((Comment) node).getCommentee() != null) {
 				drawCommentsEdge(node.getNodeId(), ((Comment) node).getCommentee().getNodeId());
-				System.out.println("Draw comment link for: "+node.getEscapedCodeStr()+" to "+((Comment) node).getCommentee().getEscapedCodeStr());
 			}
 		}		
 	}
