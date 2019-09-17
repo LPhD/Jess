@@ -25,7 +25,7 @@ public class ASTNodeFactory {
 		//We can not set the path here, only the line?
 		node.setLine(ctx.start.getLine());
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
-		node.setCodeStr(escapeCodeStr(ParseTreeUtils.childTokenString(ctx)));
+		node.setCodeStr(ParseTreeUtils.childTokenString(ctx));
 	}
 	
 	/**
@@ -62,13 +62,6 @@ public class ASTNodeFactory {
 		return node;
 	}
 
-	private static String escapeCodeStr(String codeStr) {
-		String retval = codeStr;
-//		retval = retval.replace("\n", "\\n");
-//		retval = retval.replace("\r", "\\r");
-//		retval = retval.replace("\t", "\\t");
-		return retval;
-	}
 
 	public static AssignmentExpression create(InitDeclWithAssignContext ctx) {
 		AssignmentExpression assign = new AssignmentExpression();
