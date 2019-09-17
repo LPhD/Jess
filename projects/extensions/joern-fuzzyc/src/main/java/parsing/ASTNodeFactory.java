@@ -57,6 +57,7 @@ public class ASTNodeFactory {
 	private static String escapeCodeStr(String codeStr) {
 		String retval = codeStr;
 		retval = retval.replace("\n", "\\n");
+		retval = retval.replace("\r", "\\r");
 		retval = retval.replace("\t", "\\t");
 		return retval;
 	}
