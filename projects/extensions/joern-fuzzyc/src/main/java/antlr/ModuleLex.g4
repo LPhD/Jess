@@ -68,7 +68,10 @@ FLOATING_POINT_LITERAL
     |   ('0'..'9')+ Exponent? FloatTypeSuffix
 	;
 	
-
+COMMENT: '/*' ~('\n'|'\r')* '*/'
+    | '//'  ~('\n'|'\r')* '\r'? '\n'
+ ;
+ 
 CHAR
     :   '\'' ( EscapeSequence | ~('\''|'\\') ) '\''
     ;
@@ -114,10 +117,6 @@ fragment
 HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
 NEWLINE: '\r'? '\n';
-
-COMMENT: '/*' ~('\n'|'\r')* '*/'
-    | '//'  ~('\n'|'\r')* '\r'? '\n'
- ;
 
 ESCAPE: '\\';
     
