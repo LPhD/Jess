@@ -8,6 +8,7 @@ import antlr.ModuleParser.Parameter_declContext;
 import antlr.ModuleParser.Parameter_idContext;
 import antlr.ModuleParser.Parameter_nameContext;
 import ast.ASTNode;
+import ast.Comment;
 import ast.c.functionDef.Parameter;
 import ast.c.functionDef.ParameterType;
 import ast.expressions.AssignmentExpression;
@@ -27,23 +28,28 @@ public class ASTNodeFactory {
 		node.setCodeStr(escapeCodeStr(ParseTreeUtils.childTokenString(ctx)));
 	}
 	
-//	/**
-//	 * Separate function for comments to remove line breaks from the code
-//	 */
-//	public static void initializeFromContext(Comment node, ParserRuleContext ctx) {
-//		if (ctx == null)
-//			return;
-//		
-//		node.setLine(ctx.start.getLine());
-//		node.setCharAtLine(ctx.start.getCharPositionInLine());
-//		String code = ParseTreeUtils.childTokenString(ctx);
-//		code  = code.replace("\n", "");
-//		code  = code.replace("\r", "");
-//		code  = code.replace("\t", "");
-//		node.setCodeStr(code);
-//		
-//		System.out.println("Comment initialized with code: "+node.getEscapedCodeStr());
-//	}
+	/**
+	 * Separate function for comments to remove line breaks from the code
+	 */
+	public static void initializeFromContext(Comment node, ParserRuleContext ctx) {
+		if (ctx == null)
+			return;
+		
+		node.setLine(ctx.start.getLine());
+		node.setCharAtLine(ctx.start.getCharPositionInLine());
+		String code = ParseTreeUtils.childTokenString(ctx);
+		//Multiple line comment
+		if (code.startsWith("/*")) {
+			System.out.println("Multiple");
+		} else {
+			System.out.println("Single");
+			code  = code.replace("\n", "");
+			code  = code.replace("\r", "");
+			code  = code.replace("\t", "");			
+		}
+		node.setCodeStr(code);
+		System.out.println("Comment initialized with code: "+node.getEscapedCodeStr());
+	}
 
 	public static void initializeFromContext(Expression node, ParserRuleContext ctx) {
 		initializeFromContext((ASTNode) node, ctx);
@@ -60,8 +66,7 @@ public class ASTNodeFactory {
 	private static String escapeCodeStr(String codeStr) {
 		String retval = codeStr;
 		retval = retval.replace("\n", "\\n");
-		//We do this here because of UNIX/Windows issues
-		retval = retval.replace("\r\n", "\\n");
+		retval = retval.replace("\r", "\\r");
 		retval = retval.replace("\t", "\\t");
 		return retval;
 	}
