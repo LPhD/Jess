@@ -2,9 +2,43 @@
 from octopus.server.DBInterface import DBInterface
 import subprocess
 
-projectName = 'SPLC'
+#Name of the project
+#projectName = 'Collection'
+projectName = 'EvoDiss.tar.gz'
+#projectName = 'ICSE'
+#projectName = 'JoernTest.tar.gz'
+#projectName = 'Linux3'
+#projectName = 'Marlin'
+#projectName = 'Revamp'
+#projectName = 'SPLC'
+#projectName = 'TestCommit'
+
+
+#Project specific paths
+#Collection path
+#projectPath = '/Joern_Advanced/testProjects/Collection/src/'
+#EvoDiss path
+projectPath = '/home/lea/Downloads/EvoDiss/src/'
+#ICSE path
+#projectPath = '/home/lea/Downloads/'
+#JoernTest path
+#projectPath = '/home/lea/Downloads/Joern_Advanced/testProjects/Tests/'
+#Linux3 path
+#projectPath = '/home/lea/Downloads/linux-3.16.72/'
+#Marlin path
+#projectPath = '/Marlin-1.1.9/'
+#Revamp path
+#projectPath = '/home/lea/Downloads/Joern_Advanced/testProjects/'
+#SPLC path
+#projectPath = '/Joern_Advanced/testProjects/SPLC/src/'
+#TestCommit path
+#projectPath = '/src/'
+
+#Assemble path
 pathToPatch = 'Patch/'
-pathToOriginalProject = '/home/lea/Downloads/Joern_Advanced/projects/octopus/data/projects/'+projectName+'/src/'+projectName+'/src/'
+basePath = '/home/lea/Downloads/Joern_Advanced/projects/octopus/data/projects/'+projectName+'/src'
+pathToOriginalProject = basePath+projectPath
+
 db = DBInterface()
 db.connectToDatabase(projectName)
 
