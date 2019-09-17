@@ -29,26 +29,25 @@ public class ASTNodeFactory {
 	}
 	
 	/**
-	 * Separate function for comments to remove line breaks from the code
+	 * Separate function for comments to remove line breaks from the code (they were just needed for detecting the end of the comment)
 	 */
-//	public static void initializeFromContext(Comment node, ParserRuleContext ctx) {
-//		if (ctx == null)
-//			return;
-//		
-//		node.setLine(ctx.start.getLine());
-//		node.setCharAtLine(ctx.start.getCharPositionInLine());
-//		String code = ParseTreeUtils.childTokenString(ctx);
-//		//Single line comment
-//		if (code.startsWith("//")) {
-//			//Remove newline characters
-//			code  = code.replace("\n", "");
-//			code  = code.replace("\r", "");
-//			code  = code.replace("\t", "");			
-//		}
-//		//Do nothing for multiple line comment
-//		node.setCodeStr(code);
-//		System.out.println("Comment initialized with code: "+node.getEscapedCodeStr());
-//	}
+	public static void initializeFromContext(Comment node, ParserRuleContext ctx) {
+		if (ctx == null)
+			return;
+		
+		node.setLine(ctx.start.getLine());
+		node.setCharAtLine(ctx.start.getCharPositionInLine());
+		String code = ParseTreeUtils.childTokenString(ctx);
+		//Single line comment
+		if (code.startsWith("//")) {
+			//Remove newline characters at the end of the comment
+			code  = code.replace("\n", "");
+			code  = code.replace("\r", "");
+			code  = code.replace("\t", "");			
+		}
+		node.setCodeStr(code);
+		System.out.println("Comment initialized with code: "+node.getEscapedCodeStr());
+	}
 
 	public static void initializeFromContext(Expression node, ParserRuleContext ctx) {
 		initializeFromContext((ASTNode) node, ctx);
