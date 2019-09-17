@@ -49,10 +49,10 @@ public class OtherTests extends FunctionDefinitionTests {
 	
 	@Test
 	public void testMultipleLineComment() {
-		String input = "/*This is a \n multiple-line comment */ int (foo)(){}";
+		String input = "/* This is a \\n multiple-line comment */ int (foo)(){}";
 
 		ModuleParser parser = createParser(input);
 		String output = parser.comment().toStringTree(parser);
-		assertEquals("(comment /*This is a \\n multiple-line comment */)", output);
+		assertEquals("(comment /* This is a \\n multiple-line comment */)", output);
 	}
 }

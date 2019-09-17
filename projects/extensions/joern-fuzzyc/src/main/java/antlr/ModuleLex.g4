@@ -113,16 +113,15 @@ UnicodeEscape
 fragment
 HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
-NEWLINE: [\r\n]+;
+NEWLINE: '\r'? '\n';
+
+COMMENT: '/*' ~('\n'|'\r')* '*/'
+    | '//'  ~('\n'|'\r')* '\r'? '\n'
+ ;
 
 ESCAPE: '\\';
     
-WHITESPACE :  [ \t\u000C]+ -> skip  ;
-
-COMMENT : '/*' (~'\n'|~'\r'|COMMENT|.)*? '*/' ;
-
-LINE_COMMENT  : '//' ~('\n'|'\r')* '\r'? '\n' ;
-   
+WHITESPACE :  [ \t\u000C]+ -> skip  ;   
     
 ELLIPSIS : '...';
 

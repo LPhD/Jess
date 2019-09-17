@@ -128,7 +128,7 @@ grammar Common;
 }
 
 
-comment: LINE_COMMENT | COMMENT;
+comment: COMMENT;
 unary_operator : '&' | '*' | '+'| '-' | '~' | '!';
 relational_operator: ('<'|'>'|'<='|'>=');
 
