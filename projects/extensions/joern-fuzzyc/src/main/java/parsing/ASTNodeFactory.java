@@ -27,6 +27,7 @@ public class ASTNodeFactory {
 		//Initialize compound statements only once
 		if(node instanceof CompoundStatement && node.getLine() > -1) {
 			System.out.println("Compound with line: "+node.getLine());
+			node.setCodeStr(ParseTreeUtils.childTokenString(ctx));
 			return;
 		}
 		
