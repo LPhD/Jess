@@ -768,7 +768,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		}
 		
 		//Initialize nodes just once
-		if (itemToRemove.getLine() > -1) {
+		if (itemToRemove.getLine() == -1) {
 			ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
 		}
 				
