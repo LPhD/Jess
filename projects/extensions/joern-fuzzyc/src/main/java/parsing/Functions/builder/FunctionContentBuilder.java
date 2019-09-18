@@ -767,7 +767,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			checkIfCommented(itemToRemove);
 		}
 		
-		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
+		//Initialize nodes just once
+		if (itemToRemove.getLine() > -1) {
+			ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
+		}
 				
 		consolidate = preprocessorHandling(itemToRemove);
 						
