@@ -24,6 +24,12 @@ public class ASTNodeFactory {
 		if (ctx == null)
 			return;
 		
+		//Initialize compound statements only once
+		if(node instanceof CompoundStatement && node.getLine() > -1) {
+			System.out.println("Compound with line: "+node.getLine());
+			return;
+		}
+		
 		//We can not set the path here, only the line?
 		node.setLine(ctx.start.getLine());
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
@@ -31,11 +37,7 @@ public class ASTNodeFactory {
 		
 		if(node instanceof IfStatementBase) {
 			System.out.println("If with line: "+node.getLine()+ " and code: "+node.getEscapedCodeStr());
-		}
-		
-		if(node instanceof CompoundStatement) {
-			System.out.println("Compound with line: "+node.getLine());
-		}
+		}		
 	}
 	
 	/**
