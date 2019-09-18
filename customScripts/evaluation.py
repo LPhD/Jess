@@ -45,9 +45,11 @@ def fileOutput (result):
             
                
 print("Export visible node ids to file...")
-fileOutput(getVisibleNodes())            
+fileOutput(getVisibleNodes())      
+      
 print("Convert project back to source code...")
 from patchCreator import createPatch
+
 print("Compare with original source code...")
 with open('EvaluationResult.txt', 'w') as f:
     # No history, ignore whitespaces

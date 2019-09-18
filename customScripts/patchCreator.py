@@ -63,6 +63,8 @@ def writeOutput(structuredPatchList):
     lastLine = 0
     lineContent = ""
     outputFileContent = []
+    # We need this for multiline nodes to get the correct length
+    additionalLines = 0
 
     # Print results
     for statement in structuredPatchList: 
@@ -93,6 +95,7 @@ def writeOutput(structuredPatchList):
             lastFile = foldername+"/"+statement[0]            
             currentChar = 0
             lineContent = "" 
+            additionalLines = 0
             lChanged = True
             fChanged = True
         else:
@@ -100,7 +103,8 @@ def writeOutput(structuredPatchList):
         
         
         #Add empty lines until we reach the line of the current statement (index begins with 1)
-        while (len(outputFileContent) < statement[1]-1):
+        #The additionalLines are needed if we add multiline nodes (as one string is counted as one line althoug it contains linebreaks)
+        while ((len(outputFileContent) + additionalLines) < (statement[1]-1)):
             outputFileContent.append("")
 
         #If we are not at the starting char of the statement
@@ -108,7 +112,10 @@ def writeOutput(structuredPatchList):
             #Add a space
             lineContent = lineContent + "\t"
             currentChar = statement[2]
-            
+        
+        #Count line breaks in a node as additional lines (to add them to the file length)  
+        additionalLines = additionalLines + statement[3].count("\n")
+
         #Finally add the statement to the line
         lineContent = lineContent + statement[3]
                 
