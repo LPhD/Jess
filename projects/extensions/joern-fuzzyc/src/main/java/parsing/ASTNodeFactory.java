@@ -15,9 +15,9 @@ import ast.expressions.AssignmentExpression;
 import ast.expressions.BinaryExpression;
 import ast.expressions.Expression;
 import ast.expressions.Identifier;
+import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
-import ast.statements.blockstarters.IfStatementBase;
 
 public class ASTNodeFactory {
 	public static void initializeFromContext(ASTNode node, ParserRuleContext ctx) {
@@ -32,7 +32,7 @@ public class ASTNodeFactory {
 		//Initialize compound statements only once
 		if(node instanceof CompoundStatement && node.getLine() > -1) {
 			System.out.println("Compound with line: "+node.getLine());
-			return;
+//			return;
 		}
 		
 		//We can not set the path here, only the line?
@@ -40,7 +40,7 @@ public class ASTNodeFactory {
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
 		node.setCodeStr(ParseTreeUtils.childTokenString(ctx));
 		
-		if(node instanceof IfStatementBase) {
+		if(node instanceof BlockStarter) {
 			System.out.println("If with line: "+node.getLine()+ " and code: "+node.getEscapedCodeStr());
 		}		
 	}
