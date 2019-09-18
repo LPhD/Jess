@@ -277,7 +277,7 @@ public class ModuleBuildersTest {
 		//Comment is the second item, because we need the commentee to be processed first
 		Comment codeItem = (Comment) codeItems.get(1);
 		assertEquals("Comment", codeItem.getTypeAsString());
-		assertEquals("//This is a function comment \\n", codeItem.getEscapedCodeStr());
+		assertEquals("//This is a function comment ", codeItem.getEscapedCodeStr());
 		assertEquals("FunctionDef", codeItem.getCommentee().getTypeAsString());
 	}
 	
