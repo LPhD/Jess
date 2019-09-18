@@ -32,7 +32,7 @@ selection_or_iteration: TRY                      #Try_statement
                       | IF '(' condition ')'     #If_statement
                       | ELSE                     #Else_statement
                       | SWITCH '(' condition ')' #Switch_statement
-                      | FOR '(' (for_init_statement | ';') condition? ';'  expr? ')' #For_statement
+                      | FOR '(' (for_init_statement | ';') condition? ';'  expr? ')' ';'? #For_statement
                       | DO                          #Do_statement
                       | WHILE '(' condition ')'     #While_statement
 ;
