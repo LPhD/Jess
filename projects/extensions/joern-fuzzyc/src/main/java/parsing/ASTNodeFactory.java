@@ -23,21 +23,11 @@ public class ASTNodeFactory {
 	public static void initializeFromContext(ASTNode node, ParserRuleContext ctx) {
 		if (ctx == null)
 			return;
-		
-		//Initialize compound statements only once
-		if(node instanceof CompoundStatement) {
-			System.out.println("Compound with line: "+node.getLine()+ " and code: "+node.getEscapedCodeStr());
-//			return;
-		}
-		
+				
 		//We can not set the path here, only the line?
 		node.setLine(ctx.start.getLine());
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
-		node.setCodeStr(ParseTreeUtils.childTokenString(ctx));
-		
-		if(node instanceof BlockStarter) {
-			System.out.println("If with line: "+node.getLine()+ " and code: "+node.getEscapedCodeStr());
-		}		
+		node.setCodeStr(ParseTreeUtils.childTokenString(ctx));	
 	}
 	
 	/**
