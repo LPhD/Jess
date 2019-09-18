@@ -15,7 +15,9 @@ import ast.expressions.AssignmentExpression;
 import ast.expressions.BinaryExpression;
 import ast.expressions.Expression;
 import ast.expressions.Identifier;
+import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
+import ast.statements.blockstarters.IfStatementBase;
 
 public class ASTNodeFactory {
 	public static void initializeFromContext(ASTNode node, ParserRuleContext ctx) {
@@ -26,6 +28,14 @@ public class ASTNodeFactory {
 		node.setLine(ctx.start.getLine());
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
 		node.setCodeStr(ParseTreeUtils.childTokenString(ctx));
+		
+		if(node instanceof IfStatementBase) {
+			System.out.println("If with line: "+node.getLine()+ " and code: "+node.getEscapedCodeStr());
+		}
+		
+		if(node instanceof CompoundStatement) {
+			System.out.println("Compound with line: "+node.getLine());
+		}
 	}
 	
 	/**
@@ -46,7 +56,6 @@ public class ASTNodeFactory {
 			code  = code.replace("\t", "");			
 		}
 		node.setCodeStr(code);
-		System.out.println("Comment initialized with code: "+node.getEscapedCodeStr());
 	}
 
 	public static void initializeFromContext(Expression node, ParserRuleContext ctx) {
