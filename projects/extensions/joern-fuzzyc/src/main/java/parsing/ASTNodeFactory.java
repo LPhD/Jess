@@ -25,9 +25,8 @@ public class ASTNodeFactory {
 			return;
 		
 		//Initialize compound statements only once
-		if(node instanceof CompoundStatement) {
+		if(node instanceof CompoundStatement  && node.getLine() <= -1) {
 			System.out.println("Compound with line should be -1: "+node.getLine());
-			return;
 		}
 		
 		//Initialize compound statements only once
