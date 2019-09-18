@@ -25,13 +25,8 @@ public class ASTNodeFactory {
 			return;
 		
 		//Initialize compound statements only once
-		if(node instanceof CompoundStatement  && node.getLine() <= -1) {
-			System.out.println("Compound with line should be -1: "+node.getLine());
-		}
-		
-		//Initialize compound statements only once
-		if(node instanceof CompoundStatement && node.getLine() > -1) {
-			System.out.println("Compound with line: "+node.getLine());
+		if(node instanceof CompoundStatement) {
+			System.out.println("Compound with line: "+node.getLine()+ " and code: "+node.getEscapedCodeStr());
 //			return;
 		}
 		
