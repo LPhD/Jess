@@ -32,7 +32,7 @@ PRE_ENDIF: '#endif';
 PRE_DEFINE: '#define';     
 PRE_UNDEF:  '#undef';
 PRE_DIAGNOSTIC: ('#error' | '#warning');
-PRE_OTHER: ('#ident' |  '#sccs');
+PRE_OTHER: ('#ident' |  '#sccs' | '#null');
 PRE_INCLUDE:  ('#import' | '#include');
 PRE_INCLUDE_NEXT:  '#include_next';
 PRE_LINE: '#line';
