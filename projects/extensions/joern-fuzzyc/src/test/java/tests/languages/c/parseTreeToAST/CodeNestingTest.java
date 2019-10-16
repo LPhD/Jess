@@ -3,12 +3,9 @@ package tests.languages.c.parseTreeToAST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.Test;
 
 import antlr.FunctionParser.StatementsContext;
-import ast.ASTNode;
 import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.c.statements.blockstarters.IfStatement;
@@ -17,9 +14,9 @@ import ast.declarations.IdentifierDecl;
 import ast.expressions.Argument;
 import ast.expressions.ArgumentList;
 import ast.expressions.AssignmentExpression;
-import ast.logical.statements.Condition;
 import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
+import ast.logical.statements.Condition;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.blockstarters.ForStatement;
