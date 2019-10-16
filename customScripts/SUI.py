@@ -14,23 +14,24 @@ connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
 LookForAllFunctionCalls = False
+############### Further options to refine the Semantic Unit after analysis ###############
 includeVariabilityInformation = False
+includeComments = True
 ######################### Configuration options for graph output #########################
-generateOnlyAST = True
+generateOnlyAST = False
 generateOnlyVisibleCode = True
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 ##########################################################################################
 
 
-# Connect to project DB
+# Set the project DB manually (has only an effect if consoleInput is deactivated)
 #projectName = 'JoernTest.tar.gz'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-projectName = 'SPLC'
+#projectName = 'SPLC'
 #projectName = 'Collection'
-db = DBInterface()
-db.connectToDatabase(projectName)
+
 
 ## Example entry points ##
 ## Caution, depends on db ##
@@ -50,8 +51,8 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = set()
-entryFeatureNames = {'analogueSender'}
+entryPointIds = {57496}
+entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -60,7 +61,7 @@ checkedVertices = set()
 analysisList = list()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
-visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser']
+visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File']
 
 
 # Main function 
@@ -97,6 +98,10 @@ def identifySemanticUnits ():
         #Check for variability information
         if(includeVariabilityInformation):
             addVariability()
+        
+        #Check for comments
+        if(includeComments):
+            addComments()        
         
         # Get the #ifndef #def and #endif for header files?
         
@@ -585,8 +590,9 @@ def getVariableStatements (verticeId):
 def getFeatureBlocks (featureName):
     for currentNode in featureName:    
         # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
-        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').id())""" % (currentNode)       
-        result = db.runGremlinQuery(query)      
+        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').id())""" % (currentNode       
+        result = db.runGremlinQuery(query)              
+        
         if (len(result) == 0):
             print("##### Warning! No #if/#ifdef/#elif statements found for feature: "+currentNode+" #### \n")            
 
@@ -627,6 +633,22 @@ def addVariability ():
     result = db.runGremlinQuery(query)       
     
     if (DEBUG) : print("Found additional variability nodes (#ifdef etc): "+str(result)+"\n")
+    
+    semanticUnit.update(result)
+    
+######################################### Comment Checking #################################################################
+
+# Return parent comment for each statement in the SemanticUnit (without further analysis)
+def addComments ():
+    if (DEBUG) : print("Checking for comments...")    
+
+    global semanticUnit
+    # Get the parent comment nodes, add them to the SemanticUnit (without dupes)
+    query = """idListToNodes(%s).in('COMMENTS').id()""" % (list(semanticUnit))   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found additional comment nodes: "+str(result)+"\n")
     
     semanticUnit.update(result)
     
@@ -817,7 +839,6 @@ def getASTNodes():
 def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
-    # CompoundStatement is included for a better visualization (nesting), it is not needed for patch generation
     query = """idListToNodes(%s).has('type', within(%s)).id()""" % (list(semanticUnit), visibleStatementTypes)  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
@@ -835,7 +856,7 @@ def getNodes():
 # Returns all AST edges of the Semantic Unit    
 def getASTEdges():
     # Get all incoming edges that are part of the AST  
-    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF')""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF', 'COMMENTS')""" % (list(semanticUnit))   
     return db.runGremlinQuery(query)
     
 # Returns all edges of the Semantic Unit    
@@ -902,7 +923,11 @@ def output(G):
 ################################################### Start of program #################################################################
 
 # Input of entry points
-#consoleInput()
+consoleInput()
+
+#Connect to db
+db = DBInterface()
+db.connectToDatabase(projectName)
 
 # Start identification process    
 identifySemanticUnits() 
