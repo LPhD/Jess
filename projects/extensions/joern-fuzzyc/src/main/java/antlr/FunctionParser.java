@@ -116,11 +116,10 @@ public class FunctionParser extends Parser {
 		"'while'", "'break'", "'case'", "'continue'", "'switch'", "'do'", "'goto'", 
 		"'return'", "'typedef'", "'void'", "'unsigned'", "'signed'", "'long'", 
 		null, "'virtual'", "'try'", "'catch'", "'throw'", "'using'", "'namespace'", 
-		"'auto'", "'register'", null, "'#elif'", "'#else'", "'#endif'", "'#define'", 
-		"'#undef'", null, null, null, "'#include_next'", "'#line'", "'#pragma'", 
-		"'GCC'", null, null, "'operator'", "'template'", "'new'", null, null, 
-		"'{'", "'}'", null, null, null, null, null, null, null, null, "'\\'", 
-		null, "'...'"
+		"'auto'", "'register'", null, null, null, null, null, null, null, null, 
+		null, null, null, null, "'GCC'", null, null, "'operator'", "'template'", 
+		"'new'", null, null, "'{'", "'}'", null, null, null, null, null, null, 
+		null, null, "'\\'", null, "'...'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 

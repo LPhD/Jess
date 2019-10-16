@@ -25,18 +25,18 @@ AUTO: 'auto'; REGISTER: 'register';
 
 // pre-processor directives: C/C++
 
-PRE_IF: ('#if' | '#ifdef' | '#ifndef');
-PRE_ELIF:  '#elif';
-PRE_ELSE: '#else';
-PRE_ENDIF: '#endif';
-PRE_DEFINE: '#define';     
-PRE_UNDEF:  '#undef';
-PRE_DIAGNOSTIC: ('#error' | '#warning');
-PRE_OTHER: ('#ident' |  '#sccs' | '#null');
-PRE_INCLUDE:  ('#import' | '#include');
-PRE_INCLUDE_NEXT:  '#include_next';
-PRE_LINE: '#line';
-PRE_PRAGMA: '#pragma';
+PRE_IF: '#' [ \t\u000C]* ('if' | 'ifdef' | 'ifndef');
+PRE_ELIF:  '#' [ \t\u000C]* 'elif';
+PRE_ELSE: '#' [ \t\u000C]* 'else';
+PRE_ENDIF: '#' [ \t\u000C]* 'endif';
+PRE_DEFINE: '#' [ \t\u000C]* 'define';     
+PRE_UNDEF:  '#' [ \t\u000C]* 'undef';
+PRE_DIAGNOSTIC:  '#' [ \t\u000C]* ('error' | 'warning');
+PRE_OTHER:  '#' [ \t\u000C]* ('ident' |  'sccs' | 'null');
+PRE_INCLUDE:  '#' [ \t\u000C]* ('import' | 'include');
+PRE_INCLUDE_NEXT:  '#' [ \t\u000C]* 'include_next';
+PRE_LINE: '#' [ \t\u000C]* 'line';
+PRE_PRAGMA: '#' [ \t\u000C]* 'pragma';
 PRE_GCC: 'GCC';
 PRE_PRAGMA_KEYWORDS: ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning');
 PRE_STR: ('##' | '#');

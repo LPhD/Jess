@@ -242,6 +242,15 @@ public class PreprocessorTests {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
 	}
+
+	@Test
+	public void testPreDefineWithString() {
+		String input = "#  define XML_FMT_INT_MOD \"ll\"";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("XML_FMT_INT_MOD", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
+		assertEquals("\"ll\"", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
+	}
 	
 	@Test
 	public void testPreUndef() {
