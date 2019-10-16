@@ -8,9 +8,9 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.junit.Test;
 
 import antlr.ModuleLexer;
-import antlr.ModuleParser;
 import ast.ASTNode;
 import ast.Comment;
+import ast.c.functionDef.FunctionDef;
 import ast.c.functionDef.ParameterType;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
@@ -137,6 +137,15 @@ public class ModuleBuildersTest {
 		
 		assertEquals("void foo (int x , char * * ptr)", codeItem.getEscapedCodeStr());
 	}
+	
+	@Test
+	public void testFuncWithNewlines() {
+		String input = "static\n void\n foo(){};";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
+		assertEquals("foo", codeItem.getName());
+		assertEquals("static \\n void \\n foo()", codeItem.getEscapedCodeStr());
+	}	
 
 	@Test
 	public void testSimpleParamList() {
