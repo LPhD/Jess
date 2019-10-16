@@ -140,11 +140,11 @@ public class ModuleBuildersTest {
 	
 	@Test
 	public void testFuncWithNewlines() {
-		String input = "static\n void\n foo(){};";
+		String input = "static\n void\n foo(){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
 		assertEquals("foo", codeItem.getName());
-		assertEquals("static \\n void \\n foo()", codeItem.getEscapedCodeStr());
+		assertEquals("static \n void \n foo()", codeItem.getEscapedCodeStr());
 	}	
 
 	@Test

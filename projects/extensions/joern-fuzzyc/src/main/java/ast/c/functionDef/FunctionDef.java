@@ -30,12 +30,11 @@ public class FunctionDef extends FunctionDefBase {
 	}
 
 	@Override
+	/**
+	 * Removes the content of the function from the code property (returns only the function's signature)
+	 */
 	public String getFunctionSignature() {
-		String retval = this.rType +" "+ this.getName();
-		if (getParameterList() != null)
-			retval += " (" + getParameterList().getEscapedCodeStr() + ")";
-		else
-			retval += " ()";
+		String retval = this.getProperty("code").split("\\{",2)[0];;
 		return retval;
 	}
 
