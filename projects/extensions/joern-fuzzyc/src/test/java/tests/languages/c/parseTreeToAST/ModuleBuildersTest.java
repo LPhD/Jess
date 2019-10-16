@@ -135,7 +135,7 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		
-		assertEquals("void foo (int x , char * * ptr)", codeItem.getEscapedCodeStr());
+		assertEquals("void foo ( int x , char * * ptr ) ", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test
@@ -144,7 +144,7 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
 		assertEquals("foo", codeItem.getName());
-		assertEquals("static \n void \n foo()", codeItem.getEscapedCodeStr());
+		assertEquals("static \n void \n foo ( ) ", codeItem.getEscapedCodeStr());
 	}	
 
 	@Test
@@ -269,7 +269,7 @@ public class ModuleBuildersTest {
 		//#elif (modulefoo > 5)
 		codeItem = (PreBlockstarter) codeItem.getChild(1);	
 		assertEquals("PreElIfStatement", codeItem.getTypeAsString());
-		assertEquals("double foo ()", codeItem.getVariableStatement(0).getEscapedCodeStr());
+		assertEquals("double foo ( ) ", codeItem.getVariableStatement(0).getEscapedCodeStr());
 		//#else
 		codeItem = (PreBlockstarter) codeItem.getChild(1);			
 		assertEquals("PreElseStatement", codeItem.getTypeAsString());
