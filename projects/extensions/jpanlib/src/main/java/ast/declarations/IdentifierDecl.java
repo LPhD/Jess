@@ -3,13 +3,11 @@ package ast.declarations;
 import ast.ASTNode;
 import ast.expressions.Identifier;
 
-public class IdentifierDecl extends ASTNode
-{
+public class IdentifierDecl extends ASTNode {
 	private IdentifierDeclType type;
 	private Identifier name;
 
-	public void addChild(ASTNode node)
-	{
+	public void addChild(ASTNode node) {
 		if (node instanceof Identifier)
 			setName((Identifier) node);
 		else if (node instanceof IdentifierDeclType)
@@ -18,23 +16,19 @@ public class IdentifierDecl extends ASTNode
 		super.addChild(node);
 	}
 
-	private void setName(Identifier name)
-	{
+	private void setName(Identifier name) {
 		this.name = name;
 	}
 
-	private void setType(IdentifierDeclType type)
-	{
+	private void setType(IdentifierDeclType type) {
 		this.type = type;
 	}
 
-	public Identifier getName()
-	{
+	public Identifier getName() {
 		return name;
 	}
 
-	public IdentifierDeclType getType()
-	{
+	public IdentifierDeclType getType() {
 		return type;
 	}
 
