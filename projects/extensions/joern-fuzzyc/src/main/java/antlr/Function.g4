@@ -54,4 +54,4 @@ label: CASE? (identifier | number | CHAR ) ':' ;
 expr_statement: expr? ';';
 
 condition: expr
-	 | type_name declarator '=' assign_expr;
+	 | type_name NEWLINE* declarator NEWLINE* '=' NEWLINE* assign_expr;

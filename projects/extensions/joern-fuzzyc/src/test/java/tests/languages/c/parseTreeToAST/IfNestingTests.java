@@ -27,6 +27,17 @@ public class IfNestingTests {
 		CompoundStatement compound = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertFirstChildIsIfStatement(compound);
 	}
+	
+	@Test
+	public void ifWithMultipleLineCondition() {
+		String input = "if (MultiByteToWideChar(cp, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, &c, 1,\n" + 
+				"			&n, 1)\n" + 
+				"			== 1)";
+		CompoundStatement compound = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertFirstChildIsIfStatement(compound);
+	}
+	
+
 
 	@Test
 	public void nestedIfBlocksNoCompound() {

@@ -1,6 +1,6 @@
 grammar Expressions;
 
-expr: assign_expr (',' expr)?;
+expr: assign_expr (',' NEWLINE* expr)?;
 
 assign_expr: conditional_expression (assignment_operator assign_expr)?;
 
