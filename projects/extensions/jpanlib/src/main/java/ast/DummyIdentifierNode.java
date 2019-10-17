@@ -8,6 +8,6 @@ public class DummyIdentifierNode extends Identifier {
 	}
 
 	public String getEscapedCodeStr() {
-		return "<unnamed>";
+		return "";
 	}
 }
