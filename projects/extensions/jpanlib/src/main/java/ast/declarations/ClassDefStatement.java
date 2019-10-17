@@ -7,34 +7,29 @@ import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.walking.ASTNodeVisitor;
 
-public class ClassDefStatement extends Statement
-{
+public class ClassDefStatement extends Statement {
 
 	public Identifier identifier = new DummyIdentifierNode();
 	public CompoundStatement content = new CompoundStatement();
 
-	public void addChild(ASTNode expression)
-	{
+	public void addChild(ASTNode expression) {
 		if (expression instanceof Identifier)
-			setIdentifier( (Identifier)expression);
+			setIdentifier((Identifier) expression);
 		else
 			super.addChild(expression);
 	}
 
-	public Identifier getIdentifier()
-	{
+	public Identifier getIdentifier() {
 		return this.identifier;
 	}
-	
-	private void setIdentifier(Identifier identifier)
-	{
+
+	private void setIdentifier(Identifier identifier) {
 		this.identifier = identifier;
 		super.addChild(identifier);
 	}
-	
+
 	@Override
-	public void accept(ASTNodeVisitor visitor)
-	{
+	public void accept(ASTNodeVisitor visitor) {
 		visitor.visit(this);
 	}
 }

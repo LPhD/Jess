@@ -45,6 +45,15 @@ public class ModuleBuildersTest {
 	}
 
 	@Test
+	public void testTypedefStruct() {
+		String input = "typedef struct{int a;}foo;";
+		List<ASTNode> codeItems = parseInput(input);
+		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
+		assertEquals("typedef struct { int a ; } foo ;", codeItem.getEscapedCodeStr());
+		assertEquals("", codeItem.identifier.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testUnnamedStruct() {
 		String input = "struct {int x; } a;";
 		List<ASTNode> codeItems = parseInput(input);

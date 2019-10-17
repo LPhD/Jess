@@ -1,9 +1,9 @@
 grammar SimpleDecl;
 
-simple_decl : (TYPEDEF? template_decl_start?) var_decl;
+simple_decl : var_decl;
 
-var_decl : class_def init_declarator_list? #declByClass
-         | type_name init_declarator_list #declByType
+var_decl : (TYPEDEF? template_decl_start?) class_def init_declarator_list? #declByClass
+         | (TYPEDEF? template_decl_start?) type_name init_declarator_list #declByType
          ;
 
 init_declarator_list: init_declarator (',' init_declarator)* ';';
