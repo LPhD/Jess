@@ -82,8 +82,8 @@ postfix_expression: postfix_expression '[' expr ']' #arrayIndexing
                   | inc_dec primary_expression #incDecOp
                   ;
 
-function_argument_list: ( function_argument NEWLINE* (',' NEWLINE* function_argument NEWLINE*)* )?;
-function_argument: assign_expr;
+function_argument_list: ( function_argument+ (',' function_argument+)* )?;
+function_argument: NEWLINE* assign_expr NEWLINE*;
 
 
 primary_expression: identifier | constant | '(' expr ')';

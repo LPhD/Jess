@@ -179,13 +179,47 @@ public class ExpressionParsingTest {
 	
 	@Test
 	public void funCallWithLinebreak() {
-		String input = "if(foo(x, y)){};";
+		String input = "if(foo(x,\n y)){};";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) ((Condition) starter.getCondition()).getExpression();
 		assertEquals("foo", expr.getTargetFunc().getEscapedCodeStr());
 		assertEquals("x", expr.getArgumentList().getChild(0).getEscapedCodeStr());
 		assertEquals("y", expr.getArgumentList().getChild(1).getEscapedCodeStr());
+	}
+	
+	@Test
+	public void funCallWithLinebreakAndMultipleArgumentParts() {
+		String input = "fprintf(stderr,\n" + 
+				"                \"error '%\" XML_FMT_STR \"' at line %\" XML_FMT_INT_MOD\n" + 
+				"                \"u character %\" XML_FMT_INT_MOD \"u\\n\");";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		CallExpression expr = (CallExpression) contentItem.getChild(0).getChild(0);
+		assertEquals("fprintf", expr.getTargetFunc().getEscapedCodeStr());
+		assertEquals("stderr", expr.getArgumentList().getChild(0).getEscapedCodeStr());
+		assertEquals("\"error '%\"", expr.getArgumentList().getChild(1).getEscapedCodeStr());
+		assertEquals("XML_FMT_STR", expr.getArgumentList().getChild(2).getEscapedCodeStr());
+		assertEquals("\"' at line %\"", expr.getArgumentList().getChild(3).getEscapedCodeStr());
+		assertEquals("XML_FMT_INT_MOD", expr.getArgumentList().getChild(4).getEscapedCodeStr());
+		assertEquals("\"u character %\"", expr.getArgumentList().getChild(5).getEscapedCodeStr());
+		assertEquals("XML_FMT_INT_MOD", expr.getArgumentList().getChild(6).getEscapedCodeStr());
+		assertEquals("\"u\\n\"", expr.getArgumentList().getChild(7).getEscapedCodeStr());
+	}
+
+	
+	@Test
+	public void funCallWithLinebreakAndMultipleArguments() {
+		String input = "fprintf(stderr,\n" +
+				"                XML_ErrorString(XML_GetErrorCode(parser)),\n" + 
+				"                XML_GetCurrentLineNumber(parser),\n" + 
+				"                XML_GetCurrentColumnNumber(parser));";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		CallExpression expr = (CallExpression) contentItem.getChild(0).getChild(0);
+		assertEquals("fprintf", expr.getTargetFunc().getEscapedCodeStr());
+		assertEquals("stderr", expr.getArgumentList().getChild(0).getEscapedCodeStr());
+		assertEquals("XML_ErrorString ( XML_GetErrorCode ( parser ) )", expr.getArgumentList().getChild(1).getEscapedCodeStr());
+		assertEquals("XML_GetCurrentLineNumber ( parser )", expr.getArgumentList().getChild(2).getEscapedCodeStr());
+		assertEquals("XML_GetCurrentColumnNumber ( parser )", expr.getArgumentList().getChild(3).getEscapedCodeStr());
 	}
 	
 	@Test
