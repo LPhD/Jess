@@ -7,8 +7,8 @@ pre_statement: pre_blockstarter
 
 				
 //________________________PRE BLOCKSTARTER___________________________   				
-pre_blockstarter: pre_if_statement
-                      | pre_elif_statement
+pre_blockstarter: pre_if_statement { preProcFindEnd(); }
+                      | pre_elif_statement { preProcFindEnd(); }
                       | pre_else_statement
                       | pre_endif_statement;           
 														
@@ -20,8 +20,8 @@ pre_else_statement: PRE_ELSE;
 
 pre_endif_statement: PRE_ENDIF;
 
-pre_if_condition: condition NEWLINE
-				| '(' condition ')' NEWLINE;
+pre_if_condition: condition
+				| '(' condition ')';
                              
 condition: expr
      | type_name declarator NEWLINE* '=' NEWLINE* assign_expr;

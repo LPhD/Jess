@@ -12,6 +12,7 @@ import ast.ASTNode;
 import ast.Comment;
 import ast.c.functionDef.FunctionDef;
 import ast.c.functionDef.ParameterType;
+import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
@@ -298,7 +299,18 @@ public class ModuleBuildersTest {
 		assertEquals("//This is a function comment ", codeItem.getEscapedCodeStr());
 		assertEquals("FunctionDef", codeItem.getCommentee().getTypeAsString());
 	}
-	
+
+	@Test
+	public void preIfWithMultipleLineCondition() {
+		String input = "#if defined(__GNUC__)   \\ \n" + 
+				"    && (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)) \n";
+		List<ASTNode> codeItems = parseInput(input);
+		//First PreIfStatement is the last node on the stack
+		PreBlockstarter codeItem = (PreBlockstarter) codeItems.get(4);	
+		assertEquals("PreIfStatement", codeItem.getTypeAsString());
+		assertEquals("#if defined(__GNUC__)   \\ \n"  +
+				"   && (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)) \n", codeItem.getEscapedCodeStr());
+	}
 	
 	@Test
 	public void testMCommentInSameLine() {
@@ -309,6 +321,17 @@ public class ModuleBuildersTest {
 		assertEquals("Comment", codeItem.getTypeAsString());
 		assertEquals("/*This is a comment in the same line */", codeItem.getEscapedCodeStr());
 		assertEquals("FunctionDef", codeItem.getCommentee().getTypeAsString());
+	}
+	
+	@Test
+	public void testPreIfWithCommentInSameLine() {
+		String input = "#if A /*This is a comment in the same line */ \n";
+		List<ASTNode> codeItems = parseInput(input);
+		//Comment is the second item, because we need the commentee to be processed first
+		Comment comment = (Comment) codeItems.get(1);
+		assertEquals("Comment", comment.getTypeAsString());
+		assertEquals("/*This is a comment in the same line */", comment.getEscapedCodeStr());
+		assertEquals("PreIfStatement", comment.getCommentee().getTypeAsString());
 	}
 
 

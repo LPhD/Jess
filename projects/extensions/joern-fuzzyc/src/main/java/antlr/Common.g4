@@ -124,6 +124,12 @@ grammar Common;
              }                                             
    	return true;
 	}
+	
+	 //Find the end of a preprocessor macro
+     public boolean preProcFindMacroEnd()  {
+         //Look for / \n or begin of a comment
+         
+     }
 
 }
 

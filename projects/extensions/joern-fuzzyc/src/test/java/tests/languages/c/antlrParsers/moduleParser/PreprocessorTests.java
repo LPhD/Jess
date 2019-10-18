@@ -33,7 +33,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "#ifdef foo \n int foo(){ #if x \n foo(); #else #endif } abc #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))) \\n)))) "
+		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))))) \\n)) "
 				+ "(function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #if x \\n foo ( ) ; #else #endif })) (water abc) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
 		assertEquals(outputExpected, output);
 	}
@@ -52,7 +52,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "#ifdef x \n int i;  #else int x; #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier x))))))))))))))))))) \\n)))) "
+		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier x))))))))))))))))))))) \\n)) "
 				+ "(simple_decl (var_decl (type_name (base_type int)) (init_declarator_list (init_declarator (declarator (identifier i))) ;))) (pre_statement (pre_blockstarter (pre_else_statement #else))) (simple_decl (var_decl (type_name (base_type int)) (init_declarator_list (init_declarator (declarator (identifier x))) ;))) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
 		assertEquals(outputExpected, output);
 	}
@@ -71,9 +71,19 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "#ifdef foo \n int foo(){ #else { #endif } abc #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))) \\n)))) (function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #else { #endif })) (water abc) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
+		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))))) \\n)) "
+				+ "(function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #else { #endif })) (water abc) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
 		assertEquals(outputExpected, output);
-	}	
+	}
+	
+	@Test
+	public void testPreIFWithComment() {
+		String input = "#if A /*Checks for A*/ \n";
+		ModuleParser parser = createParser(input);
+		String output = parser.code().toStringTree(parser);
+		String outputExpected = "";
+		assertEquals(outputExpected, output);
+	}
 	
 	@Test
 	public void testPreProcWithSpace() {
@@ -92,7 +102,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #if (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (unary_op_and_cast_expr (unary_operator !) (cast_expression (unary_expression (defined_expression defined ( "
 				+ "(expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier _TRACE_KVM_H)))))))))))))))))) )))))))))))))))) "
 				+ "|| (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (defined_expression defined ("
-				+ " (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier TRACE_HEADER_MULTI_READ)))))))))))))))))) ))))))))))))))))))) \\n)))) "
+				+ " (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier TRACE_HEADER_MULTI_READ)))))))))))))))))) ))))))))))))))))))))) \\n)) "
 				+ "(pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
 		assertEquals(outputExpected, output);
 	}
