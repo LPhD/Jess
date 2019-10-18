@@ -20,11 +20,11 @@ pre_else_statement: PRE_ELSE;
 
 pre_endif_statement: PRE_ENDIF;
 
-pre_if_condition: condition
-				| '(' condition ')';
+pre_if_condition: condition NEWLINE
+				| '(' condition ')' NEWLINE;
                              
 condition: expr
-     | type_name declarator '=' assign_expr;
+     | type_name declarator NEWLINE* '=' NEWLINE* assign_expr;
      
 //_______________________PRE BLOCKSTARTER END_________________________   
 

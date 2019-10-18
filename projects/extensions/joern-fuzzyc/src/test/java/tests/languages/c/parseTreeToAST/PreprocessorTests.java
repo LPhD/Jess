@@ -1,19 +1,19 @@
 package tests.languages.c.parseTreeToAST;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.logical.statements.CompoundStatement;
 import ast.preprocessor.PreBlockstarter;
-import ast.preprocessor.PreStatementBase;
 
 public class PreprocessorTests {
 
 	@Test
 	public void testNestedIfndefs() {
-		String input = "#ifdef foo1  #else  #ifdef foo2  #else  #endif  #endif";
+		String input = "#ifdef foo1 \n  #else \n  #ifdef foo2 \n  #else \n  #endif  #endif";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("Top level childs have to be the two #ifdefs", 2, item.getStatements().size());
 		PreBlockstarter firstIf = (PreBlockstarter) item.getStatement(0);
@@ -25,7 +25,7 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testVariableStatements() {
-		String input = "#if foo  bar(); #else  int i; i++; #endif";
+		String input = "#if foo \n  bar(); #else  int i; i++; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		//#if
 		PreBlockstarter bs = (PreBlockstarter) contentItem.getStatement(0);
@@ -38,21 +38,21 @@ public class PreprocessorTests {
 
 	@Test
 	public void testPreElseStatement() {
-		String input = "#if foo  bar(); #else  foo(); foo(); #endif";
+		String input = "#if foo \n  bar(); #else  foo(); foo(); #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreElseStatement", contentItem.getStatement(0).getChild(1).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreElseStatementCode() {
-		String input = "#if foo  bar(); #else  foo(); foo(); #endif";
+		String input = "#if foo \n  bar(); #else  foo(); foo(); #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("#else", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
 	}
 
 	@Test
 	public void testPreIfStatement() {
-		String input = "#if foo  int i; #endif";
+		String input = "#if foo \n  int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
 	}
@@ -60,7 +60,7 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreIfStatementInsideIfBlock() {
-		String input = "if(bool) { #if foo  int i; #endif }";
+		String input = "if(bool) { #if foo \n  int i; #endif }";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		//TODO
 		//This is wrong, pre statement should be AST child of the file
@@ -71,42 +71,42 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreIfStatementCode() {
-		String input = "#if foo  int i; #endif";
+		String input = "#if foo \n  int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("#if foo", contentItem.getStatement(0).getEscapedCodeStr());
+		assertEquals("#if foo \n", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testPreElIfStatement() {
-		String input = "#if foo  bar();  #elif bar  foo();  foo();  #endif";
+		String input = "#if foo \n  bar();  #elif bar \n  foo();  foo();  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreElIfStatement", contentItem.getStatement(0).getChild(1).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreElIfStatementCode() {
-		String input = "#if foo  bar();  #elif bar  foo();  foo();  #endif";
+		String input = "#if foo \n  bar();  #elif bar \n  foo();  foo();  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("#elif bar", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
+		assertEquals("#elif bar \n", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testPreEndIfStatement() {
-		String input = "#if bar  int i;  #endif";
+		String input = "#if bar \n  int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreEndIfStatement", contentItem.getStatement(0).getChild(1).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreEndIfStatementCode() {
-		String input = "#if bar  int i;  #endif";
+		String input = "#if bar \n  int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("#endif", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testPreIfWithBracketsAroundCondition() {
-		String input = "#if (foo < 5) int i; #endif";
+		String input = "#if (foo < 5) \n int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals(2, contentItem.getStatements().size());
 		assertEquals("foo < 5", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
@@ -114,14 +114,14 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreIfWithDefined() {
-		String input = "#if defined (foo) int i; #endif";
+		String input = "#if defined (foo) \n int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreIfStatement", contentItem.getStatement(0).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreIfWithNestedCondition() {
-		String input = "#if (foo < 5 && ( x < 1 || x > 5 ))  int i;  #endif";
+		String input = "#if (foo < 5 && ( x < 1 || x > 5 )) \n  int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals(2, contentItem.getStatements().size());
 		assertEquals("foo < 5 && ( x < 1 || x > 5 )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
@@ -129,7 +129,7 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreIfWithEvenMoreNestedCondition() {
-		String input = "#if (MAKRO(7) > 7) && (IS_ENABLED(BUBBLE) && ENABLED(BUBBLE)) int i;  #endif";
+		String input = "#if (MAKRO(7) > 7) && (IS_ENABLED(BUBBLE) && ENABLED(BUBBLE)) \n int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals(2, contentItem.getStatements().size());
 		assertEquals("( MAKRO ( 7 ) > 7 ) && ( IS_ENABLED ( BUBBLE ) && ENABLED ( BUBBLE ) )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());

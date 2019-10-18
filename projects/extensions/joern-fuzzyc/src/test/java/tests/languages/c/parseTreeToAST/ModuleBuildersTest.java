@@ -262,7 +262,7 @@ public class ModuleBuildersTest {
 		PreBlockstarter codeItem = (PreBlockstarter) codeItems.get(4);	
 		assertEquals("PreIfStatement", codeItem.getTypeAsString());
 		assertEquals("IdentifierDeclStatement", codeItem.getVariableStatement(0).getTypeAsString());
-		assertEquals("#if ( b )", codeItem.getVariableStatement(1).getEscapedCodeStr());
+		assertEquals("#if ( b ) \n", codeItem.getVariableStatement(1).getEscapedCodeStr());
 		assertEquals("PreEndIfStatement", codeItem.getChild(1).getTypeAsString());
 	}
 	

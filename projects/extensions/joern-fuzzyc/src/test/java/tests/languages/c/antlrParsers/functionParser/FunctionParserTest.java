@@ -1,5 +1,6 @@
 package tests.languages.c.antlrParsers.functionParser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -16,6 +17,21 @@ public class FunctionParserTest extends FunctionParserTestBase {
 		ParseTree tree = functionParser.parseString(input);
 		String output = tree.toStringTree(functionParser.getAntlrParser());
 		assertTrue(output.contains("(selection_or_iteration if"));
+	}
+	
+	@Test
+	public void testIfWithLinebreaksInCondition() {
+		String input = "if(foo == \n bar){}";
+		FunctionParser functionParser = createFunctionParser();
+		ParseTree tree = functionParser.parseString(input);
+		String output = tree.toStringTree(functionParser.getAntlrParser());
+		assertEquals("(statements (statement (block_starter (selection_or_iteration if ( "
+				+ "(condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))) "
+				+ "(equality_operator ==) \\n "
+				+ "(equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier bar)))))))))))))))))))) )))) "
+				+ "(statement (opening_curly {)) "
+				+ "(statement (closing_curly })))"
+				, output);
 	}
 
 	@Test
