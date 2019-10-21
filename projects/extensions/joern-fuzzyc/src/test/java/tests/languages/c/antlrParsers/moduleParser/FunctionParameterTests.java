@@ -36,6 +36,24 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 		String output = parser.function_def().toStringTree(parser);
 		assertEquals("(function_def (return_type (function_decl_specifiers static) (type_name (base_type int))) \\n (function_name (identifier xmlstrlen)) (function_param_list ( (parameter_decl_clause (parameter_decl (param_decl_specifiers (type_name const (base_type XML_Char))) (parameter_id (ptrs (ptr_operator *)) (parameter_name (identifier s))))) )) (compound_statement { }))", output);
 	}
+	
+	@Test
+	public void testLinebreakInParameters() {
+		String input = " void proc3(int a3, int b3,\n int c3, int d3) {}";
+		ModuleParser parser = createParser(input);
+		String output = parser.function_def().toStringTree(parser);
+		String expected = "(function_def (return_type (type_name (base_type void))) (function_name (identifier proc3)) "
+				+ "(function_param_list ( "
+				+ "(parameter_decl_clause "
+				+ "(parameter_decl (param_decl_specifiers (type_name (base_type int))) (parameter_id (parameter_name (identifier a3)))) , "
+				+ "(parameter_decl (param_decl_specifiers (type_name (base_type int))) (parameter_id (parameter_name (identifier b3)))) , "
+				+ "\\n "
+				+ "(parameter_decl (param_decl_specifiers (type_name (base_type int))) (parameter_id (parameter_name (identifier c3)))) , "
+				+ "(parameter_decl (param_decl_specifiers (type_name (base_type int))) (parameter_id (parameter_name (identifier d3))))) "
+				+ ")) "
+				+ "(compound_statement { }))";
+		assertEquals(expected, output);
+	}
 
 	@Test
 	public void testParamVoidPtr() {
