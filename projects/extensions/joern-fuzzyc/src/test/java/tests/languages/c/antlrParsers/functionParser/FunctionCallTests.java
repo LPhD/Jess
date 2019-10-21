@@ -46,7 +46,7 @@ public class FunctionCallTests extends FunctionParserTestBase {
 				+ "( (function_argument_list "
 				+ "(function_argument (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression "
 				+ "(primary_expression (identifier x)))))))))))))))))) , "
-				+ "(function_argument \\n (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression "
+				+ "\\n (function_argument (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression "
 				+ "(primary_expression (identifier y))))))))))))))))))) ))))))))))))))))) ;)))"
 				, output);
 	}

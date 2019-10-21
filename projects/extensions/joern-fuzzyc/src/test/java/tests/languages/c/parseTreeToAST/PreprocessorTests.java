@@ -13,7 +13,7 @@ public class PreprocessorTests {
 
 	@Test
 	public void testNestedIfndefs() {
-		String input = "#ifdef foo1 \n  #else \n  #ifdef foo2 \n  #else \n  #endif  #endif";
+		String input = "#ifdef foo1 \n  #else #ifdef foo2 \n  #else  #endif  #endif";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("Top level childs have to be the two #ifdefs", 2, item.getStatements().size());
 		PreBlockstarter firstIf = (PreBlockstarter) item.getStatement(0);
@@ -218,7 +218,7 @@ public class PreprocessorTests {
 		String input = "#define MACROA \n #define MACROB \n";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
-		assertEquals("PreDefine", contentItem.getStatement(1).getTypeAsString());
+		assertEquals("PreDefine", contentItem.getStatement(2).getTypeAsString());
 	}
 	
 	@Test

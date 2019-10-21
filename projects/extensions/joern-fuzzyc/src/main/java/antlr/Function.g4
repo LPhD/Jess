@@ -8,8 +8,7 @@ import Preprocessor, ModuleLex, Common, Expressions, FineSimpleDecl;
 
 statements: (statement)*;
 
-statement:newline
-		 | opening_curly
+statement: opening_curly
          | closing_curly
          | pre_statement
          | block_starter

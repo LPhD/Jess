@@ -1,7 +1,6 @@
 package tests.languages.c.parseTreeToAST;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -200,12 +199,35 @@ public class ExpressionParsingTest {
 		assertEquals("\"error '%\"", expr.getArgumentList().getChild(1).getEscapedCodeStr());
 		assertEquals("XML_FMT_STR", expr.getArgumentList().getChild(2).getEscapedCodeStr());
 		assertEquals("\"' at line %\"", expr.getArgumentList().getChild(3).getEscapedCodeStr());
+		//The linebreak after this may cause problems
 		assertEquals("XML_FMT_INT_MOD", expr.getArgumentList().getChild(4).getEscapedCodeStr());
 		assertEquals("\"u character %\"", expr.getArgumentList().getChild(5).getEscapedCodeStr());
 		assertEquals("XML_FMT_INT_MOD", expr.getArgumentList().getChild(6).getEscapedCodeStr());
 		assertEquals("\"u\\n\"", expr.getArgumentList().getChild(7).getEscapedCodeStr());
 	}
 
+	
+	@Test
+	public void funCallWithoutLinebreakAndWithMultipleArgumentParts() {
+		String input = "fprintf(\"error '%\" "
+				+ "XML_FMT_STR "
+				+ "\"' at line %\""
+				+ " XML_FMT_INT_MOD"
+				+ "\"u character %\" "
+				+ "XML_FMT_INT_MOD "
+				+ " \"u\\n\""
+				+ ");";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		CallExpression expr = (CallExpression) contentItem.getChild(0).getChild(0);
+		assertEquals("fprintf", expr.getTargetFunc().getEscapedCodeStr());
+		assertEquals("\"error '%\"", expr.getArgumentList().getChild(0).getEscapedCodeStr());
+		assertEquals("XML_FMT_STR", expr.getArgumentList().getChild(1).getEscapedCodeStr());
+		assertEquals("\"' at line %\"", expr.getArgumentList().getChild(2).getEscapedCodeStr());
+		assertEquals("XML_FMT_INT_MOD", expr.getArgumentList().getChild(3).getEscapedCodeStr());
+		assertEquals("\"u character %\"", expr.getArgumentList().getChild(4).getEscapedCodeStr());
+		assertEquals("XML_FMT_INT_MOD", expr.getArgumentList().getChild(5).getEscapedCodeStr());
+		assertEquals("\"u\\n\"", expr.getArgumentList().getChild(6).getEscapedCodeStr());
+	}
 	
 	@Test
 	public void funCallWithLinebreakAndMultipleArguments() {

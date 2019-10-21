@@ -1,38 +1,39 @@
 grammar Expressions;
 
-expr: assign_expr NEWLINE* (',' NEWLINE* expr)?;
+expr: assign_expr (ESCAPE NEWLINE)* (NEWLINE* ',' NEWLINE* expr)? (ESCAPE NEWLINE)*;
 
-assign_expr: conditional_expression NEWLINE* (assignment_operator NEWLINE* assign_expr)?;
+assign_expr: conditional_expression (NEWLINE* assignment_operator NEWLINE* assign_expr)?;
 
 conditional_expression: or_expression #normOr
-		      | or_expression NEWLINE* ('?' expr ':' conditional_expression) #cndExpr;
+		      | or_expression (NEWLINE* '?' NEWLINE* expr NEWLINE* ':' NEWLINE* conditional_expression) #cndExpr;
 
 
-or_expression : and_expression NEWLINE* ('||' NEWLINE* or_expression)?;
+or_expression : and_expression (NEWLINE* '||' NEWLINE* or_expression)?;
 
-and_expression : inclusive_or_expression NEWLINE* ('&&' NEWLINE* and_expression)?;
+and_expression : inclusive_or_expression (NEWLINE* '&&' NEWLINE* and_expression)?;
 
-inclusive_or_expression: exclusive_or_expression NEWLINE* ('|' NEWLINE* inclusive_or_expression)?;
+inclusive_or_expression: exclusive_or_expression (NEWLINE* '|' NEWLINE* inclusive_or_expression)?;
 
-exclusive_or_expression: bit_and_expression NEWLINE* ('^' NEWLINE* exclusive_or_expression)?;
+exclusive_or_expression: bit_and_expression (NEWLINE* '^' NEWLINE* exclusive_or_expression)?;
 
-bit_and_expression: equality_expression NEWLINE* ('&' NEWLINE* bit_and_expression)?;
+bit_and_expression: equality_expression (NEWLINE* '&' NEWLINE* bit_and_expression)?;
 
-equality_expression: relational_expression NEWLINE* (equality_operator NEWLINE* equality_expression)?;
+equality_expression: relational_expression (NEWLINE* equality_operator NEWLINE* equality_expression)?;
 
-relational_expression: shift_expression NEWLINE* (relational_operator NEWLINE* relational_expression)?;
+relational_expression: shift_expression (NEWLINE* relational_operator NEWLINE* relational_expression)?;
 
-shift_expression: additive_expression NEWLINE* ( ('<<'|'>>') NEWLINE* shift_expression)?;
+shift_expression: additive_expression (NEWLINE* ('<<'|'>>') NEWLINE* shift_expression)?;
 
-additive_expression: multiplicative_expression NEWLINE* (('+'| '-') NEWLINE* additive_expression)?;
+additive_expression: multiplicative_expression (NEWLINE* ('+'| '-') NEWLINE* additive_expression)?;
 
-multiplicative_expression: cast_expression NEWLINE* ( ('*'| '/'| '%') NEWLINE* multiplicative_expression)?;
+multiplicative_expression: cast_expression (NEWLINE*  ('*'| '/'| '%') NEWLINE* multiplicative_expression)?;
 
-cast_expression: ('(' cast_target ')' NEWLINE* cast_expression)
+//No newline as this yields to problems with #if (variable) \n int something; -> (variable) \n int
+cast_expression: ('(' cast_target ')' cast_expression)
                | unary_expression
                 ;
 
-cast_target: type_name NEWLINE* ptr_operator*;
+cast_target: type_name (NEWLINE* ptr_operator)*;
 
 // currently does not implement delete
 
@@ -64,7 +65,7 @@ sizeof: 'sizeof';
 defined_expression: 'defined' NEWLINE* '(' expr ')'
 					|  'defined' NEWLINE* expr ;
 
-sizeof_operand: type_name NEWLINE* ptr_operator *;
+sizeof_operand: type_name (NEWLINE* ptr_operator)*;
 sizeof_operand2: unary_expression;
 
 inc_dec: ('--' | '++');
@@ -82,8 +83,10 @@ postfix_expression: postfix_expression NEWLINE* '[' expr ']' #arrayIndexing
                   | inc_dec NEWLINE* primary_expression #incDecOp
                   ;
 
-function_argument_list: ( function_argument+ NEWLINE* (',' function_argument+)* )?;
-function_argument: NEWLINE* assign_expr NEWLINE*;
+
+function_argument_list: ( function_argument+ (',' NEWLINE* function_argument+)* )?;
+//Allow newlines in between arguments without a ',' separator, as they can be macro calls
+function_argument: assign_expr NEWLINE*;
 
 
 primary_expression: identifier | constant | '(' expr ')';

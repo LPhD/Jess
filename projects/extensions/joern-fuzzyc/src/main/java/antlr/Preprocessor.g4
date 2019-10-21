@@ -7,14 +7,14 @@ pre_statement: pre_blockstarter
 
 				
 //________________________PRE BLOCKSTARTER___________________________   				
-pre_blockstarter: pre_if_statement { preProcFindEnd(); }
-                      | pre_elif_statement { preProcFindEnd(); }
+pre_blockstarter: pre_if_statement 
+                      | pre_elif_statement  
                       | pre_else_statement
                       | pre_endif_statement;           
 														
-pre_if_statement: PRE_IF pre_if_condition;   
+pre_if_statement: PRE_IF pre_if_condition { preProcFindConditionEnd(); };   
                 
-pre_elif_statement: PRE_ELIF pre_if_condition;
+pre_elif_statement: PRE_ELIF pre_if_condition { preProcFindConditionEnd(); };
                 
 pre_else_statement: PRE_ELSE;
 
