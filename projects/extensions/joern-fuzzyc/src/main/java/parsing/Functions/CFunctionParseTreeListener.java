@@ -41,10 +41,15 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		builder.exitStatement(ctx);
 	}
 
+//	@Override
+//	public void enterNewline(FunctionParser.NewlineContext ctx) {
+//		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+//		builder.enterNewline(ctx);
+//	}
+	
 	@Override
-	public void enterNewline(FunctionParser.NewlineContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterNewline(ctx);
+	public void enterWater(FunctionParser.WaterContext ctx) {
+		System.out.println("Found water: "+ctx.start);
 	}
 
 	@Override

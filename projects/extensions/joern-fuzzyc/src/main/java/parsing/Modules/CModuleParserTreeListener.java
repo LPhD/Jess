@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import antlr.FunctionParser;
 import antlr.ModuleBaseListener;
 import antlr.ModuleParser;
 import antlr.ModuleParser.Class_defContext;
@@ -90,6 +91,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		this.previousStatement = null;
 		
 		p.notifyObserversOfUnitEnd(ctx);		
+	}
+	
+	@Override
+	public void enterWater(ModuleParser.WaterContext ctx) {
+		System.out.println("Found water: "+ctx.start);
 	}
 
 	// /////////////////////////////////////////////////////////////
