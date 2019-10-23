@@ -4,7 +4,14 @@ simple_decl : var_decl;
 
 var_decl : (TYPEDEF? template_decl_start?) class_def init_declarator_list? #declByClass
          | (TYPEDEF? template_decl_start?) type_name init_declarator_list #declByType
+         | TYPEDEF? special_datatype init_declarator_list? #StructUnionEnum
          ;
+         
+special_datatype: SPECIAL_DATA identifier  //Short declaration
+        |  SPECIAL_DATA identifier? OPENING_CURLY var_decl* CLOSING_CURLY  //Long declaration
+        ;
+
+         
 
 init_declarator_list: init_declarator (',' init_declarator)* ';';
 
@@ -21,10 +28,11 @@ class_name: identifier;
 base_classes: ':' base_class (',' base_class)*;
 base_class: VIRTUAL? access_specifier? identifier;
 
-type_name : (CV_QUALIFIER* (CLASS_KEY | UNSIGNED | SIGNED)?
+type_name : (CV_QUALIFIER* (CLASS_KEY | UNSIGNED | SIGNED | SPECIAL_DATA)?
             base_type ('<' template_param_list '>')? ('::' base_type ('<' template_param_list '>')? )*) CV_QUALIFIER?
           | UNSIGNED
           | SIGNED
+          | SPECIAL_DATA
           ;
 
 

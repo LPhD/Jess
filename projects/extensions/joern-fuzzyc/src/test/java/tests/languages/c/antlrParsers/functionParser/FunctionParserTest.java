@@ -50,17 +50,32 @@ public class FunctionParserTest extends FunctionParserTestBase {
 	}
 
 	@Test
-	public void testStructInFunc() {
+	public void testClassDefinition() {
 		String input = "class foo{ int x; };";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);
 		String output = tree.toStringTree(functionParser.getAntlrParser());
 		assertTrue(output.contains("class_def"));
 	}
+	
+	@Test
+	public void testStructDefinition() {
+		String input = "struct foo{ int x; };";
+		FunctionParser functionParser = createFunctionParser();
+		ParseTree tree = functionParser.parseString(input);
+		String output = tree.toStringTree(functionParser.getAntlrParser());
+		assertEquals("(statements (statement (simple_decl (var_decl (special_datatype struct (identifier foo))))) "
+				+ "(statement (opening_curly {)) "
+				+ "(statement (simple_decl (var_decl (type_name (base_type int)) "
+				+ "(init_declarator_list (init_declarator (declarator (identifier x))) ;)))) "
+				+ "(statement (closing_curly })) "
+				+ "(statement (expr_statement ;)))"
+				, output);
+	}
 
 	@Test
-	public void testSizeofStruct() {
-		String input = "while((buffer + len) > (tmp + sizeof(struct stun_attrib))) {}";
+	public void testSizeof() {
+		String input = "while((buffer + len) > (tmp + sizeof(stun_attrib))) {}";
 		FunctionParser functionParser = createFunctionParser();
 		ParseTree tree = functionParser.parseString(input);
 		String output = tree.toStringTree(functionParser.getAntlrParser());

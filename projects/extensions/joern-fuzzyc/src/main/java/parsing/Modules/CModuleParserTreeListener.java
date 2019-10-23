@@ -368,7 +368,17 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
 		builder.addParameter(ctx, p.builderStack);
 	}
-
+	
+// -------------------------------------- Struct union enum -------------------------------------------------------------------------	
+	@Override
+	public void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
+		System.out.println("Enter struct on module level");
+		
+//		Init_declarator_listContext decl_list = ctx.init_declarator_list();
+//		Type_nameContext typeName = ctx.type_name();
+//		emitDeclarations(decl_list, typeName, ctx);
+	}
+	
 // -------------------------------------- Decl by Type -------------------------------------------------------------------------	
 
 	@Override

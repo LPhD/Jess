@@ -1166,6 +1166,28 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitDeclByType(FunctionParser.DeclByTypeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code StructUnionEnum}
+	 * labeled alternative in {@link FunctionParser#var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructUnionEnum(FunctionParser.StructUnionEnumContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StructUnionEnum}
+	 * labeled alternative in {@link FunctionParser#var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructUnionEnum(FunctionParser.StructUnionEnumContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#special_datatype}.
+	 * @param ctx the parse tree
+	 */
+	void enterSpecial_datatype(FunctionParser.Special_datatypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#special_datatype}.
+	 * @param ctx the parse tree
+	 */
+	void exitSpecial_datatype(FunctionParser.Special_datatypeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#init_declarator_list}.
 	 * @param ctx the parse tree
 	 */

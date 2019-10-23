@@ -1094,6 +1094,28 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitDeclByType(ModuleParser.DeclByTypeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code StructUnionEnum}
+	 * labeled alternative in {@link ModuleParser#var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StructUnionEnum}
+	 * labeled alternative in {@link ModuleParser#var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#special_datatype}.
+	 * @param ctx the parse tree
+	 */
+	void enterSpecial_datatype(ModuleParser.Special_datatypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#special_datatype}.
+	 * @param ctx the parse tree
+	 */
+	void exitSpecial_datatype(ModuleParser.Special_datatypeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#init_declarator_list}.
 	 * @param ctx the parse tree
 	 */

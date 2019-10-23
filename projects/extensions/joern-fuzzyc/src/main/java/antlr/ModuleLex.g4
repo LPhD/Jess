@@ -21,7 +21,9 @@ USING: 'using'; NAMESPACE: 'namespace';
 
 // Keywords shared among C/C++
 
-AUTO: 'auto'; REGISTER: 'register';
+AUTO: 'auto'; 
+REGISTER: 'register';
+SPECIAL_DATA: ('struct' | 'union' | 'enum');
 
 // pre-processor directives: C/C++
 
@@ -50,7 +52,7 @@ OPERATOR: 'operator';
 TEMPLATE: 'template';
 NEW: 'new';
 
-CLASS_KEY: ('struct' | 'class' | 'union' | 'enum');
+CLASS_KEY: 'class' ;
 
 ALPHA_NUMERIC: [a-zA-Z_~][a-zA-Z0-9_]*;
 

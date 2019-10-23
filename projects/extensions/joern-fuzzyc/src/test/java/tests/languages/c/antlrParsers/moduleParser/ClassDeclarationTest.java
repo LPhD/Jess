@@ -1,6 +1,5 @@
 package tests.languages.c.antlrParsers.moduleParser;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -19,52 +18,6 @@ public class ClassDeclarationTest {
 		CommonTokenStream tokens = new CommonTokenStream(lex);
 		ModuleParser parser = new ModuleParser(tokens);
 		return parser;
-	}
-
-	@Test
-	public void testSimpleStructDef() {
-		String input = "struct foo{int x;}";
-
-		ModuleParser parser = createParser(input);
-		String output = parser.simple_decl().toStringTree(parser);
-		assertTrue(output.startsWith("(simple_decl (var_decl (class_def struct (class_name (identifier foo))"));
-	}
-
-	@Test
-	public void testAnonymousStructDef() {
-		String input = "struct {int x;}v;";
-
-		ModuleParser parser = createParser(input);
-		String output = parser.simple_decl().toStringTree(parser);
-		assertEquals("(simple_decl (var_decl (class_def struct { int x ; }) (init_declarator_list (init_declarator (declarator (identifier v))) ;)))", output);
-	}
-	
-	@Test
-	public void testAnonymousTypedefStruct() {
-		String input = "typedef struct {int x;} newInt;";
-
-		ModuleParser parser = createParser(input);
-		String output = parser.simple_decl().toStringTree(parser);
-		assertEquals("(simple_decl (var_decl typedef (class_def struct { int x ; }) (init_declarator_list (init_declarator (declarator (identifier newInt))) ;)))", output);
-	}
-
-	@Test
-	public void testStructureInitArray() {
-		String input = "struct archive_contents" + "{ const char *f; struct contents *c; } files[] "
-				+ "= {{\"sparse\",archive_contents_sparse }, {\"sparse2\", archive_contents_sparse2} };";
-
-		ModuleParser parser = createParser(input);
-		String output = parser.simple_decl().toStringTree(parser);
-		assertTrue(output.contains("assign_expr"));
-	}
-
-	@Test
-	public void testStructureInitSimple() {
-		String input = "struct foo{ int x; } y;";
-		ModuleParser parser = createParser(input);
-		String output = parser.simple_decl().toStringTree(parser);
-		assertTrue(output.startsWith(
-				"(simple_decl (var_decl (class_def struct (class_name (identifier foo)) { int x ; }) (init_declarator_list (init_declarator (declarator (identifier y))) ;)))"));
 	}
 
 	@Test

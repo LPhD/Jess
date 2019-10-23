@@ -373,6 +373,18 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitDeclByType();
 	}
+	
+	@Override
+	public void enterStructUnionEnum (FunctionParser.StructUnionEnumContext ctx){
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterStructUnionEnum(ctx);
+	}
+
+	@Override
+	public void exitStructUnionEnum(FunctionParser.StructUnionEnumContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitStructUnionEnum();
+	}
 
 	@Override
 	public void enterDeclByClass(FunctionParser.DeclByClassContext ctx) {

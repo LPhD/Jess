@@ -1325,8 +1325,36 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		checkVariability(declStmt);
 		checkIfCommented(declStmt);
 	}
+	
+	public void enterStructUnionEnum(ParserRuleContext ctx) {
+		System.out.println("Enter struct on function level");
+		
+		IdentifierDeclStatement declStmt = new IdentifierDeclStatement();
+		ASTNodeFactory.initializeFromContext(declStmt, ctx);
+
+//		IdentifierDeclType type = new IdentifierDeclType();
+//		ASTNodeFactory.initializeFromContext(type, type_nameContext);
+//		nodeToRuleContext.put(type, type_nameContext);
+//		declStmt.addChild(type);
+
+		if (stack.peek() instanceof Statement)
+			replaceTopOfStack(declStmt, ctx);
+		else {
+			nodeToRuleContext.put(declStmt, ctx);
+			stack.push(declStmt);
+		}
+		
+		//Set previous statement
+		previousStatement = declStmt;
+		checkVariability(declStmt);
+		checkIfCommented(declStmt);
+	}
 
 	public void exitDeclByType() {
+		nesting.consolidate();
+	}
+	
+	public void exitStructUnionEnum() {
 		nesting.consolidate();
 	}
 
