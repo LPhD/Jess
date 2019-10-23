@@ -218,7 +218,7 @@ public class PreprocessorTests {
 		String input = "#define MACROA \n #define MACROB \n";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
-		assertEquals("PreDefine", contentItem.getStatement(2).getTypeAsString());
+		assertEquals("PreDefine", contentItem.getStatement(1).getTypeAsString());
 	}
 	
 	@Test

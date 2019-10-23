@@ -49,7 +49,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 	
 	@Override
 	public void enterWater(FunctionParser.WaterContext ctx) {
-		if(ctx.getText().equals("\n") || ctx.getText().equals("\r\n") || ctx.getText().equals(";")) {
+		if(ctx.getText().equals(";")) {
 //			System.out.println("Found irrelevant water: "+ctx.start);
 		} else {
 			System.out.println("Found water: "+ctx.start);

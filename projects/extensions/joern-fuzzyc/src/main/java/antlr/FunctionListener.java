@@ -490,6 +490,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitComment(FunctionParser.CommentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewline(FunctionParser.NewlineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewline(FunctionParser.NewlineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#unary_operator}.
 	 * @param ctx the parse tree
 	 */
@@ -599,16 +609,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTemplate_param_list(FunctionParser.Template_param_listContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#newline}.
-	 * @param ctx the parse tree
-	 */
-	void enterNewline(FunctionParser.NewlineContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#newline}.
-	 * @param ctx the parse tree
-	 */
-	void exitNewline(FunctionParser.NewlineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#no_brackets}.
 	 * @param ctx the parse tree

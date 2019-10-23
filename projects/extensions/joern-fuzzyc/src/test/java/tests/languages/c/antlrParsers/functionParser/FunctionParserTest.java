@@ -30,7 +30,7 @@ public class FunctionParserTest extends FunctionParserTestBase {
 				+ " = "
 				+ "(initializer (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (constant 5))))))))))))))))))) "
 				+ ";)))) "
-				+ "(statement (water \\n)))"
+				+ "(statement (newline \\n)))"
 				,output);
 	}
 	

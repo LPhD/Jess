@@ -630,6 +630,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitComment(ModuleParser.CommentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewline(ModuleParser.NewlineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#newline}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewline(ModuleParser.NewlineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#unary_operator}.
 	 * @param ctx the parse tree
 	 */
@@ -739,16 +749,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTemplate_param_list(ModuleParser.Template_param_listContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#newline}.
-	 * @param ctx the parse tree
-	 */
-	void enterNewline(ModuleParser.NewlineContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#newline}.
-	 * @param ctx the parse tree
-	 */
-	void exitNewline(ModuleParser.NewlineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#no_brackets}.
 	 * @param ctx the parse tree

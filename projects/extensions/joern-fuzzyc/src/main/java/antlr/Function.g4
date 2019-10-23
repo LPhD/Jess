@@ -17,6 +17,7 @@ statement: opening_curly
          | simple_decl
          | expr_statement
          | comment
+         | newline //We need this here so we can remove newline nodes from the function parser stack
          | water
         ;
 
