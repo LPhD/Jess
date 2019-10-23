@@ -370,13 +370,47 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	}
 	
 // -------------------------------------- Struct union enum -------------------------------------------------------------------------	
+	/**
+	 * This builder calls the @FunctionParser, because StructUnionEnums follow the same
+	 * rules on module and on function level. As we dont want cloned code, we simple
+	 * parse the pre statements with the function parser and connect the result on
+	 * module level.
+	 */
 	@Override
 	public void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
 		System.out.println("Enter struct on module level");
 		
-//		Init_declarator_listContext decl_list = ctx.init_declarator_list();
-//		Type_nameContext typeName = ctx.type_name();
-//		emitDeclarations(decl_list, typeName, ctx);
+		// Driver for calling function parser
+		fDriver = new ANTLRCFunctionParserDriver();
+		// Get code of PreStatement
+		IdentifierDeclStatement thisItem = new IdentifierDeclStatement();
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		String text = thisItem.getEscapedCodeStr();
+		// Try to reuse the function parser rules for parsing the preprocessor statement
+		try {
+			fDriver.parseAndWalkString(text);
+			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
+			thisItem = (IdentifierDeclStatement) fb.getItem().getChild(0);
+			//#elif/#else/#endif are not on the builderStack and therefore null, we get them via a separate attribute
+			if (thisItem == null)
+				thisItem = (IdentifierDeclStatement) fb.currentItem;
+		} catch (Exception e) {
+			System.err.println("Cannot create StructUnionEnum " + text + " in ModuleParser");
+			e.printStackTrace();
+		}
+		
+		//Initalize again to set correct location string
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+		
+		//Set previous statement
+		previousStatement = thisItem;
+		
+		//VARIABILITY ANALYSIS first
+		variabilityAnalysis(thisItem);
+		//AST ANALYSIS second
+		astAnalysis(thisItem);	
+		//Check if commented third
+		checkIfCommented(thisItem);
 	}
 	
 // -------------------------------------- Decl by Type -------------------------------------------------------------------------	

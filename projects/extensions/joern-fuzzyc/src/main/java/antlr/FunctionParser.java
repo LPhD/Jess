@@ -7650,11 +7650,11 @@ public class FunctionParser extends Parser {
 
 	public static class Special_datatypeContext extends ParserRuleContext {
 		public TerminalNode SPECIAL_DATA() { return getToken(FunctionParser.SPECIAL_DATA, 0); }
+		public TerminalNode OPENING_CURLY() { return getToken(FunctionParser.OPENING_CURLY, 0); }
+		public TerminalNode CLOSING_CURLY() { return getToken(FunctionParser.CLOSING_CURLY, 0); }
 		public IdentifierContext identifier() {
 			return getRuleContext(IdentifierContext.class,0);
 		}
-		public TerminalNode OPENING_CURLY() { return getToken(FunctionParser.OPENING_CURLY, 0); }
-		public TerminalNode CLOSING_CURLY() { return getToken(FunctionParser.CLOSING_CURLY, 0); }
 		public List<Var_declContext> var_decl() {
 			return getRuleContexts(Var_declContext.class);
 		}
@@ -7688,42 +7688,42 @@ public class FunctionParser extends Parser {
 				{
 				setState(1201);
 				match(SPECIAL_DATA);
-				setState(1202);
-				identifier();
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
-				{
 				setState(1203);
-				match(SPECIAL_DATA);
-				setState(1205);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__22) | (1L << T__23) | (1L << T__24))) != 0) || _la==ALPHA_NUMERIC) {
 					{
-					setState(1204);
+					setState(1202);
 					identifier();
 					}
 				}
 
-				setState(1207);
+				setState(1205);
 				match(OPENING_CURLY);
-				setState(1211);
+				setState(1209);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (TYPEDEF - 68)) | (1L << (VOID - 68)) | (1L << (UNSIGNED - 68)) | (1L << (SIGNED - 68)) | (1L << (LONG - 68)) | (1L << (CV_QUALIFIER - 68)) | (1L << (SPECIAL_DATA - 68)) | (1L << (TEMPLATE - 68)) | (1L << (CLASS_KEY - 68)) | (1L << (ALPHA_NUMERIC - 68)))) != 0)) {
 					{
 					{
-					setState(1208);
+					setState(1206);
 					var_decl();
 					}
 					}
-					setState(1213);
+					setState(1211);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(1214);
+				setState(1212);
 				match(CLOSING_CURLY);
+				}
+				break;
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(1213);
+				match(SPECIAL_DATA);
+				setState(1214);
+				identifier();
 				}
 				break;
 			}
@@ -9044,11 +9044,11 @@ public class FunctionParser extends Parser {
 		"\5X\u047d\nX\3X\3X\5X\u0481\nX\3X\5X\u0484\nX\3X\3X\3X\3X\3X\3X\5X\u048c"+
 		"\nX\3Y\3Y\5Y\u0490\nY\3Y\3Y\5Y\u0494\nY\3Z\3Z\3[\5[\u0499\n[\3[\5[\u049c"+
 		"\n[\3[\3[\5[\u04a0\n[\3[\5[\u04a3\n[\3[\5[\u04a6\n[\3[\3[\3[\3[\5[\u04ac"+
-		"\n[\3[\3[\5[\u04b0\n[\5[\u04b2\n[\3\\\3\\\3\\\3\\\5\\\u04b8\n\\\3\\\3"+
-		"\\\7\\\u04bc\n\\\f\\\16\\\u04bf\13\\\3\\\5\\\u04c2\n\\\3]\3]\3]\7]\u04c7"+
-		"\n]\f]\16]\u04ca\13]\3]\3]\3^\3^\3^\3^\3^\3^\3^\5^\u04d5\n^\3_\3_\3_\7"+
-		"_\u04da\n_\f_\16_\u04dd\13_\3`\3`\5`\u04e1\n`\3`\5`\u04e4\n`\3`\3`\3`"+
-		"\3a\3a\3b\3b\3b\3b\7b\u04ef\nb\fb\16b\u04f2\13b\3c\5c\u04f5\nc\3c\5c\u04f8"+
+		"\n[\3[\3[\5[\u04b0\n[\5[\u04b2\n[\3\\\3\\\5\\\u04b6\n\\\3\\\3\\\7\\\u04ba"+
+		"\n\\\f\\\16\\\u04bd\13\\\3\\\3\\\3\\\5\\\u04c2\n\\\3]\3]\3]\7]\u04c7\n"+
+		"]\f]\16]\u04ca\13]\3]\3]\3^\3^\3^\3^\3^\3^\3^\5^\u04d5\n^\3_\3_\3_\7_"+
+		"\u04da\n_\f_\16_\u04dd\13_\3`\3`\5`\u04e1\n`\3`\5`\u04e4\n`\3`\3`\3`\3"+
+		"a\3a\3b\3b\3b\3b\7b\u04ef\nb\fb\16b\u04f2\13b\3c\5c\u04f5\nc\3c\5c\u04f8"+
 		"\nc\3c\3c\3d\7d\u04fd\nd\fd\16d\u0500\13d\3d\5d\u0503\nd\3d\3d\3d\3d\3"+
 		"d\5d\u050a\nd\3d\3d\3d\3d\3d\3d\5d\u0512\nd\7d\u0514\nd\fd\16d\u0517\13"+
 		"d\3d\5d\u051a\nd\3d\3d\3d\5d\u051f\nd\3e\6e\u0522\ne\re\16e\u0523\3f\5"+
@@ -9430,12 +9430,12 @@ public class FunctionParser extends Parser {
 		"\3\2\2\2\u04aa\u04ac\7F\2\2\u04ab\u04aa\3\2\2\2\u04ab\u04ac\3\2\2\2\u04ac"+
 		"\u04ad\3\2\2\2\u04ad\u04af\5\u00b6\\\2\u04ae\u04b0\5\u00b8]\2\u04af\u04ae"+
 		"\3\2\2\2\u04af\u04b0\3\2\2\2\u04b0\u04b2\3\2\2\2\u04b1\u0498\3\2\2\2\u04b1"+
-		"\u04a2\3\2\2\2\u04b1\u04ab\3\2\2\2\u04b2\u00b5\3\2\2\2\u04b3\u04b4\7T"+
-		"\2\2\u04b4\u04c2\5\u00d4k\2\u04b5\u04b7\7T\2\2\u04b6\u04b8\5\u00d4k\2"+
-		"\u04b7\u04b6\3\2\2\2\u04b7\u04b8\3\2\2\2\u04b8\u04b9\3\2\2\2\u04b9\u04bd"+
-		"\7i\2\2\u04ba\u04bc\5\u00b4[\2\u04bb\u04ba\3\2\2\2\u04bc\u04bf\3\2\2\2"+
-		"\u04bd\u04bb\3\2\2\2\u04bd\u04be\3\2\2\2\u04be\u04c0\3\2\2\2\u04bf\u04bd"+
-		"\3\2\2\2\u04c0\u04c2\7j\2\2\u04c1\u04b3\3\2\2\2\u04c1\u04b5\3\2\2\2\u04c2"+
+		"\u04a2\3\2\2\2\u04b1\u04ab\3\2\2\2\u04b2\u00b5\3\2\2\2\u04b3\u04b5\7T"+
+		"\2\2\u04b4\u04b6\5\u00d4k\2\u04b5\u04b4\3\2\2\2\u04b5\u04b6\3\2\2\2\u04b6"+
+		"\u04b7\3\2\2\2\u04b7\u04bb\7i\2\2\u04b8\u04ba\5\u00b4[\2\u04b9\u04b8\3"+
+		"\2\2\2\u04ba\u04bd\3\2\2\2\u04bb\u04b9\3\2\2\2\u04bb\u04bc\3\2\2\2\u04bc"+
+		"\u04be\3\2\2\2\u04bd\u04bb\3\2\2\2\u04be\u04c2\7j\2\2\u04bf\u04c0\7T\2"+
+		"\2\u04c0\u04c2\5\u00d4k\2\u04c1\u04b3\3\2\2\2\u04c1\u04bf\3\2\2\2\u04c2"+
 		"\u00b7\3\2\2\2\u04c3\u04c8\5\u00acW\2\u04c4\u04c5\7\b\2\2\u04c5\u04c7"+
 		"\5\u00acW\2\u04c6\u04c4\3\2\2\2\u04c7\u04ca\3\2\2\2\u04c8\u04c6\3\2\2"+
 		"\2\u04c8\u04c9\3\2\2\2\u04c9\u04cb\3\2\2\2\u04ca\u04c8\3\2\2\2\u04cb\u04cc"+
@@ -9503,7 +9503,7 @@ public class FunctionParser extends Parser {
 		"\u03c4\u03cf\u03d4\u03dc\u03e7\u03eb\u03f1\u03f7\u0404\u0409\u040f\u041a"+
 		"\u0426\u042a\u0432\u0436\u043d\u0441\u0443\u0449\u044f\u0455\u0459\u045c"+
 		"\u0462\u046b\u0470\u0479\u047c\u0480\u0483\u048b\u048f\u0493\u0498\u049b"+
-		"\u049f\u04a2\u04a5\u04ab\u04af\u04b1\u04b7\u04bd\u04c1\u04c8\u04d4\u04db"+
+		"\u049f\u04a2\u04a5\u04ab\u04af\u04b1\u04b5\u04bb\u04c1\u04c8\u04d4\u04db"+
 		"\u04e0\u04e3\u04f0\u04f4\u04f7\u04fe\u0502\u0509\u0511\u0515\u0519\u051e"+
 		"\u0523\u0526\u0535\u0538\u053b\u0541\u0548\u054a\u054d\u0554\u0558\u055e"+
 		"\u0562";

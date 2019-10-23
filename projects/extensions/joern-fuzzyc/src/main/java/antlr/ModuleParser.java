@@ -8099,11 +8099,11 @@ public class ModuleParser extends Parser {
 
 	public static class Special_datatypeContext extends ParserRuleContext {
 		public TerminalNode SPECIAL_DATA() { return getToken(ModuleParser.SPECIAL_DATA, 0); }
+		public TerminalNode OPENING_CURLY() { return getToken(ModuleParser.OPENING_CURLY, 0); }
+		public TerminalNode CLOSING_CURLY() { return getToken(ModuleParser.CLOSING_CURLY, 0); }
 		public IdentifierContext identifier() {
 			return getRuleContext(IdentifierContext.class,0);
 		}
-		public TerminalNode OPENING_CURLY() { return getToken(ModuleParser.OPENING_CURLY, 0); }
-		public TerminalNode CLOSING_CURLY() { return getToken(ModuleParser.CLOSING_CURLY, 0); }
 		public List<Var_declContext> var_decl() {
 			return getRuleContexts(Var_declContext.class);
 		}
@@ -8137,42 +8137,42 @@ public class ModuleParser extends Parser {
 				{
 				setState(1362);
 				match(SPECIAL_DATA);
-				setState(1363);
-				identifier();
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
-				{
 				setState(1364);
-				match(SPECIAL_DATA);
-				setState(1366);
 				_la = _input.LA(1);
 				if (((((_la - 39)) & ~0x3f) == 0 && ((1L << (_la - 39)) & ((1L << (T__38 - 39)) | (1L << (T__39 - 39)) | (1L << (T__40 - 39)) | (1L << (ALPHA_NUMERIC - 39)))) != 0)) {
 					{
-					setState(1365);
+					setState(1363);
 					identifier();
 					}
 				}
 
-				setState(1368);
+				setState(1366);
 				match(OPENING_CURLY);
-				setState(1372);
+				setState(1370);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (TYPEDEF - 68)) | (1L << (VOID - 68)) | (1L << (UNSIGNED - 68)) | (1L << (SIGNED - 68)) | (1L << (LONG - 68)) | (1L << (CV_QUALIFIER - 68)) | (1L << (SPECIAL_DATA - 68)) | (1L << (TEMPLATE - 68)) | (1L << (CLASS_KEY - 68)) | (1L << (ALPHA_NUMERIC - 68)))) != 0)) {
 					{
 					{
-					setState(1369);
+					setState(1367);
 					var_decl();
 					}
 					}
-					setState(1374);
+					setState(1372);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(1375);
+				setState(1373);
 				match(CLOSING_CURLY);
+				}
+				break;
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(1374);
+				match(SPECIAL_DATA);
+				setState(1375);
+				identifier();
 				}
 				break;
 			}
@@ -9511,7 +9511,7 @@ public class ModuleParser extends Parser {
 		"b\u0527\13b\3b\3b\3b\3b\7b\u052d\nb\fb\16b\u0530\13b\7b\u0532\nb\fb\16"+
 		"b\u0535\13b\3c\3c\3d\5d\u053a\nd\3d\5d\u053d\nd\3d\3d\5d\u0541\nd\3d\5"+
 		"d\u0544\nd\3d\5d\u0547\nd\3d\3d\3d\3d\5d\u054d\nd\3d\3d\5d\u0551\nd\5"+
-		"d\u0553\nd\3e\3e\3e\3e\5e\u0559\ne\3e\3e\7e\u055d\ne\fe\16e\u0560\13e"+
+		"d\u0553\nd\3e\3e\5e\u0557\ne\3e\3e\7e\u055b\ne\fe\16e\u055e\13e\3e\3e"+
 		"\3e\5e\u0563\ne\3f\3f\3f\7f\u0568\nf\ff\16f\u056b\13f\3f\3f\3g\3g\3g\3"+
 		"g\3g\3g\3g\5g\u0576\ng\3h\3h\3h\7h\u057b\nh\fh\16h\u057e\13h\3i\3i\5i"+
 		"\u0582\ni\3i\5i\u0585\ni\3i\3i\3i\3j\3j\3k\3k\3k\3k\7k\u0590\nk\fk\16"+
@@ -9946,12 +9946,12 @@ public class ModuleParser extends Parser {
 		"\7F\2\2\u054c\u054b\3\2\2\2\u054c\u054d\3\2\2\2\u054d\u054e\3\2\2\2\u054e"+
 		"\u0550\5\u00c8e\2\u054f\u0551\5\u00caf\2\u0550\u054f\3\2\2\2\u0550\u0551"+
 		"\3\2\2\2\u0551\u0553\3\2\2\2\u0552\u0539\3\2\2\2\u0552\u0543\3\2\2\2\u0552"+
-		"\u054c\3\2\2\2\u0553\u00c7\3\2\2\2\u0554\u0555\7T\2\2\u0555\u0563\5\u00e6"+
-		"t\2\u0556\u0558\7T\2\2\u0557\u0559\5\u00e6t\2\u0558\u0557\3\2\2\2\u0558"+
-		"\u0559\3\2\2\2\u0559\u055a\3\2\2\2\u055a\u055e\7i\2\2\u055b\u055d\5\u00c6"+
-		"d\2\u055c\u055b\3\2\2\2\u055d\u0560\3\2\2\2\u055e\u055c\3\2\2\2\u055e"+
-		"\u055f\3\2\2\2\u055f\u0561\3\2\2\2\u0560\u055e\3\2\2\2\u0561\u0563\7j"+
-		"\2\2\u0562\u0554\3\2\2\2\u0562\u0556\3\2\2\2\u0563\u00c9\3\2\2\2\u0564"+
+		"\u054c\3\2\2\2\u0553\u00c7\3\2\2\2\u0554\u0556\7T\2\2\u0555\u0557\5\u00e6"+
+		"t\2\u0556\u0555\3\2\2\2\u0556\u0557\3\2\2\2\u0557\u0558\3\2\2\2\u0558"+
+		"\u055c\7i\2\2\u0559\u055b\5\u00c6d\2\u055a\u0559\3\2\2\2\u055b\u055e\3"+
+		"\2\2\2\u055c\u055a\3\2\2\2\u055c\u055d\3\2\2\2\u055d\u055f\3\2\2\2\u055e"+
+		"\u055c\3\2\2\2\u055f\u0563\7j\2\2\u0560\u0561\7T\2\2\u0561\u0563\5\u00e6"+
+		"t\2\u0562\u0554\3\2\2\2\u0562\u0560\3\2\2\2\u0563\u00c9\3\2\2\2\u0564"+
 		"\u0569\5\u00b8]\2\u0565\u0566\7\7\2\2\u0566\u0568\5\u00b8]\2\u0567\u0565"+
 		"\3\2\2\2\u0568\u056b\3\2\2\2\u0569\u0567\3\2\2\2\u0569\u056a\3\2\2\2\u056a"+
 		"\u056c\3\2\2\2\u056b\u0569\3\2\2\2\u056c\u056d\7\3\2\2\u056d\u00cb\3\2"+
@@ -10021,7 +10021,7 @@ public class ModuleParser extends Parser {
 		"\u0465\u046c\u0470\u0476\u0479\u0480\u0483\u048e\u0495\u049b\u04a6\u04b0"+
 		"\u04b9\u04be\u04c4\u04c9\u04cc\u04d0\u04d3\u04db\u04e2\u04e7\u04f6\u04fb"+
 		"\u0500\u0506\u0515\u051a\u051f\u0525\u052e\u0533\u0539\u053c\u0540\u0543"+
-		"\u0546\u054c\u0550\u0552\u0558\u055e\u0562\u0569\u0575\u057c\u0581\u0584"+
+		"\u0546\u054c\u0550\u0552\u0556\u055c\u0562\u0569\u0575\u057c\u0581\u0584"+
 		"\u0591\u0595\u0598\u059f\u05a3\u05aa\u05b2\u05b6\u05ba\u05bf\u05c4\u05c7"+
 		"\u05d6\u05d9\u05dc\u05e2\u05e9\u05eb\u05ee\u05f5\u05f9\u05ff\u0603";
 	public static final ATN _ATN =

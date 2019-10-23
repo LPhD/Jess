@@ -27,54 +27,47 @@ public class ModuleBuildersTest {
 	public void testNestedStructs() {
 		String input = "struct x{ struct y { struct z{}; }; }; abc";
 		List<ASTNode> codeItems = parseInput(input);
-		ClassDefStatement classDef = (ClassDefStatement) codeItems.get(0);
-		ClassDefStatement yClass = (ClassDefStatement) classDef.content.getStatements().get(0);
-		ClassDefStatement zClass = (ClassDefStatement) yClass.content.getStatements().get(0);
+		IdentifierDeclStatement structx = (IdentifierDeclStatement) codeItems.get(0);
+		IdentifierDeclStatement structy = (IdentifierDeclStatement) codeItems.get(1);
+		IdentifierDeclStatement structz = (IdentifierDeclStatement) codeItems.get(2);
 
 		assertEquals(1, codeItems.size());
-		assertEquals("y", yClass.getIdentifier().getEscapedCodeStr());
-		assertEquals("z", zClass.getIdentifier().getEscapedCodeStr());
+		assertEquals("x", structx.getIdentifierDeclList().get(0).getEscapedCodeStr());
+		assertEquals("y", structy.getIdentifierDeclList().get(0).getEscapedCodeStr());
+		assertEquals("z", structz.getIdentifierDeclList().get(0).getEscapedCodeStr());
 	}
 
 	@Test
 	public void testStructName() {
 		String input = "struct foo{};";
 		List<ASTNode> codeItems = parseInput(input);
-		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		assertEquals("foo", codeItem.identifier.getEscapedCodeStr());
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("foo", codeItem.getChild(0).getEscapedCodeStr());
 	}
 
 	@Test
 	public void testTypedefStruct() {
 		String input = "typedef struct{int a;}foo;";
 		List<ASTNode> codeItems = parseInput(input);
-		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
 		assertEquals("typedef struct { int a ; } foo ;", codeItem.getEscapedCodeStr());
-		assertEquals("", codeItem.identifier.getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testUnnamedStruct() {
 		String input = "struct {int x; } a;";
 		List<ASTNode> codeItems = parseInput(input);
-		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		assertEquals("", codeItem.identifier.getEscapedCodeStr());
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("struct { int x ; } a ;", codeItem.getEscapedCodeStr());
 	}
 
-	@Test
-	public void testStructContent() {
-		String input = "struct foo{};";
-		List<ASTNode> codeItems = parseInput(input);
-		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		assertEquals("{", codeItem.content.getEscapedCodeStr());
-	}
 
 	@Test
 	public void testStructFunctionPointer() {
 		String input = "struct foo{ int*** (**bar)(long*); };";
 		List<ASTNode> codeItems = parseInput(input);
-		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		IdentifierDeclStatement ptrStatement = (IdentifierDeclStatement) codeItem.content.getStatements().get(0);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		IdentifierDeclStatement ptrStatement = (IdentifierDeclStatement) codeItem.getChild(0);
 		IdentifierDecl ptrItem = (IdentifierDecl) ptrStatement.getIdentifierDeclList().get(0);
 
 		assertEquals("int * * * ( * * ) ( long * )", ptrItem.getType().completeType);
