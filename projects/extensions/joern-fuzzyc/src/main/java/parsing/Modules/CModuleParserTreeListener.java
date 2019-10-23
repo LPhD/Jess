@@ -94,7 +94,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	
 	@Override
 	public void enterWater(ModuleParser.WaterContext ctx) {
-		if(ctx.getText().equals(";")) {
+		if(ctx.getText().equals("\n") || ctx.getText().equals("\r\n") || ctx.getText().equals(";")) {
 			logger.debug("Found irrelevant water: "+ctx.start);
 		} else {
 			System.out.println("Found water: "+ctx.start);
