@@ -12,7 +12,6 @@ import ast.ASTNode;
 import ast.Comment;
 import ast.c.functionDef.FunctionDef;
 import ast.c.functionDef.ParameterType;
-import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;

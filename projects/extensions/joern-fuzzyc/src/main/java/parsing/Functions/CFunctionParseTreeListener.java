@@ -41,11 +41,11 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		builder.exitStatement(ctx);
 	}
 
-//	@Override
-//	public void enterNewline(FunctionParser.NewlineContext ctx) {
-//		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-//		builder.enterNewline(ctx);
-//	}
+	@Override
+	public void enterNewline(FunctionParser.NewlineContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterNewline(ctx);
+	}
 	
 	@Override
 	public void enterWater(FunctionParser.WaterContext ctx) {
