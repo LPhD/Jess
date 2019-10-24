@@ -14,11 +14,13 @@ import ast.declarations.IdentifierDecl;
 import ast.expressions.Argument;
 import ast.expressions.ArgumentList;
 import ast.expressions.AssignmentExpression;
+import ast.expressions.Identifier;
 import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.ForStatement;
 
 public class CodeNestingTest {
@@ -125,13 +127,17 @@ public class CodeNestingTest {
 
 	@Test
 	public void testDeclRightAfterStruct() {
-		String input = "struct foo{ int x; } foo;";
+		String input = "struct foo{ int x; } bar;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertTrue(contentItem.getChildCount() == 1);
-		ClassDefStatement classDef = (ClassDefStatement) contentItem.getChild(0);
-		assertTrue(classDef.getChildCount() == 2);
-		IdentifierDecl decl = (IdentifierDecl) classDef.getChild(1);
-		assertTrue(decl.getName().getEscapedCodeStr().equals("foo"));
+		assertEquals(1,contentItem.getChildCount());
+		StructUnionEnum struct = (StructUnionEnum) contentItem.getChild(0);
+		assertEquals(3, struct.getChildCount());
+		Identifier id = (Identifier) struct.getChild(0);
+		assertEquals("foo", id.getEscapedCodeStr());
+		IdentifierDeclStatement declStmt = (IdentifierDeclStatement) struct.getChild(1);
+		assertEquals("int x ;", declStmt.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) struct.getChild(2);
+		assertEquals("bar", decl.getEscapedCodeStr());
 	}
 
 	@Test

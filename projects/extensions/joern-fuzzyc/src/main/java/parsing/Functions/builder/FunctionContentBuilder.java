@@ -162,6 +162,7 @@ import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.CatchStatement;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.ForStatement;
@@ -1128,7 +1129,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	private ParserRuleContext getTypeFromParent() {
 		ASTNode parentItem = stack.peek();
+		
+		System.out.println("Parent: "+parentItem.getEscapedCodeStr()+" type "+parentItem.getTypeAsString());
+		
 		ParserRuleContext typeName;
+		
 		if (parentItem instanceof IdentifierDeclStatement) {
 			IdentifierDeclStatement stmt = ((IdentifierDeclStatement) parentItem);
 			IdentifierDeclType type = stmt.getType();
@@ -1136,8 +1141,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		} else if (parentItem instanceof ClassDefStatement) {
 			Identifier name = ((ClassDefStatement) parentItem).getIdentifier();
 			typeName = nodeToRuleContext.get(name);
-		} else
+		} else if (parentItem instanceof StructUnionEnum) {
+			//TODO get type of struct?
+			typeName = nodeToRuleContext.get("SPECIAL_DATA");
+		} else {
 			throw new RuntimeException("No matching declaration statement/class definiton for init declarator");
+		}
 		return typeName;
 	}
 
@@ -1307,18 +1316,27 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterDeclByType(ParserRuleContext ctx, Type_nameContext type_nameContext) {
 		IdentifierDeclStatement declStmt = new IdentifierDeclStatement();
 		ASTNodeFactory.initializeFromContext(declStmt, ctx);
+		
+		System.out.println("cur: "+declStmt.getEscapedCodeStr());
 
 		IdentifierDeclType type = new IdentifierDeclType();
 		ASTNodeFactory.initializeFromContext(type, type_nameContext);
 		nodeToRuleContext.put(type, type_nameContext);
 		declStmt.addChild(type);
+		
+		System.out.println("type: "+type.getEscapedCodeStr());
 
-		if (stack.peek() instanceof Statement)
+		if (stack.peek() instanceof Statement && !(stack.peek() instanceof StructUnionEnum)) {
+			System.out.println("Stack replaced");
 			replaceTopOfStack(declStmt, ctx);
-		else {
+		} else {
+			System.out.println("Stack not replaced");
 			nodeToRuleContext.put(declStmt, ctx);
 			stack.push(declStmt);
 		}
+		
+		if(previousStatement != null)
+			System.out.println("Prev: "+previousStatement.getEscapedCodeStr());
 		
 		//Set previous statement
 		previousStatement = declStmt;
@@ -1327,27 +1345,27 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 	
 	public void enterStructUnionEnum(ParserRuleContext ctx) {
-		System.out.println("Enter struct on function level");
+		System.out.println("Enter struct");
 		
-		IdentifierDeclStatement declStmt = new IdentifierDeclStatement();
-		ASTNodeFactory.initializeFromContext(declStmt, ctx);
+		StructUnionEnum struct = new StructUnionEnum();
+		ASTNodeFactory.initializeFromContext(struct, ctx);
 
-//		IdentifierDeclType type = new IdentifierDeclType();
-//		ASTNodeFactory.initializeFromContext(type, type_nameContext);
-//		nodeToRuleContext.put(type, type_nameContext);
-//		declStmt.addChild(type);
-
-		if (stack.peek() instanceof Statement)
-			replaceTopOfStack(declStmt, ctx);
-		else {
-			nodeToRuleContext.put(declStmt, ctx);
-			stack.push(declStmt);
-		}
-		
-		//Set previous statement
-		previousStatement = declStmt;
-		checkVariability(declStmt);
-		checkIfCommented(declStmt);
+		//When called from function level
+		if (stack.peek() instanceof Statement) {
+			System.out.println("Enter from function level");
+			
+			replaceTopOfStack(struct, ctx);
+			
+			//Set previous statement
+			previousStatement = struct;
+			checkVariability(struct);
+			checkIfCommented(struct);
+		//When called from module level	
+		} else {
+			System.out.println("Enter from module level");
+			nodeToRuleContext.put(struct, ctx);
+			stack.push(struct);
+		}		
 	}
 
 	public void exitDeclByType() {

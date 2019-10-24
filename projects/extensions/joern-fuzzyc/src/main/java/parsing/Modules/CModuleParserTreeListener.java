@@ -24,6 +24,7 @@ import ast.logical.statements.CompoundStatement;
 import ast.preprocessor.PreBlockstarter;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import parsing.ANTLRParserDriver;
 import parsing.ASTNodeFactory;
 import parsing.CompoundItemAssembler;
@@ -383,17 +384,14 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		// Driver for calling function parser
 		fDriver = new ANTLRCFunctionParserDriver();
 		// Get code of PreStatement
-		IdentifierDeclStatement thisItem = new IdentifierDeclStatement();
+		StructUnionEnum thisItem = new StructUnionEnum();
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
 		String text = thisItem.getEscapedCodeStr();
 		// Try to reuse the function parser rules for parsing the preprocessor statement
 		try {
 			fDriver.parseAndWalkString(text);
 			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
-			thisItem = (IdentifierDeclStatement) fb.getItem().getChild(0);
-			//#elif/#else/#endif are not on the builderStack and therefore null, we get them via a separate attribute
-			if (thisItem == null)
-				thisItem = (IdentifierDeclStatement) fb.currentItem;
+			thisItem = (StructUnionEnum) fb.getItem().getChild(0);
 		} catch (Exception e) {
 			System.err.println("Cannot create StructUnionEnum " + text + " in ModuleParser");
 			e.printStackTrace();
