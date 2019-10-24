@@ -18,6 +18,7 @@ import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import parsing.TokenSubStream;
 import parsing.Modules.ANTLRCModuleParserDriver;
 
@@ -27,21 +28,21 @@ public class ModuleBuildersTest {
 	public void testNestedStructs() {
 		String input = "struct x{ struct y { struct z{}; }; }; abc";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement structx = (IdentifierDeclStatement) codeItems.get(0);
-		IdentifierDeclStatement structy = (IdentifierDeclStatement) codeItems.get(1);
-		IdentifierDeclStatement structz = (IdentifierDeclStatement) codeItems.get(2);
+		StructUnionEnum structx = (StructUnionEnum) codeItems.get(0);
+		StructUnionEnum structy = (StructUnionEnum) codeItems.get(1);
+		StructUnionEnum structz = (StructUnionEnum) codeItems.get(2);
 
 		assertEquals(1, codeItems.size());
-		assertEquals("x", structx.getIdentifierDeclList().get(0).getEscapedCodeStr());
-		assertEquals("y", structy.getIdentifierDeclList().get(0).getEscapedCodeStr());
-		assertEquals("z", structz.getIdentifierDeclList().get(0).getEscapedCodeStr());
+		assertEquals("x", structx.getChild(0).getEscapedCodeStr());
+		assertEquals("y", structy.getChild(0).getEscapedCodeStr());
+		assertEquals("z", structz.getChild(0).getEscapedCodeStr());
 	}
 
 	@Test
 	public void testStructName() {
 		String input = "struct foo{};";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
 		assertEquals("foo", codeItem.getChild(0).getEscapedCodeStr());
 	}
 
@@ -49,7 +50,7 @@ public class ModuleBuildersTest {
 	public void testTypedefStruct() {
 		String input = "typedef struct{int a;}foo;";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
 		assertEquals("typedef struct { int a ; } foo ;", codeItem.getEscapedCodeStr());
 	}
 	
@@ -57,7 +58,7 @@ public class ModuleBuildersTest {
 	public void testUnnamedStruct() {
 		String input = "struct {int x; } a;";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
 		assertEquals("struct { int x ; } a ;", codeItem.getEscapedCodeStr());
 	}
 
@@ -66,8 +67,8 @@ public class ModuleBuildersTest {
 	public void testStructFunctionPointer() {
 		String input = "struct foo{ int*** (**bar)(long*); };";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
-		IdentifierDeclStatement ptrStatement = (IdentifierDeclStatement) codeItem.getChild(0);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
+		IdentifierDeclStatement ptrStatement = (IdentifierDeclStatement) codeItem.getChild(1);
 		IdentifierDecl ptrItem = (IdentifierDecl) ptrStatement.getIdentifierDeclList().get(0);
 
 		assertEquals("int * * * ( * * ) ( long * )", ptrItem.getType().completeType);
