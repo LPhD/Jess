@@ -26,7 +26,7 @@ public class ModuleBuildersTest {
 
 	@Test
 	public void testNestedStructs() {
-		String input = "struct x{ struct y { struct z{}; }; }; abc";
+		String input = "struct x{ struct y { struct z{}; }; } abc;";
 		List<ASTNode> codeItems = parseInput(input);
 		StructUnionEnum structx = (StructUnionEnum) codeItems.get(0);
 		StructUnionEnum structy = (StructUnionEnum) codeItems.get(1);

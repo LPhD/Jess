@@ -9,7 +9,6 @@ import antlr.FunctionParser.StatementsContext;
 import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.c.statements.blockstarters.IfStatement;
-import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.expressions.Argument;
 import ast.expressions.ArgumentList;

@@ -381,6 +381,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	public void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
 		System.out.println("Enter struct on module level");
 		
+		//We enter the nested Struct 3 times, but we need only the first time (as the other 2 structs were already handled first time)
+		//How can we detect if a struct is inside another struct? If they come after each other, this behaviour is ok
+		
 		// Driver for calling function parser
 		fDriver = new ANTLRCFunctionParserDriver();
 		// Get code of PreStatement

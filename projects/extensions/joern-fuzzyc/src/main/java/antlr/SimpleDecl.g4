@@ -4,7 +4,7 @@ simple_decl : var_decl;
 
 var_decl : (TYPEDEF? template_decl_start?) class_def init_declarator_list? #declByClass
          | (TYPEDEF? template_decl_start?) type_name init_declarator_list #declByType
-         | TYPEDEF? special_datatype init_declarator_list? #StructUnionEnum
+         | TYPEDEF? special_datatype init_declarator_list? ';'? #StructUnionEnum
          ;
          
 special_datatype:SPECIAL_DATA identifier? OPENING_CURLY var_decl* CLOSING_CURLY  //Long declaration
