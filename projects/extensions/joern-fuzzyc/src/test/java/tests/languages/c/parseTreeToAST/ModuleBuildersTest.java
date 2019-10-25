@@ -29,8 +29,8 @@ public class ModuleBuildersTest {
 		String input = "struct x{ struct y { struct z{}; }; } abc;";
 		List<ASTNode> codeItems = parseInput(input);
 		StructUnionEnum structx = (StructUnionEnum) codeItems.get(0);
-		StructUnionEnum structy = (StructUnionEnum) codeItems.get(1);
-		StructUnionEnum structz = (StructUnionEnum) codeItems.get(2);
+		StructUnionEnum structy = (StructUnionEnum) structx.getChild(1);
+		StructUnionEnum structz = (StructUnionEnum) structy.getChild(1);
 
 		assertEquals(1, codeItems.size());
 		assertEquals("x", structx.getChild(0).getEscapedCodeStr());

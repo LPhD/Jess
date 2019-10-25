@@ -63,6 +63,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 * Currently only for comments
 	 */
 	private List<Comment> pendingList = new LinkedList<Comment>();
+	/**
+	 * Counter for resolving the nesting of StructUnionEnums
+	 */
+	private static int currentStructs = 0;
 	private static final Logger logger = LoggerFactory.getLogger(CModuleParserTreeListener.class);
 
 
@@ -379,39 +383,50 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	@Override
 	public void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
-		System.out.println("Enter struct on module level");
+		//Increment, if we are currently inside a struct
+		currentStructs = currentStructs + 1;
 		
-		//We enter the nested Struct 3 times, but we need only the first time (as the other 2 structs were already handled first time)
-		//How can we detect if a struct is inside another struct? If they come after each other, this behaviour is ok
+		System.out.println("Enter struct on module level: "+currentStructs);
 		
-		// Driver for calling function parser
-		fDriver = new ANTLRCFunctionParserDriver();
-		// Get code of PreStatement
-		StructUnionEnum thisItem = new StructUnionEnum();
-		ASTNodeFactory.initializeFromContext(thisItem, ctx);
-		String text = thisItem.getEscapedCodeStr();
-		// Try to reuse the function parser rules for parsing the preprocessor statement
-		try {
-			fDriver.parseAndWalkString(text);
-			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
-			thisItem = (StructUnionEnum) fb.getItem().getChild(0);
-		} catch (Exception e) {
-			System.err.println("Cannot create StructUnionEnum " + text + " in ModuleParser");
-			e.printStackTrace();
+		//Pass only the outer struct to the function parser
+		if (currentStructs == 1) {
+			// Driver for calling function parser
+			fDriver = new ANTLRCFunctionParserDriver();
+			// Get code of PreStatement
+			StructUnionEnum thisItem = new StructUnionEnum();
+			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+			String text = thisItem.getEscapedCodeStr();
+			// Try to reuse the function parser rules for parsing the preprocessor statement
+			try {
+				fDriver.parseAndWalkString(text);
+				FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
+				thisItem = (StructUnionEnum) fb.getItem().getChild(0);
+			} catch (Exception e) {
+				System.err.println("Cannot create StructUnionEnum " + text + " in ModuleParser");
+				e.printStackTrace();
+			}
+			
+			//Initalize again to set correct location string
+			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+			
+			//Set previous statement
+			previousStatement = thisItem;
+			
+			//VARIABILITY ANALYSIS first
+			variabilityAnalysis(thisItem);
+			//AST ANALYSIS second
+			astAnalysis(thisItem);	
+			//Check if commented third
+			checkIfCommented(thisItem);
 		}
+	}
+	
+	@Override
+	public void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
+		//Decrement, if we are leaving a struct
+		currentStructs = currentStructs - 1;
 		
-		//Initalize again to set correct location string
-		ASTNodeFactory.initializeFromContext(thisItem, ctx);
-		
-		//Set previous statement
-		previousStatement = thisItem;
-		
-		//VARIABILITY ANALYSIS first
-		variabilityAnalysis(thisItem);
-		//AST ANALYSIS second
-		astAnalysis(thisItem);	
-		//Check if commented third
-		checkIfCommented(thisItem);
+		System.out.println("Leave struct on module level: "+currentStructs);
 	}
 	
 // -------------------------------------- Decl by Type -------------------------------------------------------------------------	
