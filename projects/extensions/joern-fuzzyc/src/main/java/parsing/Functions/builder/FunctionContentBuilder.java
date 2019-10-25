@@ -1129,9 +1129,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	private ParserRuleContext getTypeFromParent() {
 		ASTNode parentItem = stack.peek();
-		
-		System.out.println("Parent: "+parentItem.getEscapedCodeStr()+" type "+parentItem.getTypeAsString());
-		
 		ParserRuleContext typeName;
 		
 		if (parentItem instanceof IdentifierDeclStatement) {
@@ -1316,27 +1313,18 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterDeclByType(ParserRuleContext ctx, Type_nameContext type_nameContext) {
 		IdentifierDeclStatement declStmt = new IdentifierDeclStatement();
 		ASTNodeFactory.initializeFromContext(declStmt, ctx);
-		
-		System.out.println("cur: "+declStmt.getEscapedCodeStr());
 
 		IdentifierDeclType type = new IdentifierDeclType();
 		ASTNodeFactory.initializeFromContext(type, type_nameContext);
 		nodeToRuleContext.put(type, type_nameContext);
 		declStmt.addChild(type);
-		
-		System.out.println("type: "+type.getEscapedCodeStr());
 
 		if (stack.peek() instanceof Statement && !(stack.peek() instanceof StructUnionEnum)) {
-			System.out.println("Stack replaced");
 			replaceTopOfStack(declStmt, ctx);
 		} else {
-			System.out.println("Stack not replaced");
 			nodeToRuleContext.put(declStmt, ctx);
 			stack.push(declStmt);
-		}
-		
-		if(previousStatement != null)
-			System.out.println("Prev: "+previousStatement.getEscapedCodeStr());
+		}		
 		
 		//Set previous statement
 		previousStatement = declStmt;
@@ -1344,33 +1332,30 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		checkIfCommented(declStmt);
 	}
 	
-	public void enterStructUnionEnum(ParserRuleContext ctx) {
-		System.out.println("Enter struct");
-		
-		StructUnionEnum struct = new StructUnionEnum();
-		ASTNodeFactory.initializeFromContext(struct, ctx);
-
-		//When called from function level
-		if (stack.peek() instanceof Statement) {
-			System.out.println("Enter from function level");
-			
-			replaceTopOfStack(struct, ctx);
-			
-			//Set previous statement
-			previousStatement = struct;
-			checkVariability(struct);
-			checkIfCommented(struct);
-		//When called from module level	
-		} else {
-			System.out.println("Enter from module level");
-			nodeToRuleContext.put(struct, ctx);
-			stack.push(struct);
-		}		
-	}
 
 	public void exitDeclByType() {
 		nesting.consolidate();
 	}
+	
+	public void enterStructUnionEnum(ParserRuleContext ctx) {
+		StructUnionEnum struct = new StructUnionEnum();
+		ASTNodeFactory.initializeFromContext(struct, ctx);
+
+		//Resolve nesting, only replace placeholder statement nodes
+		if (stack.peek().getClass() == Statement.class) {
+			replaceTopOfStack(struct, ctx);
+		} else {
+			nodeToRuleContext.put(struct, ctx);
+			stack.push(struct);
+		}	
+		
+		//TODO check if this works when called from module level
+		//Set previous statement
+		previousStatement = struct;
+		checkVariability(struct);
+		checkIfCommented(struct);
+	}
+
 	
 	public void exitStructUnionEnum() {
 		nesting.consolidate();

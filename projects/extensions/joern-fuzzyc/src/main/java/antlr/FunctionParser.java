@@ -315,7 +315,7 @@ public class FunctionParser extends Parser {
 	             //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
 	             consume();
 	             t = _input.LA(1); 
-	             System.out.println("New t: "+t);                 
+	//             System.out.println("New t: "+t);                 
 	         }   
 	         
 	         //The newline or the EOF belong to the PreIfStatement's code   

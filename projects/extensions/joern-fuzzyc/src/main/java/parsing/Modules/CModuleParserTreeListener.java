@@ -386,8 +386,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		//Increment, if we are currently inside a struct
 		currentStructs = currentStructs + 1;
 		
-		System.out.println("Enter struct on module level: "+currentStructs);
-		
 		//Pass only the outer struct to the function parser
 		if (currentStructs == 1) {
 			// Driver for calling function parser
@@ -425,8 +423,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	public void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
 		//Decrement, if we are leaving a struct
 		currentStructs = currentStructs - 1;
-		
-		System.out.println("Leave struct on module level: "+currentStructs);
 	}
 	
 // -------------------------------------- Decl by Type -------------------------------------------------------------------------	
