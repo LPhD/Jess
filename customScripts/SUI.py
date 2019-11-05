@@ -61,7 +61,7 @@ checkedVertices = set()
 analysisList = list()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
-visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File']
+visibleStatementTypes = ['ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File']
 
 
 # Main function 
@@ -839,7 +839,9 @@ def getASTNodes():
 def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
-    query = """idListToNodes(%s).has('type', within(%s)).id()""" % (list(semanticUnit), visibleStatementTypes)  
+    query = """idListToNodes(%s).has('type', within(%s))
+        .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
+        .id()""" % (list(semanticUnit), visibleStatementTypes)  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
     semanticUnit = result

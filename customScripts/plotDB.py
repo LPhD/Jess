@@ -9,18 +9,19 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ####### Configuration options #################
 generateOnlyAST = False
-generateOnlyVisibleCode = True
+generateOnlyVisibleCode = False
 custom = False
 evaluation = False
 ###############################################
 
 # Connect to project DB
-projectName = 'EvoDiss.tar.gz'
+#projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
 #projectName = 'JoernTest.tar.gz'
 #projectName = 'SPLC'
 #projectName = 'ICSE'
-#projectName = 'Collection'
+projectName = 'expat'
+projectName = 'sample'
 db = DBInterface()
 
 ####################################### Plotting ###############################################   
@@ -30,7 +31,7 @@ resultIDs = set()
 customStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Symbol', 'CFGEntryNode', 'CFGExitNode', 'Comment']
 cNodeIDs = set()
 
-visibleStatementTypes = ['File', 'Function', 'ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment']
+visibleStatementTypes = ['File', 'Function', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment']
 
 
  
@@ -97,9 +98,9 @@ def getASTNodes():
 def getVisibleNodes():
     global result, resultIDs
     # Remove unneeded nodes
-    query = """g.V().has('type', within(%s))""" % (visibleStatementTypes)
+    query = """g.V().has('type', within(%s)).not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))""" % (visibleStatementTypes)
     result = db.runGremlinQuery(query)
-    query = """g.V().has('type', within(%s)).id()""" % (visibleStatementTypes)  
+    query = """g.V().has('type', within(%s)).not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum'))).id()""" % (visibleStatementTypes)  
     resultIDs = db.runGremlinQuery(query)
     return result    
     
