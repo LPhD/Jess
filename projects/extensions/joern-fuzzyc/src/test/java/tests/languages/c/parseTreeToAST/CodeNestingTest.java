@@ -170,5 +170,18 @@ public class CodeNestingTest {
 		assertEquals("/*Comment inside function */", codeItem.getEscapedCodeStr());
 		assertEquals("IdentifierDeclStatement", codeItem.getCommentee().getTypeAsString());
 	}
+	
+	@Test
+	public void structInsideFunction() {
+		String input = "struct scsi_device {\n"+
+				" 	int x;\n" + 
+				" 	}	sdev;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		StructUnionEnum codeItem = (StructUnionEnum) contentItem.getStatements().get(0);
+		assertEquals("struct scsi_device { \n" + 
+				" int x ; \n" + 
+				" } sdev ;", codeItem.getEscapedCodeStr());
+		assertEquals("scsi_device", codeItem.getChild(0).getEscapedCodeStr());
+	}
 
 }
