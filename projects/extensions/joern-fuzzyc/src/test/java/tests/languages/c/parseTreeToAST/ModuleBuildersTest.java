@@ -16,6 +16,7 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
+import ast.logical.statements.CompoundStatement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
@@ -72,6 +73,24 @@ public class ModuleBuildersTest {
 		IdentifierDecl ptrItem = (IdentifierDecl) ptrStatement.getIdentifierDeclList().get(0);
 
 		assertEquals("int * * * ( * * ) ( long * )", ptrItem.getType().completeType);
+	}
+	
+	@Test
+	public void structInsideFunction() {
+		String input = "int main(void) {\n" + 
+				"	int i = 0;\n" + 
+				"	struct scsi_device {\n" + 
+				"		int x;\n" + 
+				"	} sdev;\n" + 
+				"	struct block_device {\n" + 
+				"		int y;\n" + 
+				"	} dev;\n" + 
+				"}";
+		List<ASTNode> codeItems = parseInput(input);
+		//First struct
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0).getChild(0).getChild(1);
+		//Name of the first struct
+		assertEquals("scsi_device", codeItem.getChild(0).getEscapedCodeStr());
 	}
 
 	@Test
