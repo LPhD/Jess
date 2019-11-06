@@ -73,7 +73,7 @@ public class NestingReconstructor {
 				curBlockStarter.addChild(node);
 				node = curBlockStarter;
 				
-//				System.out.println("Current bs "+curBlockStarter.getTypeAsString()+ " code "+curBlockStarter.getEscapedCodeStr());
+				System.out.println("Current bs "+curBlockStarter.getTypeAsString()+ " code "+curBlockStarter.getEscapedCodeStr());
 
 				// if statements
 				if (curBlockStarter instanceof IfStatement) {
