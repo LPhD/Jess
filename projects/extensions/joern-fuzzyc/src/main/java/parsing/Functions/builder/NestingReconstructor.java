@@ -105,16 +105,7 @@ public class NestingReconstructor {
 						System.err.println("Warning: cannot find if for else in file: "+node.getPath()+" line: "+node.getLine());
 					}
 					return;
-
-					// add while statement to the previous do-statement, if that exists. Otherwise,  do nothing special.
-				} else if (curBlockStarter instanceof WhileStatement) {
-
-					DoStatement lastDo = stack.getDo();
-					if (lastDo != null) {
-						lastDo.addChild(((WhileStatement) curBlockStarter).getCondition());
-						return;
-					}
-
+					
 					// catch-statements
 				} else if (curBlockStarter instanceof CatchStatement) {
 					TryStatement tryStatement = stack.getTry();
@@ -137,5 +128,19 @@ public class NestingReconstructor {
 		// Finally, add chain to top compound-item
 		ASTNode root = stack.peek();
 		root.addChild(node);
+	}
+
+	/**
+	 * Checks if there is a do statement for the current while statement. 
+	 * If so, set the condition of the do statement.
+	 * @param itemToRemove
+	 */
+	public void checkDoWhile(ASTNode itemToRemove) {
+		DoStatement lastDo = stack.getDo();
+		if (lastDo != null) {
+			lastDo.addChild(((WhileStatement) itemToRemove).getCondition());
+			//Consolidate, if we have a do-while statement (as it ends after the while)
+			consolidate();
+		}		
 	}
 }

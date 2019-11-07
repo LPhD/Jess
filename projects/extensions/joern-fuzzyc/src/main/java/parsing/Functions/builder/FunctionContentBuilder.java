@@ -786,8 +786,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		}
 
 		// We keep Block-starters and compound items on the stack. They are removed by following statements.
-		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement)
+		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement) {
+			if(itemToRemove instanceof WhileStatement) {
+				nesting.checkDoWhile(itemToRemove);
+			}
 			return;
+		}
 		
 		if (consolidate)
 			nesting.consolidate();

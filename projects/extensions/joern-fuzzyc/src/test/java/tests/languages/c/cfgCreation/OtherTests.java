@@ -31,7 +31,7 @@ public class OtherTests extends CCFGCreatorTest {
 	public void testDoNumberOfBlocks() {
 		String input = "do{ bar(); }while(foo);";
 		CFG cfg = getCFGForCode(input);
-		assertEquals(4, cfg.size());
+		assertEquals(5, cfg.size());
 	}
 
 	@Test
