@@ -29,7 +29,7 @@ DEBUG = False
 #projectName = 'JoernTest.tar.gz'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-#projectName = 'SPLC'
+projectName = 'SPLC'
 #projectName = 'Collection'
 
 
@@ -590,7 +590,7 @@ def getVariableStatements (verticeId):
 def getFeatureBlocks (featureName):
     for currentNode in featureName:    
         # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
-        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').id())""" % (currentNode       
+        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').id())""" % (currentNode)     
         result = db.runGremlinQuery(query)              
         
         if (len(result) == 0):
