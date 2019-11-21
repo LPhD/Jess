@@ -442,7 +442,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		if(!structStack.isEmpty()) {
 			StructUnionEnum parent = structStack.peek();
 			parent.addChild(struct);
-			System.out.println("Added struct child");
+			logger.debug("Added struct child");
 		}
 	}
 	
@@ -467,8 +467,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		ASTNodeFactory.initializeFromContext(stmt, ctx);	
 		logger.debug("Node "+stmt.getEscapedCodeStr()+" intialized");
-		System.out.println("Node "+stmt.getEscapedCodeStr()+" intialized");
-
 
 		Iterator<IdentifierDecl> it = declarations.iterator();
 		while (it.hasNext()) {
@@ -477,13 +475,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		}
 		
 		//Adds the declaration as child to its parent struct/union/enum
-		if(!structStack.isEmpty()) {
-			StructUnionEnum struct = structStack.peek();
-			struct.addChild(stmt);
-			System.out.println("Added child");
-			//Do not proceed here
-			return;
-		}
+//		if(!structStack.isEmpty()) {
+//			StructUnionEnum struct = structStack.peek();
+//			struct.addChild(stmt);
+//			logger.debug("Added child");
+//			//Do not proceed here
+//			return;
+//		}
 
 		p.notifyObserversOfItem(stmt);
 		

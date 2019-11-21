@@ -57,7 +57,6 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	// StructUnionEnum handling
 	@Override
 	public void visit(StructUnionEnum node) {
-		System.out.println("Visited struct");
 		ASTNodeExporter importer = new CSVStructUnionEnumExporter();
 		importNode(importer, node);
 	}
