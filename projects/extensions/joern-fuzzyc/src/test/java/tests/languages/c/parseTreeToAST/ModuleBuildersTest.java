@@ -24,6 +24,41 @@ import parsing.TokenSubStream;
 import parsing.Modules.ANTLRCModuleParserDriver;
 
 public class ModuleBuildersTest {
+	
+	@Test
+	public void test1() {
+		String input = "/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/FlashPoint.c */\n" + 
+				"\n" + 
+				"#define  hp_stack_data        0x34\n" + 
+				"#define hp_stack_addr 0x35\n" + 
+				"#define WR_HARPOON(ioport,val) (u8) val, (u32)ioport\n" + 
+				"#define MAX_SCSI_TAR 16\n" + 
+				"#define RD_HARPOON(ioport) (u32)ioport\n" + 
+				"#define hp_scsidata_0 0x74\n" + 
+				"\n" + 
+				"#define u32 unsigned  int\n" + 
+				"#define u16 unsigned int\n" + 
+				"#define u8 unsigned int\n" + 
+				"\n" + 
+				"struct sccb;\n" + 
+				"typedef void (*CALL_BK_FN)(struct sccb *);\n" + 
+				"\n" + 
+				"struct sccb_mgr_info {\n" + 
+				"	u32 si_baseaddr;\n" + 
+				"	unsigned char si_present;\n" + 
+				"	u16 si_per_targ_init_sync;\n" + 
+				"	unsigned char si_reserved[4];\n" + 
+				"};\n" + 
+				"\n" + 
+				"static void FPT_WrStack(u32 portBase, unsigned char index, unsigned char data) {\n" + 
+				"	WR_HARPOON(portBase + hp_stack_addr, index);\n" + 
+				"	WR_HARPOON(portBase + hp_stack_data, data);\n" + 
+				"}";
+		List<ASTNode> codeItems = parseInput(input);
+//		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+//		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals(true, false);
+	}
 
 	@Test
 	public void testNestedStructs() {
