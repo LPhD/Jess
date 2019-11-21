@@ -8,6 +8,7 @@ import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import databaseNodes.EdgeTypes;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.ASTNodeExporter;
@@ -16,6 +17,7 @@ import outputModules.neo4j.exporters.Neo4JClassDefExporter;
 import outputModules.neo4j.exporters.Neo4JCommentExporter;
 import outputModules.neo4j.exporters.Neo4JDeclStmtExporter;
 import outputModules.neo4j.exporters.Neo4JPreStatementExporter;
+import outputModules.neo4j.exporters.Neo4JStructUnionEnumExporter;
 
 // Stays alive during the lifetime of the program
 
@@ -53,6 +55,14 @@ public class Neo4JASTNodeVisitor extends OutModASTNodeVisitor {
 		ASTNodeExporter importer = new Neo4JCommentExporter();
 		importNode(importer, node);
 	}
+	
+	// StructUnionEnum handling
+	@Override
+	public void visit(StructUnionEnum node) {
+		ASTNodeExporter importer = new Neo4JStructUnionEnumExporter();
+		importNode(importer, node);
+	}
+	
 
 	@Override
 	protected void addEdgeFromClassToFunc(long dstNodeId, Long classId) {

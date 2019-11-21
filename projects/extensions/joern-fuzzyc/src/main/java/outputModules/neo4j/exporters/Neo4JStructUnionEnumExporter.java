@@ -11,9 +11,9 @@ import databaseNodes.EdgeTypes;
 import databaseNodes.FileDatabaseNode;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
-import outputModules.common.PreStatementExporter;
+import outputModules.common.StructUnionEnumExporter;
 
-public class Neo4JPreStatementExporter extends PreStatementExporter {
+public class Neo4JStructUnionEnumExporter extends StructUnionEnumExporter {
 
 	protected GraphNodeStore nodeStore = new GraphNodeStore();
 	
@@ -42,24 +42,18 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		Map<String, Object> properties = astDatabaseNode.createProperties();
 		nodeStore.addNeo4jNode(astDatabaseNode, properties);
 
-		// index, but do not index location
-//		properties.remove(NodeKeys.LOCATION);
 		nodeStore.indexNode(astDatabaseNode, properties);
 		astDatabaseNode.setNodeId(nodeStore.getIdForObject(astDatabaseNode));		
 	}
 	
-	
 	/**
-	 * Link the given preStatementDatabaseNode (the root node) with its FileDatabaseNode
+	 * Link the given astDatabaseNode (the root node) with its FileDatabaseNode
 	 */
 	@Override
-	protected void linkPreStatementToFileNode(ASTDatabaseNode preNode, FileDatabaseNode fileNode) {
+	protected void addLinkFromFileToStruct(Long nodeId, FileDatabaseNode curFile) {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_FILE_OF);
-
-		long fileId = fileNode.getId();
-		long preNodeId = nodeStore.getIdForObject(preNode);
-
-		Neo4JBatchInserter.addRelationship(fileId, preNodeId, rel, null);
+		long fileId = curFile.getId();
+		Neo4JBatchInserter.addRelationship(fileId, nodeId, rel, null);
 	}
 	
 	/**
@@ -72,13 +66,5 @@ public class Neo4JPreStatementExporter extends PreStatementExporter {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_AST_PARENT);
 		Neo4JBatchInserter.addRelationship(parentId, childId, rel, null);
 	}
-	
-	/**
-	 * Link the given preStatementDatabaseNode (parentNodeID) with its block content (childNodeID)
-	 */
-	@Override
-	protected void drawVariabilityEdge(long parentNodeID, long childNodeID) {
-		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.VARIABILITY);
-		Neo4JBatchInserter.addRelationship(parentNodeID, childNodeID, rel, null);
-	}
+
 }
