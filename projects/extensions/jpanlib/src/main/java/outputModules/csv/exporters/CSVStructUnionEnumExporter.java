@@ -6,10 +6,10 @@ import databaseNodes.ASTDatabaseNode;
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.FileDatabaseNode;
-import outputModules.common.PreStatementExporter;
+import outputModules.common.StructUnionEnumExporter;
 import outputModules.common.Writer;
 
-public class CSVPreStatementExporter extends PreStatementExporter {
+public class CSVStructUnionEnumExporter extends StructUnionEnumExporter {
 
 	/**
 	 * Add the root node to the Database
@@ -34,15 +34,14 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 		Writer.addNode(astDatabaseNode, properties);
 		astDatabaseNode.setNodeId(Writer.getIdForObject(astDatabaseNode));
 	}
-		
+
 	/**
-	 * Link the given preStatementDatabaseNode (the root node) with its FileDatabaseNode
+	 * Link the given astDatabaseNode (the root node) with its FileDatabaseNode
 	 */
 	@Override
-	protected void linkPreStatementToFileNode(ASTDatabaseNode preNode, FileDatabaseNode fileNode) {
-		long fileId = fileNode.getId();
-		long preNodeId = Writer.getIdForObject(preNode);
-		Writer.addEdge(fileId, preNodeId, null, EdgeTypes.IS_FILE_OF);
+	protected void addLinkFromFileToStruct(Long nodeId, FileDatabaseNode curFile) {
+		long fileId = curFile.getId();
+		Writer.addEdge(fileId, nodeId, null, EdgeTypes.IS_FILE_OF);
 	}
 
 	
@@ -54,14 +53,6 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	@Override
 	protected void addASTLink(long srcId, long dstId ) {
 		Writer.addEdge(srcId, dstId, null, EdgeTypes.IS_AST_PARENT);
-	}
-	
-	/**
-	 * Link the given preStatementDatabaseNode (parentNodeID) with its block content (childNodeID)
-	 */
-	@Override
-	protected void drawVariabilityEdge(long parentNodeID, long childNodeID) {
-		Writer.addEdge(parentNodeID, childNodeID, null, EdgeTypes.VARIABILITY);
-	}
+	}	
 
 }

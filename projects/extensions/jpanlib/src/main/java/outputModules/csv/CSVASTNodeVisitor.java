@@ -15,6 +15,7 @@ import outputModules.csv.exporters.CSVCommentExporter;
 import outputModules.csv.exporters.CSVDeclStmtExporter;
 import outputModules.csv.exporters.CSVFunctionExporter;
 import outputModules.csv.exporters.CSVPreStatementExporter;
+import outputModules.csv.exporters.CSVStructUnionEnumExporter;
 
 public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 
@@ -53,12 +54,12 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 		importNode(importer, node);
 	}
 	
-	// Comment handling
+	// StructUnionEnum handling
 	@Override
 	public void visit(StructUnionEnum node) {
 		System.out.println("Visited struct");
-//		ASTNodeExporter importer = new CSVCommentExporter();
-//		importNode(importer, node);
+		ASTNodeExporter importer = new CSVStructUnionEnumExporter();
+		importNode(importer, node);
 	}
 
 	@Override
