@@ -1359,8 +1359,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		previousStatement = struct;
 		checkVariability(struct);
 		checkIfCommented(struct);
-		
-		System.out.println(struct.getEscapedCodeStr());
 	}
 
 	

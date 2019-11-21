@@ -27,6 +27,10 @@ public class DeclDatabaseNode extends DeclStmtDatabaseNode {
 		map.put(NodeKeys.LINE, ""+decl.getLine());
 		map.put(NodeKeys.PATH, decl.getPath());
 		map.put(NodeKeys.CLINE, ""+decl.getCharAtLine());
+		
+		System.out.println("Making decl db node");
+		System.out.println(map.toString());
+		
 		return map;
 	}
 	

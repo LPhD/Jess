@@ -418,7 +418,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//Check if commented third
 			checkIfCommented(thisItem);
 			
-			System.out.println();
+			System.out.println(thisItem.getEscapedCodeStr()+" line "+thisItem.getLine());
 		}
 	}
 	
