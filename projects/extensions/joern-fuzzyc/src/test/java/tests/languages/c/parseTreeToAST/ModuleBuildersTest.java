@@ -63,6 +63,23 @@ public class ModuleBuildersTest {
 		assertEquals("struct { int x ; } a ;", codeItem.getEscapedCodeStr());
 	}
 
+	@Test
+	public void testComplexStruct() {
+		String input = "struct sccb_mgr_info {\n" + 
+				"	u32 si_baseaddr;\n" +
+				"	unsigned char si_present;\n" + 
+				"	u16 si_per_targ_init_sync;\n" + 
+				"	unsigned char si_reserved[4];\n" + 
+				"};";
+		List<ASTNode> codeItems = parseInput(input);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
+		assertEquals("struct sccb_mgr_info { \n" + 
+				" u32 si_baseaddr ; \n" + 
+				" unsigned char si_present ; \n" + 
+				" u16 si_per_targ_init_sync ; \n" + 
+				" unsigned char si_reserved [ 4 ] ; \n" + 
+				" } ;", codeItem.getEscapedCodeStr());
+	}
 
 	@Test
 	public void testStructFunctionPointer() {
