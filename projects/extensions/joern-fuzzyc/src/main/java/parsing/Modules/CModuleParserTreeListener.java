@@ -55,6 +55,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	private Stack<Comment> commentStack = new Stack<Comment>();
 	/**
+	 * This stack contains structs/unions/enums
+	 */
+	private Stack<StructUnionEnum> structStack = new Stack<StructUnionEnum>();
+	/**
 	 * Saves the previous statement to be able to connect comments with statements in the same line
 	 */
 	private ASTNode previousStatement = null;
@@ -92,6 +96,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		this.preASTItemStack.clear();
 		this.commentStack.clear();
 		this.pendingList.clear();
+		this.structStack.clear();
 		this.previousStatement = null;
 		
 		p.notifyObserversOfUnitEnd(ctx);		
@@ -383,19 +388,20 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	@Override
 	public void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
-		//Increment, if we are currently inside a struct
-		currentStructs = currentStructs + 1;
 		System.out.println("Enter struct");
 		
-		//Pass only the outer struct to the function parser
-		if (currentStructs == 1) {
-			// Driver for calling function parser
-			fDriver = new ANTLRCFunctionParserDriver();
-			// Get code of PreStatement
+		//TODO
+		//Structs on module level currently have no parsed content
+		
+			//Initialize
 			StructUnionEnum thisItem = new StructUnionEnum();
 			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+						
+					
+			// Driver for calling function parser
+			fDriver = new ANTLRCFunctionParserDriver();
 			String text = thisItem.getEscapedCodeStr();
-			// Try to reuse the function parser rules for parsing the preprocessor statement
+			// Try to reuse the function parser rules for parsing the struct 
 			try {
 				fDriver.parseAndWalkString(text);
 				FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
@@ -408,25 +414,36 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//Initalize again to set correct location string
 			ASTNodeFactory.initializeFromContext(thisItem, ctx);
 			
-			//Set previous statement
-			previousStatement = thisItem;
-			
-			//VARIABILITY ANALYSIS first
-			variabilityAnalysis(thisItem);
-			//AST ANALYSIS second
-			astAnalysis(thisItem);	
-			//Check if commented third
-			checkIfCommented(thisItem);
+			//Put item on its stack
+			structStack.push(thisItem);			
 			
 			System.out.println(thisItem.getEscapedCodeStr()+" line "+thisItem.getLine());
-		}
 	}
 	
 	@Override
 	public void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
-		//Decrement, if we are leaving a struct
-		currentStructs = currentStructs - 1;
 		System.out.println("Leave struct");
+		
+		StructUnionEnum struct = structStack.pop();
+		
+		//Only notify if we are at the outer struct (to prevent duplication of statements)
+		if(structStack.isEmpty()) {
+			p.notifyObserversOfItem(struct);
+		}
+		
+		//Set previous statement
+		previousStatement = struct;
+				
+		//Connect to parent #ifdefs if they exist
+		checkVariability(struct);
+		//Connect to parent comment if existing
+		checkIfCommented(struct);
+		//Connect to parent struct if existing
+		if(!structStack.isEmpty()) {
+			StructUnionEnum parent = structStack.peek();
+			parent.addChild(struct);
+			System.out.println("Added struct child");
+		}
 	}
 	
 // -------------------------------------- Decl by Type -------------------------------------------------------------------------	
@@ -435,11 +452,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
 		logger.debug("Enter enterDeclByType");
 		//Do not declare struct variables twice
-		if(currentStructs == 0) {
+//		if(currentStructs == 0) {
 			Init_declarator_listContext decl_list = ctx.init_declarator_list();
 			Type_nameContext typeName = ctx.type_name();
 			emitDeclarations(decl_list, typeName, ctx);
-		}
+//		}
 	}
 
 	private void emitDeclarations(ParserRuleContext decl_list, ParserRuleContext typeName, ParserRuleContext ctx) {
@@ -457,6 +474,15 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		while (it.hasNext()) {
 			IdentifierDecl decl = it.next();
 			stmt.addChild(decl);
+		}
+		
+		//Adds the declaration as child to its parent struct/union/enum
+		if(!structStack.isEmpty()) {
+			StructUnionEnum struct = structStack.peek();
+			struct.addChild(stmt);
+			System.out.println("Added child");
+			//Do not proceed here
+			return;
 		}
 
 		p.notifyObserversOfItem(stmt);
@@ -494,7 +520,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		//Set previous statement
 		previousStatement = node;
 				
-		//Connect to parent blockstarters if they exist
+		// Connect to parrent #ifdef if existing
 		checkVariability(node);
 		//Connect to parent comment if existing
 		checkIfCommented(node);

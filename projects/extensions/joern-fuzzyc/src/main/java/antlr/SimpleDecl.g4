@@ -7,7 +7,7 @@ var_decl : (TYPEDEF? template_decl_start?) class_def init_declarator_list? #decl
          | TYPEDEF? special_datatype init_declarator_list? ';'? #StructUnionEnum
          ;
          
-special_datatype:SPECIAL_DATA identifier? OPENING_CURLY NEWLINE* (var_decl NEWLINE*)* CLOSING_CURLY  //Long declaration
+special_datatype:SPECIAL_DATA identifier? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
         | SPECIAL_DATA identifier  //Short declaration
         ;
 
