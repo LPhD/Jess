@@ -100,7 +100,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	@Override
 	public void enterWater(ModuleParser.WaterContext ctx) {
 		if(ctx.getText().equals("\n") || ctx.getText().equals("\r\n") || ctx.getText().equals(";")) {
-			logger.warn("Found irrelevant water: "+ctx.start);
+			logger.debug("Found irrelevant water: "+ctx.start);
 		} else {
 			System.out.println("Found water: "+ctx.start);
 		}
@@ -165,11 +165,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		if (thisItem instanceof PreEndIfStatement) {
 			// Remove items from stack until the next #if/#ifdef
 			closeVariabilityBlock();
-			logger.warn("Block closed!");
+			logger.debug("Block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the Stack
 			variabilityItemStack.push(thisItem);
-			logger.warn("#if collected");
+			logger.debug("#if collected");
 		} else {
 			// Connect all other pre statements to parent blockstarters if they exist
 			checkVariability(thisItem);
@@ -185,11 +185,11 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			preASTItemStack.push(thisItem);
 			// Remove items from stack until the next #if/#ifdef
 			closeASTBlock();
-			logger.warn("AST block closed!");
+			logger.debug("AST block closed!");
 		} else if (thisItem instanceof PreBlockstarter) {
 			// Collect all Pre Blockstarters on the AST stack
 			preASTItemStack.push(thisItem);
-			logger.warn("#if collected in AST stack");
+			logger.debug("#if collected in AST stack");
 		} else {
 			//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 			//Do this now for every pre statement that has no AST nesting
@@ -208,9 +208,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			PreBlockstarter parent = (PreBlockstarter) variabilityItemStack.peek();
 			parent.addVariableStatement(currentNode);
 
-			logger.warn("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
+			logger.debug("Connected variability child: "+currentNode.getEscapedCodeStr()+" with parent: "+parent.getEscapedCodeStr());
 		} else {
-			logger.warn(currentNode.getEscapedCodeStr()+" is not variable!");
+			logger.debug(currentNode.getEscapedCodeStr()+" is not variable!");
 		}
 	}
 
@@ -244,13 +244,13 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			PreBlockstarter topOfStack = (PreBlockstarter) preASTItemStack.peek();		
 			//Connect the current node with its parent
 			topOfStack.addChild(currentNode);	
-			logger.warn("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
+			logger.debug("Connected AST child: "+currentNode.getEscapedCodeStr()+" with parent: "+topOfStack.getEscapedCodeStr());
 		
 			// Stop if we reach an PreIfStatement
 			if (topOfStack instanceof PreIfStatement) {
 				//Remove the PreIfStatement node from the stack and stop the iteration
 				currentNode = (PreBlockstarter) preASTItemStack.pop();
-				logger.warn("Found #if for #endif, notify observers");
+				logger.debug("Found #if for #endif, notify observers");
 				//Notify OutModASTNodeVisitor, to call AST to database converter (PreStatementExporter class). 
 				//Do this now (and not sooner), because otherwise the preprocessor database node would be initialized without its children or twice
 				//Do not do this for child #else/#elif/#endif, they will be automatically added, as they are AST children of the first PreIfStatement
@@ -297,7 +297,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//Save for later, because we need the commentee to be initialized
 			pendingList.add(comment);
 			
-			logger.warn("Found commentee in same line "+previousStatement.getEscapedCodeStr());
+			logger.debug("Found commentee in same line "+previousStatement.getEscapedCodeStr());
 			return true;
 		} else {
 			return false;
@@ -316,7 +316,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			comment.setCommentee(node);
 			//Save for later, because we need the commentee to be initialized
 			pendingList.add(comment);
-			logger.warn("Found commentee "+node.getEscapedCodeStr());
+			logger.debug("Found commentee "+node.getEscapedCodeStr());
 		}
 
 	}
@@ -325,7 +325,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 // -------------------------------------- Function Def -------------------------------------------------------------------------	
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx) {
-		logger.warn("Enter functionDef");
+		logger.debug("Enter functionDef");
 
 		FunctionDefBuilder builder = new FunctionDefBuilder();
 		builder.createNew(ctx);
@@ -418,7 +418,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//Check if commented third
 			checkIfCommented(thisItem);
 			
-			System.out.println(thisItem.getEscapedCodeStr());
+			System.out.println();
 		}
 	}
 	
@@ -426,16 +426,20 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	public void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
 		//Decrement, if we are leaving a struct
 		currentStructs = currentStructs - 1;
+		System.out.println("Leave struct");
 	}
 	
 // -------------------------------------- Decl by Type -------------------------------------------------------------------------	
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
-		logger.warn("Enter enterDeclByType");
-		Init_declarator_listContext decl_list = ctx.init_declarator_list();
-		Type_nameContext typeName = ctx.type_name();
-		emitDeclarations(decl_list, typeName, ctx);
+		logger.debug("Enter enterDeclByType");
+		//Do not declare struct variables twice
+		if(currentStructs == 0) {
+			Init_declarator_listContext decl_list = ctx.init_declarator_list();
+			Type_nameContext typeName = ctx.type_name();
+			emitDeclarations(decl_list, typeName, ctx);
+		}
 	}
 
 	private void emitDeclarations(ParserRuleContext decl_list, ParserRuleContext typeName, ParserRuleContext ctx) {
@@ -445,8 +449,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		IdentifierDeclStatement stmt = new IdentifierDeclStatement();
 
 		ASTNodeFactory.initializeFromContext(stmt, ctx);	
-		logger.warn("Node "+stmt.getEscapedCodeStr()+" intialized");
-
+		logger.debug("Node "+stmt.getEscapedCodeStr()+" intialized");
+		System.out.println("Node "+stmt.getEscapedCodeStr()+" intialized");
 
 
 		Iterator<IdentifierDecl> it = declarations.iterator();
@@ -470,7 +474,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 	@Override
 	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx) {
-		logger.warn("Enter enterDeclByClass");
+		logger.debug("Enter enterDeclByClass");
 		ClassDefBuilder builder = new ClassDefBuilder();
 		builder.createNew(ctx);
 		p.builderStack.push(builder);
