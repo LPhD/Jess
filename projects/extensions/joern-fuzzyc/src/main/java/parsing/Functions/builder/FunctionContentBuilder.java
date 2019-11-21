@@ -1342,6 +1342,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 	
 	public void enterStructUnionEnum(ParserRuleContext ctx) {
+		System.out.println("Enter function struct");
 		StructUnionEnum struct = new StructUnionEnum();
 		ASTNodeFactory.initializeFromContext(struct, ctx);
 
@@ -1358,10 +1359,13 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		previousStatement = struct;
 		checkVariability(struct);
 		checkIfCommented(struct);
+		
+		System.out.println(struct.getEscapedCodeStr());
 	}
 
 	
 	public void exitStructUnionEnum() {
+		System.out.println("Leave function struct");
 		nesting.consolidate();
 	}
 
