@@ -388,41 +388,38 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	@Override
 	public void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
-		System.out.println("Enter struct");
+		logger.debug("Enter struct");
 		
-		//TODO
-		//Structs on module level currently have no parsed content
-		
-			//Initialize
-			StructUnionEnum thisItem = new StructUnionEnum();
-			ASTNodeFactory.initializeFromContext(thisItem, ctx);
-						
-					
-			// Driver for calling function parser
-			fDriver = new ANTLRCFunctionParserDriver();
-			String text = thisItem.getEscapedCodeStr();
-			// Try to reuse the function parser rules for parsing the struct 
-			try {
-				fDriver.parseAndWalkString(text);
-				FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
-				thisItem = (StructUnionEnum) fb.getItem().getChild(0);
-			} catch (Exception e) {
-				System.err.println("Cannot create StructUnionEnum " + text + " in ModuleParser");
-				e.printStackTrace();
-			}
-			
-			//Initalize again to set correct location string
-			ASTNodeFactory.initializeFromContext(thisItem, ctx);
-			
-			//Put item on its stack
-			structStack.push(thisItem);			
-			
-			System.out.println(thisItem.getEscapedCodeStr()+" line "+thisItem.getLine());
+		// TODO
+		// Structs on module level currently have no parsed content
+
+		// Initialize
+		StructUnionEnum thisItem = new StructUnionEnum();
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+
+		// Driver for calling function parser
+		fDriver = new ANTLRCFunctionParserDriver();
+		String text = thisItem.getEscapedCodeStr();
+		// Try to reuse the function parser rules for parsing the struct
+		try {
+			fDriver.parseAndWalkString(text);
+			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
+			thisItem = (StructUnionEnum) fb.getItem().getChild(0);
+		} catch (Exception e) {
+			System.err.println("Cannot create StructUnionEnum " + text + " in ModuleParser");
+			e.printStackTrace();
+		}
+
+		// Initalize again to set correct location string
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+
+		// Put item on its stack
+		structStack.push(thisItem);
 	}
 	
 	@Override
 	public void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
-		System.out.println("Leave struct");
+		logger.debug("Leave struct");
 		
 		StructUnionEnum struct = structStack.pop();
 		
