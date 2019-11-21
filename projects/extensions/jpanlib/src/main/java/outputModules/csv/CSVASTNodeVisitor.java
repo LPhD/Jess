@@ -5,6 +5,7 @@ import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import databaseNodes.EdgeTypes;
 import outputModules.common.ASTNodeExporter;
 import outputModules.common.OutModASTNodeVisitor;
@@ -50,6 +51,14 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	public void visit(Comment node) {
 		ASTNodeExporter importer = new CSVCommentExporter();
 		importNode(importer, node);
+	}
+	
+	// Comment handling
+	@Override
+	public void visit(StructUnionEnum node) {
+		System.out.println("Visited struct");
+//		ASTNodeExporter importer = new CSVCommentExporter();
+//		importNode(importer, node);
 	}
 
 	@Override
