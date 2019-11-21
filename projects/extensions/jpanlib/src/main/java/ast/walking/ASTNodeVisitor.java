@@ -22,6 +22,7 @@ import ast.logical.statements.Label;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.ForEachStatement;
 import ast.statements.blockstarters.ForStatement;
@@ -47,6 +48,11 @@ public abstract class ASTNodeVisitor {
 
 	public void visit(ASTNode item) {
 		visitChildren(item);
+	}
+	
+	//Special data types
+	public void visit(StructUnionEnum item) {
+		defaultHandler(item);		
 	}
 
 	// Preprocessor
