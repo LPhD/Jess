@@ -2,22 +2,36 @@ lexer grammar ModuleLex;
 
 // Keywords shared among C/C++/Java
 
-IF: 'if'; ELSE: 'else'; FOR: 'for'; WHILE: 'while';
+IF: 'if'; 
+ELSE: 'else'; 
+FOR: 'for'; 
+WHILE: 'while';
 
-BREAK: 'break'; CASE: 'case'; CONTINUE: 'continue'; 
-SWITCH: 'switch'; DO: 'do';
+BREAK: 'break'; 
+CASE: 'case'; 
+CONTINUE: 'continue'; 
+SWITCH: 'switch'; 
+DO: 'do';
 
-GOTO: 'goto'; RETURN: 'return';
+GOTO: 'goto'; 
+RETURN: 'return';
 
 TYPEDEF: 'typedef';
-VOID: 'void'; UNSIGNED: 'unsigned'; SIGNED: 'signed';
-LONG: 'long'; CV_QUALIFIER :  'const' | 'volatile';
+STATIC: 'static';
+VOID: 'void'; 
+UNSIGNED: 'unsigned'; 
+SIGNED: 'signed';
+LONG: 'long'; 
+CV_QUALIFIER :  'const' | 'volatile';
 
 // Keywords shared among C++/Java
 
 VIRTUAL: 'virtual';
-TRY: 'try'; CATCH: 'catch'; THROW: 'throw';
-USING: 'using'; NAMESPACE: 'namespace'; 
+TRY: 'try'; 
+CATCH: 'catch'; 
+THROW: 'throw';
+USING: 'using';
+ NAMESPACE: 'namespace'; 
 
 // Keywords shared among C/C++
 

@@ -3,7 +3,7 @@ grammar SimpleDecl;
 simple_decl : var_decl;
 
 var_decl : (TYPEDEF? template_decl_start?) class_def init_declarator_list? #declByClass
-         | (TYPEDEF? template_decl_start?) type_name init_declarator_list #declByType
+         | (TYPEDEF? template_decl_start?) STATIC? type_name init_declarator_list #declByType
          | TYPEDEF? special_datatype init_declarator_list? ';'? #StructUnionEnum
          ;
          

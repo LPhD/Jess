@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.junit.Test;
 
 import antlr.ModuleLexer;
+import antlr.ModuleParser.DeclByTypeContext;
 import ast.ASTNode;
 import ast.Comment;
 import ast.c.functionDef.FunctionDef;
@@ -16,6 +17,7 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
+import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
@@ -169,11 +171,20 @@ public class ModuleBuildersTest {
 
 	@Test
 	public void testFuncSignature() {
-		String input = "void foo(int x, char **ptr){};";
+		String input = "void foo(int x, char **ptr){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		
 		assertEquals("void foo ( int x , char * * ptr ) ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testStaticFuncDeclaration() {
+		String input = "static int blogic_diskparam(struct scsi_device *sdev, struct block_device *dev, int *params);";
+		List<ASTNode> codeItems = parseInput(input);
+		Statement codeItem = (Statement) codeItems.get(0);
+		
+		assertEquals("static int blogic_diskparam ( struct scsi_device * sdev , struct block_device * dev , int * params ) ;", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test
@@ -183,7 +194,9 @@ public class ModuleBuildersTest {
 		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
 		assertEquals("foo", codeItem.getName());
 		assertEquals("static \n void \n foo ( ) ", codeItem.getEscapedCodeStr());
-	}	
+	}
+	
+	
 
 	@Test
 	public void testSimpleParamList() {
