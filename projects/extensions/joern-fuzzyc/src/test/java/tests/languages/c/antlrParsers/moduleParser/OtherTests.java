@@ -62,6 +62,19 @@ public class OtherTests extends FunctionDefinitionTests {
 	}
 	
 	@Test
+	public void testOneLineCommentWithEnding() {
+		String input = "/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */\n" + 
+				"" + 
+				"	/* Bit 7 */\n" + 
+				"" + 
+				"\n";
+
+		ModuleParser parser = createParser(input);
+		String output = parser.comment().toStringTree(parser);
+		assertEquals("(comment /* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */)", output);
+	}
+		
+	@Test
 	public void testMultipleLineComment() {
 		String input = "/* This is a \\n multiple-line comment */ int (foo)(){}";
 

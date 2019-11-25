@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.junit.Test;
 
 import antlr.ModuleLexer;
+import antlr.ModuleParser;
 import antlr.ModuleParser.DeclByTypeContext;
 import ast.ASTNode;
 import ast.Comment;
@@ -375,7 +376,21 @@ public class ModuleBuildersTest {
 		assertEquals("/*This is a comment in the same line */", comment.getEscapedCodeStr());
 		assertEquals("PreIfStatement", comment.getCommentee().getTypeAsString());
 	}
+	
+	@Test
+	public void testTwoCommentsAfterEachOther() {
+		//This test is for non-greedy lexer behavior
+		String input = "/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */\n" + 
+				"/* Bit 7 */\n"
+				+ "int i;";
 
+		List<ASTNode> codeItems = parseInput(input);
+		Comment comment1 = (Comment) codeItems.get(2);
+		assertEquals("Comment", comment1.getTypeAsString());
+		assertEquals("/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */", comment1.getEscapedCodeStr());
+		Comment comment2 = (Comment) codeItems.get(1);
+		assertEquals("/* Bit 7 */", comment2.getEscapedCodeStr());
+	}
 
 	private List<ASTNode> parseInput(String input) {
 		ANTLRCModuleParserDriver parser = new ANTLRCModuleParserDriver();

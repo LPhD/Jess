@@ -84,7 +84,9 @@ FLOATING_POINT_LITERAL
     |   ('0'..'9')+ Exponent? FloatTypeSuffix
 	;
 	
-COMMENT: '/*' (COMMENT|.)*? '*/'
+	 
+	
+COMMENT: '/*' ( ~('*') | ('*' ~('/')) )*  '*/'
     | '//'  ~('\n'|'\r')* '\r'? '\n'
  ;
  
