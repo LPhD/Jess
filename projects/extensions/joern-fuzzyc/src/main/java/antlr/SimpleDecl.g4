@@ -2,25 +2,23 @@ grammar SimpleDecl;
 
 simple_decl : var_decl;
 
-var_decl : (TYPEDEF? template_decl_start?) class_def init_declarator_list? #declByClass
-         | (TYPEDEF? template_decl_start?) STATIC? type_name init_declarator_list #declByType
-         | TYPEDEF? special_datatype init_declarator_list? ';'? #StructUnionEnum
+var_decl : (TYPEDEF? template_decl_start?) class_def  NEWLINE* init_declarator_list? #declByClass
+         | (TYPEDEF? template_decl_start?) STATIC? type_name  NEWLINE* init_declarator_list #declByType
+         | TYPEDEF? special_datatype  NEWLINE* init_declarator_list? ';'? #StructUnionEnum
          ;
          
 special_datatype:SPECIAL_DATA identifier? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
         | SPECIAL_DATA identifier  //Short declaration
         ;
-
-         
-
-init_declarator_list: init_declarator (',' init_declarator)* ';';
+        
+init_declarator_list: init_declarator (','  NEWLINE* init_declarator)* ';';
 
 initializer: assign_expr
            |'{' initializer_list '}'
            |'{' '}'
 ;
 
-initializer_list: initializer (',' initializer)*;
+initializer_list: initializer (','  NEWLINE* initializer)*;
 
 
 class_def: CLASS_KEY class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;
@@ -50,7 +48,7 @@ param_decl_specifiers : (AUTO | REGISTER)? type_name;
 parameter_name: identifier;
 
 param_type_list: '(' VOID ')'
-               | '(' (param_type (',' param_type)*)? ')';
+               | '(' (param_type (',' NEWLINE* param_type)*)? ')';
 
 param_type: param_decl_specifiers param_type_id;
 param_type_id: ptrs? ('(' param_type_id ')' | parameter_name?) type_suffix?;
