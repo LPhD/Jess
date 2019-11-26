@@ -68,9 +68,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 */
 	private List<Comment> pendingList = new LinkedList<Comment>();
 	/**
-	 * Counter for resolving the nesting of StructUnionEnums
+	 * Logger for debugging
 	 */
-	private static int currentStructs = 0;
 	private static final Logger logger = LoggerFactory.getLogger(CModuleParserTreeListener.class);
 
 
@@ -91,6 +90,12 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			//Notify here, because we need the commentee to be initialized
 			p.notifyObserversOfItem(comment);
 		}
+		
+		//This is only called if there are just comments in the file and no valid code statements
+		for (Comment comment : commentStack) {
+			p.notifyObserversOfItem(comment);
+		}
+		
 		//Clear all stacks + lists,	as the analysis is file-local
 		this.variabilityItemStack.clear();
 		this.preASTItemStack.clear();

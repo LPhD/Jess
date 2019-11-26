@@ -391,6 +391,15 @@ public class ModuleBuildersTest {
 		Comment comment2 = (Comment) codeItems.get(1);
 		assertEquals("/* Bit 7 */", comment2.getEscapedCodeStr());
 	}
+	
+	@Test
+	public void testSingleCommentInFile() {
+		String input = "/* Bit 7 */";
+
+		List<ASTNode> codeItems = parseInput(input);
+		Comment comment = (Comment) codeItems.get(0);
+		assertEquals("/* Bit 7 */", comment.getEscapedCodeStr());
+	}
 
 	private List<ASTNode> parseInput(String input) {
 		ANTLRCModuleParserDriver parser = new ANTLRCModuleParserDriver();
