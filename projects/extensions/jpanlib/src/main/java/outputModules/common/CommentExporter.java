@@ -21,8 +21,11 @@ public abstract class CommentExporter extends ASTNodeExporter{
 			
 			//Set nodeID in AST node to draw comment edges
 			astNode.setNodeId(commentDBNode.getNodeId());
+			
 			//Draw comment edges
-			drawCommentsEdge(astNode.getNodeId(), ((Comment) astNode).getCommentee().getNodeId());
+			if(((Comment) astNode).getCommentee() != null) {
+				drawCommentsEdge(astNode.getNodeId(), ((Comment) astNode).getCommentee().getNodeId());
+			}
 							
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
