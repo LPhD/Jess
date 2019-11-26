@@ -8,8 +8,6 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.junit.Test;
 
 import antlr.ModuleLexer;
-import antlr.ModuleParser;
-import antlr.ModuleParser.DeclByTypeContext;
 import ast.ASTNode;
 import ast.Comment;
 import ast.c.functionDef.FunctionDef;
@@ -177,6 +175,15 @@ public class ModuleBuildersTest {
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		
 		assertEquals("void foo ( int x , char * * ptr ) ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testFuncSignatureWithMacroCall() {
+		String input = "macro(type) foo(int x, char **ptr){}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
+		
+		assertEquals("macro ( type ) foo ( int x , char * * ptr ) ", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test

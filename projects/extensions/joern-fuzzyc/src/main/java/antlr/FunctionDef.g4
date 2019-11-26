@@ -4,7 +4,9 @@ import ModuleLex;
 function_def : template_decl_start? NEWLINE* return_type? NEWLINE* function_name NEWLINE*
             function_param_list ctor_list? compound_statement;
 
-return_type : (function_decl_specifiers* NEWLINE* type_name) ptr_operator*;
+return_type : (function_decl_specifiers* NEWLINE* type_name) ptr_operator*
+				| macroCall
+				;
 
 function_param_list : '(' parameter_decl_clause? ')' CV_QUALIFIER* exception_specification?;
 
