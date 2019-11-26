@@ -33,6 +33,7 @@ type_name : (CV_QUALIFIER* (CLASS_KEY | UNSIGNED | SIGNED | SPECIAL_DATA)?
           | UNSIGNED
           | SIGNED
           | SPECIAL_DATA
+          | macroCall
           ;
 
 
