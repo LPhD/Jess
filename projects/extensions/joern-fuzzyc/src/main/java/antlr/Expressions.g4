@@ -43,13 +43,6 @@ unary_expression: unary_op_and_cast_expr
                 | postfix_expression
                 | defined_expression
                 ;
-                
-/*inc_dec cast_expression  
-*        unary_expression
-*                | postfix_expression
-*                       primary_expression
-*/   
- 
  
 new_expression: '::'? NEW NEWLINE* type_name NEWLINE* '[' conditional_expression? ']' 
               | '::'? NEW NEWLINE* type_name NEWLINE* '(' expr? ')'
@@ -80,7 +73,7 @@ postfix_expression: postfix_expression NEWLINE* '[' expr ']' #arrayIndexing
                   | postfix_expression '->' NEWLINE* TEMPLATE? (identifier) #ptrMemberAccess
                   | postfix_expression NEWLINE* inc_dec #incDecOp
                   | primary_expression # primaryOnly
-                  | inc_dec NEWLINE* primary_expression #incDecOp
+                  | ptr_operator? inc_dec NEWLINE* ptr_operator? primary_expression #incDecOp
                   ;
 
 

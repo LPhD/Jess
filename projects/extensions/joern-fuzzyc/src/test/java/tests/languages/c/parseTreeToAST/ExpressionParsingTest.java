@@ -166,6 +166,14 @@ public class ExpressionParsingTest {
 		CastExpression expr = (CastExpression) ((Condition) starter.getCondition()).getExpression();
 		assertEquals("some_type", expr.getCastTarget().getEscapedCodeStr());
 	}
+	
+	@Test
+	public void ptrInc() {
+		String input = "++*p;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement expr = (ExpressionStatement) contentItem.getStatements().get(0);
+		assertEquals("++ * p;", expr.getEscapedCodeStr());
+	}
 
 	@Test
 	public void funCall() {
