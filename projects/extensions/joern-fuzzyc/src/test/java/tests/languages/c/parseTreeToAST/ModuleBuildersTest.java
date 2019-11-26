@@ -176,6 +176,7 @@ public class ModuleBuildersTest {
 		
 		assertEquals("void foo ( int x , char * * ptr ) ", codeItem.getEscapedCodeStr());
 	}
+			
 	
 	@Test
 	public void testFuncSignatureWithMacroCall() {
@@ -184,6 +185,17 @@ public class ModuleBuildersTest {
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		
 		assertEquals("macro ( type ) foo ( int x , char * * ptr ) ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testFuncDeclarationWithMacroCall() {
+		String input = "XMLPARSEAPI(void)\n" + 
+				"XML_SetElementDeclHandler(XML_Parser parser, XML_ElementDeclHandler eldecl);";
+		List<ASTNode> codeItems = parseInput(input);
+		Statement codeItem = (Statement) codeItems.get(0);
+		
+		assertEquals("XMLPARSEAPI ( void ) \n" + 
+				" XML_SetElementDeclHandler ( XML_Parser parser , XML_ElementDeclHandler eldecl ) ;", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test
