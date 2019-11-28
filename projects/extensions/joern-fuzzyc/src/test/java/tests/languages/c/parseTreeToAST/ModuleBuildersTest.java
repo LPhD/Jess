@@ -127,6 +127,50 @@ public class ModuleBuildersTest {
 		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
 		assertEquals("foo", decl.getName().getEscapedCodeStr());
 	}
+	
+	@Test
+	public void testFunctionPointerDecl() {
+		String input = "int (*functionPtr) (int,int);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("int ( * functionPtr ) ( int , int ) ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("functionPtr", decl.getName().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testVoidFunctionPointerDecl() {
+		String input = "void (*functionPtr) (void);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("void ( * functionPtr ) ( void ) ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("functionPtr", decl.getName().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testFunctionPointerDeclWithTypedef() {
+		String input = "typedef int (*myFuncDef)(int, int);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("typedef int ( * myFuncDef ) ( int , int ) ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("myFuncDef", decl.getName().getEscapedCodeStr());
+	}
+
+	@Test
+	public void testFunctionPointerDeclWithTypedefAndCallingConvetionPerMacro() {
+		String input = "typedef void(XMLCALL *XML_AttlistDeclHandler)("
+				+ "\n void *userData, const XML_Char *elname, const XML_Char *attname,"
+				+ "\n const XML_Char *att_type, const XML_Char *dflt, int isrequired);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("typedef void ( XMLCALL * XML_AttlistDeclHandler ) ( "
+				+ "\n void * userData , const XML_Char * elname , const XML_Char * attname , "
+				+ "\n const XML_Char * att_type , const XML_Char * dflt , int isrequired ) ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("XML_AttlistDeclHandler", decl.getName().getEscapedCodeStr());
+	}		  	
 
 	@Test
 	public void testEmptyArrayInitialization() {

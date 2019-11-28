@@ -1030,6 +1030,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitDeclarator(ModuleParser.DeclaratorContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#callingConvetion}.
+	 * @param ctx the parse tree
+	 */
+	void enterCallingConvetion(ModuleParser.CallingConvetionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#callingConvetion}.
+	 * @param ctx the parse tree
+	 */
+	void exitCallingConvetion(ModuleParser.CallingConvetionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#type_suffix}.
 	 * @param ctx the parse tree
 	 */
