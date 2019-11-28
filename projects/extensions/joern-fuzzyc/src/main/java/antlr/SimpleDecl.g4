@@ -28,14 +28,14 @@ base_class: VIRTUAL? access_specifier? identifier;
 
 type_name : (CV_QUALIFIER* (CLASS_KEY | UNSIGNED | SIGNED | SPECIAL_DATA)?
             base_type ('<' template_param_list '>')? ('::' base_type ('<' template_param_list '>')? )*) CV_QUALIFIER?
+          | macroCall
           | UNSIGNED
           | SIGNED
           | SPECIAL_DATA
-          | macroCall
           ;
 
 
-base_type: (ALPHA_NUMERIC | VOID | LONG | LONG)+;
+base_type: (ALPHA_NUMERIC | VOID | LONG )+;
 
 // Parameters
 

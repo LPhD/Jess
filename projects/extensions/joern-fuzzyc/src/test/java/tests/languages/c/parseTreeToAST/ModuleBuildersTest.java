@@ -170,8 +170,21 @@ public class ModuleBuildersTest {
 				+ "\n const XML_Char * att_type , const XML_Char * dflt , int isrequired ) ;", codeItem.getEscapedCodeStr());
 		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
 		assertEquals("XML_AttlistDeclHandler", decl.getName().getEscapedCodeStr());
-	}		  	
-
+	}	
+	
+	@Test
+	public void testFunctionDeclWithTypePerMacro() {
+		String input = "XMLPARSEAPI(enum XML_Status)\n" + 
+				"XML_SetEncoding(XML_Parser parser, const XML_Char *encoding);;";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("XMLPARSEAPI ( enum XML_Status ) \n" + 
+				" XML_SetEncoding ( XML_Parser parser , const XML_Char * encoding ) ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("XML_SetEncoding", decl.getName().getEscapedCodeStr());
+	}
+	
+	
 	@Test
 	public void testEmptyArrayInitialization() {
 		String input = "int arrayTest_2[0] = {};";
