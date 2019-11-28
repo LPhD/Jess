@@ -9,7 +9,10 @@ import SimpleDecl;
 init_declarator : declarator (('(' expr? ')') | ('=' assign_expr_w_))?;
 
 declarator: ptrs? identifier type_suffix? |
-            ptrs? '(' func_ptrs identifier ')' type_suffix;
+            ptrs? '(' callingConvetion? func_ptrs identifier ')' type_suffix;
+            
+//Can be done by a macro or directly (something like __cdecl)
+callingConvetion: ALPHA_NUMERIC+;            
 
 type_suffix : ('[' constant_expr_w_ ']') | param_type_list;
 

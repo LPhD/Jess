@@ -1222,6 +1222,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCallingConvetion(ModuleParser.CallingConvetionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCallingConvetion(ModuleParser.CallingConvetionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterType_suffix(ModuleParser.Type_suffixContext ctx) { }
 	/**
 	 * {@inheritDoc}
