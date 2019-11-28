@@ -175,13 +175,25 @@ public class ModuleBuildersTest {
 	@Test
 	public void testFunctionDeclWithTypePerMacro() {
 		String input = "XMLPARSEAPI(enum XML_Status)\n" + 
-				"XML_SetEncoding(XML_Parser parser, const XML_Char *encoding);;";
+				"XML_SetEncoding(XML_Parser parser, const XML_Char *encoding);";
 		List<ASTNode> codeItems = parseInput(input);
 		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
 		assertEquals("XMLPARSEAPI ( enum XML_Status ) \n" + 
 				" XML_SetEncoding ( XML_Parser parser , const XML_Char * encoding ) ;", codeItem.getEscapedCodeStr());
 		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
 		assertEquals("XML_SetEncoding", decl.getName().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testFunctionDeclWithTypePerMacro2() {
+		String input = "XMLPARSEAPI(const XML_Char *)\n" + 
+				"XML_GetBase(XML_Parser parser);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("XMLPARSEAPI ( const XML_Char * ) \n" + 
+				" XML_GetBase ( XML_Parser parser ) ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("XML_GetBase", decl.getName().getEscapedCodeStr());
 	}
 	
 	
