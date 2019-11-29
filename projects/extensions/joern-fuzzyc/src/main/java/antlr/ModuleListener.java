@@ -264,6 +264,36 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPre_pragma(ModuleParser.Pre_pragmaContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#custom}.
+	 * @param ctx the parse tree
+	 */
+	void enterCustom(ModuleParser.CustomContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#custom}.
+	 * @param ctx the parse tree
+	 */
+	void exitCustom(ModuleParser.CustomContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#asciiTab}.
+	 * @param ctx the parse tree
+	 */
+	void enterAsciiTab(ModuleParser.AsciiTabContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#asciiTab}.
+	 * @param ctx the parse tree
+	 */
+	void exitAsciiTab(ModuleParser.AsciiTabContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#externC}.
+	 * @param ctx the parse tree
+	 */
+	void enterExternC(ModuleParser.ExternCContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#externC}.
+	 * @param ctx the parse tree
+	 */
+	void exitExternC(ModuleParser.ExternCContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#expr}.
 	 * @param ctx the parse tree
 	 */
@@ -599,16 +629,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMacroCall(ModuleParser.MacroCallContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#externC}.
-	 * @param ctx the parse tree
-	 */
-	void enterExternC(ModuleParser.ExternCContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#externC}.
-	 * @param ctx the parse tree
-	 */
-	void exitExternC(ModuleParser.ExternCContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#function_argument_list}.
 	 * @param ctx the parse tree

@@ -18,7 +18,6 @@ import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
-import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import parsing.TokenSubStream;
@@ -204,15 +203,6 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
 		assertEquals("IdentifierDeclStatement", codeItem.getTypeAsString());
-	}
-	
-	@Test
-	public void testExternC() {
-		//TODO The closing bracket is missing here
-		String input = "extern \"C\" {";
-		List<ASTNode> codeItems = parseInput(input);
-		PreStatementBase codeItem = (PreStatementBase) codeItems.get(0);		
-		assertEquals("extern \"C\" {", codeItem.getEscapedCodeStr());
 	}
 
 	@Test

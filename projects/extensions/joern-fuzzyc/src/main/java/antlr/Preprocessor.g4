@@ -54,8 +54,7 @@ pre_macro: { preProcFindMacroEnd(); };
 pre_diagnostic: PRE_DIAGNOSTIC STRING
             | PRE_DIAGNOSTIC;
 
-pre_other: PRE_OTHER STRING?
-            | externC; //Is not really a preprocessor, just temporary placed here
+pre_other: PRE_OTHER STRING?; 
 
 pre_include: PRE_INCLUDE pre_include_system_header
             | PRE_INCLUDE pre_macro_identifier
