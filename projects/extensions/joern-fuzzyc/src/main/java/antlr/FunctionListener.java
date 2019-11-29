@@ -480,6 +480,36 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_pragma(FunctionParser.Pre_pragmaContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#custom}.
+	 * @param ctx the parse tree
+	 */
+	void enterCustom(FunctionParser.CustomContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#custom}.
+	 * @param ctx the parse tree
+	 */
+	void exitCustom(FunctionParser.CustomContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#asciiTab}.
+	 * @param ctx the parse tree
+	 */
+	void enterAsciiTab(FunctionParser.AsciiTabContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#asciiTab}.
+	 * @param ctx the parse tree
+	 */
+	void exitAsciiTab(FunctionParser.AsciiTabContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#externC}.
+	 * @param ctx the parse tree
+	 */
+	void enterExternC(FunctionParser.ExternCContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#externC}.
+	 * @param ctx the parse tree
+	 */
+	void exitExternC(FunctionParser.ExternCContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#comment}.
 	 * @param ctx the parse tree
 	 */
@@ -1055,16 +1085,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMacroCall(FunctionParser.MacroCallContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#externC}.
-	 * @param ctx the parse tree
-	 */
-	void enterExternC(FunctionParser.ExternCContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#externC}.
-	 * @param ctx the parse tree
-	 */
-	void exitExternC(FunctionParser.ExternCContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#function_argument_list}.
 	 * @param ctx the parse tree

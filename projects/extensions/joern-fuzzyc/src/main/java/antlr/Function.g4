@@ -1,5 +1,5 @@
 grammar Function;
-import Preprocessor, ModuleLex, Common, Expressions, FineSimpleDecl;
+import Preprocessor, Custom, ModuleLex, Common, Expressions, FineSimpleDecl;
 
 
 @header{
@@ -18,6 +18,7 @@ statement: opening_curly
          | expr_statement
          | comment
          | newline //We need this here so we can remove newline nodes from the function parser stack
+         | custom
          | water
         ;
 

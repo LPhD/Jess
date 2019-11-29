@@ -25,6 +25,7 @@ import antlr.FunctionParser.CommentContext;
 import antlr.FunctionParser.ConditionContext;
 import antlr.FunctionParser.Conditional_expressionContext;
 import antlr.FunctionParser.ContinueStatementContext;
+import antlr.FunctionParser.CustomContext;
 import antlr.FunctionParser.DeclByClassContext;
 import antlr.FunctionParser.Do_statementContext;
 import antlr.FunctionParser.Else_statementContext;
@@ -117,6 +118,7 @@ import ast.c.preprocessor.commands.macro.PreMacroParameters;
 import ast.c.preprocessor.commands.macro.PreUndef;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
+import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.declarations.IdentifierDeclType;
@@ -733,7 +735,33 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	}
 	// ----------------------------------Comment handling end------------------------------------------------------------------	
+	// ----------------------------------Custom handling ---------------------------------------------------------------------
+	
+	/**
+	 * Pushes the item on the stack
+	 * 
+	 * @param ctx
+	 */
+	public void enterCustom(CustomContext ctx) {
+		CustomNode node = new CustomNode();
+		nodeToRuleContext.put(node, ctx);
+		stack.push(node);
+	}
 
+	/**
+	 * Pops the item from the stack and adds it to its parents
+	 * 
+	 * @param ctx
+	 */
+	public void exitCustom(CustomContext ctx) {
+		CustomNode node = (CustomNode) stack.pop();
+		ASTNodeFactory.initializeFromContext(node, ctx);
+		nesting.addItemToParent(node);
+	}
+
+
+// ----------------------------------Custom handling end------------------------------------------------------------------	
+	
 	/**
 	 * This is called for every AST node that is classified as a statement (based on grammar, e.g. expressionStatement is a statement)
 	 * @param ctx

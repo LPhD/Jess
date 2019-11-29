@@ -260,6 +260,22 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 	}
 	
 //----------------------------------------------------------------------------------------------------------------------
+//--------------------------------------Custom------------------------------------------------------------------------
+		@Override
+		public void enterCustom(FunctionParser.CustomContext ctx) {
+			FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+			builder.enterCustom(ctx);
+		}
+		
+		@Override
+		public void exitCustom(FunctionParser.CustomContext ctx) {
+			FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+			builder.exitCustom(ctx);
+		}
+		
+//----------------------------------------------------------------------------------------------------------------------	
+	
+	
 	@Override
 	public void enterFor_statement(FunctionParser.For_statementContext ctx) {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();

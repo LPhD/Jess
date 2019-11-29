@@ -19,6 +19,7 @@ import ast.ASTNode;
 import ast.Comment;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
+import ast.custom.CustomNode;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
 import ast.preprocessor.PreBlockstarter;
@@ -330,6 +331,23 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		}
 
 	}
+	
+// -------------------------------------- Custom -------------------------------------------------------------------------	
+		@Override
+		public void enterCustom(ModuleParser.CustomContext ctx) {	
+			CustomNode custom = new CustomNode();
+			ASTNodeFactory.initializeFromContext(custom, ctx);
+			
+			p.notifyObserversOfItem(custom);
+			
+			//Set previous statement
+			previousStatement = custom;
+			
+			// Connect to parent blockstarters if they exist
+			checkVariability(custom);	
+			// Connect to parrent comment if existing
+			checkIfCommented(custom);			
+		}			
 	
 	
 // -------------------------------------- Function Def -------------------------------------------------------------------------	
