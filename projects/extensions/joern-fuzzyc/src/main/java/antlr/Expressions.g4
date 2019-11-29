@@ -77,6 +77,8 @@ postfix_expression: postfix_expression NEWLINE* '[' expr ']' #arrayIndexing
                   ;
                   
 macroCall:  (identifier | constant) '(' ( (','? CV_QUALIFIER? type_name? identifier)+ | VOID) '*'? ')'; //This is for macro calls
+
+externC: 'extern' '"C"' OPENING_CURLY?; //Declare something with C linkage (closing curly is missing)
 			
 
 function_argument_list: ( function_argument+ (',' NEWLINE* function_argument+)* )?;
