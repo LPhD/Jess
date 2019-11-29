@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import ast.ASTNode;
 import ast.Comment;
+import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.expressions.Argument;
 import ast.expressions.AssignmentExpression;
@@ -62,6 +63,11 @@ public abstract class ASTNodeVisitor {
 	
 	// Comments
 	public void visit(Comment item) {
+		defaultHandler(item);
+	}
+	
+	// Custom
+	public void visit(CustomNode item) {
 		defaultHandler(item);
 	}
 

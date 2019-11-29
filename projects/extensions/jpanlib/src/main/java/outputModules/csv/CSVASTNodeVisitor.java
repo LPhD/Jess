@@ -1,6 +1,7 @@
 package outputModules.csv;
 
 import ast.Comment;
+import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
 import ast.preprocessor.PreStatementBase;
@@ -12,6 +13,7 @@ import outputModules.common.OutModASTNodeVisitor;
 import outputModules.common.Writer;
 import outputModules.csv.exporters.CSVClassDefExporter;
 import outputModules.csv.exporters.CSVCommentExporter;
+import outputModules.csv.exporters.CSVCustomExporter;
 import outputModules.csv.exporters.CSVDeclStmtExporter;
 import outputModules.csv.exporters.CSVFunctionExporter;
 import outputModules.csv.exporters.CSVPreStatementExporter;
@@ -51,6 +53,13 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	@Override
 	public void visit(Comment node) {
 		ASTNodeExporter importer = new CSVCommentExporter();
+		importNode(importer, node);
+	}
+	
+	// Custom handling
+	@Override
+	public void visit(CustomNode node) {
+		ASTNodeExporter importer = new CSVCustomExporter();
 		importNode(importer, node);
 	}
 	
