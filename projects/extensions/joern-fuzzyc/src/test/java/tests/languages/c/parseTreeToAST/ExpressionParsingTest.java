@@ -23,6 +23,7 @@ import ast.expressions.ShiftExpression;
 import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
+import ast.logical.statements.Statement;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 
@@ -165,6 +166,15 @@ public class ExpressionParsingTest {
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		CastExpression expr = (CastExpression) ((Condition) starter.getCondition()).getExpression();
 		assertEquals("some_type", expr.getCastTarget().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void CastExprWithUnsigned() {
+		String input = "(unsigned long) y;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement  exprS = (ExpressionStatement) contentItem.getStatements().get(0);
+		CastExpression expr = (CastExpression) exprS.getExpression();
+		assertEquals("unsigned long", expr.getCastTarget().getEscapedCodeStr());
 	}
 	
 	@Test

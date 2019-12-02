@@ -58,7 +58,9 @@ pre_macro: { preProcFindMacroEnd(); };
 pre_diagnostic: PRE_DIAGNOSTIC STRING
             | PRE_DIAGNOSTIC;
 
-pre_other: PRE_OTHER STRING?; 
+pre_other: PRE_OTHER STRING? 
+           |PRE_ATTRIBUTE '(' '(' pre_macro_identifier? NEWLINE? ( '(' pre_macro_identifier (',' NEWLINE? pre_macro_identifier)* ')' )? ')' ')'
+           ; 
 
 pre_include: PRE_INCLUDE pre_include_system_header
             | PRE_INCLUDE pre_macro_identifier
