@@ -12,6 +12,7 @@ public abstract class CustomExporter extends ASTNodeExporter{
 	 */
 	@Override
 	public void addToDatabaseSafe(ASTNode astNode)	{
+		System.out.println("Add custom node to DB");
 		astNode.setPath(curFile.getPath());
 		ASTDatabaseNode customDBNode = new ASTDatabaseNode();
 		try	{			
