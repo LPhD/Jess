@@ -26,7 +26,7 @@ class_name: identifier;
 base_classes: ':' base_class (',' base_class)*;
 base_class: VIRTUAL? access_specifier? identifier;
 
-type_name : (CV_QUALIFIER* (CLASS_KEY | UNSIGNED | SIGNED | SPECIAL_DATA)?
+type_name : (CV_QUALIFIER* (CLASS_KEY | SPECIAL_DATA)?
             base_type ('<' template_param_list '>')? ('::' base_type ('<' template_param_list '>')? )*) CV_QUALIFIER?
           | macroCall
           | UNSIGNED
@@ -35,7 +35,7 @@ type_name : (CV_QUALIFIER* (CLASS_KEY | UNSIGNED | SIGNED | SPECIAL_DATA)?
           ;
 
 
-base_type: (ALPHA_NUMERIC | VOID | LONG )+;
+base_type: (UNSIGNED | SIGNED)? (ALPHA_NUMERIC | VOID | LONG )+ (UNSIGNED | SIGNED)?;
 
 // Parameters
 
