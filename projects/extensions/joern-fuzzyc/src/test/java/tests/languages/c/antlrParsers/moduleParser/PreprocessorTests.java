@@ -17,6 +17,15 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String outputExpected = "(function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #if bar \\n int i ; #endif }))";
 		assertEquals(outputExpected, output);
 	}
+	
+	@Test
+	public void testDefiningOfKeywords() {
+		String input = "#      define inline __inline";
+		ModuleParser parser = createParser(input);
+		String output = parser.pre_define().toStringTree(parser);
+		String outputExpected = "(pre_define #      define (pre_macro_identifier (keyword inline)) (pre_macro __inline))";
+		assertEquals(outputExpected, output);
+	}
 
 	@Test
 	public void testNestedPreprocessorIfs() {

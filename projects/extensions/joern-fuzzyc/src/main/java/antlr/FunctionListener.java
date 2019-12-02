@@ -370,6 +370,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_macro_identifier(FunctionParser.Pre_macro_identifierContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#keyword}.
+	 * @param ctx the parse tree
+	 */
+	void enterKeyword(FunctionParser.KeywordContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#keyword}.
+	 * @param ctx the parse tree
+	 */
+	void exitKeyword(FunctionParser.KeywordContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_macro_parameters}.
 	 * @param ctx the parse tree
 	 */

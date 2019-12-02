@@ -154,6 +154,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPre_macro_identifier(ModuleParser.Pre_macro_identifierContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#keyword}.
+	 * @param ctx the parse tree
+	 */
+	void enterKeyword(ModuleParser.KeywordContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#keyword}.
+	 * @param ctx the parse tree
+	 */
+	void exitKeyword(ModuleParser.KeywordContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_macro_parameters}.
 	 * @param ctx the parse tree
 	 */
