@@ -224,6 +224,23 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * We need this for #else/#elif/#endif because they are not children of the top level compound statement
 	 */
 	public ASTNode currentItem = null;
+	/**
+	 * This contains the root compound item
+	 */
+	private CompoundStatement rootCompound = null;
+	
+	/**
+	 * Creates a new function content builder stack by pushing the top level compound statement on the stack
+	 */
+	@Override
+	public void createNew(ParserRuleContext ctx) {
+		item = new CompoundStatement();
+		CompoundStatement rootItem = (CompoundStatement) item;
+		ASTNodeFactory.initializeFromContext(item, ctx);
+		nodeToRuleContext.put(rootItem, ctx);
+		stack.push(rootItem);
+		rootCompound = rootItem;
+	}
 
 	/**
 	 *  Called when the entire function-content has been walked
@@ -255,12 +272,14 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		this.preASTItemStack.clear();
 		this.commentStack.clear();
 		this.pendingList.clear();
+		this.stack = null;
+		this.nesting = null;
 		this.previousStatement = null;
 	}
 	
 
 	// For all statements, begin by pushing a Statement Object onto the stack.
-	public void enterStatement(StatementContext ctx) {
+	public void enterStatement(StatementContext ctx) {		
 		ASTNode statementItem = ASTNodeFactory.create(ctx);
 		nodeToRuleContext.put(statementItem, ctx);
 		stack.push(statementItem);
@@ -610,7 +629,9 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			logger.debug(itemToRemove.getEscapedCodeStr()+" collected on AST and variability stack");
 			// Connect only the #if with the function content compound statement
 			if (itemToRemove instanceof PreIfStatement) {
-				nesting.consolidate();
+				stack.pop();
+				rootCompound.addChild(itemToRemove);
+				logger.debug("Connected "+itemToRemove.getEscapedCodeStr()+" with root compound statement");
 			} else {
 				// Remove item from the stack. The nesting will be resolved in the closeASTBlock function
 				stack.pop();
@@ -1326,15 +1347,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	public void enterGotoStatement(GotoStatementContext ctx) {
 		replaceTopOfStack(new GotoStatement(), ctx);
-	}
-
-	@Override
-	public void createNew(ParserRuleContext ctx) {
-		item = new CompoundStatement();
-		CompoundStatement rootItem = (CompoundStatement) item;
-		ASTNodeFactory.initializeFromContext(item, ctx);
-		nodeToRuleContext.put(rootItem, ctx);
-		stack.push(rootItem);
 	}
 
 	public void addLocalDecl(IdentifierDecl decl) {

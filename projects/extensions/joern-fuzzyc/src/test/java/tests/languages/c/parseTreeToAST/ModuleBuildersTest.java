@@ -12,10 +12,14 @@ import ast.ASTNode;
 import ast.Comment;
 import ast.c.functionDef.FunctionDef;
 import ast.c.functionDef.ParameterType;
+import ast.c.preprocessor.blockstarter.PreElseStatement;
+import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
+import ast.logical.statements.BlockStarter;
+import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.IdentifierDeclStatement;
@@ -117,6 +121,25 @@ public class ModuleBuildersTest {
 		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
 		FunctionDefBase funcItem = (FunctionDefBase) codeItem.content.getStatements().get(0);
 		assertEquals("bar", funcItem.getName());
+	}
+	
+	
+	@Test
+	public void ifWithPreprocessorIf() {
+		String input = "void bar() {"
+				+ "if(foo){"
+				+ "#ifdef one \n"
+				+ "puts(\"One\"); \n"
+				+ "#else \n"
+				+ "puts(\"Two\"); \n"
+				+ "#endif} \n"
+				+ "}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDefBase funcItem  = (FunctionDefBase) codeItems.get(0);
+		PreIfStatement preIf = (PreIfStatement) funcItem.getContent().getChild(0);
+		assertEquals("puts ( \"One\" );",preIf.getVariableStatement(0).getEscapedCodeStr());
+		PreElseStatement preElse = (PreElseStatement) preIf.getChild(1);
+		assertEquals("puts ( \"Two\" );",preElse.getVariableStatement(0).getEscapedCodeStr());
 	}
 
 	@Test
