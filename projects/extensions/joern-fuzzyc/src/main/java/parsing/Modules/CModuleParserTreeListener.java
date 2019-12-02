@@ -335,6 +335,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 // -------------------------------------- Custom -------------------------------------------------------------------------	
 		@Override
 		public void enterCustom(ModuleParser.CustomContext ctx) {	
+			System.out.println("Enter custom");
+			
 			CustomNode custom = new CustomNode();
 			ASTNodeFactory.initializeFromContext(custom, ctx);
 			
