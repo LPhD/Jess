@@ -59,7 +59,6 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	// Custom handling
 	@Override
 	public void visit(CustomNode node) {
-		System.out.println("Visit custom");
 		ASTNodeExporter importer = new CSVCustomExporter();
 		importNode(importer, node);
 	}
