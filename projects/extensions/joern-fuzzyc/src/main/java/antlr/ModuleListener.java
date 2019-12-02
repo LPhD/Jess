@@ -294,6 +294,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitExternC(ModuleParser.ExternCContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#macroFunctionPointer}.
+	 * @param ctx the parse tree
+	 */
+	void enterMacroFunctionPointer(ModuleParser.MacroFunctionPointerContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#macroFunctionPointer}.
+	 * @param ctx the parse tree
+	 */
+	void exitMacroFunctionPointer(ModuleParser.MacroFunctionPointerContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#expr}.
 	 * @param ctx the parse tree
 	 */

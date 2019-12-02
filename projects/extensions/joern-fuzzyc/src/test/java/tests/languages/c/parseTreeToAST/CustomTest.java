@@ -32,6 +32,19 @@ public class CustomTest {
 		CustomNode codeItem = (CustomNode) codeItems.get(0);		
 		assertEquals("BT_NONXML , BT_NONXML , BT_NONXML , BT_NONXML ,", codeItem.getEscapedCodeStr());
 	}
+	
+	@Test
+	public void testMacroFunctionPointer() {
+		String input = "XMLPARSEAPI(void *)\n" + 
+				"XML_ATTR_ALLOC_SIZE(3)\n" + 
+				"XML_MemRealloc(XML_Parser parser, void *ptr, size_t size);";
+		List<ASTNode> codeItems = parseInput(input);
+		CustomNode codeItem = (CustomNode) codeItems.get(0);		
+		assertEquals("XMLPARSEAPI ( void * ) \n" + 
+				" XML_ATTR_ALLOC_SIZE ( 3 ) \n" + 
+				" XML_MemRealloc ( XML_Parser parser , void * ptr , size_t size ) ;", codeItem.getEscapedCodeStr());
+	}
+
 
 	private List<ASTNode> parseInput(String input) {
 		ANTLRCModuleParserDriver parser = new ANTLRCModuleParserDriver();
