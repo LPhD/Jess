@@ -63,6 +63,27 @@ public class NestingReconstructor {
 		}
 
 	}
+	
+	/**
+	 * Gets called after every preprocessor statement is exited
+	 */
+	protected void consolidatePreprocessor() {
+
+		ASTNode stmt = stack.pop();
+		ASTNode topOfStack = null;
+
+		if (stack.size() > 0)
+			topOfStack = stack.peek();
+
+		if (topOfStack instanceof CompoundStatement) {
+			// This way first, { -> int i
+			CompoundStatement compound = (CompoundStatement) topOfStack;
+			compound.addChild(stmt);
+		} else {
+			consolidateBlockStarters(stmt);
+		}
+
+	}
 
 	// Joins consecutive BlockStarters on the stack
 	protected void consolidateBlockStarters(ASTNode node) {

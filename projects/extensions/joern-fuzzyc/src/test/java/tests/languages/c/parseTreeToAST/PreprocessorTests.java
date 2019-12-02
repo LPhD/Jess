@@ -62,9 +62,7 @@ public class PreprocessorTests {
 	public void testPreIfStatementInsideIfBlock() {
 		String input = "if(bool) { #if foo \n  int i; #endif }";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		//TODO
-		//This is wrong, pre statement should be AST child of the file
-		PreIfStatement preStmt = (PreIfStatement) contentItem.getStatement(0).getChild(1).getChild(0);
+		PreIfStatement preStmt = (PreIfStatement) contentItem.getChild(0);
 		assertEquals("PreIfStatement", preStmt.getTypeAsString());
 		assertEquals("IdentifierDeclStatement", preStmt.getVariableStatement(0).getTypeAsString());
 	}
