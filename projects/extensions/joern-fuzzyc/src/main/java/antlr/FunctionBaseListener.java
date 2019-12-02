@@ -418,6 +418,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterKeyword(FunctionParser.KeywordContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitKeyword(FunctionParser.KeywordContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_macro_parameters(FunctionParser.Pre_macro_parametersContext ctx) { }
 	/**
 	 * {@inheritDoc}

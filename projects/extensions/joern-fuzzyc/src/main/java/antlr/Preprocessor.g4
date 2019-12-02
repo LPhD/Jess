@@ -21,7 +21,8 @@ pre_else_statement: PRE_ELSE;
 pre_endif_statement: PRE_ENDIF;
 
 pre_if_condition: condition
-				| '(' condition ')';
+				| '(' condition ')'
+				| keyword; //If a macro is redefining a keyword
                              
 condition: expr
      | type_name declarator NEWLINE* '=' NEWLINE* assign_expr;
@@ -44,7 +45,10 @@ pre_define: PRE_DEFINE pre_macro_identifier '(' pre_macro_parameters ')' pre_mac
 
 pre_undef: PRE_UNDEF pre_macro_identifier;
 
-pre_macro_identifier: identifier;
+pre_macro_identifier: identifier | constant | keyword;
+
+//Macros can redefine keywords
+keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' | 'static' | 'void' | 'unsigned' | 'signed' | 'long' | 'virtual' | 'operator' | 'class';
 
 //Maybe needs more possibilites
 pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
