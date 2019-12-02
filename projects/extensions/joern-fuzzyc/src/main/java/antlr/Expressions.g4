@@ -76,7 +76,7 @@ postfix_expression: postfix_expression NEWLINE* '[' expr ']' #arrayIndexing
                   | ptr_operator? inc_dec NEWLINE* ptr_operator? primary_expression #incDecOp
                   ;
                   
-macroCall:  (identifier | constant) '(' ( (','? CV_QUALIFIER? type_name? identifier)+ | VOID) '*'? ')'; //This is for macro calls
+macroCall:  (identifier | constant) '(' ( (','? CV_QUALIFIER? type_name? identifier)+ | VOID | expr) '*'? ')'; //This is for macro calls
 		
 
 function_argument_list: ( function_argument+ (',' NEWLINE* function_argument+)* )?;

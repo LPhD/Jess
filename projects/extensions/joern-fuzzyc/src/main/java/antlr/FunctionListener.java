@@ -510,6 +510,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitExternC(FunctionParser.ExternCContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#macroFunctionPointer}.
+	 * @param ctx the parse tree
+	 */
+	void enterMacroFunctionPointer(FunctionParser.MacroFunctionPointerContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#macroFunctionPointer}.
+	 * @param ctx the parse tree
+	 */
+	void exitMacroFunctionPointer(FunctionParser.MacroFunctionPointerContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#comment}.
 	 * @param ctx the parse tree
 	 */
