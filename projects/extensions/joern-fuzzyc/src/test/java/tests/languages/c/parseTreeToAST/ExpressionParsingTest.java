@@ -2,8 +2,11 @@ package tests.languages.c.parseTreeToAST;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.Test;
 
+import ast.ASTNode;
 import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.declarations.IdentifierDecl;
@@ -58,7 +61,7 @@ public class ExpressionParsingTest {
 		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
 		assertEquals("x", identifierDecl.getName().getEscapedCodeStr());
 	}
-
+	
 	@Test
 	public void testConditionalExpr() {
 		String input = "foo = cond? x : y;";

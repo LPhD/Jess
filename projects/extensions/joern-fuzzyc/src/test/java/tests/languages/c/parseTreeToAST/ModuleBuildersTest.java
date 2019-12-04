@@ -160,7 +160,7 @@ public class ModuleBuildersTest {
 		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
 		assertEquals("functionPtr", decl.getName().getEscapedCodeStr());
 	}
-	
+		
 	@Test
 	public void testVoidFunctionPointerDecl() {
 		String input = "void (*functionPtr) (void);";

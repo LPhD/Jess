@@ -21,7 +21,6 @@ STATIC: 'static';
 VOID: 'void'; 
 UNSIGNED: 'unsigned'; 
 SIGNED: 'signed';
-LONG: 'long'; 
 CV_QUALIFIER:  'const' | 'volatile';
 
 // Keywords shared among C++/Java
