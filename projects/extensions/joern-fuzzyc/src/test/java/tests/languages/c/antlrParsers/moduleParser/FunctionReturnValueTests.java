@@ -34,7 +34,7 @@ public class FunctionReturnValueTests extends FunctionDefinitionTests {
 	@Test
 	public void testFunction_defPtrReturnValue() {
 		String input = "int *foo(){}";
-		String expected = "(function_def (return_type (type_name (base_type int)) (ptr_operator *)) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { }))";
+		String expected = "(function_def (return_type (type_name (base_type int) (ptr_operator *))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { }))";
 
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);

@@ -184,6 +184,14 @@ public class ExpressionParsingTest {
 		ExpressionStatement expr = (ExpressionStatement) contentItem.getStatements().get(0);
 		assertEquals("++ * p;", expr.getEscapedCodeStr());
 	}
+	
+	@Test
+	public void volatilePtr() {
+		String input = "TCase *volatile tc;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement stmt = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("TCase * volatile tc ;", stmt.getEscapedCodeStr());
+	}
 
 	@Test
 	public void funCall() {
