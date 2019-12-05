@@ -226,6 +226,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMacroCall(ModuleParser.MacroCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMacroCall(ModuleParser.MacroCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_diagnostic(ModuleParser.Pre_diagnosticContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -749,18 +761,6 @@ public class ModuleBaseListener implements ModuleListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPtrMemberAccess(ModuleParser.PtrMemberAccessContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMacroCall(ModuleParser.MacroCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMacroCall(ModuleParser.MacroCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -454,6 +454,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMacroCall(FunctionParser.MacroCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMacroCall(FunctionParser.MacroCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_diagnostic(FunctionParser.Pre_diagnosticContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1265,18 +1277,6 @@ public class FunctionBaseListener implements FunctionListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPtrMemberAccess(FunctionParser.PtrMemberAccessContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMacroCall(FunctionParser.MacroCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMacroCall(FunctionParser.MacroCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

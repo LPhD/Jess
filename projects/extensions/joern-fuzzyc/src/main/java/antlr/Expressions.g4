@@ -75,9 +75,6 @@ postfix_expression: postfix_expression NEWLINE* '[' expr ']' #arrayIndexing
                   | primary_expression # primaryOnly
                   | ptr_operator? inc_dec NEWLINE* ptr_operator? primary_expression #incDecOp
                   ;
-                  
-macroCall:  pre_macro_identifier '(' ( (','? '*'? CV_QUALIFIER? '*'? type_name? '*'? identifier)+ | VOID | expr) '*'? ')'; //This is for macro calls
-		
 
 function_argument_list: ( function_argument+ (',' NEWLINE* function_argument+)* )?;
 //Allow newlines in between arguments without a ',' separator, as they can be macro calls

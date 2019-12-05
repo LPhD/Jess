@@ -18,8 +18,6 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
-import ast.logical.statements.BlockStarter;
-import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.IdentifierDeclStatement;
@@ -218,6 +216,22 @@ public class ModuleBuildersTest {
 		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
 		assertEquals("XML_GetBase", decl.getName().getEscapedCodeStr());
 	}
+	
+	
+	@Test
+	public void testFunctionDeclWithTypePerMacro3() {
+		String input = "XMLPARSEAPI(int)\n" + 
+				"XML_GetIdAttributeIndex(XML_Parser parser);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("XMLPARSEAPI ( int ) \n" + 
+				" XML_GetIdAttributeIndex ( XML_Parser parser ) ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("XML_GetIdAttributeIndex", decl.getName().getEscapedCodeStr());
+	}
+	
+	
+
 	
 	
 	@Test
