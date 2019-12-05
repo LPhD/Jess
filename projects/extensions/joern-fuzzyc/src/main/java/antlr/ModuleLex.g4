@@ -30,7 +30,7 @@ TRY: 'try';
 CATCH: 'catch'; 
 THROW: 'throw';
 USING: 'using';
- NAMESPACE: 'namespace'; 
+NAMESPACE: 'namespace'; 
 
 // Keywords shared among C/C++
 
