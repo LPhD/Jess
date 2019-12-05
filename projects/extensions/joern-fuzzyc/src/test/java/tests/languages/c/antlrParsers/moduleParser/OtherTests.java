@@ -26,9 +26,9 @@ public class OtherTests extends FunctionDefinitionTests {
 		String output = parser.simple_decl().toStringTree(parser);
 		assertEquals("(simple_decl (var_decl (type_name (function_decl_specifiers static) (base_type int)) "
 				+ "(init_declarator_list (init_declarator (declarator (identifier blogic_diskparam) "
-				+ "(type_suffix (param_type_list ( (param_type (param_decl_specifiers (type_name struct (base_type scsi_device) "
-				+ "(ptr_operator *))) (param_type_id "
-				+ "(parameter_name (identifier sdev)))) "
+				+ "(type_suffix (param_type_list ( (param_type (param_decl_specifiers (type_name (base_type struct scsi_device) "
+				+ "(ptr_operator *) "
+				+ "(base_type sdev))) param_type_id) "
 				+ "))))) ;)))", output);
 	}
 	

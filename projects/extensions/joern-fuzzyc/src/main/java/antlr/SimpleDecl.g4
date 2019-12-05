@@ -26,24 +26,15 @@ class_name: identifier;
 base_classes: ':' base_class (',' base_class)*;
 base_class: VIRTUAL? access_specifier? identifier;
 
-type_name : function_decl_specifiers* 
-			(ptr_operator? CV_QUALIFIER* ptr_operator? 
-				(CLASS_KEY | SPECIAL_DATA)?
-             base_type 
-             	('<' template_param_list '>')? 
-             	('::' base_type 
-             		('<' template_param_list '>')?
-             	)*
-             ) 
-           ptr_operator? CV_QUALIFIER* ptr_operator?
+type_name : (function_decl_specifiers | CV_QUALIFIER | UNSIGNED | SIGNED | ptr_operator | base_type)+               
+            ('<' template_param_list '>')? 
+            ('::' base_type  ('<' template_param_list '>')?  )*
+            (function_decl_specifiers | CV_QUALIFIER | UNSIGNED | SIGNED | ptr_operator)* 
           | macroCall
-          | UNSIGNED
-          | SIGNED
-          | SPECIAL_DATA
           ;
 
 
-base_type: (UNSIGNED | SIGNED)? (VOID | 'long' | 'char' | 'int' | ALPHA_NUMERIC)+ (UNSIGNED | SIGNED)?;
+base_type: (VOID | 'long' | 'char' | 'int' | SPECIAL_DATA | CLASS_KEY | ALPHA_NUMERIC)+;
 
 // Parameters
 

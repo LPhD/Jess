@@ -230,9 +230,17 @@ public class ModuleBuildersTest {
 		assertEquals("XML_GetIdAttributeIndex", decl.getName().getEscapedCodeStr());
 	}
 	
-	
-
-	
+	@Test
+	public void testStaticConstUnsignedArrayInitializatio() {
+		String input = "static const unsigned namingBitmap[] = {\n" + 
+				"0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 };";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("static const unsigned namingBitmap [ ] = { \n" + 
+				" 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 } ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("namingBitmap", decl.getName().getEscapedCodeStr());
+	}	
 	
 	@Test
 	public void testEmptyArrayInitialization() {
