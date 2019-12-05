@@ -3,7 +3,7 @@ grammar SimpleDecl;
 simple_decl : var_decl;
 
 var_decl : (TYPEDEF? template_decl_start?) class_def  NEWLINE? init_declarator_list? #declByClass
-         | (TYPEDEF? template_decl_start?) STATIC? type_name  NEWLINE? init_declarator_list #declByType
+         | (TYPEDEF? template_decl_start?) type_name  NEWLINE? init_declarator_list #declByType
          | TYPEDEF? special_datatype  NEWLINE? init_declarator_list? ';'? #StructUnionEnum
          ;
          
@@ -26,8 +26,16 @@ class_name: identifier;
 base_classes: ':' base_class (',' base_class)*;
 base_class: VIRTUAL? access_specifier? identifier;
 
-type_name : (ptr_operator? CV_QUALIFIER* ptr_operator? (CLASS_KEY | SPECIAL_DATA)?
-            base_type ('<' template_param_list '>')? ('::' base_type ('<' template_param_list '>')? )*) (ptr_operator CV_QUALIFIER)? ptr_operator?
+type_name : function_decl_specifiers* 
+			(ptr_operator? CV_QUALIFIER* ptr_operator? 
+				(CLASS_KEY | SPECIAL_DATA)?
+             base_type 
+             	('<' template_param_list '>')? 
+             	('::' base_type 
+             		('<' template_param_list '>')?
+             	)*
+             ) 
+           ptr_operator? CV_QUALIFIER* ptr_operator?
           | macroCall
           | UNSIGNED
           | SIGNED
@@ -35,7 +43,7 @@ type_name : (ptr_operator? CV_QUALIFIER* ptr_operator? (CLASS_KEY | SPECIAL_DATA
           ;
 
 
-base_type: (UNSIGNED | SIGNED)? (ALPHA_NUMERIC | VOID | LONG )+ (UNSIGNED | SIGNED)?;
+base_type: (UNSIGNED | SIGNED)? (VOID | 'long' | 'char' | 'int' | ALPHA_NUMERIC)+ (UNSIGNED | SIGNED)?;
 
 // Parameters
 
