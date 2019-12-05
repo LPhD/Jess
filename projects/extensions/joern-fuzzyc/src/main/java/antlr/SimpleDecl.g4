@@ -35,8 +35,7 @@ type_name : function_decl_specifiers*
              		('<' template_param_list '>')?
              	)*
              ) 
-             (ptr_operator CV_QUALIFIER)?
-           ptr_operator?
+           ptr_operator? CV_QUALIFIER* ptr_operator?
           | macroCall
           | UNSIGNED
           | SIGNED

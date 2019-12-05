@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 
 import ast.ASTNode;
@@ -29,6 +30,7 @@ import ast.logical.statements.Condition;
 import ast.logical.statements.Statement;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
+import parsing.FunctionParser;
 
 public class ExpressionParsingTest {
 
@@ -60,6 +62,18 @@ public class ExpressionParsingTest {
 		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
 		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
 		assertEquals("x", identifierDecl.getName().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testConstPointerDecl() {
+		String input = "static char const *_check_current_function = NULL;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("static char const * _check_current_function = NULL ;", statementItem.getEscapedCodeStr());
+		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
+		assertEquals("_check_current_function", identifierDecl.getChild(1).getEscapedCodeStr());
+		//TODO Why is this NULL and not the identifier?
+//		assertEquals("_check_current_function", identifierDecl.getName().getEscapedCodeStr());
 	}
 	
 	@Test
