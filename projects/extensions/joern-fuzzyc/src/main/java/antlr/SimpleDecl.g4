@@ -1,4 +1,5 @@
 grammar SimpleDecl;
+import ModuleLex;
 
 simple_decl : var_decl;
 
@@ -26,7 +27,7 @@ class_name: identifier;
 base_classes: ':' base_class (',' base_class)*;
 base_class: VIRTUAL? access_specifier? identifier;
 
-type_name : (function_decl_specifiers | CV_QUALIFIER | UNSIGNED | SIGNED | ptr_operator | base_type)+               
+type_name : EXTERN? (function_decl_specifiers | CV_QUALIFIER | UNSIGNED | SIGNED | ptr_operator | base_type)+               
             ('<' template_param_list '>')? 
             ('::' base_type  ('<' template_param_list '>')?  )*
             (function_decl_specifiers | CV_QUALIFIER | UNSIGNED | SIGNED | ptr_operator)* 
@@ -53,7 +54,7 @@ param_type: param_decl_specifiers param_type_id;
 param_type_id: ptrs? ('(' NEWLINE? param_type_id NEWLINE? ')' | parameter_name?) type_suffix?;
 
 // operator-identifiers not implemented
-identifier : (ALPHA_NUMERIC ('::' ALPHA_NUMERIC)*) | access_specifier;
+identifier : (ALPHA_NUMERIC ('::' ALPHA_NUMERIC)*) | NEW | access_specifier;
 number: HEX_LITERAL | DECIMAL_LITERAL | OCTAL_LITERAL;
 
 ptrs: (ptr_operator 'restrict'?)+;

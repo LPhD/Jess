@@ -21,7 +21,8 @@ STATIC: 'static';
 VOID: 'void'; 
 UNSIGNED: 'unsigned'; 
 SIGNED: 'signed';
-CV_QUALIFIER:  'const' | 'volatile';
+CV_QUALIFIER:  ('const' | 'volatile' );
+EXTERN: 'extern';
 
 // Keywords shared among C++/Java
 
@@ -37,6 +38,13 @@ NAMESPACE: 'namespace';
 AUTO: 'auto'; 
 REGISTER: 'register';
 SPECIAL_DATA: ('struct' | 'union' | 'enum');
+
+// C++ keywords
+
+OPERATOR: 'operator';
+TEMPLATE: 'template';
+CLASS_KEY: 'class' ;
+NEW: 'new';
 
 // pre-processor directives: C/C++
 
@@ -60,14 +68,6 @@ END_TEST : 'END_TEST'; //Custom
 //PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
 
 
-
-// C++ keywords
-
-OPERATOR: 'operator';
-TEMPLATE: 'template';
-NEW: 'new';
-
-CLASS_KEY: 'class' ;
 
 ALPHA_NUMERIC: [a-zA-Z_~][a-zA-Z0-9_]*;
 

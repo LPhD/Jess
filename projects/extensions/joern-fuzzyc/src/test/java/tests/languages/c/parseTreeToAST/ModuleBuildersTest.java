@@ -231,6 +231,17 @@ public class ModuleBuildersTest {
 		assertEquals("XML_GetIdAttributeIndex", decl.getName().getEscapedCodeStr());
 	}
 	
+	
+	@Test
+	public void testDeclWithExternKeyword() {
+		String input = "extern int XML_ProcessFile(XML_Parser parser, const XML_Char *filename);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("extern int XML_ProcessFile ( XML_Parser parser , const XML_Char * filename ) ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl identifierDecl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("XML_ProcessFile", identifierDecl.getName().getEscapedCodeStr());
+	}
+	
 	@Test
 	public void testCustomTestFunction() {
 		String input = "START_TEST(test_nul_byte) {\n" + 
