@@ -42,7 +42,6 @@ public class PreprocessorTests {
 		PreBlockstarter thirdIf = (PreBlockstarter) secondIf.getVariableStatement(0);
 		PreDefine preDef = (PreDefine) thirdIf.getVariableStatement(0);
 		assertEquals("#      define inline __inline", preDef.getEscapedCodeStr());
-
 	}
 	
 	@Test

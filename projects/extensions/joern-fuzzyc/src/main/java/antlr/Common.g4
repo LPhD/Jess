@@ -62,6 +62,13 @@ grammar Common;
 		if (t != EOF) {
 			// Return the closing bracket (if there is one)
 			consume();
+			//Check for newline and END_TEST
+			if(_input.LA(1) == NEWLINE &&  _input.LA(2) == END_TEST){
+			    System.out.println("Found newline!");
+			    //Parse both
+			    consume();
+			    consume();
+			}
 		}
 
 		return true;
