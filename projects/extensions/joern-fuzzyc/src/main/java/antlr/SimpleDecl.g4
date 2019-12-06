@@ -53,7 +53,7 @@ param_type: param_decl_specifiers param_type_id;
 param_type_id: ptrs? ('(' NEWLINE? param_type_id NEWLINE? ')' | parameter_name?) type_suffix?;
 
 // operator-identifiers not implemented
-identifier : (ALPHA_NUMERIC ('::' ALPHA_NUMERIC)*) | access_specifier;
+identifier : (ALPHA_NUMERIC ('::' ALPHA_NUMERIC)*) | NEW | access_specifier;
 number: HEX_LITERAL | DECIMAL_LITERAL | OCTAL_LITERAL;
 
 ptrs: (ptr_operator 'restrict'?)+;

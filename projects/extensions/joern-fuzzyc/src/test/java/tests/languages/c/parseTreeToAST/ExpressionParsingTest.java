@@ -56,6 +56,15 @@ public class ExpressionParsingTest {
 	}
 
 	@Test
+	public void testMostBasicLocalVar2() {
+		String input = "StructDataEntry *new;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
+		assertEquals("new", identifierDecl.getName().getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testMostBasicLocalVar() {
 		String input = "int x;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
