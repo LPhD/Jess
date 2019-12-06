@@ -56,6 +56,7 @@ PRE_GCC: 'GCC';
 PRE_PRAGMA_KEYWORDS: ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning');
 PRE_STR: ('##' | '#');
 PRE_ATTRIBUTE: '__attribute__';
+END_TEST : 'END_TEST'; //Custom
 //PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
 
 

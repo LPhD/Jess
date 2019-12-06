@@ -1,8 +1,10 @@
 grammar FunctionDef;
-import ModuleLex;
+import ModuleLex, Preprocessor, SimpleDecl, Expressions;
 
 function_def : template_decl_start? NEWLINE* return_type? NEWLINE* function_name NEWLINE*
-            function_param_list ctor_list? compound_statement;
+            function_param_list ctor_list? compound_statement
+            | testStart compound_statement  //Custom definition for tests
+            ; 
 
 return_type : (function_decl_specifiers* NEWLINE* type_name) ptr_operator*
 				| macroCall
@@ -17,7 +19,7 @@ parameter_decl : VOID
 
 parameter_id: ptrs? ('(' parameter_id ')' | parameter_name) type_suffix?;
 
-compound_statement: OPENING_CURLY { skipToEndOfObject(); } ;
+compound_statement: OPENING_CURLY { skipToEndOfObject(); };
 
 ctor_list: ':'  ctor_initializer (',' ctor_initializer)*;
 

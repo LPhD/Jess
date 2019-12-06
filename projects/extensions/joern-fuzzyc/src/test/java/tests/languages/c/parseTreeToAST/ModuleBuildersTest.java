@@ -18,6 +18,7 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
+import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.IdentifierDeclStatement;
@@ -230,6 +231,37 @@ public class ModuleBuildersTest {
 		assertEquals("XML_GetIdAttributeIndex", decl.getName().getEscapedCodeStr());
 	}
 	
+	@Test
+	public void testCustomTestFunction() {
+		String input = "START_TEST(test_nul_byte) {\n" + 
+				" 	char text [ ] = \"<doc>\\0</doc>\" ;\n" + 
+				" 	/* test that a NUL byte (in US-ASCII data) is an error */\n" + 
+				"  if (_XML_Parse_SINGLE_BYTES(g_parser, text, sizeof(text) - 1, XML_TRUE)\n" + 
+				"      == XML_STATUS_OK)\n" + 
+				"    fail(\"Parser did not report error on NUL-byte.\");\n" + 
+				"  if (XML_GetErrorCode(g_parser) != XML_ERROR_INVALID_TOKEN)\n" + 
+				"    xml_failure(g_parser);\n" + 
+				"}\n" + 
+				"END_TEST";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
+		assertEquals("START_TEST ( test_nul_byte ) ", codeItem.getEscapedCodeStr());
+		assertEquals("test_nul_byte", codeItem.getIdentifier().getEscapedCodeStr());
+		CompoundStatement compound = codeItem.getContent();
+		assertEquals("IdentifierDeclStatement",compound.getChild(0).getTypeAsString());
+		assertEquals("char text [ ] = \"<doc>\\0</doc>\" ;",compound.getChild(0).getEscapedCodeStr());
+		assertEquals("IfStatement",compound.getChild(1).getTypeAsString());
+		assertEquals("if ( _XML_Parse_SINGLE_BYTES ( g_parser , text , sizeof ( text ) - 1 , XML_TRUE ) \n" + 
+				" == XML_STATUS_OK )",compound.getChild(1).getEscapedCodeStr());
+		assertEquals("IfStatement",compound.getChild(2).getTypeAsString());
+		assertEquals("if ( XML_GetErrorCode ( g_parser ) != XML_ERROR_INVALID_TOKEN )",compound.getChild(2).getEscapedCodeStr());
+		assertEquals("BlockCloser",compound.getChild(3).getTypeAsString());
+		assertEquals("Statement",compound.getChild(4).getTypeAsString());
+		assertEquals("END_TEST",compound.getChild(4).getEscapedCodeStr());
+		assertEquals("Comment",compound.getChild(5).getTypeAsString());
+		assertEquals("/* test that a NUL byte (in US-ASCII data) is an error */",compound.getChild(5).getEscapedCodeStr());		
+	}
+		
 	@Test
 	public void testStaticConstUnsignedArrayInitializatio() {
 		String input = "static const unsigned namingBitmap[] = {\n" + 
