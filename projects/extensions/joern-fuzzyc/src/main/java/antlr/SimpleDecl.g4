@@ -3,23 +3,24 @@ import ModuleLex;
 
 simple_decl : var_decl;
 
-var_decl : (TYPEDEF? template_decl_start?) class_def  NEWLINE? init_declarator_list? #declByClass
-         | (TYPEDEF? template_decl_start?) type_name  NEWLINE? init_declarator_list #declByType
-         | TYPEDEF? special_datatype  NEWLINE? init_declarator_list? ';'? #StructUnionEnum
+var_decl : (TYPEDEF? template_decl_start?) class_def  NEWLINE* init_declarator_list? #declByClass
+         | (TYPEDEF? template_decl_start?) type_name  NEWLINE* init_declarator_list #declByType
+         | TYPEDEF? special_datatype  NEWLINE* init_declarator_list? ';'? #StructUnionEnum
          ;
          
 special_datatype:SPECIAL_DATA identifier? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
         | SPECIAL_DATA identifier  //Short declaration
         ;
         
-init_declarator_list: init_declarator (','  NEWLINE? init_declarator)* ';';
+init_declarator_list: init_declarator (','  NEWLINE* init_declarator)* ';';
 
 initializer: assign_expr
-           |'{' initializer_list '}'
-           |'{' '}'
+           | pre_macro_identifier+
+           |'{' NEWLINE* initializer_list NEWLINE* '}'
+           |'{' NEWLINE* '}'
 ;
 
-initializer_list: initializer (','  NEWLINE? initializer)*;
+initializer_list: initializer (','  NEWLINE* initializer)* ','?;
 
 
 class_def: CLASS_KEY class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;
