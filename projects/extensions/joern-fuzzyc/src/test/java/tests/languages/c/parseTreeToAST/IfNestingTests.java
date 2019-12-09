@@ -20,6 +20,14 @@ public class IfNestingTests {
 		CompoundStatement compound = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertFirstChildIsIfStatement(compound);
 	}
+	
+	@Test
+	public void ifWithComplexCondition() {
+		String input = "  if (XML_GetErrorCode(ext_parser) != fault->error)\n" + 
+				"    xml_failure(ext_parser);";
+		IfStatement ifStatement = (IfStatement) FunctionContentTestUtil.parseAndWalk(input).getChild(0);
+		assertEquals("if ( XML_GetErrorCode ( ext_parser ) != fault -> error )",ifStatement.getEscapedCodeStr());
+	}
 
 	@Test
 	public void ifBlockNoCompound() {

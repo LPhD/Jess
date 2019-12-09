@@ -93,7 +93,6 @@ pre_line: PRE_LINE DECIMAL_LITERAL STRING
         
 
 pre_pragma: PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS STRING { preProcFindMacroEnd(); }
-            | PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS identifier+ 
-            | PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS
+            | PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS identifier* 
             | PRE_PRAGMA { preProcFindMacroEnd(); };             
     
