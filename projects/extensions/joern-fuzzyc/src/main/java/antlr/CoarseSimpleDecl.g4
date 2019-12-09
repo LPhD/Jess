@@ -6,7 +6,7 @@ import SimpleDecl;
 
 // The following two contain 'water'-rules for expressions
 
-init_declarator : declarator (('(' expr? ')') | ('=' assign_expr_w_))?;
+init_declarator : declarator NEWLINE? (('(' expr? ')') | ('=' assign_expr_w_))?;
 
 declarator: ptrs? identifier type_suffix? |
             ptrs? '(' callingConvetion? func_ptrs identifier ')' type_suffix;
