@@ -83,16 +83,57 @@ public class ModuleBuildersTest {
 				" unsigned char si_reserved [ 4 ] ; \n" + 
 				" } ;", codeItem.getEscapedCodeStr());
 	}
+	
+	@Test
+	public void testComplexStructInsideFunction() {
+		String input = "void function() {  \n"
+				+ "struct TestCase cases[] = {\n" + 
+				"      {00, \"\"},\n" + 
+				"\n" + 
+				"      {00, UTF8_LEAD_1},\n" + 
+				"\n" + 
+				"      {-1, UTF8_LEAD_2},\n" + 
+				"      {00, UTF8_LEAD_2 UTF8_FOLLOW},\n" + 
+				"\n" + 
+				"      {-1, UTF8_LEAD_3},\n" + 
+				"      {-2, UTF8_LEAD_3 UTF8_FOLLOW},\n" + 
+				"      {00, UTF8_LEAD_3 UTF8_FOLLOW UTF8_FOLLOW},\n" + 
+				"\n" + 
+				"      {-1, UTF8_LEAD_4},\n" + 
+				"      {-2, UTF8_LEAD_4 UTF8_FOLLOW},\n" + 
+				"      {-3, UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW},\n" + 
+				"      {00, UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW UTF8_FOLLOW},\n" + 
+				"  };" +
+				"}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem1 = (FunctionDef) codeItems.get(0);
+		IdentifierDeclStatement codeItem2 = (IdentifierDeclStatement) codeItem1.getContent().getChild(0);
+		assertEquals("struct TestCase cases [ ] = { \n" + 
+				" { 00 , \"\" } , \n" + 
+				" \n" + 
+				" { 00 , UTF8_LEAD_1 } , \n" + 
+				" \n" + 
+				" { - 1 , UTF8_LEAD_2 } , \n" + 
+				" { 00 , UTF8_LEAD_2 UTF8_FOLLOW } , \n" + 
+				" \n" + 
+				" { - 1 , UTF8_LEAD_3 } , \n" + 
+				" { - 2 , UTF8_LEAD_3 UTF8_FOLLOW } , \n" + 
+				" { 00 , UTF8_LEAD_3 UTF8_FOLLOW UTF8_FOLLOW } , \n" + 
+				" \n" + 
+				" { - 1 , UTF8_LEAD_4 } , \n" + 
+				" { - 2 , UTF8_LEAD_4 UTF8_FOLLOW } , \n" + 
+				" { - 3 , UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW } , \n" + 
+				" { 00 , UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW UTF8_FOLLOW } , \n" + 
+				" } ;", codeItem2.getEscapedCodeStr());
+	}
+
 
 	@Test
 	public void testStructFunctionPointer() {
 		String input = "struct foo{ int*** (**bar)(long*); };";
 		List<ASTNode> codeItems = parseInput(input);
 		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
-//		IdentifierDeclStatement ptrStatement = (IdentifierDeclStatement) codeItem.getChild(1);
-//		IdentifierDecl ptrItem = (IdentifierDecl) ptrStatement.getIdentifierDeclList().get(0);
 		assertEquals("struct foo { int * * * ( * * bar ) ( long * ) ; } ;", codeItem.getEscapedCodeStr());
-//		assertEquals("int * * * ( * * ) ( long * )", ptrItem.getType().completeType);
 	}
 	
 	@Test
