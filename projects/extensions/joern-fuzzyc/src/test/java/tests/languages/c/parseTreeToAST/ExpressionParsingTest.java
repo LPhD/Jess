@@ -2,12 +2,8 @@ package tests.languages.c.parseTreeToAST;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
-
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 
-import ast.ASTNode;
 import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.declarations.IdentifierDecl;
@@ -27,10 +23,8 @@ import ast.expressions.ShiftExpression;
 import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
-import ast.logical.statements.Statement;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
-import parsing.FunctionParser;
 
 public class ExpressionParsingTest {
 
@@ -95,6 +89,18 @@ public class ExpressionParsingTest {
 				" \"\\x0a\\x0b\\x0c\\x0d\\x0e\" ;", statementItem.getEscapedCodeStr());
 		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
 		assertEquals("message", identifierDecl.getName().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testConstPointerWithLinebreak() {
+		String input = "const XML_Char *expected\n" + 
+				"= XCS(\"J\\x00f8rgen \\x00e6\\x00f8\\x00e5\\x00c6\\x00d8\\x00c5\");";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("const XML_Char * expected \n" + 
+				" = XCS ( \"J\\x00f8rgen \\x00e6\\x00f8\\x00e5\\x00c6\\x00d8\\x00c5\" ) ;", statementItem.getEscapedCodeStr());
+		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
+		assertEquals("expected", identifierDecl.getName().getEscapedCodeStr());
 	}
 	
 	@Test
