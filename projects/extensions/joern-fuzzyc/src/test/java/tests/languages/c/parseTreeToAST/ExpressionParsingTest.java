@@ -57,6 +57,18 @@ public class ExpressionParsingTest {
 		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
 		assertEquals("new", identifierDecl.getName().getEscapedCodeStr());
 	}
+
+	@Test
+	public void testDeclWithMacroCall() {
+		String input = "const XML_Char *expected = XCS(\"\\x00e4 \\x00f6 \\x00fc \")\n" + 
+				"XCS(\"\\x00e4 \\x00f6 \\x00fc \") XCS(\"\\x00e4 \\x00f6 \\x00fc >\");";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);		
+		assertEquals("const XML_Char * expected = XCS ( \"\\x00e4 \\x00f6 \\x00fc \" ) \n" + 
+				" XCS ( \"\\x00e4 \\x00f6 \\x00fc \" ) XCS ( \"\\x00e4 \\x00f6 \\x00fc >\" ) ;", statementItem.getEscapedCodeStr());
+//		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
+//		assertEquals("expected", identifierDecl.getName().getEscapedCodeStr()); Does not work
+	}
 	
 	@Test
 	public void testMostBasicLocalVar() {

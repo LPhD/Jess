@@ -1,5 +1,5 @@
 grammar SimpleDecl;
-import ModuleLex;
+import ModuleLex, Expressions;
 
 simple_decl : var_decl;
 
@@ -15,7 +15,8 @@ special_datatype:SPECIAL_DATA identifier? OPENING_CURLY {skipToEndOfObject(); } 
 init_declarator_list: init_declarator (','  NEWLINE* init_declarator)* ';';
 
 initializer: assign_expr
-           | pre_macro_identifier+
+           | (pre_macro_identifier NEWLINE*)+
+           | (macroCall NEWLINE*)+
            |'{' NEWLINE* initializer_list NEWLINE* '}'
            |'{' NEWLINE* '}'
 ;

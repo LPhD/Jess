@@ -1,4 +1,5 @@
 grammar Expressions;
+import ModuleLex;
 
 expr: assign_expr (ESCAPE NEWLINE)* (NEWLINE* ',' NEWLINE* expr)? (ESCAPE NEWLINE)*;
 
