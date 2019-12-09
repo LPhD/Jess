@@ -1,7 +1,6 @@
 // Encompasses declarations in the function scope, e.g. local variable declarations
 
 grammar FineSimpleDecl;
-
 import SimpleDecl;
 
 init_declarator: declarator '(' expr? ')' #initDeclWithCall
