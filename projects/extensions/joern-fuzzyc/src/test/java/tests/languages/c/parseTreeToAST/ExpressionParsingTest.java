@@ -324,5 +324,18 @@ public class ExpressionParsingTest {
 		assertEquals("/*x is set to 5*/", comment.getEscapedCodeStr());
 		assertEquals("ExpressionStatement", comment.getCommentee().getTypeAsString());
 	}
+	
+	@Test
+	public void commentInSameLineAsStatement2() {
+		String input = "char text[] = \"\\xFF\\xFE\"  /* BOM */\n" + 
+				"\"<\\000e\\000/\\000>\\000\"  /* document element */\n" + 
+				"\"\\r\\000\\n\\000\\r\\000\\n\\000\"; /* epilog */";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("char text [ ] = \"\\xFF\\xFE\" /* BOM */ \n" + 
+				" \"<\\000e\\000/\\000>\\000\" /* document element */ \n" + 
+				" \"\\r\\000\\n\\000\\r\\000\\n\\000\" ;", statementItem.getEscapedCodeStr());
+		//TODO Handle comment in parsers, when they appear within a statement
+	}
 
 }

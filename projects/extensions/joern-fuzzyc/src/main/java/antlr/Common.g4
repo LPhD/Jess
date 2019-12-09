@@ -1,4 +1,5 @@
 grammar Common;
+import ModuleLex;
 
 @header{
   import java.util.Stack;
@@ -198,7 +199,7 @@ constant
     :   HEX_LITERAL
     |   OCTAL_LITERAL
     |   DECIMAL_LITERAL
-	|	(STRING NEWLINE?)+
+	|	(STRING COMMENT? NEWLINE?)+ //Comment should be comment, but currently parser cannot handle this
     |   CHAR
     |   FLOATING_POINT_LITERAL
     ;
