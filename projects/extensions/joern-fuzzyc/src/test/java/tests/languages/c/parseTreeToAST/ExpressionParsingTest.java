@@ -398,5 +398,28 @@ public class ExpressionParsingTest {
 				" \"<?xml encoding='iso-8859-3'?>\\xC3\\xA9\" , XCS ( \"utf-8\" ) , NULL } ;", statementItem.getEscapedCodeStr());
 		//TODO Handle comment in parsers, when they appear within a statement
 	}
+	
+	@Test
+	public void commentInSameLineAsStatement6() {
+		String input = "  const ExtFaults faults[]\n" + 
+				"= {{\"<\", \"Incomplete element declaration not faulted\", NULL,\n" + 
+				"XML_ERROR_UNCLOSED_TOKEN},\n" + 
+				"{\"<\\xe2\\x82\", /* First two bytes of a three-byte char */\n" + 
+				"\"Incomplete character not faulted\", NULL, XML_ERROR_PARTIAL_CHAR},\n" + 
+				"{\"<tag>\\xe2\\x82\", \"Incomplete character in CDATA not faulted\", NULL,\n" + 
+				"XML_ERROR_PARTIAL_CHAR},\n" + 
+				"{NULL, NULL, NULL, XML_ERROR_NONE}};";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("const ExtFaults faults [ ] \n" + 
+				" = { { \"<\" , \"Incomplete element declaration not faulted\" , NULL , \n" + 
+				" XML_ERROR_UNCLOSED_TOKEN } , \n" + 
+				" { \"<\\xe2\\x82\" , /* First two bytes of a three-byte char */ \n" + 
+				" \"Incomplete character not faulted\" , NULL , XML_ERROR_PARTIAL_CHAR } , \n" + 
+				" { \"<tag>\\xe2\\x82\" , \"Incomplete character in CDATA not faulted\" , NULL , \n" + 
+				" XML_ERROR_PARTIAL_CHAR } , \n" + 
+				" { NULL , NULL , NULL , XML_ERROR_NONE } } ;", statementItem.getEscapedCodeStr());
+		//TODO Handle comment in parsers, when they appear within a statement
+	}
 
 }
