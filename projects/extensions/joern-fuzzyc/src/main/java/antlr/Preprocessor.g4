@@ -45,7 +45,7 @@ pre_define: PRE_DEFINE pre_macro_identifier '(' pre_macro_parameters ')' pre_mac
 
 pre_undef: PRE_UNDEF pre_macro_identifier;
 
-pre_macro_identifier: identifier | constant | keyword;
+pre_macro_identifier: identifier | keyword;
 
 //Macros can redefine keywords
 keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' | 'static' | 'void' | 'unsigned' | 'signed' | 'long' | 'virtual' | 'operator' | 'class';
@@ -61,8 +61,15 @@ pre_diagnostic: PRE_DIAGNOSTIC STRING
             | PRE_DIAGNOSTIC;
 
 pre_other: PRE_OTHER STRING? 
-           |PRE_ATTRIBUTE '(' '(' pre_macro_identifier? NEWLINE? ( '(' pre_macro_identifier (',' NEWLINE? pre_macro_identifier)* ')' )? ')' ')'
-           ; 
+           |PRE_ATTRIBUTE '(' '(' attributeList? ')' ')'
+           ;   
+
+attributeList:  attribute (',' attribute)* ;
+
+attribute: pre_macro_identifier //Identifier or keyword 
+            | pre_macro_identifier '(' identifier (',' expr)* ')'
+            | pre_macro_identifier '(' expr? (',' expr)* ')'
+            ;        
 
 pre_include: PRE_INCLUDE pre_include_system_header
             | PRE_INCLUDE pre_macro_identifier

@@ -350,7 +350,7 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreOtherAttribute() {
-		String input = " __attribute__((format(printf, 1, 2)))";
+		String input = "__attribute__((format(printf, 1, 2)))";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreOther", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("__attribute__ ( ( format ( printf , 1 , 2 ) ) )", contentItem.getStatement(0).getEscapedCodeStr());

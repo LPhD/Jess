@@ -214,6 +214,26 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPre_other(ModuleParser.Pre_otherContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#attributeList}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttributeList(ModuleParser.AttributeListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#attributeList}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttributeList(ModuleParser.AttributeListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#attribute}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttribute(ModuleParser.AttributeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#attribute}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttribute(ModuleParser.AttributeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_include}.
 	 * @param ctx the parse tree
 	 */

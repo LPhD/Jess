@@ -430,6 +430,26 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_other(FunctionParser.Pre_otherContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#attributeList}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttributeList(FunctionParser.AttributeListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#attributeList}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttributeList(FunctionParser.AttributeListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#attribute}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttribute(FunctionParser.AttributeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#attribute}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttribute(FunctionParser.AttributeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_include}.
 	 * @param ctx the parse tree
 	 */
