@@ -364,5 +364,22 @@ public class ExpressionParsingTest {
 				" \"<do\\xf0\\x90\\x80\\x80/>\" ;", statementItem.getEscapedCodeStr());
 		//TODO Handle comment in parsers, when they appear within a statement
 	}
+	
+	@Test
+	public void commentInSameLineAsStatement4() {
+		String input = "const XML_Char *expected =\n" + 
+				"      /* 64 characters per line */\n" + 
+				"      /* clang-format off */\n" + 
+				"        XCS(\"ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP\")\n" + 
+				"        XCS(\"ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP\");";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("const XML_Char * expected = \n" + 
+				" /* 64 characters per line */ \n" + 
+				" /* clang-format off */ \n" + 
+				" XCS ( \"ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP\" ) \n" + 
+				" XCS ( \"ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP\" ) ;", statementItem.getEscapedCodeStr());
+		//TODO Handle comment in parsers, when they appear within a statement
+	}
 
 }
