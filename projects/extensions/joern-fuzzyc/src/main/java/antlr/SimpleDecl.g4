@@ -21,7 +21,7 @@ initializer: assign_expr
            |'{' NEWLINE* (COMMENT NEWLINE*)* '}'
 ;
 
-initializer_list: initializer (','  NEWLINE* initializer)* ','?;
+initializer_list: initializer (','  NEWLINE* (COMMENT NEWLINE*)* initializer)* ','?;
 
 
 class_def: CLASS_KEY class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;
