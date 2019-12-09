@@ -381,5 +381,22 @@ public class ExpressionParsingTest {
 				" XCS ( \"ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP\" ) ;", statementItem.getEscapedCodeStr());
 		//TODO Handle comment in parsers, when they appear within a statement
 	}
+	
+	@Test
+	public void commentInSameLineAsStatement5() {
+		String input = "  ExtTest test_data\n" + 
+				" = {/* This text says it's an unsupported encoding, but it's really\n" + 
+				" UTF-8, which we tell Expat using XML_SetEncoding().\n" + 
+				" */\n" + 
+				" \"<?xml encoding='iso-8859-3'?>\\xC3\\xA9\", XCS(\"utf-8\"), NULL};";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("ExtTest test_data \n" + 
+				" = { /* This text says it's an unsupported encoding, but it's really\n" + 
+				" UTF-8, which we tell Expat using XML_SetEncoding().\n" + 
+				" */ \n" + 
+				" \"<?xml encoding='iso-8859-3'?>\\xC3\\xA9\" , XCS ( \"utf-8\" ) , NULL } ;", statementItem.getEscapedCodeStr());
+		//TODO Handle comment in parsers, when they appear within a statement
+	}
 
 }
