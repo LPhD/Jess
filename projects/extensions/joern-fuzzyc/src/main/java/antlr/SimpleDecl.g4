@@ -17,8 +17,8 @@ init_declarator_list: init_declarator (','  NEWLINE* init_declarator)* ';';
 initializer: assign_expr
            | ( (COMMENT NEWLINE*)* pre_macro_identifier NEWLINE*)+
            | ( (COMMENT NEWLINE*)* macroCall NEWLINE*)+
-           |'{' NEWLINE* initializer_list NEWLINE* '}'
-           |'{' NEWLINE* '}'
+           |'{' NEWLINE* (COMMENT NEWLINE*)* initializer_list NEWLINE* (COMMENT NEWLINE*)* '}'
+           |'{' NEWLINE* (COMMENT NEWLINE*)* '}'
 ;
 
 initializer_list: initializer (','  NEWLINE* initializer)* ','?;
