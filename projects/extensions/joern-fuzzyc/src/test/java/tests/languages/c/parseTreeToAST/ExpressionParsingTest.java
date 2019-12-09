@@ -349,5 +349,20 @@ public class ExpressionParsingTest {
 				" \"\\r\\000\\n\\000\\r\\000\\n\\000\" ;", statementItem.getEscapedCodeStr());
 		//TODO Handle comment in parsers, when they appear within a statement
 	}
+	
+	@Test
+	public void commentInSameLineAsStatement3() {
+		String input = "  const char *text\n" + 
+				"      = \"<?xml version='1.0' encoding='utf-8'?>\\n\"\n" + 
+				"        /* 0xf0 0x90 0x80 0x80 = U+10000, the first Linear B character */\n" + 
+				"        \"<do\\xf0\\x90\\x80\\x80/>\";";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("const char * text \n" + 
+				" = \"<?xml version='1.0' encoding='utf-8'?>\\n\" \n" + 
+				" /* 0xf0 0x90 0x80 0x80 = U+10000, the first Linear B character */ \n" + 
+				" \"<do\\xf0\\x90\\x80\\x80/>\" ;", statementItem.getEscapedCodeStr());
+		//TODO Handle comment in parsers, when they appear within a statement
+	}
 
 }

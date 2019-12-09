@@ -199,7 +199,7 @@ constant
     :   HEX_LITERAL
     |   OCTAL_LITERAL
     |   DECIMAL_LITERAL
-	|	(STRING COMMENT? NEWLINE?)+ //Comment should be comment, but currently parser cannot handle this
+	|	(STRING NEWLINE* COMMENT* NEWLINE*)+ //Comment should be comment, but currently parser cannot handle this
     |   CHAR
     |   FLOATING_POINT_LITERAL
     ;
