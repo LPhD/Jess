@@ -64,7 +64,6 @@ grammar Common;
 			consume();
 			//Check for newline and END_TEST
 			if(_input.LA(1) == NEWLINE &&  _input.LA(2) == END_TEST){
-			    System.out.println("Found newline!");
 			    //Parse both
 			    consume();
 			    consume();
@@ -199,7 +198,7 @@ constant
     :   HEX_LITERAL
     |   OCTAL_LITERAL
     |   DECIMAL_LITERAL
-	|	STRING
+	|	(STRING NEWLINE?)+
     |   CHAR
     |   FLOATING_POINT_LITERAL
     ;

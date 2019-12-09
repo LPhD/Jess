@@ -86,6 +86,18 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void testConstCharArrayWithLinebreak() {
+		String input = "const char message[] = \"\\x00\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\x09\"\n" + 
+				"\"\\x0a\\x0b\\x0c\\x0d\\x0e\";";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("const char message [ ] = \"\\x00\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\x09\" \n" + 
+				" \"\\x0a\\x0b\\x0c\\x0d\\x0e\" ;", statementItem.getEscapedCodeStr());
+		IdentifierDecl identifierDecl = (IdentifierDecl) statementItem.getIdentifierDeclList().get(0);
+		assertEquals("message", identifierDecl.getName().getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testConditionalExpr() {
 		String input = "foo = cond? x : y;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
