@@ -9,7 +9,7 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ################# Configuration options for Semantic Unit identification #################
 includeEnclosedCode = True
-followDataflows = True
+followDataflows = False
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
@@ -18,10 +18,10 @@ LookForAllFunctionCalls = False
 includeVariabilityInformation = False
 includeComments = True
 ######################### Configuration options for graph output #########################
-generateOnlyAST = False
+generateOnlyAST = True
 generateOnlyVisibleCode = True
 #################### Configuration options for debug output (console) ####################
-DEBUG = False
+DEBUG = True
 ##########################################################################################
 
 
@@ -29,7 +29,8 @@ DEBUG = False
 #projectName = 'JoernTest.tar.gz'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-projectName = 'SPLC'
+#projectName = 'SPLC'
+projectName = 'expat'
 #projectName = 'Collection'
 
 
@@ -61,7 +62,7 @@ checkedVertices = set()
 analysisList = list()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
-visibleStatementTypes = ['ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File']
+visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File']
 
 
 # Main function 
@@ -442,35 +443,40 @@ def getCalledFunctionDef (verticeId):
     # First: Get the name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
     functionName = db.runGremlinQuery(query)
+    
+    print(functionName)
 
-    # Second: Go to parent file of the current node (Callee)
-    # Branch 1: Look in its AST children for a functionDef with the given name
-    # Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
-    # Branch 2.1: Emit the id of the external function def
-    # Branch 2.2: Go to the parent file of the external function def
-    # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
-    # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
-    query = """g.V(%s).until(has('type', 'File'))
-        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode')
-        .union(
-            until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
-            ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
-            .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
-                .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
-                .union(
-                    id().as('idOfExternalDeclaration'),
-                    select('externalHeaderFileResult').until(has('type', 'File'))
-                        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
-                        .union(
-                        __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
-                        __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-                            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
-                        )
-                )
-        )""" % (verticeId, functionName[0], functionName[0], functionName[0])                  
-            
-    return db.runGremlinQuery(query)
+    if(len(functionName) > 0):
+        # Second: Go to parent file of the current node (Callee)
+        # Branch 1: Look in its AST children for a functionDef with the given name
+        # Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
+        # Branch 2.1: Emit the id of the external function def
+        # Branch 2.2: Go to the parent file of the external function def
+        # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
+        # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
+        query = """g.V(%s).until(has('type', 'File'))
+            .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode')
+            .union(
+                until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+                ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
+                .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
+                    .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
+                    .union(
+                        id().as('idOfExternalDeclaration'),
+                        select('externalHeaderFileResult').until(has('type', 'File'))
+                            .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
+                            .union(
+                            __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
+                            __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+                            )
+                    )
+            )""" % (verticeId, functionName[0], functionName[0], functionName[0])                  
+                
+        return db.runGremlinQuery(query)
+    else:
+        return ""
     
     
 # Return the ids of all callees for this function
