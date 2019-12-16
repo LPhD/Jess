@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import antlr.ModuleLexer;
 import ast.ASTNode;
+import ast.c.functionDef.FunctionDef;
+import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.custom.CustomNode;
 import parsing.TokenSubStream;
 import parsing.Modules.ANTLRCModuleParserDriver;
@@ -31,6 +33,49 @@ public class CustomTest {
 		List<ASTNode> codeItems = parseInput(input);
 		CustomNode codeItem = (CustomNode) codeItems.get(0);		
 		assertEquals("BT_NONXML , BT_NONXML , BT_NONXML , BT_NONXML ,", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testCustomFunctionDef() {
+		String input = "START_TEST(test_wfc_no_recursive_entity_refs) {\n" + 
+				"  const char *text = \"<!DOCTYPE doc [\\n\"\n" + 
+				"                     \"  <!ENTITY entity '&#38;entity;'>\\n\"\n" + 
+				"                     \"]>\\n\"\n" + 
+				"                     \"<doc>&entity;</doc>\";\n" + 
+				"\n" + 
+				"  expect_failure(text, XML_ERROR_RECURSIVE_ENTITY_REF,\n" + 
+				"                 \"Parser did not report recursive entity reference.\");\n" + 
+				"}\n" + 
+				"END_TEST";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);		
+		assertEquals("START_TEST ( test_wfc_no_recursive_entity_refs ) ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testSTART_TEST() {
+		String input = "#define START_TEST(testname)                        \\\n" + 
+				"  static void testname(void) {                             \\\n" + 
+				"    _check_set_test_info(__func__, __FILE__, __LINE__);    \\\n" + 
+				"    {";
+		List<ASTNode> codeItems = parseInput(input);
+		PreDefine codeItem = (PreDefine) codeItems.get(0);		
+		assertEquals("#define START_TEST ( testname ) \\ \n" + 
+				" static void testname ( void ) { \\ \n" + 
+				" _check_set_test_info ( __func__ , __FILE__ , __LINE__ ) ; \\ \n" + 
+				" {", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testEND_TEST() {
+		String input = "#define END_TEST    \\\n" + 
+				"  }                        \\\n" + 
+				"  }";
+		List<ASTNode> codeItems = parseInput(input);
+		PreDefine codeItem = (PreDefine) codeItems.get(0);		
+		assertEquals("#define END_TEST \\ \n" + 
+				" } \\ \n" + 
+				" }", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test
