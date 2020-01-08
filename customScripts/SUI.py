@@ -9,7 +9,7 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ################# Configuration options for Semantic Unit identification #################
 includeEnclosedCode = True
-followDataflows = False
+followDataflows = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
@@ -624,7 +624,7 @@ def addParentFunctions ():
         __.in('IS_AST_PARENT').has('type', 'CompoundStatement'), 
         __.in('IS_AST_PARENT').has('type', 'FunctionDef'), 
         __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef'),
-        .has('type', 'CompoundStatement').out('IS_AST_PARENT').has('type', 'BlockCloser')
+        has('type', 'CompoundStatement').out('IS_AST_PARENT').has('type', 'BlockCloser')
         ).dedup().id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
