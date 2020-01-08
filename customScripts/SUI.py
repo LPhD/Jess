@@ -95,7 +95,9 @@ def identifySemanticUnits ():
             
         # Remove node after the analysis
         # analysisList.remove(node)          
-        
+    
+    print(semanticUnit)    
+     
     if (len(semanticUnit) > 0):
         # Adapt results for syntactical correctness       
         # Add the function definition 
@@ -736,12 +738,18 @@ def consoleInput ():
                     # Id input loop
                     while True:
                         selectedID = input("Please type in the id of the statement you would like to analyze \n")   
-                        if( selectedID.isdigit()):                   
-                            print("You selected \""+selectedID+"\" as entry point \n")
-                            entryFeatureNames = set()
-                            entryPointIds = {int(selectedID)}    
-                            # Stop the id input loop if we get valid results        
-                            break
+                        if( selectedID.isdigit()):  
+                            #Check if the id exists    
+                            query = """g.V(%s)""" % (selectedID) 
+                            result = db.runGremlinQuery(query)
+                            if (len(result) > 0):
+                                print("You selected \""+selectedID+"\" as entry point \n")
+                                entryFeatureNames = set()
+                                entryPointIds = {int(selectedID)}    
+                                # Stop the id input loop if we get valid results        
+                                break
+                            else:    
+                                print(selectedID+" is not a valid existing ID. Please try again.")                          
                         else:
                             print("Please insert a valid number")
                         
