@@ -20,6 +20,8 @@ includeComments = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = True
 generateOnlyVisibleCode = True
+###################### Configuration options for entry point input ## ####################
+console = True
 #################### Configuration options for debug output (console) ####################
 DEBUG = True
 ##########################################################################################
@@ -30,7 +32,10 @@ DEBUG = True
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
 #projectName = 'SPLC'
-projectName = 'expat'
+#projectName = 'expat'
+#projectName = 'PL_Current.tar.gz'
+projectName = 'PV_Current.tar.gz'
+#projectName = 'Origin.tar.gz'
 #projectName = 'Collection'
 
 
@@ -685,6 +690,8 @@ def consoleInput ():
         if (len(selectedProject) > 0 and selectedProject in projectNames):
             print("Current project is set to \""+selectedProject+"\"\n")
             projectName = selectedProject
+            #Connect to DB
+            db.connectToDatabase(projectName)
             break
         else:
             print("Please type in a valid project name \n")
@@ -929,13 +936,15 @@ def output(G):
     
     
 ################################################### Start of program #################################################################
+#Initialize DB interface
+db = DBInterface()
 
 # Input of entry points
-consoleInput()
-
-#Connect to db
-db = DBInterface()
-db.connectToDatabase(projectName)
+if (console):
+    consoleInput()
+else: 
+    # projectName must be set manually
+    db.connectToDatabase(projectName)
 
 # Start identification process    
 identifySemanticUnits() 
