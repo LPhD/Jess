@@ -8,7 +8,7 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ################# Configuration options for Semantic Unit identification #################
-includeEnclosedCode = True
+includeEnclosedCode = False
 followDataflows = True
 connectIfWithElse = True
 searchDirsRecursively = True
@@ -18,10 +18,10 @@ LookForAllFunctionCalls = False
 includeVariabilityInformation = False
 includeComments = True
 ######################### Configuration options for graph output #########################
-generateOnlyAST = True
-generateOnlyVisibleCode = True
+generateOnlyAST = False
+generateOnlyVisibleCode = False
 ###################### Configuration options for entry point input ## ####################
-console = True
+console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = True
 ##########################################################################################
@@ -57,7 +57,7 @@ projectName = 'PV_Current.tar.gz'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {57496}
+entryPointIds = {65608}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()

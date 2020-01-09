@@ -17,30 +17,43 @@ def initialize():
     
     return [db, idList]
 
-def importData(db, idList):
-    # Get the code of the statements
-    query = """idListToNodes(%s).valueMap('code', 'path', 'line', 'cLine')""" % (idList)
-    # Execute equery
-    result = db.runGremlinQuery(query)
 
+def importData(db, idList):
     # List that contains the code, filename, and linenumber of each statement of the SemanticUnit
     structuredPatchList = []
+    # List to slice the idList in manageable chunks
+    chunkList = []
+    # Defines the size of a chunk (max is near 20.000, otherwise we get class file too large exceptions)
+    chunkSize = 16000
+    i = 0
+    
+    #Slice idList in chunks of ids and add them to the chunkList
+    while i in range(len(idList)):       
+        chunkList.append(idList[i:i+chunkSize])
+        i = i + chunkSize
+    
+    # For each chunk
+    for chunk in chunkList:
+        # Get the code of the statements for the chunk
+        query = """idListToNodes(%s).valueMap('code', 'path', 'line', 'cLine')""" % (chunk)
+        # Execute equery
+        result = db.runGremlinQuery(query)
 
-    for r in result:  
-        # Just add the statements to the results which contain all necessary information
-        if (('path' in r) and ('line' in r) and ('cLine' in r) and ('code' in r)):
-            # Get the filename (we need the path later)
-            locationFile = ntpath.basename((r['path'])[0])
-            
-            # Get the linenumber
-            locationLine = ((r['line'])[0])
-            
-            # Get the char number in the line
-            locationCLine = ((r['cLine'])[0])
-            
-            # Append filename, linenumber, cline and code (if exists) to the list
-            if len(r) > 3:
-                structuredPatchList.append([locationFile, int(locationLine), int(locationCLine), (r['code'])[0]])
+        for r in result:  
+            # Just add the statements to the results which contain all necessary information
+            if (('path' in r) and ('line' in r) and ('cLine' in r) and ('code' in r)):
+                # Get the filename (we need the path later)
+                locationFile = ntpath.basename((r['path'])[0])
+                
+                # Get the linenumber
+                locationLine = ((r['line'])[0])
+                
+                # Get the char number in the line
+                locationCLine = ((r['cLine'])[0])
+                
+                # Append filename, linenumber, cline and code (if exists) to the list
+                if len(r) > 3:
+                    structuredPatchList.append([locationFile, int(locationLine), int(locationCLine), (r['code'])[0]])
 
     
     # Sort the list content by file, by line and then by cLine
@@ -140,9 +153,13 @@ def writeToFile(fileName, fileContent):
     file.close() 
 
 def createPatch():
-    input = initialize()
+    input = initialize()    
     output = importData(input[0], input[1])
-    writeOutput(output)
+    if(len(output)==0):
+        print("Error: Output is empty")
+    else:
+        writeOutput(output)
+
 
 #Run the script    
 createPatch()    

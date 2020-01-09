@@ -18,7 +18,7 @@ projectNameAndPath = {'Collection':'/Joern_Advanced/testProjects/Collection/src/
 'sample':'/Example/'} 
 
 #Assemble path 
-projectName = "expat"
+projectName = "EvoDiss.tar.gz"
 projectPath = projectNameAndPath[projectName]
 pathToPatch = 'Patch/'
 basePath = '/home/lea/Downloads/Joern_Advanced/projects/octopus/data/projects/'+projectName+'/src'

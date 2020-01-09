@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 from octopus.server.DBInterface import DBInterface
+import random
 
 # This is a collection of various queries
 
 
 #Define target project
-projectName = 'SPLC'
+#projectName = 'SPLC'
+#projectName = 'Linux3'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'JoernTest.tar.gz'
 #projectName = 'Linux.tar.gz'
 #projectName = 'Collection'
+#projectName = 'expat'
+#projectName = 'sample'
+projectName = 'PV_Current.tar.gz'
 #Connect do database of project
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -139,8 +144,25 @@ query = """idListToNodes(%s).sideEffect{}.statements()""" % (nodeIds)
 # Maps code and location values for each node (returns a list() of dict() data structure)
 query = """idListToNodes(%s).valueMap('code', 'path')""" % (nodeIds)
 
-query = "g.V(12358)"
- 
+query = "g.V(1274008)"
+#query = "g.V(651336)"
+#query = "g.V(749568)"
+query = "g.V().has('type','FunctionDef').has('code', textContains('usage ( const char * prog , int rc ) ')).out(AST_EDGE).has('type', 'CompoundStatement')" 
+
+#query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('XML_MIN_SIZE')).union(id(), out('VARIABILITY').id())"""
+
+query = "g.V().has('code', textContains('sccb_mgr_info'))"
+
+query = "g.V().has('type', 'structUnionEnum')"
+
+query = """g.V(90328).union(
+    __.in('IS_AST_PARENT').has('type', 'CompoundStatement'), 
+    __.in('IS_AST_PARENT').has('type', 'FunctionDef'), 
+    __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef'),
+    has('type', 'CompoundStatement').out('IS_AST_PARENT').has('type', 'BlockCloser')
+    ).dedup().id()"""  
+
+
 # Execute equery
 result = db.runGremlinQuery(query)
 
