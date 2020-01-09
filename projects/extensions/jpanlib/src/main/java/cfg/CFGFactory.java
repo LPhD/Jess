@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ast.ASTNode;
-import ast.Comment;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
-import ast.logical.statements.BlockCloser;
 import ast.logical.statements.BreakOrContinueStatement;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Label;
@@ -38,6 +36,7 @@ public class CFGFactory {
 	protected static StructuredFlowVisitor structuredFlowVisitior;
 
 	public CFG newInstance(FunctionDefBase functionDefinition) {
+		System.out.println("New instance FunctionDefBase: "+functionDefinition.getEscapedCodeStr());
 		try {
 			CFG function = newInstance();
 			CFG parameterBlock = convert(functionDefinition.getParameterList());
@@ -67,10 +66,13 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(ASTNode... nodes) {
+		
 		try {
 			CFG block = new CFG();
 			CFGNode last = block.getEntryNode();
 			for (ASTNode node : nodes) {
+				System.out.println("New instance nodes: "+node.getEscapedCodeStr());
+				
 				CFGNode container = new ASTNodeContainer(node);
 				block.addVertex(container);
 				block.addEdge(last, container);
@@ -95,6 +97,7 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(WhileStatement whileStatement) {
+		System.out.println("New instance WhileStatement: "+whileStatement.getEscapedCodeStr());
 		try {
 			CFG whileBlock = new CFG();
 			CFGNode conditionContainer = new ASTNodeContainer(whileStatement.getCondition());
@@ -117,6 +120,7 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(ForStatement forStatement) {
+		System.out.println("New instance ForStatement: "+forStatement.getEscapedCodeStr());
 		try {
 			CFG forBlock = new CFG();
 
@@ -165,6 +169,7 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(DoStatement doStatement) {
+		System.out.println("New instance DoStatement: "+doStatement.getEscapedCodeStr());
 		try {
 			CFG doBlock = new CFG();
 
@@ -298,6 +303,7 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(ParameterList paramList) {
+		System.out.println("New instance ParameterList: "+paramList.getEscapedCodeStr());
 		try {
 			CFG parameterListBlock = newInstance();
 			for (ParameterBase parameter : paramList) {
@@ -311,9 +317,11 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(CompoundStatement content) {
+		System.out.println("New instance CompoundStatement: "+content.getEscapedCodeStr());
 		try {
 			CFG compoundBlock = newInstance();
 			for (ASTNode statement : content.getStatements()) {
+				System.out.println("Current node: "statement.getEscapedCodeStr());
 				compoundBlock.appendCFG(convert(statement));
 			}
 			return compoundBlock;
@@ -324,6 +332,7 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(ReturnStatement returnStatement) {
+		System.out.println("New instance ReturnStatement: "+returnStatement.getEscapedCodeStr());
 		try {
 			CFG returnBlock = new CFG();
 			CFGNode returnContainer = new ASTNodeContainer(returnStatement);
@@ -473,6 +482,7 @@ public class CFGFactory {
 	}
 
 	public static void fixReturnStatements(CFG thisCFG) {
+		System.out.println("fixReturnStatements");
 		for (CFGNode returnStatement : thisCFG.getReturnStatements()) {
 			thisCFG.removeEdgesFrom(returnStatement);
 			thisCFG.addEdge(returnStatement, thisCFG.getExitNode());
