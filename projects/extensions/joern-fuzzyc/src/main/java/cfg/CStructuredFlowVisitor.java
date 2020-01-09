@@ -24,7 +24,6 @@ public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 
 	public void visit(ParameterList paramList) {
 		returnCFG = CCFGFactory.newInstance(paramList);
-		System.out.println("Visit paramList: "+paramList.getEscapedCodeStr());
 	}
 
 	public void visit(ParameterBase param) {
@@ -36,13 +35,11 @@ public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 				continue;
 			returnCFG.registerParameter(node);
 		}
-		System.out.println("Visit param: "+param.getEscapedCodeStr());
 
 	}
 
 	public void visit(ReturnStatement expression) {
 		returnCFG = CCFGFactory.newInstance(expression);
-		System.out.println("Visit ReturnStatement: "+expression.getEscapedCodeStr());
 	}
 
 	public void visit(GotoStatement expression) {
@@ -51,22 +48,18 @@ public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 
 	public void visit(IfStatementBase node) {
 		returnCFG = CCFGFactory.newInstance(node);
-		System.out.println("Visit IfStatementBase: "+node.getEscapedCodeStr());
 	}
 
 	public void visit(ForStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
-		System.out.println("Visit ForStatement: "+node.getEscapedCodeStr());
 	}
 
 	public void visit(WhileStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
-		System.out.println("Visit WhileStatement: "+node.getEscapedCodeStr());
 	}
 
 	public void visit(DoStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
-		System.out.println("Visit DoStatement: "+node.getEscapedCodeStr());
 	}
 
 	public void visit(SwitchStatement node) {

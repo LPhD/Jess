@@ -39,41 +39,33 @@ public class CFGFactory {
 		System.out.println("New instance FunctionDefBase: "+functionDefinition.getEscapedCodeStr());
 		try {
 			CFG function = newInstance();
-			System.out.println("Function cfg ");
-			System.out.println(function.toString());
-			
-			CFG parameterBlock = convert(functionDefinition.getParameterList());
-			
-			System.out.println("Function cfg ");
-			System.out.println(function.toString());
-			
+			CFG parameterBlock = convert(functionDefinition.getParameterList());		
 			CFG functionBody = convert(functionDefinition.getContent());
-			
-			System.out.println("Function cfg ");
+				
+			System.out.println("Function cfg 0");
 			System.out.println(function.toString());
 			
+			parameterBlock.appendCFG(functionBody);	
 			
-			parameterBlock.appendCFG(functionBody);
-			
-			System.out.println("Function cfg ");
+			System.out.println("Function cfg 1");
 			System.out.println(function.toString());
 			
 			function.appendCFG(parameterBlock);
 			
-			System.out.println("Function cfg ");
+			System.out.println("Function cfg 2");
 			System.out.println(function.toString());
 			
 			
 			fixGotoStatements(function);
 			
-			System.out.println("Function cfg ");
+			System.out.println("Function cfg 3");
 			System.out.println(function.toString());
 			
 			
 			fixReturnStatements(function);
 			
 			
-			System.out.println("Function cfg ");
+			System.out.println("Function cfg 4");
 			System.out.println(function.toString());
 			
 			if (!function.getBreakStatements().isEmpty()) {
@@ -88,8 +80,6 @@ public class CFGFactory {
 				function.addEdge(function.getExceptionNode(), function.getExitNode(), CFGEdge.UNHANDLED_EXCEPT_LABEL);
 			}
 
-			System.out.println("Function cfg ");
-			System.out.println(function.toString());
 			
 			return function;
 			
