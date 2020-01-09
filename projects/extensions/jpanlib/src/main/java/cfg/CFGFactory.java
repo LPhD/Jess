@@ -39,35 +39,23 @@ public class CFGFactory {
 		System.out.println("New instance FunctionDefBase: "+functionDefinition.getEscapedCodeStr());
 		try {
 			CFG function = newInstance();
+			
+			//Problem here
 			CFG parameterBlock = convert(functionDefinition.getParameterList());		
-			CFG functionBody = convert(functionDefinition.getContent());
-				
-			System.out.println("Function cfg 0");
-			System.out.println(function.toString());
+			CFG functionBody = convert(functionDefinition.getContent());	
 			
-			parameterBlock.appendCFG(functionBody);	
+			System.out.println(parameterBlock.toString());
+			System.out.println(functionBody.toString());
 			
-			System.out.println("Function cfg 1");
-			System.out.println(function.toString());
 			
+			parameterBlock.appendCFG(functionBody);			
 			function.appendCFG(parameterBlock);
 			
-			System.out.println("Function cfg 2");
 			System.out.println(function.toString());
 			
-			
-			fixGotoStatements(function);
-			
-			System.out.println("Function cfg 3");
-			System.out.println(function.toString());
-			
-			
+			fixGotoStatements(function);									
 			fixReturnStatements(function);
-			
-			
-			System.out.println("Function cfg 4");
-			System.out.println(function.toString());
-			
+						
 			if (!function.getBreakStatements().isEmpty()) {
 				System.err.println("warning: unresolved break statement in function: "+functionDefinition.getEscapedCodeStr());
 				fixBreakStatements(function, function.getErrorNode());
@@ -79,10 +67,8 @@ public class CFGFactory {
 			if (function.hasExceptionNode()) {
 				function.addEdge(function.getExceptionNode(), function.getExitNode(), CFGEdge.UNHANDLED_EXCEPT_LABEL);
 			}
-
 			
-			return function;
-			
+			return function;			
 			
 		} catch (Exception e) {
 			// e.printStackTrace();
