@@ -1,12 +1,12 @@
 grammar FunctionDef;
 import ModuleLex, Preprocessor, SimpleDecl, Expressions;
 
-function_def : template_decl_start? NEWLINE* return_type? NEWLINE* function_name NEWLINE*
+function_def : (template_decl_start NEWLINE*)? (return_type NEWLINE*)? function_name NEWLINE*
             function_param_list ctor_list? compound_statement
             | testStart compound_statement  //Custom definition for tests
             ; 
 
-return_type : (function_decl_specifiers* NEWLINE* type_name) ptr_operator*
+return_type : ((function_decl_specifiers NEWLINE*)* type_name) ptr_operator*
 				| macroCall
 				;
 

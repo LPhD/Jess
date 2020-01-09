@@ -49,7 +49,7 @@ param_decl_specifiers : (AUTO | REGISTER)? type_name;
 
 parameter_name: identifier;
 
-param_type_list: '(' NEWLINE? VOID ')'
+param_type_list: '(' VOID ')'
                | '(' NEWLINE? (param_type NEWLINE? (',' NEWLINE? param_type)*)? ')';
 
 param_type: param_decl_specifiers param_type_id;
