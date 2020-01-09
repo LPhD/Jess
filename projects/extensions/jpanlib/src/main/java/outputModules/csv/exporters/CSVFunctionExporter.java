@@ -19,8 +19,6 @@ public class CSVFunctionExporter extends FunctionExporter {
 		cfgImporter = new CSVCFGExporter();
 		udgImporter = new CSVUDGExporter();
 		ddgImporter = new CSVDDGExporter();
-		cdgImporter = new CSVCDGExporter();
-		domExporter = new CSVDOMExporter();
 	}
 
 	@Override
