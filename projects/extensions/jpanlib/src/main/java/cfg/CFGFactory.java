@@ -321,7 +321,7 @@ public class CFGFactory {
 		try {
 			CFG compoundBlock = newInstance();
 			for (ASTNode statement : content.getStatements()) {
-				System.out.println("Current node: "statement.getEscapedCodeStr());
+				System.out.println("Current node: "+statement.getEscapedCodeStr());
 				compoundBlock.appendCFG(convert(statement));
 			}
 			return compoundBlock;
