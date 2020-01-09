@@ -454,6 +454,8 @@ public class CFGFactory {
 
 	private static void fixBreakOrContinueStatements(CFG thisCFG, CFGNode target, Iterator<CFGNode> it) {
 		while (it.hasNext()) {
+			System.out.println("Fix: "+it.next().toString());
+			
 			CFGNode breakOrContinueNode = it.next();
 
 			ASTNodeContainer nodeContainer = (ASTNodeContainer) breakOrContinueNode;
