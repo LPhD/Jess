@@ -80,6 +80,7 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge> {
 
 	public void addCFG(CFG otherCFG) {
 		addVertices(otherCFG);
+		System.out.println("CFG0");
 		addEdges(otherCFG);
 
 		getParameters().addAll(otherCFG.getParameters());
@@ -101,6 +102,7 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge> {
 	}
 
 	public void appendCFG(CFG otherCFG) {
+		System.out.println("AppendCFG");
 		addCFG(otherCFG);
 		if (!otherCFG.isEmpty()) {
 			for (CFGEdge edge1 : incomingEdges(getExitNode())) {
@@ -116,6 +118,7 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge> {
 	}
 
 	public void mountCFG(CFGNode branchNode, CFGNode mergeNode, CFG cfg, String label) {
+		System.out.println("MountCFG");
 		if (!cfg.isEmpty()) {
 			addCFG(cfg);
 			for (CFGEdge edge : cfg.outgoingEdges(cfg.getEntryNode())) {
@@ -142,6 +145,7 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge> {
 		for (CFGNode vertex : cfg.getVertices()) {
 			for (CFGEdge edge : cfg.outgoingEdges(vertex)) {
 				if (!(edge.getSource().equals(cfg.getEntryNode()) || edge.getDestination().equals(cfg.getExitNode()))) {
+					System.out.println("CFG1");
 					addEdge(edge);
 				}
 			}
@@ -149,11 +153,13 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge> {
 	}
 
 	public void addEdge(CFGNode srcBlock, CFGNode dstBlock) {
+		System.out.println("CFG1.5");
 		addEdge(srcBlock, dstBlock, CFGEdge.EMPTY_LABEL);
 	}
 
 	public void addEdge(CFGNode srcBlock, CFGNode dstBlock, String label) {
 		CFGEdge edge = new CFGEdge(srcBlock, dstBlock, label);
+		System.out.println("CFG2");
 		addEdge(edge);
 	}
 
@@ -165,6 +171,7 @@ public class CFG extends IncidenceListGraph<CFGNode, CFGEdge> {
 			}
 		}
 		for (CFGEdge edge : getEdges()) {
+			System.out.println("CFG3");
 			reverseGraph.addEdge(edge.reverse());
 		}
 		reverseGraph.parameters = parameters;

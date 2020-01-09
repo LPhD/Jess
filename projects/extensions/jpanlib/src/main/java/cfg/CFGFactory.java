@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ast.ASTNode;
+import ast.Comment;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
+import ast.logical.statements.BlockCloser;
 import ast.logical.statements.BreakOrContinueStatement;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Label;
@@ -316,6 +318,7 @@ public class CFGFactory {
 		try {
 			CFG parameterListBlock = newInstance();
 			for (ParameterBase parameter : paramList) {
+				System.out.println("Convert from parameter: "+parameter.getEscapedCodeStr());
 				parameterListBlock.appendCFG(convert(parameter));
 			}
 			return parameterListBlock;
@@ -331,8 +334,11 @@ public class CFGFactory {
 			CFG compoundBlock = newInstance();
 			for (ASTNode statement : content.getStatements()) {
 				System.out.println("Current node: "+statement.getEscapedCodeStr());
+				System.out.println("Start converting: ");
 				compoundBlock.appendCFG(convert(statement));
+				System.out.println("Finished converting");
 			}
+			System.out.println("Finished compound");
 			return compoundBlock;
 		} catch (Exception e) {
 			// e.printStackTrace();
@@ -440,6 +446,11 @@ public class CFGFactory {
 		
 		//Dont include void parameter nodes
 		if(node instanceof ParameterBase && ((ParameterBase) node).isVoid) {
+			return newInstance();
+		}
+		
+		//Dont include block closers or comments
+		if(node instanceof BlockCloser || node instanceof Comment) {
 			return newInstance();
 		}
 		

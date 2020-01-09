@@ -3,8 +3,6 @@ package tests.udg;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +13,6 @@ import tests.TestDBTestsBatchInserter;
 import udg.CFGToUDGConverter;
 import udg.useDefAnalysis.CASTDefUseAnalyzer;
 import udg.useDefGraph.UseDefGraph;
-import udg.useDefGraph.UseOrDefRecord;
 
 public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 
@@ -57,6 +54,8 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 	@Test
 	public void test_plusEquals_asssignment() {
 		UseDefGraph useDefGraph = createUDGForCode("int f(){ x += y; }");
+		System.out.println(useDefGraph.getUsesAndDefsForSymbol("x"));
+		System.out.println(useDefGraph.getUsesAndDefsForSymbol("y"));
 		assertEquals(2, useDefGraph.getUsesAndDefsForSymbol("x").size());
 		assertEquals(1, useDefGraph.getUsesAndDefsForSymbol("y").size());
 	}
@@ -78,7 +77,7 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 	}
 	
 	@Test
-	public void test_complex_function() {
+	public void test_complex_function_UDG() {
 		System.out.println("Start");
 		UseDefGraph useDefGraph = createUDGForCode("void bubblesort(int *array, int length) {\n" + 
 				"	int i, j;\n" + 
