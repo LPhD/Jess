@@ -442,6 +442,8 @@ public class CFGFactory {
 		if(node instanceof ParameterBase && ((ParameterBase) node).isVoid) {
 			return newInstance();
 		}
+		
+		System.out.println("Start visitor");
 
 		node.accept(structuredFlowVisitior);
 		return structuredFlowVisitior.getCFG();
