@@ -44,14 +44,11 @@ public class CFGFactory {
 			CFG parameterBlock = convert(functionDefinition.getParameterList());		
 			CFG functionBody = convert(functionDefinition.getContent());	
 			
-			System.out.println(parameterBlock.toString());
-			System.out.println(functionBody.toString());
-			
-			
+			System.out.println("params"+parameterBlock.toString());
+			System.out.println("body"+functionBody.toString());
+						
 			parameterBlock.appendCFG(functionBody);			
 			function.appendCFG(parameterBlock);
-			
-			System.out.println(function.toString());
 			
 			fixGotoStatements(function);									
 			fixReturnStatements(function);
