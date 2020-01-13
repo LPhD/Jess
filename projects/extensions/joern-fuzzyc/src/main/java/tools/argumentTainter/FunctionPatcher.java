@@ -11,8 +11,7 @@ import ddg.DefUseCFG.DefUseCFGFactory;
 import ddg.DefUseCFG.ReadWriteDbFactory;
 import neo4j.traversals.readWriteDB.Traversals;
 
-public class FunctionPatcher
-{
+public class FunctionPatcher {
 
 	private DefUseCFGFactory defUseGraphFactory = new ReadWriteDbFactory();
 	private Collection<Node> statementsToPatch = new LinkedList<Node>();
@@ -21,58 +20,42 @@ public class FunctionPatcher
 	private String sourceToPatch;
 	private int argumentToPatch;
 
-	public void setSourceToPatch(String source)
-	{
+	public void setSourceToPatch(String source) {
 		sourceToPatch = source;
 	}
 
-	public void setArgumentToPatch(int argToPatch)
-	{
+	public void setArgumentToPatch(int argToPatch) {
 		argumentToPatch = argToPatch;
 	}
 
-	public void reset()
-	{
+	public void reset() {
 		statementsToPatch.clear();
 		defUseCFG = null;
 	}
 
-	public void patch(Long funcId)
-	{
+	public void patch(Long funcId) {
 		determineCallsToPatch(funcId);
 		retrieveDefUseCFGFromDatabase(funcId);
 		patchDefUseCFG();
-		patchDDG(funcId);
 	}
 
-	private void determineCallsToPatch(Long funcId)
-	{
+	private void determineCallsToPatch(Long funcId) {
 
-		List<Node> callNodes = Traversals.getCallsToForFunction(sourceToPatch,
-				funcId);
-		for (Node callNode : callNodes)
-		{
+		List<Node> callNodes = Traversals.getCallsToForFunction(sourceToPatch, funcId);
+		for (Node callNode : callNodes) {
 			statementsToPatch.add(Traversals.getStatementForASTNode(callNode));
 		}
 	}
 
-	private void retrieveDefUseCFGFromDatabase(long funcId)
-	{
+	private void retrieveDefUseCFGFromDatabase(long funcId) {
 		defUseCFG = defUseGraphFactory.create(funcId);
 	}
 
-	private void patchDefUseCFG()
-	{
+	private void patchDefUseCFG() {
 		DefUseCFGPatcher patcher = new DefUseCFGPatcher();
 		patcher.setSourceToPatch(sourceToPatch, argumentToPatch);
 		patcher.patchDefUseCFG(defUseCFG, statementsToPatch);
 		patcher.writeChangesToDatabase();
 	}
 
-	private void patchDDG(Long funcId)
-	{
-		DDGPatcher patcher = new DDGPatcher();
-		patcher.patchDDG(defUseCFG, funcId);
-		patcher.writeChangesToDatabase();
-	}
 }

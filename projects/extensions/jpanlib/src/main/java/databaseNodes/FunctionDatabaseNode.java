@@ -8,10 +8,6 @@ import ast.functionDef.FunctionDefBase;
 import cfg.ASTToCFGConverter;
 import cfg.CFG;
 import cfg.CFGFactory;
-import ddg.CFGAndUDGToDefUseCFG;
-import ddg.DDGCreator;
-import ddg.DataDependenceGraph.DDG;
-import ddg.DefUseCFG.DefUseCFG;
 import udg.CFGToUDGConverter;
 import udg.useDefAnalysis.ASTDefUseAnalyzer;
 import udg.useDefGraph.UseDefGraph;
@@ -24,15 +20,12 @@ public class FunctionDatabaseNode extends DatabaseNode {
 	FunctionDefBase astRoot;
 	CFG cfg;
 	UseDefGraph udg;
-	DDG ddg;
 
 	String signature;
 	String name;
 
 	ASTToCFGConverter astToCFG = new ASTToCFGConverter();
 	CFGToUDGConverter cfgToUDG = new CFGToUDGConverter();
-	CFGAndUDGToDefUseCFG udgAndCfgToDefUseCFG = new CFGAndUDGToDefUseCFG();
-	DDGCreator ddgCreator = new DDGCreator();
 
 	public void setCFGFactory(CFGFactory factory) {
 		astToCFG.setFactory(factory);
@@ -47,8 +40,6 @@ public class FunctionDatabaseNode extends DatabaseNode {
 		astRoot = (FunctionDefBase) node;
 		cfg = astToCFG.convert(astRoot);
 		udg = cfgToUDG.convert(cfg);
-		DefUseCFG defUseCFG = udgAndCfgToDefUseCFG.convert(cfg, udg);
-		ddg = ddgCreator.createForDefUseCFG(defUseCFG);
 
 		setSignature(astRoot);
 	}
@@ -74,10 +65,6 @@ public class FunctionDatabaseNode extends DatabaseNode {
 
 	public CFG getCFG() {
 		return cfg;
-	}
-	
-	public DDG getDDG() {
-		return ddg;
 	}
 
 	public UseDefGraph getUDG() {
