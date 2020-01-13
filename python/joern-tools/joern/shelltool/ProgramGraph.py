@@ -65,19 +65,12 @@ class ProgramGraph(JoernTool):
         self.output(outputString)
 
     def _getLabels(self):
-        labels = ["FLOWS_TO", "REACHES", "CONTROLS", "DOM", "POST_DOM", "USE", "DEF", "IS_AST_PARENT"]
+        labels = ["FLOWS_TO", "USE", "DEF", "IS_AST_PARENT"]
         if self.args.show_all:
             return labels
 
         if not self.args.show_control_flow:
             labels.remove("FLOWS_TO")
-        if not self.args.show_data_dependences:
-            labels.remove("REACHES")
-        if not self.args.show_control_dependences:
-            labels.remove("CONTROLS")
-        if not self.args.show_dominance_edges:
-            labels.remove("DOM")
-            labels.remove("POST_DOM")
         if not self.args.show_data_flow:
             labels.remove("USE")
             labels.remove("DEF")

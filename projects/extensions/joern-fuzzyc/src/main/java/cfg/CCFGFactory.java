@@ -8,52 +8,40 @@ import cfg.CFGFactory;
 import cfg.nodes.ASTNodeContainer;
 import cfg.nodes.CFGNode;
 
-public class CCFGFactory extends CFGFactory
-{
+public class CCFGFactory extends CFGFactory {
 
-	static{
+	static {
 		structuredFlowVisitior = new CStructuredFlowVisitor();
 	}
 
-	public CCFGFactory()
-	{
+	public CCFGFactory() {
 		structuredFlowVisitior = new CStructuredFlowVisitor();
 	}
 
-	public static CFG newInstance(IfStatementBase ifStmt)
-	{
-		try
-		{
-			IfStatement ifStatement = (IfStatement)ifStmt;
+	public static CFG newInstance(IfStatementBase ifStmt) {
+		
+		try {
+			IfStatement ifStatement = (IfStatement) ifStmt;
 
 			CFG block = new CFG();
-			CFGNode conditionContainer = new ASTNodeContainer(
-					ifStatement.getCondition());
+			CFGNode conditionContainer = new ASTNodeContainer(ifStatement.getCondition());
 			block.addVertex(conditionContainer);
 			block.addEdge(block.getEntryNode(), conditionContainer);
 
 			CFG ifBlock = convert(ifStatement.getStatement());
-			block.mountCFG(conditionContainer, block.getExitNode(), ifBlock,
-					CFGEdge.TRUE_LABEL);
+			block.mountCFG(conditionContainer, block.getExitNode(), ifBlock, CFGEdge.TRUE_LABEL);
 
-			if (ifStatement.getElseNode() != null)
-			{
-				CFG elseBlock = convert(
-						ifStatement.getElseNode().getStatement());
-				block.mountCFG(conditionContainer, block.getExitNode(),
-						elseBlock, CFGEdge.FALSE_LABEL);
-			}
-			else
-			{
-				block.addEdge(conditionContainer, block.getExitNode(),
-						CFGEdge.FALSE_LABEL);
+			if (ifStatement.getElseNode() != null) {
+				CFG elseBlock = convert(ifStatement.getElseNode().getStatement());
+				block.mountCFG(conditionContainer, block.getExitNode(), elseBlock, CFGEdge.FALSE_LABEL);
+			} else {
+				block.addEdge(conditionContainer, block.getExitNode(), CFGEdge.FALSE_LABEL);
 			}
 
 			return block;
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			// e.printStackTrace();
+			System.err.println("Error generating CFG for if statement "+ifStmt.getEscapedCodeStr());
 			return newErrorInstance();
 		}
 	}

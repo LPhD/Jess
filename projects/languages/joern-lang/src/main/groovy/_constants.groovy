@@ -25,15 +25,7 @@ Object.metaClass.TYPE_SYMBOL = 'Symbol'
 Object.metaClass.AST_EDGE = 'IS_AST_PARENT'
 Object.metaClass.CFG_EDGE = 'FLOWS_TO'
 
-Object.metaClass.USES_EDGE = 'USE'
-Object.metaClass.DEFINES_EDGE = 'DEF'
-Object.metaClass.DATA_FLOW_EDGE = 'REACHES'
-
 Object.metaClass.FUNCTION_TO_AST_EDGE = 'IS_FUNCTION_OF_AST'
 Object.metaClass.FUNCTION_TO_CFG_EDGE = 'IS_FUNCTION_OF_CFG'
 
 Object.metaClass.FILE_TO_FUNCTION_EDGE = 'IS_FILE_OF'
-
-// Edge keys
-
-Object.metaClass.DATA_FLOW_SYMBOL = 'var'
