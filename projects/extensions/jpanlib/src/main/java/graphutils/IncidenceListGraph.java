@@ -27,7 +27,6 @@ public class IncidenceListGraph<V, E extends Edge<V>> implements Iterable<V> {
 	}
 
 	public void addEdge(E edge) {
-		System.out.println("Add edge from: "+edge.getSource().toString()+" to: "+edge.getDestination().toString());
 		failIfNotContained(edge.getSource());
 		failIfNotContained(edge.getDestination());
 		this.outNeighborhood.add(edge.getSource(), edge);
@@ -185,7 +184,6 @@ public class IncidenceListGraph<V, E extends Edge<V>> implements Iterable<V> {
 		}
 		for (V vertex : getVertices()) {
 			for (E edge : outgoingEdges(vertex)) {
-				System.out.println("Reverse");
 				reverseGraph.addEdge(type.cast(edge.reverse()));
 			}
 		}

@@ -16,9 +16,7 @@ public class ASTToCFGConverter {
 	}
 
 	public CFG convert(FunctionDefBase node) {
-		System.out.println("Start converting CFG");
 		CFG cfg = factory.newInstance(node);
-		System.out.println("Finished converting CFG");
 		return cfg;
 	}
 }

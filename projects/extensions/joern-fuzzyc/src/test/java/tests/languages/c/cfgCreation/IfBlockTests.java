@@ -35,7 +35,7 @@ public class IfBlockTests extends CCFGCreatorTest {
 	public void testIfStatementNumberOfEdges() {
 		String input = "if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
-		assertEquals(5, cfg.numberOfEdges());
+		assertEquals(4, cfg.numberOfEdges());
 	}
 
 	@Test
@@ -59,9 +59,9 @@ public class IfBlockTests extends CCFGCreatorTest {
 		String input = "if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
 
-		assertEquals(5, cfg.numberOfEdges());
+		assertEquals(4, cfg.numberOfEdges());
 		assertEquals(2, cfg.outDegree(getNodeByCode(cfg, "foo")));
-		assertEquals(2, cfg.outDegree(getNodeByCode(cfg, "bar ( );")));
+		assertEquals(1, cfg.outDegree(getNodeByCode(cfg, "bar ( );")));
 
 		assertTrue(isConnected(cfg, "foo", "bar ( );"));
 		assertTrue(isConnected(cfg, "foo", "EXIT"));
@@ -73,9 +73,9 @@ public class IfBlockTests extends CCFGCreatorTest {
 		String input = "x = 10; if(foo){ bar(); }";
 		CFG cfg = getCFGForCode(input);
 
-		assertEquals(6, cfg.numberOfEdges());
+		assertEquals(5, cfg.numberOfEdges());
 		assertEquals(2, cfg.outDegree(getNodeByCode(cfg, "foo")));
-		assertEquals(2, cfg.outDegree(getNodeByCode(cfg, "bar ( );")));
+		assertEquals(1, cfg.outDegree(getNodeByCode(cfg, "bar ( );")));
 
 		assertTrue(isConnected(cfg, "x = 10;", "foo"));
 		assertTrue(isConnected(cfg, "foo", "bar ( );"));
@@ -88,9 +88,9 @@ public class IfBlockTests extends CCFGCreatorTest {
 		String input = "if(foo){ bar(); } x = 10; ";
 		CFG cfg = getCFGForCode(input);
 
-		assertEquals(6, cfg.numberOfEdges());
+		assertEquals(5, cfg.numberOfEdges());
 		assertEquals(2, cfg.outDegree(getNodeByCode(cfg, "foo")));
-		assertEquals(2, cfg.outDegree(getNodeByCode(cfg, "bar ( );")));
+		assertEquals(1, cfg.outDegree(getNodeByCode(cfg, "bar ( );")));
 
 		assertTrue(isConnected(cfg, "foo", "x = 10;"));
 		assertTrue(isConnected(cfg, "bar ( );", "x = 10;"));

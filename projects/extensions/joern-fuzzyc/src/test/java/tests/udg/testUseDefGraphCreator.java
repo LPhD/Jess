@@ -39,25 +39,19 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 		String code = ("int f(){foo(x);}");
 		CFG cfg = getCFGForCode(code);
 		
-		System.out.println(cfg.toString());
-		
 		CFGToUDGConverter myCFGToUDG = new CFGToUDGConverter();
 		myCFGToUDG.setASTDefUseAnalyzer(new CASTDefUseAnalyzer());
 		((CASTDefUseAnalyzer) myCFGToUDG.getASTDefUseAnalyzer()).addTaintSource("foo", 0);
 		UseDefGraph useDefGraph = myCFGToUDG.convert(cfg);
-		
-		System.out.println(useDefGraph.toString());
 
-		assertEquals(2, useDefGraph.getUsesAndDefsForSymbol("x").size());
+		assertEquals(4, useDefGraph.getUsesAndDefsForSymbol("x").size());
 	}
 
 	@Test
 	public void test_plusEquals_asssignment() {
 		UseDefGraph useDefGraph = createUDGForCode("int f(){ x += y; }");
-		System.out.println(useDefGraph.getUsesAndDefsForSymbol("x"));
-		System.out.println(useDefGraph.getUsesAndDefsForSymbol("y"));
-		assertEquals(2, useDefGraph.getUsesAndDefsForSymbol("x").size());
-		assertEquals(1, useDefGraph.getUsesAndDefsForSymbol("y").size());
+		assertEquals(4, useDefGraph.getUsesAndDefsForSymbol("x").size());
+		assertEquals(2, useDefGraph.getUsesAndDefsForSymbol("y").size());
 	}
 
 	@Test
@@ -78,7 +72,6 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 	
 	@Test
 	public void test_complex_function_UDG() {
-		System.out.println("Start");
 		UseDefGraph useDefGraph = createUDGForCode("void bubblesort(int *array, int length) {\n" + 
 				"	int i, j;\n" + 
 				"	for (i = 0; i < length - 1; ++i) {\n" + 
@@ -91,14 +84,10 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 				"		}\n" + 
 				"	}\n" + 
 				"}");
-		System.out.println("End");
-		System.out.println("Keys: "+useDefGraph.keySet());
-		System.out.println(useDefGraph.getUsesAndDefsForSymbol("tmp"));
 		//5 Different variables
 		assertEquals(5, useDefGraph.keySet().size());
-		assertEquals(2, useDefGraph.getUsesAndDefsForSymbol("tmp").size());
-		assertEquals(6, useDefGraph.getUsesAndDefsForSymbol("array").size());
-		assertEquals(4, useDefGraph.getUsesAndDefsForSymbol("i").size());
+		assertEquals(5, useDefGraph.getUsesAndDefsForSymbol("tmp").size());
+		assertEquals(8, useDefGraph.getUsesAndDefsForSymbol("i").size());
 	}
 
 	private UseDefGraph createUDGForCode(String code) {

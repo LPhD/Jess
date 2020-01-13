@@ -1,6 +1,7 @@
 package tests.languages.c.cfgCreation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.stream.Stream;
@@ -37,9 +38,9 @@ public class OtherTests extends CCFGCreatorTest {
 	@Test
 	public void testDoEmptyBody() {
 		//This test fails after excluding BlockClosers from AST (after introducing them as explicit nodes)
-//		String input = "do{ }while(foo);";
-//		CFG cfg = getCFGForCode(input);
-//		assertFalse(containsErrorNode(cfg));
+		String input = "do{ }while(foo);";
+		CFG cfg = getCFGForCode(input);
+		assertFalse(containsErrorNode(cfg));
 	}
 
 	private boolean containsErrorNode(CFG cfg) {
@@ -60,28 +61,28 @@ public class OtherTests extends CCFGCreatorTest {
 		CFG cfg = getCFGForCode(input);
 		CFGNode node = getNodeByCode(cfg, "INFINITE FOR");
 		assertTrue(node instanceof InfiniteForNode);
-		assertEquals(4, cfg.size());
+		assertEquals(3, cfg.size());
 	}
 
 	@Test
 	public void testSwitchNumberOfEdges() {
 		String input = "switch(foo){ case 1: case2: case 3: }";
 		CFG cfg = getCFGForCode(input);
-		assertEquals(9, cfg.numberOfEdges());
+		assertEquals(8, cfg.numberOfEdges());
 	}
 
 	@Test
 	public void testSwitchWithBreakNumberOfEdges() {
 		String input = "switch(foo){ case 1: break; case2: break; case 3: }";
 		CFG cfg = getCFGForCode(input);
-		assertEquals(11, cfg.numberOfEdges());
+		assertEquals(10, cfg.numberOfEdges());
 	}
 
 	@Test
 	public void testSwitchWithDefaultLabelNumberOfEdges() {
 		String input = "switch(foo){ case 1: case2: default: }";
 		CFG cfg = getCFGForCode(input);
-		assertEquals(8, cfg.numberOfEdges());
+		assertEquals(7, cfg.numberOfEdges());
 	}
 
 	@Test

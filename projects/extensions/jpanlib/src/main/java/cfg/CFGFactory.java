@@ -38,16 +38,11 @@ public class CFGFactory {
 	protected static StructuredFlowVisitor structuredFlowVisitior;
 
 	public CFG newInstance(FunctionDefBase functionDefinition) {
-		System.out.println("New instance FunctionDefBase: "+functionDefinition.getEscapedCodeStr());
 		try {
 			CFG function = newInstance();
-			
-			//Problem here
 			CFG parameterBlock = convert(functionDefinition.getParameterList());		
 			CFG functionBody = convert(functionDefinition.getContent());	
 			
-			System.out.println("params"+parameterBlock.toString());
-			System.out.println("body"+functionBody.toString());
 						
 			parameterBlock.appendCFG(functionBody);			
 			function.appendCFG(parameterBlock);
@@ -82,8 +77,6 @@ public class CFGFactory {
 			CFG block = new CFG();
 			CFGNode last = block.getEntryNode();
 			for (ASTNode node : nodes) {
-				System.out.println("New instance nodes: "+node.getEscapedCodeStr());
-				
 				CFGNode container = new ASTNodeContainer(node);
 				block.addVertex(container);
 				block.addEdge(last, container);
@@ -108,7 +101,6 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(WhileStatement whileStatement) {
-		System.out.println("New instance WhileStatement: "+whileStatement.getEscapedCodeStr());
 		try {
 			CFG whileBlock = new CFG();
 			CFGNode conditionContainer = new ASTNodeContainer(whileStatement.getCondition());
@@ -131,7 +123,6 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(ForStatement forStatement) {
-		System.out.println("New instance ForStatement: "+forStatement.getEscapedCodeStr());
 		try {
 			CFG forBlock = new CFG();
 
@@ -180,7 +171,6 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(DoStatement doStatement) {
-		System.out.println("New instance DoStatement: "+doStatement.getEscapedCodeStr());
 		try {
 			CFG doBlock = new CFG();
 
@@ -314,11 +304,9 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(ParameterList paramList) {
-		System.out.println("New instance ParameterList: "+paramList.getEscapedCodeStr());
 		try {
 			CFG parameterListBlock = newInstance();
 			for (ParameterBase parameter : paramList) {
-				System.out.println("Convert from parameter: "+parameter.getEscapedCodeStr());
 				parameterListBlock.appendCFG(convert(parameter));
 			}
 			return parameterListBlock;
@@ -329,16 +317,11 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(CompoundStatement content) {
-		System.out.println("New instance CompoundStatement: "+content.getEscapedCodeStr());
 		try {
 			CFG compoundBlock = newInstance();
 			for (ASTNode statement : content.getStatements()) {
-				System.out.println("Current node: "+statement.getEscapedCodeStr());
-				System.out.println("Start converting: ");
 				compoundBlock.appendCFG(convert(statement));
-				System.out.println("Finished converting");
 			}
-			System.out.println("Finished compound");
 			return compoundBlock;
 		} catch (Exception e) {
 			// e.printStackTrace();
@@ -347,7 +330,6 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(ReturnStatement returnStatement) {
-		System.out.println("New instance ReturnStatement: "+returnStatement.getEscapedCodeStr());
 		try {
 			CFG returnBlock = new CFG();
 			CFGNode returnContainer = new ASTNodeContainer(returnStatement);
@@ -454,8 +436,6 @@ public class CFGFactory {
 			return newInstance();
 		}
 		
-		System.out.println("Start visitor");
-
 		node.accept(structuredFlowVisitior);
 		return structuredFlowVisitior.getCFG();
 	}
@@ -475,9 +455,7 @@ public class CFGFactory {
 	}
 
 	private static void fixBreakOrContinueStatements(CFG thisCFG, CFGNode target, Iterator<CFGNode> it) {
-		while (it.hasNext()) {
-			System.out.println("Fix: "+it.next().toString());
-			
+		while (it.hasNext()) {		
 			CFGNode breakOrContinueNode = it.next();
 
 			ASTNodeContainer nodeContainer = (ASTNodeContainer) breakOrContinueNode;
@@ -506,7 +484,6 @@ public class CFGFactory {
 	}
 
 	public static void fixReturnStatements(CFG thisCFG) {
-		System.out.println("fixReturnStatements");
 		for (CFGNode returnStatement : thisCFG.getReturnStatements()) {
 			thisCFG.removeEdgesFrom(returnStatement);
 			thisCFG.addEdge(returnStatement, thisCFG.getExitNode());
