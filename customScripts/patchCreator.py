@@ -159,6 +159,7 @@ def createPatch():
         print("Error: Output is empty")
     else:
         writeOutput(output)
+        print("Patch creation successfull")
 
 
 #Run the script    
