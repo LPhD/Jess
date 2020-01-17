@@ -77,10 +77,10 @@ class PythonShellInterface:
         return prefix + '_' + str(number)
 
     def _getPythonShellPrefix(self):
-        return ".python*" + self.databaseName
+        return ".python___" + self.databaseName
 
     def _getNumberForNewShell(self):
-        shellnumbers = [int(name.split('*')[2]) for (port, name, occupied) in self.shellsForDatabase]
+        shellnumbers = [int(name.split('___')[2]) for (port, name, occupied) in self.shellsForDatabase]
         if len(shellnumbers) == 0: return 0
         shellnumbers.sort()
         highestShellNumber = shellnumbers[-1]
