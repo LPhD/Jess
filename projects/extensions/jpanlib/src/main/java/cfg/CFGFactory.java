@@ -40,12 +40,16 @@ public class CFGFactory {
 	public CFG newInstance(FunctionDefBase functionDefinition) {
 		try {
 			CFG function = newInstance();
-			CFG parameterBlock = convert(functionDefinition.getParameterList());
-			CFG functionBody = convert(functionDefinition.getContent());
-			parameterBlock.appendCFG(functionBody);
+			CFG parameterBlock = convert(functionDefinition.getParameterList());		
+			CFG functionBody = convert(functionDefinition.getContent());	
+			
+						
+			parameterBlock.appendCFG(functionBody);			
 			function.appendCFG(parameterBlock);
-			fixGotoStatements(function);
+			
+			fixGotoStatements(function);									
 			fixReturnStatements(function);
+						
 			if (!function.getBreakStatements().isEmpty()) {
 				System.err.println("warning: unresolved break statement in function: "+functionDefinition.getEscapedCodeStr());
 				fixBreakStatements(function, function.getErrorNode());
@@ -57,8 +61,9 @@ public class CFGFactory {
 			if (function.hasExceptionNode()) {
 				function.addEdge(function.getExceptionNode(), function.getExitNode(), CFGEdge.UNHANDLED_EXCEPT_LABEL);
 			}
-
-			return function;
+			
+			return function;			
+			
 		} catch (Exception e) {
 			// e.printStackTrace();
 			System.err.println("Error in CFGFactory for function: "+functionDefinition.getEscapedCodeStr());
@@ -67,6 +72,7 @@ public class CFGFactory {
 	}
 
 	public static CFG newInstance(ASTNode... nodes) {
+		
 		try {
 			CFG block = new CFG();
 			CFGNode last = block.getEntryNode();
@@ -424,7 +430,12 @@ public class CFGFactory {
 		if(node instanceof ParameterBase && ((ParameterBase) node).isVoid) {
 			return newInstance();
 		}
-
+		
+		//Dont include block closers or comments
+		if(node instanceof BlockCloser || node instanceof Comment) {
+			return newInstance();
+		}
+		
 		node.accept(structuredFlowVisitior);
 		return structuredFlowVisitior.getCFG();
 	}
@@ -444,7 +455,7 @@ public class CFGFactory {
 	}
 
 	private static void fixBreakOrContinueStatements(CFG thisCFG, CFGNode target, Iterator<CFGNode> it) {
-		while (it.hasNext()) {
+		while (it.hasNext()) {		
 			CFGNode breakOrContinueNode = it.next();
 
 			ASTNodeContainer nodeContainer = (ASTNodeContainer) breakOrContinueNode;

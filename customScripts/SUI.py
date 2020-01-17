@@ -8,20 +8,21 @@ from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
 ################# Configuration options for Semantic Unit identification #################
-includeEnclosedCode = False
+includeEnclosedCode = True
 followDataflows = True
 connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
 LookForAllFunctionCalls = False
 ############### Further options to refine the Semantic Unit after analysis ###############
-includeVariabilityInformation = False
+includeVariabilityInformation = True
 includeComments = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
-generateOnlyVisibleCode = False
+generateOnlyVisibleCode = True
+showOnlyStructuralEdges = True
 ###################### Configuration options for entry point input ## ####################
-console = False
+console = True
 #################### Configuration options for debug output (console) ####################
 DEBUG = True
 ##########################################################################################
@@ -815,20 +816,22 @@ def plotResults ():
     plot_configuration.parse(f)
     labels = ["IS_AST_PARENT"] 
     
-    #Get nodes and edges of semanticUnit (either as AST or full property graph)
+    #Get nodes of semanticUnit (either as AST or full property graph)
     if(generateOnlyVisibleCode):
         if (DEBUG) : print("Get visible AST nodes")
         nodes = getVisibleASTNodes()    
-        if (DEBUG) : print("Get visible edges")
-        edges = getASTEdges() 
     elif (generateOnlyAST):
             if (DEBUG) : print("Get AST nodes")
-            nodes = getASTNodes()    
-            if (DEBUG) : print("Get AST edges")
-            edges = getASTEdges()    
+            nodes = getASTNodes()        
     else:
         if (DEBUG) : print("Get nodes")
         nodes = getNodes()    
+
+    #Get edges of semanticUnit (either only structural or all)
+    if(showOnlyStructuralEdges):
+        if (DEBUG) : print("Get structural edges")
+        edges = getASTEdges()   
+    else:    
         if (DEBUG) : print("Get edges")
         edges = getEdges()
 

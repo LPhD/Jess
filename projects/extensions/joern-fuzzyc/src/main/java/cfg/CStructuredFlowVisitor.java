@@ -86,13 +86,4 @@ public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 	public void visit(ThrowStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
-
-	public void visit(BlockCloser node) {
-		// Do nothing
-	}
-
-	public void visit(Comment node) {
-		// Do nothing
-	}
-
 }

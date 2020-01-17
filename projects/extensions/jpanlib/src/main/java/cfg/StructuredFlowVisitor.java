@@ -17,7 +17,7 @@ public class StructuredFlowVisitor extends ASTNodeVisitor {
 	}
 
 	public void visit(ASTNode expression) {
-			returnCFG = CFGFactory.newInstance(expression);
+		returnCFG = CFGFactory.newInstance(expression);
 	}
 
 }
