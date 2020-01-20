@@ -6,8 +6,7 @@ import java.util.Set;
 import ast.ASTNode;
 import misc.MultiHashMap;
 
-public class UseDefGraph
-{
+public class UseDefGraph {
 
 	// A UseDefGraph is a table indexed
 	// by identifiers. Each table-entry
@@ -16,43 +15,38 @@ public class UseDefGraph
 
 	MultiHashMap<String, UseOrDefRecord> useOrDefRecordTable = new MultiHashMap<String, UseOrDefRecord>();
 
-	public MultiHashMap<String, UseOrDefRecord> getUseDefDict()
-	{
+	public MultiHashMap<String, UseOrDefRecord> getUseDefDict() {
 		return useOrDefRecordTable;
 	}
 
-	public List<UseOrDefRecord> getUsesAndDefsForSymbol(String symbol)
-	{
+	public List<UseOrDefRecord> getUsesAndDefsForSymbol(String symbol) {
 		return useOrDefRecordTable.get(symbol);
 	}
 
-	public void addDefinition(String identifier, ASTNode astNode)
-	{
+	public void addDefinition(String identifier, ASTNode astNode) {
 		add(identifier, astNode, true);
 	}
 
-	public void addUse(String identifier, ASTNode astNode)
-	{
+	public void addUse(String identifier, ASTNode astNode) {
 		add(identifier, astNode, false);
 	}
 
-	private void add(String identifier, ASTNode astNode, boolean isDef)
-	{
+	private void add(String identifier, ASTNode astNode, boolean isDef) {
 		UseOrDefRecord record = new UseOrDefRecord(astNode, isDef);
 		useOrDefRecordTable.add(identifier, record);
 	}
-	
+
 	public Set<String> keySet() {
 		return this.useOrDefRecordTable.keySet();
 	}
-	
+
 	@Override
 	public String toString() {
 
 		StringBuilder sb = new StringBuilder();
-		
-		for( String symbol : this.keySet())
-			sb.append( symbol).append( ": ").append( this.getUsesAndDefsForSymbol( symbol)).append( "\n");
+
+		for (String symbol : this.keySet())
+			sb.append(symbol).append(": ").append(this.getUsesAndDefsForSymbol(symbol)).append("\n");
 
 		return sb.toString();
 	}

@@ -14,23 +14,31 @@ connectIfWithElse = True
 searchDirsRecursively = True
 includeOtherFeatures = False
 LookForAllFunctionCalls = False
-includeVariabilityInformation = False
+############### Further options to refine the Semantic Unit after analysis ###############
+includeVariabilityInformation = True
+includeComments = True
 ######################### Configuration options for graph output #########################
-generateOnlyAST = True
+generateOnlyAST = False
 generateOnlyVisibleCode = True
+showOnlyStructuralEdges = True
+###################### Configuration options for entry point input ## ####################
+console = True
 #################### Configuration options for debug output (console) ####################
-DEBUG = False
+DEBUG = True
 ##########################################################################################
 
 
-# Connect to project DB
+# Set the project DB manually (has only an effect if consoleInput is deactivated)
 #projectName = 'JoernTest.tar.gz'
 #projectName = 'EvoDiss.tar.gz'
 #projectName = 'Revamp'
-projectName = 'SPLC'
+#projectName = 'SPLC'
+#projectName = 'expat'
+#projectName = 'PL_Current.tar.gz'
+projectName = 'PV_Current.tar.gz'
+#projectName = 'Origin.tar.gz'
 #projectName = 'Collection'
-db = DBInterface()
-db.connectToDatabase(projectName)
+
 
 ## Example entry points ##
 ## Caution, depends on db ##
@@ -50,8 +58,8 @@ db.connectToDatabase(projectName)
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = set()
-entryFeatureNames = {'analogueSender'}
+entryPointIds = {65608}
+entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
 # Initialize empty set of checked vertices (because we only need to check the vertices once)
@@ -60,7 +68,7 @@ checkedVertices = set()
 analysisList = list()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
-visibleStatementTypes = ['ClassDef', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'OpeningCurly', 'ClosingCurly']
+visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File']
 
 
 # Main function 
@@ -88,7 +96,9 @@ def identifySemanticUnits ():
             
         # Remove node after the analysis
         # analysisList.remove(node)          
-        
+    
+    print(semanticUnit)    
+     
     if (len(semanticUnit) > 0):
         # Adapt results for syntactical correctness       
         # Add the function definition 
@@ -97,6 +107,10 @@ def identifySemanticUnits ():
         #Check for variability information
         if(includeVariabilityInformation):
             addVariability()
+        
+        #Check for comments
+        if(includeComments):
+            addComments()        
         
         # Get the #ifndef #def and #endif for header files?
         
@@ -437,35 +451,40 @@ def getCalledFunctionDef (verticeId):
     # First: Get the name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
     functionName = db.runGremlinQuery(query)
+    
+    print(functionName)
 
-    # Second: Go to parent file of the current node (Callee)
-    # Branch 1: Look in its AST children for a functionDef with the given name
-    # Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
-    # Branch 2.1: Emit the id of the external function def
-    # Branch 2.2: Go to the parent file of the external function def
-    # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
-    # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
-    query = """g.V(%s).until(has('type', 'File'))
-        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode')
-        .union(
-            until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
-            ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
-            .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
-                .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
-                .union(
-                    id().as('idOfExternalDeclaration'),
-                    select('externalHeaderFileResult').until(has('type', 'File'))
-                        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
-                        .union(
-                        __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
-                        __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-                            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
-                        )
-                )
-        )""" % (verticeId, functionName[0], functionName[0], functionName[0])                  
-            
-    return db.runGremlinQuery(query)
+    if(len(functionName) > 0):
+        # Second: Go to parent file of the current node (Callee)
+        # Branch 1: Look in its AST children for a functionDef with the given name
+        # Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
+        # Branch 2.1: Emit the id of the external function def
+        # Branch 2.2: Go to the parent file of the external function def
+        # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
+        # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
+        query = """g.V(%s).until(has('type', 'File'))
+            .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode')
+            .union(
+                until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+                ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
+                .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
+                    .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
+                    .union(
+                        id().as('idOfExternalDeclaration'),
+                        select('externalHeaderFileResult').until(has('type', 'File'))
+                            .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
+                            .union(
+                            __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
+                            __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+                            )
+                    )
+            )""" % (verticeId, functionName[0], functionName[0], functionName[0])                  
+                
+        return db.runGremlinQuery(query)
+    else:
+        return ""
     
     
 # Return the ids of all callees for this function
@@ -585,8 +604,9 @@ def getVariableStatements (verticeId):
 def getFeatureBlocks (featureName):
     for currentNode in featureName:    
         # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
-        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').id())""" % (currentNode)       
-        result = db.runGremlinQuery(query)      
+        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').id())""" % (currentNode)     
+        result = db.runGremlinQuery(query)              
+        
         if (len(result) == 0):
             print("##### Warning! No #if/#ifdef/#elif statements found for feature: "+currentNode+" #### \n")            
 
@@ -604,7 +624,8 @@ def addParentFunctions ():
     query = """idListToNodes(%s).union(
         __.in('IS_AST_PARENT').has('type', 'CompoundStatement'), 
         __.in('IS_AST_PARENT').has('type', 'FunctionDef'), 
-        __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef')
+        __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef'),
+        has('type', 'CompoundStatement').out('IS_AST_PARENT').has('type', 'BlockCloser')
         ).dedup().id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
@@ -626,6 +647,22 @@ def addVariability ():
     result = db.runGremlinQuery(query)       
     
     if (DEBUG) : print("Found additional variability nodes (#ifdef etc): "+str(result)+"\n")
+    
+    semanticUnit.update(result)
+    
+######################################### Comment Checking #################################################################
+
+# Return parent comment for each statement in the SemanticUnit (without further analysis)
+def addComments ():
+    if (DEBUG) : print("Checking for comments...")    
+
+    global semanticUnit
+    # Get the parent comment nodes, add them to the SemanticUnit (without dupes)
+    query = """idListToNodes(%s).in('COMMENTS').id()""" % (list(semanticUnit))   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found additional comment nodes: "+str(result)+"\n")
     
     semanticUnit.update(result)
     
@@ -656,6 +693,8 @@ def consoleInput ():
         if (len(selectedProject) > 0 and selectedProject in projectNames):
             print("Current project is set to \""+selectedProject+"\"\n")
             projectName = selectedProject
+            #Connect to DB
+            db.connectToDatabase(projectName)
             break
         else:
             print("Please type in a valid project name \n")
@@ -700,12 +739,18 @@ def consoleInput ():
                     # Id input loop
                     while True:
                         selectedID = input("Please type in the id of the statement you would like to analyze \n")   
-                        if( selectedID.isdigit()):                   
-                            print("You selected \""+selectedID+"\" as entry point \n")
-                            entryFeatureNames = set()
-                            entryPointIds = {int(selectedID)}    
-                            # Stop the id input loop if we get valid results        
-                            break
+                        if( selectedID.isdigit()):  
+                            #Check if the id exists    
+                            query = """g.V(%s)""" % (selectedID) 
+                            result = db.runGremlinQuery(query)
+                            if (len(result) > 0):
+                                print("You selected \""+selectedID+"\" as entry point \n")
+                                entryFeatureNames = set()
+                                entryPointIds = {int(selectedID)}    
+                                # Stop the id input loop if we get valid results        
+                                break
+                            else:    
+                                print(selectedID+" is not a valid existing ID. Please try again.")                          
                         else:
                             print("Please insert a valid number")
                         
@@ -771,20 +816,22 @@ def plotResults ():
     plot_configuration.parse(f)
     labels = ["IS_AST_PARENT"] 
     
-    #Get nodes and edges of semanticUnit (either as AST or full property graph)
+    #Get nodes of semanticUnit (either as AST or full property graph)
     if(generateOnlyVisibleCode):
         if (DEBUG) : print("Get visible AST nodes")
         nodes = getVisibleASTNodes()    
-        if (DEBUG) : print("Get visible edges")
-        edges = getASTEdges() 
     elif (generateOnlyAST):
             if (DEBUG) : print("Get AST nodes")
-            nodes = getASTNodes()    
-            if (DEBUG) : print("Get AST edges")
-            edges = getASTEdges()    
+            nodes = getASTNodes()        
     else:
         if (DEBUG) : print("Get nodes")
         nodes = getNodes()    
+
+    #Get edges of semanticUnit (either only structural or all)
+    if(showOnlyStructuralEdges):
+        if (DEBUG) : print("Get structural edges")
+        edges = getASTEdges()   
+    else:    
         if (DEBUG) : print("Get edges")
         edges = getEdges()
 
@@ -816,8 +863,9 @@ def getASTNodes():
 def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
-    # CompoundStatement is included for a better visualization (nesting), it is not needed for patch generation
-    query = """idListToNodes(%s).has('type', within(%s)).id()""" % (list(semanticUnit), visibleStatementTypes)  
+    query = """idListToNodes(%s).has('type', within(%s))
+        .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
+        .id()""" % (list(semanticUnit), visibleStatementTypes)  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
     semanticUnit = result
@@ -834,7 +882,7 @@ def getNodes():
 # Returns all AST edges of the Semantic Unit    
 def getASTEdges():
     # Get all incoming edges that are part of the AST  
-    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF')""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).inE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST','IS_PARENT_DIR_OF','VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF', 'COMMENTS')""" % (list(semanticUnit))   
     return db.runGremlinQuery(query)
     
 # Returns all edges of the Semantic Unit    
@@ -899,9 +947,15 @@ def output(G):
     
     
 ################################################### Start of program #################################################################
+#Initialize DB interface
+db = DBInterface()
 
 # Input of entry points
-consoleInput()
+if (console):
+    consoleInput()
+else: 
+    # projectName must be set manually
+    db.connectToDatabase(projectName)
 
 # Start identification process    
 identifySemanticUnits() 

@@ -2,6 +2,8 @@ package parsing.Functions.builder;
 
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -19,9 +21,11 @@ import antlr.FunctionParser.Cast_expressionContext;
 import antlr.FunctionParser.Cast_targetContext;
 import antlr.FunctionParser.Catch_statementContext;
 import antlr.FunctionParser.Closing_curlyContext;
+import antlr.FunctionParser.CommentContext;
 import antlr.FunctionParser.ConditionContext;
 import antlr.FunctionParser.Conditional_expressionContext;
 import antlr.FunctionParser.ContinueStatementContext;
+import antlr.FunctionParser.CustomContext;
 import antlr.FunctionParser.DeclByClassContext;
 import antlr.FunctionParser.Do_statementContext;
 import antlr.FunctionParser.Else_statementContext;
@@ -90,6 +94,7 @@ import antlr.FunctionParser.Unary_operatorContext;
 import antlr.FunctionParser.While_statementContext;
 import ast.ASTNode;
 import ast.ASTNodeBuilder;
+import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.c.expressions.SizeofExpression;
 import ast.c.preprocessor.blockstarter.PreElIfStatement;
@@ -113,6 +118,7 @@ import ast.c.preprocessor.commands.macro.PreMacroParameters;
 import ast.c.preprocessor.commands.macro.PreUndef;
 import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
+import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.declarations.IdentifierDeclType;
@@ -158,6 +164,7 @@ import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.CatchStatement;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.ForStatement;
@@ -200,10 +207,40 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 */
 	private Stack<ASTNode> preASTItemStack = new Stack<ASTNode>();	
 	/**
+	 * This stack contains Comments
+	 */
+	private Stack<Comment> commentStack = new Stack<Comment>();
+	/**
+	 * Saves the previous statement to be able to connect comments with statements in the same line
+	 */
+	private ASTNode previousStatement = null;
+	/**
+	 * Pending items list for all statements that should be visited after the whole file content is parsed
+	 * Currently only for comments
+	 */
+	private List<Comment> pendingList = new LinkedList<Comment>();
+	/**
 	 * This is needed for returning the current item when we call the function parser via the module parser
 	 * We need this for #else/#elif/#endif because they are not children of the top level compound statement
 	 */
 	public ASTNode currentItem = null;
+	/**
+	 * This contains the root compound item
+	 */
+	private CompoundStatement rootCompound = null;
+	
+	/**
+	 * Creates a new function content builder stack by pushing the top level compound statement on the stack
+	 */
+	@Override
+	public void createNew(ParserRuleContext ctx) {
+		item = new CompoundStatement();
+		CompoundStatement rootItem = (CompoundStatement) item;
+		ASTNodeFactory.initializeFromContext(item, ctx);
+		nodeToRuleContext.put(rootItem, ctx);
+		stack.push(rootItem);
+		rootCompound = rootItem;
+	}
 
 	/**
 	 *  Called when the entire function-content has been walked
@@ -221,12 +258,28 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			}
 			// throw new RuntimeException("Broken stack while parsing");
 		}
-
+		
+		//Resolve in the right order, comments last
+		CompoundStatement parentC = (CompoundStatement) stack.peek();
+		
+		for (Comment comment : pendingList) {
+			//Add here, because we need the commentee to be initialized first
+			parentC.addChild(comment);
+		}
+		
+		//Clear all stacks + lists,	as the analysis is (currently) function-local
+		this.variabilityItemStack.clear();
+		this.preASTItemStack.clear();
+		this.commentStack.clear();
+		this.pendingList.clear();
+		this.stack = null;
+		this.nesting = null;
+		this.previousStatement = null;
 	}
 	
 
 	// For all statements, begin by pushing a Statement Object onto the stack.
-	public void enterStatement(StatementContext ctx) {
+	public void enterStatement(StatementContext ctx) {		
 		ASTNode statementItem = ASTNodeFactory.create(ctx);
 		nodeToRuleContext.put(statementItem, ctx);
 		stack.push(statementItem);
@@ -576,7 +629,9 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			logger.debug(itemToRemove.getEscapedCodeStr()+" collected on AST and variability stack");
 			// Connect only the #if with the function content compound statement
 			if (itemToRemove instanceof PreIfStatement) {
-				nesting.consolidate();
+				stack.pop();
+				rootCompound.addChild(itemToRemove);
+				logger.debug("Connected "+itemToRemove.getEscapedCodeStr()+" with root compound statement");
 			} else {
 				// Remove item from the stack. The nesting will be resolved in the closeASTBlock function
 				stack.pop();
@@ -584,8 +639,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			return false;
 		} else {
 			// Check variability for all other types (except the top last compound statement, which is needed for function content building)
-			if (stack.size() > 1 && !(itemToRemove instanceof CompoundStatement))
+			if (stack.size() > 1 && !(itemToRemove instanceof CompoundStatement)) {
+				//Set previous statement
+				previousStatement = itemToRemove;
 				checkVariability(itemToRemove);
+			}
 			return true;
 		}
 	}
@@ -656,7 +714,75 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	// ----------------------------------Preprocessor handling end-------------------------------------------------------------
+	// ----------------------------------Comment handling ---------------------------------------------------------------------
+	
 
+	public void enterComment(CommentContext ctx) {
+		replaceTopOfStack(new Comment(), ctx);	
+	}
+
+	/**
+	 * Checks if there is a comment in the same line as a statement and connects both if so
+	 * @return True if there is a comment in the same line, false otherwise
+	 */
+	private Boolean checkIfCommentInSameLine(Comment comment) {
+		//If there are statement and comment in the same line
+		if(previousStatement != null && previousStatement.getLine() == comment.getLine()) {
+			comment.setCommentee(previousStatement);
+			//Save for later, because we need the commentee to be initialized
+			pendingList.add(comment);
+			
+			logger.debug("Found commentee in same line "+previousStatement.getEscapedCodeStr());
+			return true;
+		} else {
+			return false;
+		}		
+	}
+	
+	/**
+	 * Checks if there is a comment above a statement and connects both if so
+	 * @param node
+	 */
+	private void checkIfCommented(ASTNode node) {
+		while (!commentStack.isEmpty()) {
+			// Remove comments from stack
+			Comment comment = commentStack.pop();
+			// Add the current node (which is underneath the comment) as commentee
+			comment.setCommentee(node);
+			logger.debug("Found commentee "+node.getEscapedCodeStr());
+			//Save for later, because we need the commentee to be initialized
+			pendingList.add(comment);
+		}
+
+	}
+	// ----------------------------------Comment handling end------------------------------------------------------------------	
+	// ----------------------------------Custom handling ---------------------------------------------------------------------
+	
+	/**
+	 * Pushes the item on the stack
+	 * 
+	 * @param ctx
+	 */
+	public void enterCustom(CustomContext ctx) {
+		CustomNode node = new CustomNode();
+		nodeToRuleContext.put(node, ctx);
+		stack.push(node);
+	}
+
+	/**
+	 * Pops the item from the stack and adds it to its parents
+	 * 
+	 * @param ctx
+	 */
+	public void exitCustom(CustomContext ctx) {
+		CustomNode node = (CustomNode) stack.pop();
+		ASTNodeFactory.initializeFromContext(node, ctx);
+		nesting.addItemToParent(node);
+	}
+
+
+// ----------------------------------Custom handling end------------------------------------------------------------------	
+	
 	/**
 	 * This is called for every AST node that is classified as a statement (based on grammar, e.g. expressionStatement is a statement)
 	 * @param ctx
@@ -669,28 +795,71 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			throw new RuntimeException("Empty stack in FunctionContentBuilder exitStatement");
 		}
 
-		ASTNode itemToRemove = stack.peek();
-		ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
+		ASTNode itemToRemove = stack.peek();		
 		
-		consolidate = preprocessorHandling(itemToRemove);
+		//Collect comments and check potential commentees
+		if(itemToRemove instanceof Comment) {
+			//Use the dedicated comment creation function
+			ASTNodeFactory.initializeFromContext((Comment) itemToRemove, ctx);
+			
+			//Check if there was a previous statement in the same line
+			Boolean commentInSameLine = checkIfCommentInSameLine((Comment) itemToRemove);
+			
+			//Put comment on the stack only if it was not already connected to something in the same line
+			if(!commentInSameLine) {
+				commentStack.push((Comment) itemToRemove);	
+			}
+			
+			stack.pop();
+			return;
+		} else {
+			previousStatement = itemToRemove;
+			checkIfCommented(itemToRemove);
+		}
+		
+		//Initialize nodes just once
+		if (itemToRemove.getLine() == -1) {
+			ASTNodeFactory.initializeFromContext(itemToRemove, ctx);
+		}
 				
+		consolidate = preprocessorHandling(itemToRemove);
+						
 		if (itemToRemove instanceof BlockCloser) {
-			closeCompoundStatement();
+			//Check if the BlockCloser is the last item on the stack
+			if(stack.size() == 2) {
+				closeParentCompountStatement();
+			} else {
+				closeCompoundStatement();
+			}
 			return;
 		}
 
 		// We keep Block-starters and compound items on the stack. They are removed by following statements.
-		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement)
+		if (itemToRemove instanceof BlockStarter || itemToRemove instanceof CompoundStatement) {
+			if(itemToRemove instanceof WhileStatement) {
+				nesting.checkDoWhile(itemToRemove);
+			}
 			return;
+		}
 		
 		if (consolidate)
 			nesting.consolidate();
 	}
 
 	private void closeCompoundStatement() {
-		stack.pop(); // remove 'CloseBlock'
+		BlockCloser bc = (BlockCloser) stack.pop(); // remove 'CloseBlock'
 		CompoundStatement compoundItem = (CompoundStatement) stack.pop();
+		compoundItem.addChild(bc);
 		nesting.consolidateBlockStarters(compoundItem);
+	}
+	
+	/**
+	 * Only use this once if the parent compound statement content has been parsed.
+	 */
+	private void closeParentCompountStatement() {
+		BlockCloser bc = (BlockCloser) stack.pop(); 
+		CompoundStatement compoundItem = (CompoundStatement) stack.peek();
+		compoundItem.addChild(bc);
 	}
 
 	/**
@@ -871,7 +1040,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		Sizeof expr = new Sizeof();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
+		//Set previous statement
+		previousStatement = expr;
 		checkVariability(expr);
+		checkIfCommented(expr);
 	}
 
 	public void exitSizeof(SizeofContext ctx) {
@@ -938,8 +1110,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ClassDefBuilder classDefBuilder = new ClassDefBuilder();
 		classDefBuilder.createNew(ctx);
 		classDefBuilder.setName(ctx.class_def().class_name());
-		replaceTopOfStack(classDefBuilder.getItem(), ctx);
-		checkVariability(classDefBuilder.getItem());
+		ASTNode node = classDefBuilder.getItem();
+		replaceTopOfStack(node, ctx);
+		//Set previous statement
+		previousStatement = node;
+		checkVariability(node);
+		checkIfCommented(node);
 	}
 
 	public void exitDeclByClass() {
@@ -1007,6 +1183,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	private ParserRuleContext getTypeFromParent() {
 		ASTNode parentItem = stack.peek();
 		ParserRuleContext typeName;
+		
 		if (parentItem instanceof IdentifierDeclStatement) {
 			IdentifierDeclStatement stmt = ((IdentifierDeclStatement) parentItem);
 			IdentifierDeclType type = stmt.getType();
@@ -1014,8 +1191,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		} else if (parentItem instanceof ClassDefStatement) {
 			Identifier name = ((ClassDefStatement) parentItem).getIdentifier();
 			typeName = nodeToRuleContext.get(name);
-		} else
+		} else if (parentItem instanceof StructUnionEnum) {
+			//TODO get type of struct?
+			typeName = nodeToRuleContext.get("SPECIAL_DATA");
+		} else {
 			throw new RuntimeException("No matching declaration statement/class definiton for init declarator");
+		}
 		return typeName;
 	}
 
@@ -1168,15 +1349,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		replaceTopOfStack(new GotoStatement(), ctx);
 	}
 
-	@Override
-	public void createNew(ParserRuleContext ctx) {
-		item = new CompoundStatement();
-		CompoundStatement rootItem = (CompoundStatement) item;
-		ASTNodeFactory.initializeFromContext(item, ctx);
-		nodeToRuleContext.put(rootItem, ctx);
-		stack.push(rootItem);
-	}
-
 	public void addLocalDecl(IdentifierDecl decl) {
 		IdentifierDeclStatement declStmt = (IdentifierDeclStatement) stack.peek();
 		declStmt.addChild(decl);
@@ -1191,17 +1363,47 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		nodeToRuleContext.put(type, type_nameContext);
 		declStmt.addChild(type);
 
-		if (stack.peek() instanceof Statement)
+		if (stack.peek() instanceof Statement && !(stack.peek() instanceof StructUnionEnum)) {
 			replaceTopOfStack(declStmt, ctx);
-		else {
+		} else {
 			nodeToRuleContext.put(declStmt, ctx);
 			stack.push(declStmt);
-		}
+		}		
 		
+		//Set previous statement
+		previousStatement = declStmt;
 		checkVariability(declStmt);
+		checkIfCommented(declStmt);
 	}
+	
 
 	public void exitDeclByType() {
+		nesting.consolidate();
+	}
+	
+	public void enterStructUnionEnum(ParserRuleContext ctx) {
+		logger.debug("Enter function struct");
+		StructUnionEnum struct = new StructUnionEnum();
+		ASTNodeFactory.initializeFromContext(struct, ctx);
+
+		//Resolve nesting, only replace placeholder statement nodes
+		if (stack.peek().getClass() == Statement.class) {
+			replaceTopOfStack(struct, ctx);
+		} else {
+			nodeToRuleContext.put(struct, ctx);
+			stack.push(struct);
+		}	
+		
+		//TODO check if this works when called from module level
+		//Set previous statement
+		previousStatement = struct;
+		checkVariability(struct);
+		checkIfCommented(struct);
+	}
+
+	
+	public void exitStructUnionEnum() {
+		logger.debug("Leave function struct");
 		nesting.consolidate();
 	}
 
@@ -1283,4 +1485,5 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		stack.pop();
 
 	}
+
 }

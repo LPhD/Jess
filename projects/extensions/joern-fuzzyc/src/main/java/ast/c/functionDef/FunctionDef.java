@@ -7,40 +7,39 @@ import ast.functionDef.ParameterList;
 import ast.logical.statements.CompoundStatement;
 import ast.walking.ASTNodeVisitor;
 
-public class FunctionDef extends FunctionDefBase
-{
+public class FunctionDef extends FunctionDefBase {
 	private Identifier identifier = null;
-	
-	public Identifier getIdentifier()
-	{
+	private String rType = "void";
+
+	public Identifier getIdentifier() {
 		return this.identifier;
 	}
 
-	private void setIdentifier(Identifier identifier)
-	{
+	private void setIdentifier(Identifier identifier) {
 		this.identifier = identifier;
 		super.addChild(identifier);
 	}
 	
+	public void setrType(String rType) {
+		this.rType = rType;
+	}
+
 	@Override
 	public String getName() {
 		return this.getIdentifier().getEscapedCodeStr();
 	}
-	
+
 	@Override
-	public String getFunctionSignature()
-	{
-		String retval = getIdentifier().getEscapedCodeStr();
-		if (getParameterList() != null)
-			retval += " (" + getParameterList().getEscapedCodeStr() + ")";
-		else
-			retval += " ()";
+	/**
+	 * Removes the content of the function from the code property (returns only the function's signature)
+	 */
+	public String getFunctionSignature() {
+		String retval = this.getProperty("code").split("\\{",2)[0];;
 		return retval;
 	}
 
 	@Override
-	public void addChild(ASTNode node)
-	{
+	public void addChild(ASTNode node) {
 		if (node instanceof CompoundStatement)
 			setContent((CompoundStatement) node);
 		else if (node instanceof ParameterList)
@@ -50,10 +49,11 @@ public class FunctionDef extends FunctionDefBase
 		else
 			super.addChild(node);
 	}
-	
+
 	@Override
-	public void accept(ASTNodeVisitor visitor)
-	{
+	public void accept(ASTNodeVisitor visitor) {
 		visitor.visit(this);
 	}
+
+
 }

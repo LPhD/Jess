@@ -6,18 +6,20 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import antlr.FunctionParser.StatementsContext;
+import ast.Comment;
 import ast.c.expressions.CallExpression;
 import ast.c.statements.blockstarters.IfStatement;
-import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.expressions.Argument;
 import ast.expressions.ArgumentList;
 import ast.expressions.AssignmentExpression;
-import ast.logical.statements.Condition;
+import ast.expressions.Identifier;
 import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
+import ast.logical.statements.Condition;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.ForStatement;
 
 public class CodeNestingTest {
@@ -124,13 +126,19 @@ public class CodeNestingTest {
 
 	@Test
 	public void testDeclRightAfterStruct() {
-		String input = "struct foo{ int x; } foo;";
+		String input = "struct foo{ int x; } bar;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertTrue(contentItem.getChildCount() == 1);
-		ClassDefStatement classDef = (ClassDefStatement) contentItem.getChild(0);
-		assertTrue(classDef.getChildCount() == 2);
-		IdentifierDecl decl = (IdentifierDecl) classDef.getChild(1);
-		assertTrue(decl.getName().getEscapedCodeStr().equals("foo"));
+		assertEquals(1,contentItem.getChildCount());
+		StructUnionEnum struct = (StructUnionEnum) contentItem.getChild(0);
+//		assertEquals(3, struct.getChildCount());
+		assertEquals(2, struct.getChildCount());
+		Identifier id = (Identifier) struct.getChild(0);
+		assertEquals("foo", id.getEscapedCodeStr());
+//		IdentifierDeclStatement declStmt = (IdentifierDeclStatement) struct.getChild(1);
+//		assertEquals("int x ;", declStmt.getEscapedCodeStr());
+//		IdentifierDecl decl = (IdentifierDecl) struct.getChild(2);
+		IdentifierDecl decl = (IdentifierDecl) struct.getChild(1);
+		assertEquals("bar", decl.getEscapedCodeStr());
 	}
 
 	@Test
@@ -139,9 +147,10 @@ public class CodeNestingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement stmt = (ExpressionStatement) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) stmt.getChild(0);
-		assertTrue(expr.getTargetFunc().getEscapedCodeStr().equals("foo"));
+		assertEquals("foo", expr.getTargetFunc().getEscapedCodeStr());
 		ArgumentList argList = (ArgumentList) expr.getChild(1);
 		Argument arg = (Argument) argList.getChild(0);
+		assertEquals("x", arg.getEscapedCodeStr());
 	}
 
 	@Test
@@ -151,6 +160,30 @@ public class CodeNestingTest {
 		ExpressionStatement stmt = (ExpressionStatement) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) stmt.getChild(0);
 		assertTrue(expr.getTargetFunc().getEscapedCodeStr().equals("foo"));
+	}
+	
+	
+	@Test
+	public void commentInsideFunction() {
+		String input = "/*Comment inside function */ int i; ";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		Comment codeItem = (Comment) contentItem.getStatements().get(1);
+		assertEquals("Comment", codeItem.getTypeAsString());
+		assertEquals("/*Comment inside function */", codeItem.getEscapedCodeStr());
+		assertEquals("IdentifierDeclStatement", codeItem.getCommentee().getTypeAsString());
+	}
+	
+	@Test
+	public void structInsideFunction() {
+		String input = "struct scsi_device {\n"+
+				" 	int x;\n" + 
+				" 	}	sdev;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		StructUnionEnum codeItem = (StructUnionEnum) contentItem.getStatements().get(0);
+		assertEquals("struct scsi_device { \n" + 
+				" int x ; \n" + 
+				" } sdev ;", codeItem.getEscapedCodeStr());
+		assertEquals("scsi_device", codeItem.getChild(0).getEscapedCodeStr());
 	}
 
 }

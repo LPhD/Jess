@@ -1,6 +1,7 @@
 package parsing.Modules;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -15,13 +16,16 @@ import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
 import antlr.ModuleParser.Type_nameContext;
 import ast.ASTNode;
+import ast.Comment;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
+import ast.custom.CustomNode;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
 import ast.preprocessor.PreBlockstarter;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import parsing.ANTLRParserDriver;
 import parsing.ASTNodeFactory;
 import parsing.CompoundItemAssembler;
@@ -42,11 +46,31 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	/**
 	 * This stack contains PreBlockstarters that can implement variability
 	 */
-	private Stack<ASTNode> variabilityItemStack = new Stack<ASTNode>();
+	private Stack<ASTNode> variabilityItemStack = new Stack<ASTNode>();;
 	/**
 	 * This stack contains PreBlockstarters that can be nested on AST level (including #endif)
 	 */
 	private Stack<ASTNode> preASTItemStack = new Stack<ASTNode>();	
+	/**
+	 * This stack contains Comments
+	 */
+	private Stack<Comment> commentStack = new Stack<Comment>();
+	/**
+	 * This stack contains structs/unions/enums
+	 */
+	private Stack<StructUnionEnum> structStack = new Stack<StructUnionEnum>();
+	/**
+	 * Saves the previous statement to be able to connect comments with statements in the same line
+	 */
+	private ASTNode previousStatement = null;
+	/**
+	 * Pending items list for all statements that should be visited after the whole file content is parsed
+	 * Currently only for comments
+	 */
+	private List<Comment> pendingList = new LinkedList<Comment>();
+	/**
+	 * Logger for debugging
+	 */
 	private static final Logger logger = LoggerFactory.getLogger(CModuleParserTreeListener.class);
 
 
@@ -54,14 +78,43 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		p = aP;
 	}
 
+	//Called once when a file is entered
 	@Override
-	public void enterCode(ModuleParser.CodeContext ctx) {
+	public void enterCode(ModuleParser.CodeContext ctx) {	
 		p.notifyObserversOfUnitStart(ctx);
 	}
 
+	//Called once when a file is left
 	@Override
 	public void exitCode(ModuleParser.CodeContext ctx) {
-		p.notifyObserversOfUnitEnd(ctx);
+		for (Comment comment : pendingList) {
+			//Notify here, because we need the commentee to be initialized
+			p.notifyObserversOfItem(comment);
+		}
+		
+		//This is only called if there are just comments in the file and no valid code statements
+		for (Comment comment : commentStack) {
+			p.notifyObserversOfItem(comment);
+		}
+		
+		//Clear all stacks + lists,	as the analysis is file-local
+		this.variabilityItemStack.clear();
+		this.preASTItemStack.clear();
+		this.commentStack.clear();
+		this.pendingList.clear();
+		this.structStack.clear();
+		this.previousStatement = null;
+		
+		p.notifyObserversOfUnitEnd(ctx);		
+	}
+	
+	@Override
+	public void enterWater(ModuleParser.WaterContext ctx) {
+		if(ctx.getText().equals("\n") || ctx.getText().equals("\r\n") || ctx.getText().equals(";")) {
+			logger.debug("Found irrelevant water: "+ctx.start);
+		} else {
+			System.out.println("Found water: "+ctx.start);
+		}
 	}
 
 	// /////////////////////////////////////////////////////////////
@@ -104,10 +157,15 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		//Initalize again to set correct location string
 		ASTNodeFactory.initializeFromContext(thisItem, ctx);
 		
+		//Set previous statement
+		previousStatement = thisItem;
+		
 		//VARIABILITY ANALYSIS first
 		variabilityAnalysis(thisItem);
 		//AST ANALYSIS second
-		astAnalysis(thisItem);				
+		astAnalysis(thisItem);	
+		//Check if commented third
+		checkIfCommented(thisItem);
 	}
 	
 	/**
@@ -224,8 +282,75 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	}
 
 
-// --------------------------------------Preprocessor end-------------------------------------------------------------------------
+// -------------------------------------- Comment -------------------------------------------------------------------------	
+	@Override
+	public void enterComment(ModuleParser.CommentContext ctx) {	
+		Comment comment = new Comment();
+		ASTNodeFactory.initializeFromContext(comment, ctx);
+		
+		//Check if there was a previous statement in the same line
+		Boolean commentInSameLine = checkIfCommentInSameLine(comment);
+		
+		//Put comment on the stack only if it was not already connected to something in the same line
+		if(!commentInSameLine) {
+			commentStack.push(comment);		
+		}
+	}	
+	
+	/**
+	 * Checks if there is a comment in the same line as a statement and connects both if so
+	 * @return True if there is a comment in the same line, false otherwise
+	 */
+	private Boolean checkIfCommentInSameLine(Comment comment) {
+		//If there are statement and comment in the same line
+		if(previousStatement != null && previousStatement.getLine() == comment.getLine()) {
+			comment.setCommentee(previousStatement);
+			//Save for later, because we need the commentee to be initialized
+			pendingList.add(comment);
+			
+			logger.debug("Found commentee in same line "+previousStatement.getEscapedCodeStr());
+			return true;
+		} else {
+			return false;
+		}		
+	}
+	
+	/**
+	 * Checks if there is a comment above a statement and connects both if so
+	 * @param node
+	 */
+	private void checkIfCommented(ASTNode node) {
+		while (!commentStack.isEmpty()) {
+			// Remove comments from stack
+			Comment comment = commentStack.pop();
+			// Add the current node (which is underneath the comment) as commentee
+			comment.setCommentee(node);
+			//Save for later, because we need the commentee to be initialized
+			pendingList.add(comment);
+			logger.debug("Found commentee "+node.getEscapedCodeStr());
+		}
 
+	}
+	
+// -------------------------------------- Custom -------------------------------------------------------------------------	
+		@Override
+		public void enterCustom(ModuleParser.CustomContext ctx) {	
+			CustomNode custom = new CustomNode();
+			ASTNodeFactory.initializeFromContext(custom, ctx);
+			
+			p.notifyObserversOfItem(custom);
+			
+			//Set previous statement
+			previousStatement = custom;
+			
+			// Connect to parent blockstarters if they exist
+			checkVariability(custom);	
+			// Connect to parrent comment if existing
+			checkIfCommented(custom);			
+		}			
+	
+	
+// -------------------------------------- Function Def -------------------------------------------------------------------------	
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx) {
 		logger.debug("Enter functionDef");
@@ -241,12 +366,16 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	@Override
 	public void exitFunction_def(ModuleParser.Function_defContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.pop();
-		p.notifyObserversOfItem(builder.getItem());
+		ASTNode fdef = builder.getItem();
+		p.notifyObserversOfItem(fdef);
+		
+		//Set previous statement
+		previousStatement = fdef;
 		
 		// Connect to parent blockstarters if they exist
-		checkVariability(builder.getItem());
-		
-
+		checkVariability(fdef);	
+		// Connect to parrent comment if existing
+		checkIfCommented(fdef);
 	}
 
 	@Override
@@ -272,15 +401,82 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
 		builder.addParameter(ctx, p.builderStack);
 	}
+	
+// -------------------------------------- Struct union enum -------------------------------------------------------------------------	
+	/**
+	 * This builder calls the @FunctionParser, because StructUnionEnums follow the same
+	 * rules on module and on function level. As we dont want cloned code, we simple
+	 * parse the pre statements with the function parser and connect the result on
+	 * module level.
+	 */
+	@Override
+	public void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
+		logger.debug("Enter struct");
+		
+		// TODO
+		// Structs on module level currently have no parsed content
 
-	// DeclByType
+		// Initialize
+		StructUnionEnum thisItem = new StructUnionEnum();
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+
+		// Driver for calling function parser
+		fDriver = new ANTLRCFunctionParserDriver();
+		String text = thisItem.getEscapedCodeStr();
+		// Try to reuse the function parser rules for parsing the struct
+		try {
+			fDriver.parseAndWalkString(text);
+			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
+			thisItem = (StructUnionEnum) fb.getItem().getChild(0);
+		} catch (Exception e) {
+			System.err.println("Cannot create StructUnionEnum " + text + " in ModuleParser");
+			e.printStackTrace();
+		}
+
+		// Initalize again to set correct location string
+		ASTNodeFactory.initializeFromContext(thisItem, ctx);
+
+		// Put item on its stack
+		structStack.push(thisItem);
+	}
+	
+	@Override
+	public void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) {
+		logger.debug("Leave struct");
+		
+		StructUnionEnum struct = structStack.pop();
+		
+		//Only notify if we are at the outer struct (to prevent duplication of statements)
+		if(structStack.isEmpty()) {
+			p.notifyObserversOfItem(struct);
+		}
+		
+		//Set previous statement
+		previousStatement = struct;
+				
+		//Connect to parent #ifdefs if they exist
+		checkVariability(struct);
+		//Connect to parent comment if existing
+		checkIfCommented(struct);
+		//Connect to parent struct if existing
+		if(!structStack.isEmpty()) {
+			StructUnionEnum parent = structStack.peek();
+			parent.addChild(struct);
+			logger.debug("Added struct child");
+		}
+	}
+	
+// -------------------------------------- Decl by Type -------------------------------------------------------------------------	
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
 		logger.debug("Enter enterDeclByType");
-		Init_declarator_listContext decl_list = ctx.init_declarator_list();
-		Type_nameContext typeName = ctx.type_name();
-		emitDeclarations(decl_list, typeName, ctx);
+		//Do not declare struct variables twice
+//		if(currentStructs == 0) {
+			Init_declarator_listContext decl_list = ctx.init_declarator_list();
+			Type_nameContext typeName = ctx.type_name();
+			emitDeclarations(decl_list, typeName, ctx);
+//		}
 	}
 
 	private void emitDeclarations(ParserRuleContext decl_list, ParserRuleContext typeName, ParserRuleContext ctx) {
@@ -291,19 +487,34 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		ASTNodeFactory.initializeFromContext(stmt, ctx);	
 		logger.debug("Node "+stmt.getEscapedCodeStr()+" intialized");
-		checkVariability(stmt);
 
 		Iterator<IdentifierDecl> it = declarations.iterator();
 		while (it.hasNext()) {
 			IdentifierDecl decl = it.next();
 			stmt.addChild(decl);
 		}
+		
+		//Adds the declaration as child to its parent struct/union/enum
+//		if(!structStack.isEmpty()) {
+//			StructUnionEnum struct = structStack.peek();
+//			struct.addChild(stmt);
+//			logger.debug("Added child");
+//			//Do not proceed here
+//			return;
+//		}
 
 		p.notifyObserversOfItem(stmt);
 		
+		//Set previous statement
+		previousStatement = stmt;
+		
+		// Connect to parrent #ifdef if existing
+		checkVariability(stmt);
+		// Connect to parrent comment if existing
+		checkIfCommented(stmt);		
 	}
 
-	// DeclByClass
+// -------------------------------------- Decl by Class -------------------------------------------------------------------------
 
 	@Override
 	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx) {
@@ -319,12 +530,18 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 
 		CompoundStatement content = parseClassContent(ctx);
 		builder.setContent(content);
+		ASTNode node = builder.getItem();
 		
-		p.notifyObserversOfItem(builder.getItem());
+		p.notifyObserversOfItem(node);
 		emitDeclarationsForClass(ctx);
+		
+		//Set previous statement
+		previousStatement = node;
 				
-		//Connect to parent blockstarters if they exist
-		checkVariability(builder.getItem());
+		// Connect to parrent #ifdef if existing
+		checkVariability(node);
+		//Connect to parent comment if existing
+		checkIfCommented(node);
 	}
 
 	@Override

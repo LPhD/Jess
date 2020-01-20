@@ -63,6 +63,27 @@ public class NestingReconstructor {
 		}
 
 	}
+	
+	/**
+	 * Gets called after every preprocessor statement is exited
+	 */
+	protected void consolidatePreprocessor() {
+
+		ASTNode stmt = stack.pop();
+		ASTNode topOfStack = null;
+
+		if (stack.size() > 0)
+			topOfStack = stack.peek();
+
+		if (topOfStack instanceof CompoundStatement) {
+			// This way first, { -> int i
+			CompoundStatement compound = (CompoundStatement) topOfStack;
+			compound.addChild(stmt);
+		} else {
+			consolidateBlockStarters(stmt);
+		}
+
+	}
 
 	// Joins consecutive BlockStarters on the stack
 	protected void consolidateBlockStarters(ASTNode node) {
@@ -72,6 +93,8 @@ public class NestingReconstructor {
 				curBlockStarter = (BlockStarter) stack.pop();
 				curBlockStarter.addChild(node);
 				node = curBlockStarter;
+				
+//				System.out.println("Current bs "+curBlockStarter.getTypeAsString()+ " code "+curBlockStarter.getEscapedCodeStr());
 
 				// if statements
 				if (curBlockStarter instanceof IfStatement) {
@@ -103,16 +126,7 @@ public class NestingReconstructor {
 						System.err.println("Warning: cannot find if for else in file: "+node.getPath()+" line: "+node.getLine());
 					}
 					return;
-
-					// add while statement to the previous do-statement, if that exists. Otherwise,  do nothing special.
-				} else if (curBlockStarter instanceof WhileStatement) {
-
-					DoStatement lastDo = stack.getDo();
-					if (lastDo != null) {
-						lastDo.addChild(((WhileStatement) curBlockStarter).getCondition());
-						return;
-					}
-
+					
 					// catch-statements
 				} else if (curBlockStarter instanceof CatchStatement) {
 					TryStatement tryStatement = stack.getTry();
@@ -135,5 +149,19 @@ public class NestingReconstructor {
 		// Finally, add chain to top compound-item
 		ASTNode root = stack.peek();
 		root.addChild(node);
+	}
+
+	/**
+	 * Checks if there is a do statement for the current while statement. 
+	 * If so, set the condition of the do statement.
+	 * @param itemToRemove
+	 */
+	public void checkDoWhile(ASTNode itemToRemove) {
+		DoStatement lastDo = stack.getDo();
+		if (lastDo != null) {
+			lastDo.addChild(((WhileStatement) itemToRemove).getCondition());
+			//Consolidate, if we have a do-while statement (as it ends after the while)
+			consolidate();
+		}		
 	}
 }

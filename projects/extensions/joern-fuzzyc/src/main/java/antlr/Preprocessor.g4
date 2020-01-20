@@ -7,24 +7,25 @@ pre_statement: pre_blockstarter
 
 				
 //________________________PRE BLOCKSTARTER___________________________   				
-pre_blockstarter: pre_if_statement
-                      | pre_elif_statement
+pre_blockstarter: pre_if_statement 
+                      | pre_elif_statement  
                       | pre_else_statement
                       | pre_endif_statement;           
 														
-pre_if_statement: PRE_IF pre_if_condition;   
+pre_if_statement: PRE_IF pre_if_condition { preProcFindConditionEnd(); };   
                 
-pre_elif_statement: PRE_ELIF pre_if_condition;
+pre_elif_statement: PRE_ELIF pre_if_condition { preProcFindConditionEnd(); };
                 
 pre_else_statement: PRE_ELSE;
 
 pre_endif_statement: PRE_ENDIF;
 
 pre_if_condition: condition
-				| '(' condition ')';
+				| '(' condition ')'
+				| keyword; //If a macro is redefining a keyword
                              
 condition: expr
-     | type_name declarator '=' assign_expr;
+     | type_name declarator NEWLINE* '=' NEWLINE* assign_expr;
      
 //_______________________PRE BLOCKSTARTER END_________________________   
 
@@ -44,17 +45,31 @@ pre_define: PRE_DEFINE pre_macro_identifier '(' pre_macro_parameters ')' pre_mac
 
 pre_undef: PRE_UNDEF pre_macro_identifier;
 
-pre_macro_identifier: identifier;
+pre_macro_identifier: identifier | keyword | END_TEST | 'START_TEST';
+
+//Macros can redefine keywords
+keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' | 'static' | 'void' | 'unsigned' | 'signed' | 'long' | 'virtual' | 'operator' | 'class';
 
 //Maybe needs more possibilites
 pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
 
 pre_macro: { preProcFindMacroEnd(); };
+                  
+macroCall:  pre_macro_identifier '(' (  (',' | type_name | expr | ptr_operator | NEWLINE)* | VOID) ')'; //This is for macro calls
 
 pre_diagnostic: PRE_DIAGNOSTIC STRING
             | PRE_DIAGNOSTIC;
 
-pre_other: PRE_OTHER STRING;
+pre_other: PRE_OTHER STRING? 
+           |PRE_ATTRIBUTE '(' '(' attributeList? ')' ')'
+           ;   
+
+attributeList:  attribute (',' attribute)* ;
+
+attribute: pre_macro_identifier //Identifier or keyword 
+            | pre_macro_identifier '(' identifier (',' expr)* ')'
+            | pre_macro_identifier '(' expr? (',' expr)* ')'
+            ;        
 
 pre_include: PRE_INCLUDE pre_include_system_header
             | PRE_INCLUDE pre_macro_identifier
@@ -78,7 +93,6 @@ pre_line: PRE_LINE DECIMAL_LITERAL STRING
         
 
 pre_pragma: PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS STRING { preProcFindMacroEnd(); }
-            | PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS identifier+ 
-            | PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS
+            | PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS identifier* 
             | PRE_PRAGMA { preProcFindMacroEnd(); };             
     

@@ -2,54 +2,72 @@ lexer grammar ModuleLex;
 
 // Keywords shared among C/C++/Java
 
-IF: 'if'; ELSE: 'else'; FOR: 'for'; WHILE: 'while';
+IF: 'if'; 
+ELSE: 'else'; 
+FOR: 'for'; 
+WHILE: 'while';
 
-BREAK: 'break'; CASE: 'case'; CONTINUE: 'continue'; 
-SWITCH: 'switch'; DO: 'do';
+BREAK: 'break'; 
+CASE: 'case'; 
+CONTINUE: 'continue'; 
+SWITCH: 'switch'; 
+DO: 'do';
 
-GOTO: 'goto'; RETURN: 'return';
+GOTO: 'goto'; 
+RETURN: 'return';
 
 TYPEDEF: 'typedef';
-VOID: 'void'; UNSIGNED: 'unsigned'; SIGNED: 'signed';
-LONG: 'long'; CV_QUALIFIER :  'const' | 'volatile';
+STATIC: 'static';
+VOID: 'void'; 
+UNSIGNED: 'unsigned'; 
+SIGNED: 'signed';
+CV_QUALIFIER:  ('const' | 'volatile' );
+EXTERN: 'extern';
 
 // Keywords shared among C++/Java
 
 VIRTUAL: 'virtual';
-TRY: 'try'; CATCH: 'catch'; THROW: 'throw';
-USING: 'using'; NAMESPACE: 'namespace'; 
+TRY: 'try'; 
+CATCH: 'catch'; 
+THROW: 'throw';
+USING: 'using';
+NAMESPACE: 'namespace'; 
 
 // Keywords shared among C/C++
 
-AUTO: 'auto'; REGISTER: 'register';
-
-// pre-processor directives: C/C++
-
-PRE_IF: ('#if' | '#ifdef' | '#ifndef');
-PRE_ELIF:  '#elif';
-PRE_ELSE: '#else';
-PRE_ENDIF: '#endif';
-PRE_DEFINE: '#define';     
-PRE_UNDEF:  '#undef';
-PRE_DIAGNOSTIC: ('#error' | '#warning');
-PRE_OTHER: ('#ident' |  '#sccs');
-PRE_INCLUDE:  ('#import' | '#include');
-PRE_INCLUDE_NEXT:  '#include_next';
-PRE_LINE: '#line';
-PRE_PRAGMA: '#pragma';
-PRE_GCC: 'GCC';
-PRE_PRAGMA_KEYWORDS: ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning');
-//PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
-
-
+AUTO: 'auto'; 
+REGISTER: 'register';
+SPECIAL_DATA: ('struct' | 'union' | 'enum');
 
 // C++ keywords
 
 OPERATOR: 'operator';
 TEMPLATE: 'template';
+CLASS_KEY: 'class' ;
 NEW: 'new';
 
-CLASS_KEY: ('struct' | 'class' | 'union' | 'enum');
+// pre-processor directives: C/C++
+
+PRE_IF: '#' [ \t\u000C]* ('if' | 'ifdef' | 'ifndef');
+PRE_ELIF:  '#' [ \t\u000C]* 'elif';
+PRE_ELSE: '#' [ \t\u000C]* 'else';
+PRE_ENDIF: '#' [ \t\u000C]* 'endif';
+PRE_DEFINE: '#' [ \t\u000C]* 'define';     
+PRE_UNDEF:  '#' [ \t\u000C]* 'undef';
+PRE_DIAGNOSTIC:  '#' [ \t\u000C]* ('error' | 'warning');
+PRE_OTHER:  '#' [ \t\u000C]* ('ident' |  'sccs' | 'null');
+PRE_INCLUDE:  '#' [ \t\u000C]* ('import' | 'include');
+PRE_INCLUDE_NEXT:  '#' [ \t\u000C]* 'include_next';
+PRE_LINE: '#' [ \t\u000C]* 'line';
+PRE_PRAGMA: '#' [ \t\u000C]* 'pragma';
+PRE_GCC: 'GCC';
+PRE_PRAGMA_KEYWORDS: ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning');
+PRE_STR: ('##' | '#');
+PRE_ATTRIBUTE: '__attribute__';
+END_TEST : 'END_TEST'; //Custom
+//PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
+
+
 
 ALPHA_NUMERIC: [a-zA-Z_~][a-zA-Z0-9_]*;
 
@@ -67,7 +85,12 @@ FLOATING_POINT_LITERAL
     |   ('0'..'9')+ Exponent? FloatTypeSuffix
 	;
 	
-
+	 
+	
+COMMENT: '/*' ( ~('*') | ('*' ~('/')) )*  '*/'
+    | '//'  ~('\n'|'\r')* '\r'? '\n'
+ ;
+ 
 CHAR
     :   '\'' ( EscapeSequence | ~('\''|'\\') ) '\''
     ;
@@ -112,20 +135,11 @@ UnicodeEscape
 fragment
 HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
-NEWLINE: [\r\n]+;
+NEWLINE: '\r'? '\n';
 
 ESCAPE: '\\';
-
-COMMENT
-    :   '/*' .*? '*/'    -> skip 
-    ;
     
-WHITESPACE  :   [ \t\u000C]+ -> skip
-    ;
-
-CPPCOMMENT
-    : '//' ~[\r\n]* '\r'? '\n' -> skip
-    ;
+WHITESPACE :  [ \t\u000C]+ -> skip  ;   
     
 ELLIPSIS : '...';
 

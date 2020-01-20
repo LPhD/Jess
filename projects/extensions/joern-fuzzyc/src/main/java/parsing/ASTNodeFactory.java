@@ -8,6 +8,7 @@ import antlr.ModuleParser.Parameter_declContext;
 import antlr.ModuleParser.Parameter_idContext;
 import antlr.ModuleParser.Parameter_nameContext;
 import ast.ASTNode;
+import ast.Comment;
 import ast.c.functionDef.Parameter;
 import ast.c.functionDef.ParameterType;
 import ast.expressions.AssignmentExpression;
@@ -20,10 +21,31 @@ public class ASTNodeFactory {
 	public static void initializeFromContext(ASTNode node, ParserRuleContext ctx) {
 		if (ctx == null)
 			return;
-		
+				
 		//We can not set the path here, only the line?
 		node.setLine(ctx.start.getLine());
-		node.setCodeStr(escapeCodeStr(ParseTreeUtils.childTokenString(ctx)));
+		node.setCharAtLine(ctx.start.getCharPositionInLine());
+		node.setCodeStr(ParseTreeUtils.childTokenString(ctx));	
+	}
+	
+	/**
+	 * Separate function for comments to remove line breaks from the code (they were just needed for detecting the end of the comment)
+	 */
+	public static void initializeFromContext(Comment node, ParserRuleContext ctx) {
+		if (ctx == null)
+			return;
+		
+		node.setLine(ctx.start.getLine());
+		node.setCharAtLine(ctx.start.getCharPositionInLine());
+		String code = ParseTreeUtils.childTokenString(ctx);
+		//Single line comment
+		if (code.startsWith("//")) {
+			//Remove newline characters at the end of the comment
+			code  = code.replace("\n", "");
+			code  = code.replace("\r", "");
+			code  = code.replace("\t", "");			
+		}
+		node.setCodeStr(code);
 	}
 
 	public static void initializeFromContext(Expression node, ParserRuleContext ctx) {
@@ -38,12 +60,6 @@ public class ASTNodeFactory {
 		return node;
 	}
 
-	private static String escapeCodeStr(String codeStr) {
-		String retval = codeStr;
-		retval = retval.replace("\n", "\\n");
-		retval = retval.replace("\t", "\\t");
-		return retval;
-	}
 
 	public static AssignmentExpression create(InitDeclWithAssignContext ctx) {
 		AssignmentExpression assign = new AssignmentExpression();
@@ -57,7 +73,7 @@ public class ASTNodeFactory {
 	public static Parameter create(Parameter_declContext ctx) {
 		Parameter param = new Parameter();
 
-		Parameter_declContext paramCtx = ctx;
+		Parameter_declContext paramCtx = ctx;	
 		Parameter_nameContext paramName = getNameOfParameter(paramCtx);
 
 		Identifier name = new Identifier();
@@ -69,6 +85,18 @@ public class ASTNodeFactory {
 		param.addChild(type);
 		param.addChild(name);
 
+		return param;
+	}
+	
+	/**
+	 * Special creator for void parameters (C only)
+	 * @param ctx
+	 * @return
+	 */
+	public static Parameter createVoid(Parameter_declContext ctx) {
+		Parameter param = new Parameter();
+		param.isVoid = true;
+		initializeFromContext(param, ctx);
 		return param;
 	}
 

@@ -35,5 +35,5 @@ public class AssignmentTests extends FunctionParserTestBase {
 		String output = tree.toStringTree(functionParser.getAntlrParser());
 		assertTrue(output.contains("simple_decl"));
 	}
-
+	
 }

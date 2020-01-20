@@ -41,8 +41,8 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	@Override
 	protected void linkPreStatementToFileNode(ASTDatabaseNode preNode, FileDatabaseNode fileNode) {
 		long fileId = fileNode.getId();
-		long functionId = Writer.getIdForObject(preNode);
-		Writer.addEdge(fileId, functionId, null, EdgeTypes.IS_FILE_OF);
+		long preNodeId = Writer.getIdForObject(preNode);
+		Writer.addEdge(fileId, preNodeId, null, EdgeTypes.IS_FILE_OF);
 	}
 
 	
@@ -63,4 +63,5 @@ public class CSVPreStatementExporter extends PreStatementExporter {
 	protected void drawVariabilityEdge(long parentNodeID, long childNodeID) {
 		Writer.addEdge(parentNodeID, childNodeID, null, EdgeTypes.VARIABILITY);
 	}
+
 }

@@ -1,4 +1,5 @@
 grammar Common;
+import ModuleLex;
 
 @header{
   import java.util.Stack;
@@ -62,6 +63,12 @@ grammar Common;
 		if (t != EOF) {
 			// Return the closing bracket (if there is one)
 			consume();
+			//Check for newline and END_TEST
+			if(_input.LA(1) == NEWLINE &&  _input.LA(2) == END_TEST){
+			    //Parse both
+			    consume();
+			    consume();
+			}
 		}
 
 		return true;
@@ -124,9 +131,67 @@ grammar Common;
              }                                             
    	return true;
 	}
+	
+	 //Find the end of a preprocessor macro
+     public boolean preProcFindConditionEnd()  {
+         int t = _input.LA(1);
+         //System.out.println("Scan: "+t); 
+         
+         //Look for end of the macro where a newline appears without a previous backslash
+         while(!(t == EOF || t == NEWLINE || t == COMMENT)){
+
+             
+             //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
+             consume();
+             t = _input.LA(1); 
+//             System.out.println("New t: "+t);                 
+         }   
+         
+         //The newline or the EOF belong to the PreIfStatement's code   
+         if(t == NEWLINE || t == EOF ){
+                //System.out.println("Newline found");
+                consume();
+          } 
+          
+          //The comment does not belong to the PreIfStatement's code 
+          if(t == COMMENT){
+                //System.out.println("Comment found");
+                //exitRule();
+               // createTerminalNode(parent,t);
+              // t = EOF;
+          }              
+         
+         //Look for / \n or begin of a comment
+         return true;
+     }
+     
+         //Find the end of a preprocessor macro
+     public boolean skipComments()  {
+         int t = _input.LA(1);
+         System.out.println("Scan: "+t);          
+          
+          //The comment does not belong to the PreIfStatement's code 
+          if(t == COMMENT){
+              //Look for newline or EOF          
+              for(int i = 1; !(t == NEWLINE || t == EOF); i++){
+                  t = _input.LA(1+i); 
+              }
+              consume();
+              System.out.println("Consumed");
+                //exitRule();
+               // createTerminalNode(parent,t);
+              // t = EOF;
+          }              
+         
+         //Look for / \n or begin of a comment
+         return true;
+     }
 
 }
 
+
+comment: COMMENT;
+newline: NEWLINE;
 unary_operator : '&' | '*' | '+'| '-' | '~' | '!';
 relational_operator: ('<'|'>'|'<='|'>=');
 
@@ -134,7 +199,7 @@ constant
     :   HEX_LITERAL
     |   OCTAL_LITERAL
     |   DECIMAL_LITERAL
-	|	STRING
+	|	(STRING NEWLINE* COMMENT* NEWLINE*)+ //Comment should be comment, but currently parser cannot handle this
     |   CHAR
     |   FLOATING_POINT_LITERAL
     ;
@@ -168,7 +233,6 @@ template_param_list : (('<' template_param_list '>') |
 ;
 
 // water
-newline: NEWLINE;
 no_brackets: ~('(' | ')');
 no_brackets_curlies_or_squares: ~('(' | ')' | '{' | '}' | '[' | ']');
 no_brackets_or_semicolon: ~('(' | ')' | ';');

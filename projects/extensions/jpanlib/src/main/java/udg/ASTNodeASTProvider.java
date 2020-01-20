@@ -2,66 +2,56 @@ package udg;
 
 import ast.ASTNode;
 
-public class ASTNodeASTProvider extends ASTProvider
-{
+public class ASTNodeASTProvider extends ASTProvider {
 
 	ASTNode node;
 
-	public void setNode(ASTNode astNode)
-	{
+	public void setNode(ASTNode astNode) {
 		node = astNode;
 	}
 
-	public ASTNode getASTNode()
-	{
+	public ASTNode getASTNode() {
 		return node;
 	}
 
 	@Override
-	public String getTypeAsString()
-	{
+	public String getTypeAsString() {
 		return node.getTypeAsString();
 	}
 
 	@Override
-	public ASTProvider getChild(int i)
-	{
+	public ASTProvider getChild(int i) {
 		ASTNodeASTProvider childProvider = new ASTNodeASTProvider();
 		childProvider.setNode(node.getChild(i));
 		return childProvider;
 	}
 
 	@Override
-	public int getChildCount()
-	{
+	public int getChildCount() {
 		return node.getChildCount();
 	}
 
 	@Override
-	public String getEscapedCodeStr()
-	{
+	public String getEscapedCodeStr() {
 		return node.getEscapedCodeStr();
 	}
 
 	@Override
-	public int getChildNumber()
-	{
+	public int getChildNumber() {
 		return node.getChildNumber();
 	}
 
 	@Override
-	public boolean equals(Object o)
-	{
+	public boolean equals(Object o) {
 		ASTNodeASTProvider other = (ASTNodeASTProvider) o;
 		return (getASTNode() == other.getASTNode());
 	}
 
 	@Override
-	public String getOperatorCode()
-	{
+	public String getOperatorCode() {
 		return node.getOperatorCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ASTNodeASTProvider{" + getASTNode().toString() + "}";

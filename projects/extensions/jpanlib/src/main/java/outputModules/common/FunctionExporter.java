@@ -12,9 +12,6 @@ public abstract class FunctionExporter extends ASTNodeExporter {
 	protected ASTExporter astImporter;
 	protected CFGExporter cfgImporter;
 	protected UDGExporter udgImporter;
-	protected DDGExporter ddgImporter;
-	protected CDGExporter cdgImporter;
-	protected DOMExporter domExporter;
 	protected ASTDefUseAnalyzer analyzer;
 	protected CFGFactory cfgFactory;
 
@@ -65,10 +62,6 @@ public abstract class FunctionExporter extends ASTNodeExporter {
 		astImporter.addASTToDatabase(function.getASTRoot());
 		cfgImporter.addCFGToDatabase(function.getCFG());
 		udgImporter.addUDGToDatabase(function.getUDG());
-		ddgImporter.addDDGToDatabase(function.getDDG());
-		cdgImporter.addCDGToDatabase(function.getCDG());
-		domExporter.addDominatorTreeToDatabase(function.getDominatorTree());
-		domExporter.addPostDominatorTreeToDatabase(function.getPostDominatorTree());
 		
 		//Analyze the function content (the children of the compound statement)
 		astImporter.addVariabilityAnalysis(function.getASTRoot().getChild(0));

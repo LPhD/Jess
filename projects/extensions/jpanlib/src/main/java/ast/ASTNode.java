@@ -11,6 +11,7 @@ public class ASTNode {
 	private Map<String, String> properties;
 	private String path = "-1";
 	private int line = -1;
+	private int charAtLine = -1;
 	private Long nodeId;
 
 	private boolean isInCFG = false;
@@ -34,6 +35,7 @@ public class ASTNode {
 		setCodeStr(otherNode.getCodeStr());
 		path = otherNode.path;
 		line = otherNode.line;
+		charAtLine = otherNode.charAtLine;
 		setChildNumber(otherNode.childNumber);
 		if (otherNode.isInCFG())
 			markAsCFGNode();
@@ -162,6 +164,14 @@ public class ASTNode {
 	 */
 	public int getLine() {
 		return line;
+	}
+	
+	public int getCharAtLine() {
+		return charAtLine;
+	}
+
+	public void setCharAtLine(int charAtLine) {
+		this.charAtLine = charAtLine;
 	}
 	
 

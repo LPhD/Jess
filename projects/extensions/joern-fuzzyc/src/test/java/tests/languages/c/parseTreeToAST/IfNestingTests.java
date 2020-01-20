@@ -1,5 +1,6 @@
 package tests.languages.c.parseTreeToAST;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -19,6 +20,14 @@ public class IfNestingTests {
 		CompoundStatement compound = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertFirstChildIsIfStatement(compound);
 	}
+	
+	@Test
+	public void ifWithComplexCondition() {
+		String input = "  if (XML_GetErrorCode(ext_parser) != fault->error)\n" + 
+				"    xml_failure(ext_parser);";
+		IfStatement ifStatement = (IfStatement) FunctionContentTestUtil.parseAndWalk(input).getChild(0);
+		assertEquals("if ( XML_GetErrorCode ( ext_parser ) != fault -> error )",ifStatement.getEscapedCodeStr());
+	}
 
 	@Test
 	public void ifBlockNoCompound() {
@@ -26,6 +35,17 @@ public class IfNestingTests {
 		CompoundStatement compound = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertFirstChildIsIfStatement(compound);
 	}
+	
+	@Test
+	public void ifWithMultipleLineCondition() {
+		String input = "if (MultiByteToWideChar(cp, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, &c, 1,\n" + 
+				"			&n, 1)\n" + 
+				"			== 1)";
+		CompoundStatement compound = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertFirstChildIsIfStatement(compound);
+	}
+	
+
 
 	@Test
 	public void nestedIfBlocksNoCompound() {
@@ -46,6 +66,7 @@ public class IfNestingTests {
 		Expression condition = ((Condition) starter.getCondition()).getExpression();
 		assertTrue(condition.getEscapedCodeStr().equals("foo"));
 	}
+	
 
 	@Test
 	public void ifElse() {
@@ -79,14 +100,14 @@ public class IfNestingTests {
 
 		ElseStatement elseNode = ifItem.getElseNode();
 		CompoundStatement innerCompound = (CompoundStatement) elseNode.getStatement();
-		assertTrue(innerCompound.getChildCount() == 1);
+		assertEquals(2, innerCompound.getChildCount());
 		IfStatement innerIf = (IfStatement) innerCompound.getChild(0);
 		assertTrue(innerIf.getCondition() != null);
 	}
 
 	private void assertFirstChildIsIfStatement(CompoundStatement compound) {
 		IfStatement ifStatement = (IfStatement) compound.getStatements().get(0);
-		assertTrue(compound.getStatements().size() == 1);
+		assertEquals(1, compound.getStatements().size());
 		assertTrue(ifStatement.getCondition() != null);
 	}
 

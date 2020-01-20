@@ -5,17 +5,9 @@ import java.util.Map;
 
 import ast.ASTNode;
 import ast.functionDef.FunctionDefBase;
-import cdg.CDG;
-import cdg.CDGCreator;
 import cfg.ASTToCFGConverter;
 import cfg.CFG;
 import cfg.CFGFactory;
-import cfg.nodes.CFGNode;
-import ddg.CFGAndUDGToDefUseCFG;
-import ddg.DDGCreator;
-import ddg.DataDependenceGraph.DDG;
-import ddg.DefUseCFG.DefUseCFG;
-import dom.DominatorTree;
 import udg.CFGToUDGConverter;
 import udg.useDefAnalysis.ASTDefUseAnalyzer;
 import udg.useDefGraph.UseDefGraph;
@@ -28,19 +20,12 @@ public class FunctionDatabaseNode extends DatabaseNode {
 	FunctionDefBase astRoot;
 	CFG cfg;
 	UseDefGraph udg;
-	DDG ddg;
-	CDG cdg;
-	DominatorTree<CFGNode> dom;
-	DominatorTree<CFGNode> postDom;
 
 	String signature;
 	String name;
 
 	ASTToCFGConverter astToCFG = new ASTToCFGConverter();
 	CFGToUDGConverter cfgToUDG = new CFGToUDGConverter();
-	CFGAndUDGToDefUseCFG udgAndCfgToDefUseCFG = new CFGAndUDGToDefUseCFG();
-	DDGCreator ddgCreator = new DDGCreator();
-	CDGCreator cdgCreator = new CDGCreator();
 
 	public void setCFGFactory(CFGFactory factory) {
 		astToCFG.setFactory(factory);
@@ -54,12 +39,7 @@ public class FunctionDatabaseNode extends DatabaseNode {
 	public void initialize(Object node) {
 		astRoot = (FunctionDefBase) node;
 		cfg = astToCFG.convert(astRoot);
-		dom = DominatorTree.newDominatorTree(cfg);
-		postDom = DominatorTree.newPostDominatorTree(cfg);
 		udg = cfgToUDG.convert(cfg);
-		DefUseCFG defUseCFG = udgAndCfgToDefUseCFG.convert(cfg, udg);
-		ddg = ddgCreator.createForDefUseCFG(defUseCFG);
-		cdg = CDGCreator.create(cfg, postDom);
 
 		setSignature(astRoot);
 	}
@@ -69,6 +49,7 @@ public class FunctionDatabaseNode extends DatabaseNode {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put(NodeKeys.NODE_TYPE, "Function");
 		properties.put(NodeKeys.LINE, ""+this.getLine());
+		properties.put(NodeKeys.CLINE, ""+this.getCharAtLine());
 		properties.put(NodeKeys.PATH, this.getPath());
 		properties.put(NodeKeys.CODE, this.getName());
 		return properties;
@@ -90,28 +71,16 @@ public class FunctionDatabaseNode extends DatabaseNode {
 		return udg;
 	}
 
-	public DDG getDDG() {
-		return ddg;
-	}
-
-	public CDG getCDG() {
-		return cdg;
-	}
-
-	public DominatorTree<CFGNode> getDominatorTree() {
-		return dom;
-	}
-
-	public DominatorTree<CFGNode> getPostDominatorTree() {
-		return postDom;
-	}
-
 	public int getLine() {
 		return astRoot.getLine();
 	}
 	
 	public String getPath() {
 		return astRoot.getPath();
+	}
+	
+	public int getCharAtLine() {
+		return astRoot.getCharAtLine();
 	}
 
 	public int getContentLine() {

@@ -17,53 +17,42 @@ import parsing.ASTNodeFactory;
 import parsing.ParseTreeUtils;
 import parsing.Functions.builder.ParameterListBuilder;
 
-public class FunctionDefBuilder extends ASTNodeBuilder
-{
+public class FunctionDefBuilder extends ASTNodeBuilder {
 
 	FunctionDef thisItem;
 	ParameterListBuilder paramListBuilder = new ParameterListBuilder();
 
 	@Override
-	public void createNew(ParserRuleContext ctx)
-	{
+	public void createNew(ParserRuleContext ctx) {
 		item = new FunctionDef();
 		ASTNodeFactory.initializeFromContext(item, ctx);
 		thisItem = (FunctionDef) item;
 	}
 
-	public void setName(Function_nameContext ctx,
-			Stack<ASTNodeBuilder> itemStack)
-	{
+	public void setName(Function_nameContext ctx, Stack<ASTNodeBuilder> itemStack) {
 		thisItem.addChild(new Identifier());
 		ASTNodeFactory.initializeFromContext(thisItem.getIdentifier(), ctx);
 	}
 
-	public void setReturnType(Return_typeContext ctx,
-			Stack<ASTNodeBuilder> itemStack)
-	{
+	public void setReturnType(Return_typeContext ctx, Stack<ASTNodeBuilder> itemStack) {
 		ReturnType returnType = new ReturnType();
 		ASTNodeFactory.initializeFromContext(returnType, ctx);
-		returnType
-				.setBaseType(ParseTreeUtils.childTokenString(ctx.type_name()));
+		returnType.setBaseType(ParseTreeUtils.childTokenString(ctx.type_name()));
 		returnType.setCompleteType(ParseTreeUtils.childTokenString(ctx));
 		thisItem.addChild(returnType);
+		thisItem.setrType(returnType.getEscapedCodeStr());
 	}
 
-	public void setParameterList(Function_param_listContext ctx,
-			Stack<ASTNodeBuilder> itemStack)
-	{
+	public void setParameterList(Function_param_listContext ctx, Stack<ASTNodeBuilder> itemStack) {
 		paramListBuilder.createNew(ctx);
 		thisItem.addChild(paramListBuilder.getItem());
 	}
 
-	public void addParameter(Parameter_declContext ctx,
-			Stack<ASTNodeBuilder> itemStack)
-	{
+	public void addParameter(Parameter_declContext ctx, Stack<ASTNodeBuilder> itemStack) {
 		paramListBuilder.addParameter(ctx, itemStack);
 	}
 
-	public void setContent(CompoundStatement functionContent)
-	{
+	public void setContent(CompoundStatement functionContent) {
 		thisItem.addChild(functionContent);
 	}
 

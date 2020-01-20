@@ -1,11 +1,11 @@
 package databaseNodes;
 
-public class NodeKeys
-{
+public class NodeKeys {
 
 	public static final String NODE_TYPE = "type";
 	public static final String CODE = "code";
 	public static final String LINE = "line";
+	public static final String CLINE = "cLine";
 	public static final String PATH = "path";
 
 	public static final String FUNCTION_ID = "functionId";

@@ -22,6 +22,7 @@ public class DeclStmtDatabaseNode extends DatabaseNode {
 		//Always get the location
 		map.put(NodeKeys.LINE, ""+stmt.getLine());
 		map.put(NodeKeys.PATH, stmt.getPath());
+		map.put(NodeKeys.CLINE, ""+stmt.getCharAtLine());
 		return map;
 	}
 	

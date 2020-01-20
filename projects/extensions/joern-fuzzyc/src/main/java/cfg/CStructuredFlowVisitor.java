@@ -1,8 +1,9 @@
 package cfg;
 
-
+import ast.Comment;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
+import ast.logical.statements.BlockCloser;
 import ast.logical.statements.Label;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.ForStatement;
@@ -21,17 +22,15 @@ import cfg.nodes.CFGNode;
 
 public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 
-	public void visit(ParameterList paramList)
-	{
+	public void visit(ParameterList paramList) {
 		returnCFG = CCFGFactory.newInstance(paramList);
 	}
 
-	public void visit(ParameterBase param)
-	{
+	public void visit(ParameterBase param) {
+
 		returnCFG = CCFGFactory.newInstance(param);
 
-		for (CFGNode node : returnCFG.getVertices())
-		{
+		for (CFGNode node : returnCFG.getVertices()) {
 			if (!(node instanceof ASTNodeContainer))
 				continue;
 			returnCFG.registerParameter(node);
@@ -39,65 +38,52 @@ public class CStructuredFlowVisitor extends StructuredFlowVisitor {
 
 	}
 
-	public void visit(ReturnStatement expression)
-	{
+	public void visit(ReturnStatement expression) {
 		returnCFG = CCFGFactory.newInstance(expression);
 	}
 
-	public void visit(GotoStatement expression)
-	{
+	public void visit(GotoStatement expression) {
 		returnCFG = CCFGFactory.newInstance(expression);
 	}
 
-	public void visit(IfStatementBase node)
-	{
+	public void visit(IfStatementBase node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
 
-	public void visit(ForStatement node)
-	{
+	public void visit(ForStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
 
-	public void visit(WhileStatement node)
-	{
+	public void visit(WhileStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
 
-	public void visit(DoStatement node)
-	{
+	public void visit(DoStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
 
-	public void visit(SwitchStatement node)
-	{
+	public void visit(SwitchStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
 
-	public void visit(Label node)
-	{
+	public void visit(Label node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
 
-	public void visit(ContinueStatement expression)
-	{
+	public void visit(ContinueStatement expression) {
 		returnCFG = CCFGFactory.newInstance(expression);
 	}
 
-	public void visit(BreakStatement expression)
-	{
+	public void visit(BreakStatement expression) {
 		returnCFG = CCFGFactory.newInstance(expression);
 	}
 
-	public void visit(TryStatement node)
-	{
+	public void visit(TryStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
 
 	@Override
-	public void visit(ThrowStatement node)
-	{
+	public void visit(ThrowStatement node) {
 		returnCFG = CCFGFactory.newInstance(node);
 	}
-	
 }

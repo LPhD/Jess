@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import databaseNodes.EdgeKeys;
 import databaseNodes.NodeKeys;
 import outputModules.common.WriterImpl;
 
@@ -16,11 +15,9 @@ public abstract class CSVWriterImpl implements WriterImpl {
 
 	final String SEPARATOR = "\t";
 
-	final String[] nodeProperties = { NodeKeys.NODE_TYPE, NodeKeys.CODE, NodeKeys.LINE, NodeKeys.PATH,
+	final String[] nodeProperties = { NodeKeys.NODE_TYPE, NodeKeys.CODE, NodeKeys.LINE, NodeKeys.CLINE, NodeKeys.PATH,
 			NodeKeys.FUNCTION_ID, NodeKeys.CHILD_NUMBER, NodeKeys.IS_CFG_NODE, NodeKeys.OPERATOR, NodeKeys.BASE_TYPE,
 			NodeKeys.COMPLETE_TYPE, NodeKeys.IDENTIFIER };
-
-	final String[] edgeProperties = { EdgeKeys.VAR };
 
 	long lastNodeId = 0;
 
@@ -58,13 +55,6 @@ public abstract class CSVWriterImpl implements WriterImpl {
 		edgeWriter.print(dstId);
 		edgeWriter.print(SEPARATOR);
 		edgeWriter.print(edgeType);
-
-		for (String property : edgeProperties) {
-			edgeWriter.write(SEPARATOR);
-			String propValue = (null == properties) ? null : (String) properties.get(property);
-			if (propValue != null)
-				edgeWriter.write(escape(propValue));
-		}
 		edgeWriter.write("\n");
 
 	}
@@ -80,12 +70,6 @@ public abstract class CSVWriterImpl implements WriterImpl {
 		nodeWriter.println(joined);
 	}
 
-	protected void writeEdgePropertyNames() {
-		String joined = "start" + SEPARATOR + "end" + SEPARATOR + "type" + SEPARATOR
-				+ StringUtils.join(edgeProperties, SEPARATOR);
-		edgeWriter.println(joined);
-	}
-
 	protected void openEdgeFile(String outDir) {
 		openEdgeFile(outDir, "edges.csv");
 	}
@@ -93,7 +77,6 @@ public abstract class CSVWriterImpl implements WriterImpl {
 	public void openEdgeFile(String outDir, String fileName) {
 		String path = outDir + File.separator + fileName;
 		edgeWriter = createWriter(path);
-		writeEdgePropertyNames();
 	}
 
 	protected PrintWriter createWriter(String path) {

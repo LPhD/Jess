@@ -14,10 +14,7 @@ import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.FunctionExporter;
 import outputModules.neo4j.exporters.Neo4JASTExporter;
-import outputModules.neo4j.exporters.Neo4JCDGExporter;
 import outputModules.neo4j.exporters.Neo4JCFGExporter;
-import outputModules.neo4j.exporters.Neo4JDDGExporter;
-import outputModules.neo4j.exporters.Neo4JDOMExporter;
 import outputModules.neo4j.exporters.Neo4JUDGExporter;
 import udg.useDefAnalysis.CASTDefUseAnalyzer;
 
@@ -30,9 +27,6 @@ public class Neo4JFunctionExporter extends FunctionExporter {
 		astImporter = new Neo4JASTExporter(nodeStore);
 		cfgImporter = new Neo4JCFGExporter(nodeStore);
 		udgImporter = new Neo4JUDGExporter(nodeStore);
-		ddgImporter = new Neo4JDDGExporter(nodeStore);
-		cdgImporter = new Neo4JCDGExporter(nodeStore);
-		domExporter = new Neo4JDOMExporter(nodeStore);
 		analyzer = new CASTDefUseAnalyzer();
 		cfgFactory = new CCFGFactory();
 	}

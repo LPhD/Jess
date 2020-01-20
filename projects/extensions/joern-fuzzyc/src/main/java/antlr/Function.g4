@@ -1,5 +1,5 @@
 grammar Function;
-import Preprocessor, ModuleLex, Common, Expressions, FineSimpleDecl;
+import Preprocessor, Custom, ModuleLex, Common, Expressions, FineSimpleDecl;
 
 
 @header{
@@ -8,8 +8,7 @@ import Preprocessor, ModuleLex, Common, Expressions, FineSimpleDecl;
 
 statements: (statement)*;
 
-statement:newline
-		 | opening_curly
+statement: opening_curly
          | closing_curly
          | pre_statement
          | block_starter
@@ -17,6 +16,9 @@ statement:newline
          | label 
          | simple_decl
          | expr_statement
+         | comment
+         | newline //We need this here so we can remove newline nodes from the function parser stack
+         | custom
          | water
         ;
 
@@ -31,9 +33,11 @@ selection_or_iteration: TRY                      #Try_statement
                       | IF '(' condition ')'     #If_statement
                       | ELSE                     #Else_statement
                       | SWITCH '(' condition ')' #Switch_statement
-                      | FOR '(' (for_init_statement | ';') condition? ';'  expr? ')' #For_statement
+                      | FOR '(' (for_init_statement | ';') condition? ';'  expr? ')' ';'? #For_statement
                       | DO                          #Do_statement
-                      | WHILE '(' condition ')'     #While_statement
+                      | WHILE '(' condition ')' ';'?  #While_statement 
+//We need here something that comes after the while, otherwise it is just popped from the stack (when it's the last statement)
+//Therefore the ; may not appear in the grammar rule for this. It should be a statement that triggers the exitStatements function
 ;
 
 
@@ -53,4 +57,4 @@ label: CASE? (identifier | number | CHAR ) ':' ;
 expr_statement: expr? ';';
 
 condition: expr
-	 | type_name declarator '=' assign_expr;
+	 | type_name NEWLINE* declarator NEWLINE* '=' NEWLINE* assign_expr;

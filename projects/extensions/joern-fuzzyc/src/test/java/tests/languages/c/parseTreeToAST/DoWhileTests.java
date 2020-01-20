@@ -1,5 +1,6 @@
 package tests.languages.c.parseTreeToAST;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -17,10 +18,12 @@ public class DoWhileTests {
 		String input = "do{ foo(); }while(bar);";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		DoStatement doItem = (DoStatement) contentItem.getStatements().get(0);
-
+		WhileStatement whileItem = (WhileStatement) contentItem.getStatements().get(1);		
 		String condExprString = ((Condition) doItem.getCondition()).getExpression().getEscapedCodeStr();
-		assertTrue(condExprString.equals("bar"));
-
+		
+		assertEquals("DoStatement", doItem.getTypeAsString());
+		assertEquals("WhileStatement", whileItem.getTypeAsString());
+		assertEquals("bar", condExprString);
 	}
 
 	@Test
@@ -34,8 +37,7 @@ public class DoWhileTests {
 		assertTrue(whileStatement.getCondition() != null);
 
 		String condExprString = ((Condition) doItem.getCondition()).getExpression().getEscapedCodeStr();
-		assertTrue(condExprString.equals("bar"));
-
+		assertEquals("bar", condExprString);
 	}
 
 	@Test
@@ -45,7 +47,7 @@ public class DoWhileTests {
 		DoStatement doItem = (DoStatement) contentItem.getStatements().get(0);
 
 		String condExprString = ((Condition) doItem.getCondition()).getExpression().getEscapedCodeStr();
-		assertTrue(condExprString.equals("bar"));
+		assertEquals("bar", condExprString);
 	}
 
 	@Test
@@ -57,7 +59,7 @@ public class DoWhileTests {
 		DoStatement doItem = (DoStatement) ifStatement.getStatement();
 
 		String condExprString = ((Condition) doItem.getCondition()).getExpression().getEscapedCodeStr();
-		assertTrue(condExprString.equals("bar"));
+		assertEquals("bar", condExprString);
 	}
 
 	@Test
@@ -67,7 +69,7 @@ public class DoWhileTests {
 		DoStatement doItem = (DoStatement) contentItem.getStatements().get(0);
 
 		String condExprString = ((Condition) doItem.getCondition()).getExpression().getEscapedCodeStr();
-		assertTrue(condExprString.equals("bar"));
+		assertEquals("bar", condExprString);
 	}
 
 }

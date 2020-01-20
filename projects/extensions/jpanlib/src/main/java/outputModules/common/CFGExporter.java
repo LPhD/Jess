@@ -2,6 +2,7 @@ package outputModules.common;
 
 import java.util.Map;
 
+import ast.ASTNode;
 import cfg.CFG;
 import cfg.CFGEdge;
 import cfg.nodes.ASTNodeContainer;
@@ -67,7 +68,8 @@ public abstract class CFGExporter {
 				dst = ((ASTNodeContainer) dst).getASTNode();
 			}
 			
-			addFlowToLink(src, dst, edge.getProperties());
+			if(src != null && dst != null && edge.getProperties() != null)		
+				addFlowToLink(src, dst, edge.getProperties());
 		}
 	}
 

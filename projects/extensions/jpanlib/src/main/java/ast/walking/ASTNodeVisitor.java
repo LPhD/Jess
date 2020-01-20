@@ -3,6 +3,8 @@ package ast.walking;
 import java.util.Stack;
 
 import ast.ASTNode;
+import ast.Comment;
+import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.expressions.Argument;
 import ast.expressions.AssignmentExpression;
@@ -14,12 +16,14 @@ import ast.expressions.UnaryExpression;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
+import ast.logical.statements.BlockCloser;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.ForEachStatement;
 import ast.statements.blockstarters.ForStatement;
@@ -46,9 +50,24 @@ public abstract class ASTNodeVisitor {
 	public void visit(ASTNode item) {
 		visitChildren(item);
 	}
+	
+	//Special data types
+	public void visit(StructUnionEnum item) {
+		defaultHandler(item);		
+	}
 
 	// Preprocessor
 	public void visit(PreStatementBase item) {
+		defaultHandler(item);
+	}
+	
+	// Comments
+	public void visit(Comment item) {
+		defaultHandler(item);
+	}
+	
+	// Custom
+	public void visit(CustomNode item) {
 		defaultHandler(item);
 	}
 
@@ -125,6 +144,10 @@ public abstract class ASTNodeVisitor {
 	}
 
 	public void visit(CompoundStatement expression) {
+		defaultHandler(expression);
+	}
+	
+	public void visit(BlockCloser expression) {
 		defaultHandler(expression);
 	}
 

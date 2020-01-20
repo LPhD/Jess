@@ -4,24 +4,20 @@ import ast.ASTNode;
 import ast.expressions.Expression;
 import ast.logical.statements.Statement;
 
-public class ExpressionHolderStatement extends Statement
-{
+public class ExpressionHolderStatement extends Statement {
 	private Expression expression = null;
 
-	public Expression getExpression()
-	{
+	public Expression getExpression() {
 		return this.expression;
 	}
-	
-	public void setExpression(Expression expression)
-	{	
+
+	public void setExpression(Expression expression) {
 		this.expression = expression;
 		super.addChild(expression);
 	}
-	
+
 	@Override
-	public String getEscapedCodeStr()
-	{
+	public String getEscapedCodeStr() {
 
 		Expression expr = getExpression();
 		if (expr == null)
@@ -30,12 +26,11 @@ public class ExpressionHolderStatement extends Statement
 		setCodeStr(expr.getEscapedCodeStr());
 		return getCodeStr();
 	}
-	
+
 	@Override
-	public void addChild(ASTNode node)
-	{
+	public void addChild(ASTNode node) {
 		if (node instanceof Expression)
-			setExpression((Expression)node);
+			setExpression((Expression) node);
 		else
 			super.addChild(node);
 	}

@@ -1,17 +1,23 @@
 package outputModules.csv;
 
+import ast.Comment;
+import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 import databaseNodes.EdgeTypes;
 import outputModules.common.ASTNodeExporter;
 import outputModules.common.OutModASTNodeVisitor;
 import outputModules.common.Writer;
 import outputModules.csv.exporters.CSVClassDefExporter;
+import outputModules.csv.exporters.CSVCommentExporter;
+import outputModules.csv.exporters.CSVCustomExporter;
 import outputModules.csv.exporters.CSVDeclStmtExporter;
 import outputModules.csv.exporters.CSVFunctionExporter;
 import outputModules.csv.exporters.CSVPreStatementExporter;
+import outputModules.csv.exporters.CSVStructUnionEnumExporter;
 
 public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 
@@ -25,7 +31,6 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 
 	@Override
 	public void visit(ClassDefStatement node) {
-
 		ASTNodeExporter importer = new CSVClassDefExporter();
 		long classNodeId = importNode(importer, node);
 		visitClassDefContent(node, classNodeId);
@@ -41,7 +46,28 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	@Override
 	public void visit(PreStatementBase node) {
 		ASTNodeExporter importer = new CSVPreStatementExporter();
-		long preId = importNode(importer, node);
+		importNode(importer, node);
+	}
+	
+	// Comment handling
+	@Override
+	public void visit(Comment node) {
+		ASTNodeExporter importer = new CSVCommentExporter();
+		importNode(importer, node);
+	}
+	
+	// Custom handling
+	@Override
+	public void visit(CustomNode node) {
+		ASTNodeExporter importer = new CSVCustomExporter();
+		importNode(importer, node);
+	}
+	
+	// StructUnionEnum handling
+	@Override
+	public void visit(StructUnionEnum node) {
+		ASTNodeExporter importer = new CSVStructUnionEnumExporter();
+		importNode(importer, node);
 	}
 
 	@Override

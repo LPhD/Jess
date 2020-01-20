@@ -65,22 +65,24 @@ public class TarballDecompressor {
         int count = -1;
         byte buffer[] = new byte[BUFFER_SIZE];
         BufferedOutputStream out = null;
+        
         try {
         	out = new BufferedOutputStream(new FileOutputStream(new File(outDir, name)), BUFFER_SIZE);
+            if (out != null)
+            	out = new BufferedOutputStream(new FileOutputStream(new File(outDir, name)), BUFFER_SIZE);
+            
+            while ((count = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
+                out.write(buffer, 0, count);
+            }
 		} catch (Exception e) {
 			//Sometimes directories are not recognized
 			System.err.println("Error writing file, try do make a directory instead");
 			mkDirs(outDir, name);
 			return;
+		} finally {
+			out.close();
 		}
-        
-        if (out != null)
-        	out = new BufferedOutputStream(new FileOutputStream(new File(outDir, name)), BUFFER_SIZE);
-        
-        while ((count = inputStream.read(buffer, 0, BUFFER_SIZE)) != -1) {
-            out.write(buffer, 0, count);
-        }
-        out.close();
+
     }
 
     /**

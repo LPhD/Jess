@@ -2,12 +2,10 @@ package ast;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-abstract public class ASTNodeBuilder
-{
+abstract public class ASTNodeBuilder {
 	protected ASTNode item;
 
-	public ASTNode getItem()
-	{
+	public ASTNode getItem() {
 		return item;
 	}
 

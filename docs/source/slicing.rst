@@ -128,7 +128,10 @@ CONFIGURATION OPTIONS
 	
 • Include variability information
 	• Explanation: After the analysis is finished, look for variability implementations that affect the Semantic Unit. This is helpfull if you would like to know the variability information of all statements in the Semantic Unit. Activation does not trigger further analyses.
-	
+
+• Include comments
+	• Explanation: After the analysis is finished, look for comments for the included code and add them to the result. Activation does not trigger further analyses.
+
 • Generate only AST
 	• Explanation: The resulting slice contains only AST elements to clarify the illustration. This has no effect on the Semantic Unit identification process.
 
@@ -149,6 +152,7 @@ DEFAULT CONFIGURATION
 • Include other features: FALSE
 • Look for all function calls: FALSE
 • Include variability information: FALSE
+• Include comments: FALSE
 • Generate only AST: TRUE
 • Generate only visible code: TRUE
 • DEBUG: FALSE

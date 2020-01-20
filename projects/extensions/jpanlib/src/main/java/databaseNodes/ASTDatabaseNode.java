@@ -31,6 +31,7 @@ public class ASTDatabaseNode extends DatabaseNode {
 		//Always get the location
 		properties.put(NodeKeys.LINE, getCorrectedLineString());
 		properties.put(NodeKeys.PATH, astNode.getPath());
+		properties.put(NodeKeys.CLINE, ""+astNode.getCharAtLine());
 
 		if (astNode.isInCFG()) {
 			properties.put(NodeKeys.IS_CFG_NODE, "True");
