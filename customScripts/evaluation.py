@@ -4,6 +4,7 @@ import subprocess
 import os
 import shutil
 
+
 #Name and path of the project
 projectNameAndPath = {'Collection':'/Joern_Advanced/testProjects/Collection/src/', 
 'EvoDiss.tar.gz':'/home/lea/Downloads/EvoDiss/src/', 
@@ -15,13 +16,17 @@ projectNameAndPath = {'Collection':'/Joern_Advanced/testProjects/Collection/src/
 'SPLC':'/Joern_Advanced/testProjects/SPLC/src/', 
 'TestCommit':'/src/',
 'expat':'/libexpat/',
+'Origin.tar.gz':'/C/src/',
+'PL_Current.tar.gz':'/C/src/',
+'PV_Current.tar.gz':'/C/src/',
 'sample':'/Example/'} 
 
 #Assemble path 
-projectName = "EvoDiss.tar.gz"
+projectName = "PL_Current.tar.gz"
 projectPath = projectNameAndPath[projectName]
+
 pathToPatch = 'Patch/'
-basePath = '/home/lea/Downloads/Joern_Advanced/projects/octopus/data/projects/'+projectName+'/src'
+basePath = os.getcwd().replace("/customScripts", "/projects/octopus/data/projects/"+projectName+"/src")
 pathToOriginalProject = basePath+projectPath
 
 db = DBInterface()
