@@ -75,7 +75,7 @@ def evaluateProject (projectName, projectPath):
         print("Found some differences, please look at EvaluationResult.txt for more details")
 
 
-# When called via console
-projectName = "PV_Current.tar.gz"
+# When called via console, fill these out and add your project path to getProjectPath function
+#projectName = "PV_Current.tar.gz"
 #projectName = input("Please type in the name of the project")
-evaluateProject(projectName, getProjectPath(projectName))
+#evaluateProject(projectName, getProjectPath(projectName))

@@ -8,13 +8,13 @@ print(" ### Welcome to the interactive code migration workflow ### ")
 print(" ### Prerequisites: Version control with Git ### ")
 
 # Add folder to work with
-foldername = "Results"
-if os.path.exists(foldername):
-    shutil.rmtree(foldername)
-os.makedirs(foldername)
+resultFoldername = "Results"
+if os.path.exists(resultFoldername):
+    shutil.rmtree(resultFoldername)
+os.makedirs(resultFoldername)
 # Get current path
 topLvlDir = os.getcwd()
-print(" ### Results are stored in the *"+foldername+"* folder ### ")
+print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
 
 
 # Get donor
@@ -24,7 +24,7 @@ print("Set donor repo to: "+donorRepoURL+".")
 #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")
 donorBranch = "OnlyBubble"
 print("Set donor branch to: "+donorBranch+".")
-os.system("git clone -b "+donorBranch+" "+donorRepoURL+" "+foldername+"/Donor")  
+os.system("git clone -b "+donorBranch+" "+donorRepoURL+" "+resultFoldername+"/Donor")  
 
 
 # Get target
@@ -34,7 +34,7 @@ print("Set target repo to: "+targetRepoURL+".")
 #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")
 targetBranch = "Base_PL"
 print("Set target branch to: "+targetBranch+".")
-os.system("git clone -b "+targetBranch+" "+targetRepoURL+" "+foldername+"/Target") 
+os.system("git clone -b "+targetBranch+" "+targetRepoURL+" "+resultFoldername+"/Target") 
 
 
 # Get origin (common ancestor)
@@ -44,22 +44,24 @@ print("Set origin repo to: "+originRepoURL+".")
 #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n")
 originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b"
 print("Set common ancestor (origin) to: "+originCommitID+".")
-os.system("git clone "+originRepoURL+" "+foldername+"/Origin")  
+os.system("git clone "+originRepoURL+" "+resultFoldername+"/Origin")  
 # Change current working directory to origin
-os.chdir(topLvlDir+"/"+foldername+"/Origin")
+os.chdir(topLvlDir+"/"+resultFoldername+"/Origin")
 os.system("git checkout "+originCommitID) 
 
  
 # Import donor as CPG
-print("Start importing donor as Code Property Graph. Please make sure the server is running...")
-os.chdir(topLvlDir+"/"+foldername)
+print(" ### Start importing donor as Code Property Graph. Please make sure the server is running ### ")
+os.chdir(topLvlDir+"/"+resultFoldername)
 os.system("tar -cvzf DonorProject Donor") 
 os.system("jess-import DonorProject") 
 
 
 # Validate CPG
-
-
+print(" ### Validating CPG ### ")
+os.chdir(topLvlDir)
+from evaluation import evaluateProject
+evaluateProject("DonorProject", "/Donor/")
 
 
 #ToDo: Analysis steps.
