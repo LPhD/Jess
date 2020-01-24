@@ -20,7 +20,7 @@ def initialize():
 
 def importData(db, idList):
     # List that contains the code, filename, and linenumber of each statement of the SemanticUnit
-    structuredPatchList = []
+    structuredCodeList = []
     # List to slice the idList in manageable chunks
     chunkList = []
     # Defines the size of a chunk (max is near 20.000, otherwise we get class file too large exceptions)
@@ -53,18 +53,18 @@ def importData(db, idList):
                 
                 # Append filename, linenumber, cline and code (if exists) to the list
                 if len(r) > 3:
-                    structuredPatchList.append([locationFile, int(locationLine), int(locationCLine), (r['code'])[0]])
+                    structuredCodeList.append([locationFile, int(locationLine), int(locationCLine), (r['code'])[0]])
 
     
     # Sort the list content by file, by line and then by cLine
-    structuredPatchList = sorted(structuredPatchList, key=itemgetter(0,1,2))
+    structuredCodeList = sorted(structuredCodeList, key=itemgetter(0,1,2))
     
-    return structuredPatchList
+    return structuredCodeList
 
 
-def writeOutput(structuredPatchList):  
-    #Create folder and files for the patch (if its not already there)
-    foldername = "Patch"
+def writeOutput(structuredCodeList):  
+    #Create folder and files for the Code (if its not already there)
+    foldername = "Code"
     if os.path.exists(foldername):
         shutil.rmtree(foldername)
     
@@ -81,7 +81,7 @@ def writeOutput(structuredPatchList):
     additionalLinesPerFile = 0
 
     # Print results
-    for statement in structuredPatchList: 
+    for statement in structuredCodeList: 
         #print(statement)
 
         #Reset variables if line changed
@@ -152,15 +152,15 @@ def writeToFile(fileName, fileContent):
     file.write("\n")
     file.close() 
 
-def createPatch():
+def convertToCode():
     input = initialize()    
     output = importData(input[0], input[1])
     if(len(output)==0):
         print("Error: Output is empty")
     else:
         writeOutput(output)
-        print("Patch creation successfull")
+        print("Code creation successfull")
 
 
 #Run the script    
-createPatch()    
+convertToCode()    

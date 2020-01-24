@@ -51,7 +51,7 @@ def evaluateProject (projectName, projectPath):
     fileOutput(getVisibleNodes(projectName), projectName)      
           
     print("Convert project back to source code...")
-    from patchCreator import createPatch
+    from codeConverter import convertToCode
 
     print("Compare with original source code...")
     #Make new empty temp dir
@@ -66,7 +66,7 @@ def evaluateProject (projectName, projectPath):
     #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder 
     #(necessary because git diff --no-index does not allow for filtering of filetypes
     os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp '{}' "+foldername+"/ \;")
-    os.system("git diff -w -b --no-index "+foldername+" Patch/  > EvaluationResult.txt")   
+    os.system("git diff -w -b --no-index "+foldername+" Code/  > EvaluationResult.txt")   
      
         
     if (os.stat("EvaluationResult.txt").st_size == 0):

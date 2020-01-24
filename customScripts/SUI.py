@@ -22,7 +22,7 @@ generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 ###################### Configuration options for entry point input ## ####################
-console = True
+console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = True
 ##########################################################################################
@@ -35,7 +35,8 @@ DEBUG = True
 #projectName = 'SPLC'
 #projectName = 'expat'
 #projectName = 'PL_Current.tar.gz'
-projectName = 'PV_Current.tar.gz'
+#projectName = 'PV_Current.tar.gz'
+projectName = 'DonorProject'
 #projectName = 'Origin.tar.gz'
 #projectName = 'Collection'
 
@@ -58,7 +59,7 @@ projectName = 'PV_Current.tar.gz'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {65608}
+entryPointIds = {45200}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -956,6 +957,7 @@ if (console):
 else: 
     # projectName must be set manually
     db.connectToDatabase(projectName)
+    print("Project is set to: "+projectName)
 
 # Start identification process    
 identifySemanticUnits() 
