@@ -77,12 +77,12 @@ if (reuse == "1"):
 # Identify SU
 print(" ### Start of Semantic Unit identification process ### ")
 os.chdir(topLvlDir)
-#import SUI --------------------------------------------------------------------------------------------
+#import SUI ####################################################################################
 
 
 # SU to code (into folder Code)
 print(" ### Convert SU back to source code ### ")
-#from codeConverter import convertToCode --------------------------------------------------------------------------------------------
+#from codeConverter import convertToCode ####################################################################################
 
 # Create a new branch from SU
 #os.chdir(topLvlDir+"/Code") --------------------------------------------------------------------------------------------
@@ -102,28 +102,34 @@ print(" ### Starting analysis... ### ")
 ## Sc 1: Diff SU vs target
 print(" ### Check scenario 1 ### ")
 os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
-#os.system("git diff -w -b --no-index "+resultFoldername+"/Target/src/ Code/  > "+resultFoldername+"/S1Diff.txt")  
 os.system("git diff -w -b --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
 
 # Regex pattern: Starts with +,-,@ or "diff --git" or "index" followed by a number or lines containing only whitespaces or lines containing only whitespaces and brackets
 p = re.compile("(^[+-@])|(^diff --git)|(^index \d)|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)")
+# Bool for the first scenario
+scenario1 = True
 
+# Check if there are similar lines in the SU and the Target
 with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
     for line in file:
         #if (not line.startswith(("+", "-", "@", "diff --git"))):
         if not re.match(p, line):
             print(line)
-            print("Found some similarities! Scenario 1 is negative!")
+            scenario1 = False
+
+
+if (scenario1):
+    print("Found no similarities! Scenario 1 is positive!")
+    ### Only additions of SU -> Just add them to target, we are finished ###
+    
+else:   
+## Sc 2: Diff SU vs origin        
+    print("Found some similarities! Scenario 1 is negative!")
+    print(" ### Check scenario 2 ### ")
+    
  
 
-#ToDo: Analysis steps.
 
-# Scenario analysis?
-## Sc 1: Diff SU vs target
-### Only additions of SU -> Just add them to target, we are finished ###
-### Otherwise:
-## Sc 2: Diff SU vs origin
-###
 
 # Addition of variability?
 
