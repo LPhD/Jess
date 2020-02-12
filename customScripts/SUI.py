@@ -21,6 +21,7 @@ includeComments = True
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
+plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
@@ -118,8 +119,9 @@ def identifySemanticUnits ():
         print("Analysis finished, making graph...")
         print("--------------------------------------------------------------------------------- \n")
 
-        # Plot resulting graph
-        plotResults()
+        if (plotGraph):
+            # Plot resulting graph
+            plotResults()
 
         # Write resulting Ids to file
         fileOutput()
@@ -792,14 +794,13 @@ def nodeOutput ():
     for x in code: print(x)
     
 def fileOutput ():    
-    #Get node ids of semanticUnit (either as only AST or full property graph)
-    if (generateOnlyAST):
-        if(generateOnlyVisibleCode):
-            print("Get visible AST nodes")
-            nodes = getVisibleASTNodes()      
-        else:
-            print("Get AST nodes")
-            nodes = getASTNodes()    
+    #Get visible node ids of semanticUnit 
+    if(generateOnlyVisibleCode):
+        print("Get visible AST nodes")
+        nodes = getVisibleASTNodes()      
+    else:
+        print("Code output is only available if --generateOnlyVisibleCode-- is selected")
+   
         
     with open('result.txt', 'w') as file_handler:
         file_handler.write(projectName+"\n")
@@ -822,8 +823,8 @@ def plotResults ():
         if (DEBUG) : print("Get visible AST nodes")
         nodes = getVisibleASTNodes()    
     elif (generateOnlyAST):
-            if (DEBUG) : print("Get AST nodes")
-            nodes = getASTNodes()        
+        if (DEBUG) : print("Get AST nodes")
+        nodes = getASTNodes()        
     else:
         if (DEBUG) : print("Get nodes")
         nodes = getNodes()    
