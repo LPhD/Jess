@@ -3,9 +3,12 @@ from octopus.server.DBInterface import DBInterface
 import subprocess
 import os
 import shutil
+import re
 
 # Get current path
 topLvlDir = os.getcwd()
+# Add folder to work with
+resultFoldername = "Results"
 
 print(" ### Welcome to the interactive code migration workflow ### ")
 print(" ### Prerequisite 1: Version control with Git ### ")
@@ -16,8 +19,8 @@ reuse = input("Would you like to work with a new project (1) or keep the last on
 
 
 if (reuse == "1"):
-    # Add folder to work with
-    resultFoldername = "Results"
+    
+    # Delete old results
     if os.path.exists(resultFoldername):
         shutil.rmtree(resultFoldername)
     os.makedirs(resultFoldername)
@@ -74,15 +77,44 @@ if (reuse == "1"):
 # Identify SU
 print(" ### Start of Semantic Unit identification process ### ")
 os.chdir(topLvlDir)
-import SUI 
+#import SUI --------------------------------------------------------------------------------------------
 
 
-# SU to code
+# SU to code (into folder Code)
 print(" ### Convert SU back to source code ### ")
-from codeConverter import convertToCode
+#from codeConverter import convertToCode --------------------------------------------------------------------------------------------
 
+# Create a new branch from SU
+#os.chdir(topLvlDir+"/Code") --------------------------------------------------------------------------------------------
+#os.system("git init") --------------------------------------------------------------------------------------------
+#os.system("git checkout -b SU") --------------------------------------------------------------------------------------------
+#os.system("git add .") --------------------------------------------------------------------------------------------
+#os.system("git commit -m \"New Branch for SU\" ") --------------------------------------------------------------------------------------------
 
+# Copy code results to the targetBranch and then compare
+os.chdir(topLvlDir+"/Code")
+# Find files that end with .c or .h, then copy them from Code to Target/src, including their parent structure (--parents). Be verbose (-v)
+os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;")
 
+# # # Scenario analysis # # #
+print(" ### Starting analysis... ### ")
+
+## Sc 1: Diff SU vs target
+print(" ### Check scenario 1 ### ")
+os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
+#os.system("git diff -w -b --no-index "+resultFoldername+"/Target/src/ Code/  > "+resultFoldername+"/S1Diff.txt")  
+os.system("git diff -w -b --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
+
+# Regex pattern: Starts with +,-,@ or "diff --git" or "index" followed by a number or lines containing only whitespaces or lines containing only whitespaces and brackets
+p = re.compile("(^[+-@])|(^diff --git)|(^index \d)|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)")
+
+with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
+    for line in file:
+        #if (not line.startswith(("+", "-", "@", "diff --git"))):
+        if not re.match(p, line):
+            print(line)
+            print("Found some similarities! Scenario 1 is negative!")
+ 
 
 #ToDo: Analysis steps.
 
