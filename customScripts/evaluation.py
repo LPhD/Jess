@@ -63,9 +63,9 @@ def evaluateProject (projectName, projectPath):
     pathToOriginalProject = basePath+projectPath    
 
     os.makedirs(foldername)
-    #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder 
+    #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder preserving their folder structure
     #(necessary because git diff --no-index does not allow for filtering of filetypes
-    os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp '{}' "+foldername+"/ \;")
+    os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp --parent '{}' "+foldername+"/ \;")
     os.system("git diff -w -b --no-index "+foldername+" Code/  > EvaluationResult.txt")   
      
         
