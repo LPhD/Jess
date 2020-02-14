@@ -175,7 +175,7 @@ print(" ### Starting analysis... ### ")
 print(" ### Check scenario 1 ### ")
 os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
 # Add new files, if any
-os.system("git add .") ##  ------------------------------------------ Problem here!
+os.system("git add .") 
 # Reversed patch to simplify the addition
 os.system("git diff -w -b -R --staged --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
 
