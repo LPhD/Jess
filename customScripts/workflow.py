@@ -5,6 +5,19 @@ import os
 import shutil
 import re
 
+#### Helper functions ###
+
+# Sometimes Git messes ob the matching of brackets (identifies similar lines), we need to reverse that
+def fixBrackets(patch):
+    for index,line in enumerate(patch):
+        # Check for lines that contain only brackets
+        if re.match("^((\s*\n*[}{()]\s*\n*)+)$", line):
+            patch[index] = "+" + line
+
+    return patch
+
+#### Helper functions end ###
+
 # Get current path
 topLvlDir = os.getcwd()
 # Add folder to work with
@@ -108,19 +121,34 @@ os.system("git diff -w -b --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1D
 p = re.compile("(^[+-@])|(^diff --git)|(^index \d)|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)")
 # Bool for the first scenario
 scenario1 = True
+# List for the file content of the patch
+patch = []
 
 # Check if there are similar lines in the SU and the Target
 with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
     for line in file:
         #if (not line.startswith(("+", "-", "@", "diff --git"))):
         if not re.match(p, line):
-            print(line)
+            print("Duplicate lines found: "+line)
             scenario1 = False
 
 
 if (scenario1):
     print("Found no similarities! Scenario 1 is positive!")
     ### Only additions of SU -> Just add them to target, we are finished ###
+    with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
+        for line in file:
+            # Add all lines except removals to the patch
+            if not (line.startswith("-") and not line.startswith("---")):
+                patch.append(line)
+                       
+    # Fix brackets
+    patch = fixBrackets(patch) 
+    
+    # Write patch content to file
+    file = open(topLvlDir+"/"+resultFoldername+"/patch.patch", 'w')   
+    file.write("".join(patch))
+    file.close()     
     
 else:   
 ## Sc 2: Diff SU vs origin        
@@ -135,4 +163,4 @@ else:
 
 
 
-
+    
