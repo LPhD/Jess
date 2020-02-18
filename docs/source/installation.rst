@@ -13,8 +13,8 @@ acceptable performance. In addition, the following software should be
 installed:
 
 
-- **A Java Virtual Machine 1.8.** Jess is written in Java 8 and does
-  not build with Java 6 or 7. It has been tested with OpenJDK-8 but
+- **A Java Virtual Machine 1.8 or higher** Jess is written in Java 8 and does
+  not build with Java 6 or 7. It has been tested with OpenJDK-8 and 11 but
   should also work fine with Oracle's JVM.
 
 - **Python 3.** Jess implements a client/server architecture where
@@ -29,7 +29,7 @@ installed:
 - **Graphviz-dev.** Plotting tools require Graphviz and its
   development files to be installed.
   
-- **Gradle 2.x.** Jess uses the gradle build tool, and some features
+- **Gradle 2.x (< 5.0.0)** Jess uses the gradle build tool, and some features
   specific to Gradle 2.0 and above.
   
 - **Git 2.14.6 (or higher)** Jess is hosted on Github, to contribute (and for an easy installation) you need Git. Furthermore, the automated migration process relies on functionality added with Version 2.14.6 of Git. 
