@@ -6,6 +6,8 @@ import shutil
 from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
 
+DEBUG = True
+
 def initialize():
     # Get the ids from the SemanticUnit (first line is the projectName)
     idList = [line.rstrip('\n') for line in open('result.txt')]
@@ -14,6 +16,9 @@ def initialize():
     projectName = idList.pop(0)
     db = DBInterface()
     db.connectToDatabase(projectName)
+    
+    if DEBUG: print("Connected to project: "+projectName)
+    if DEBUG: print("IDs: "+str(idList))
     
     return [db, idList]
 
@@ -82,7 +87,7 @@ def writeOutput(structuredCodeList):
 
     # Print results
     for statement in structuredCodeList: 
-        #print(statement)
+        if DEBUG: print("Result statement: "+str(statement))
 
         #Reset variables if line changed
         if (not (lastLine + additionalLines) == statement[1]):
@@ -161,6 +166,5 @@ def convertToCode():
         writeOutput(output)
         print("Code creation successfull")
 
-
-#Run the script    
-convertToCode()    
+# When called via console, comment this line in to run the script   
+#convertToCode()    

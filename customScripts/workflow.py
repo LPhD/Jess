@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 from octopus.server.DBInterface import DBInterface
+from codeConverter import convertToCode
+from evaluation import evaluateProject
 import subprocess
 import os
 import shutil
 import re
+
 
 #### Helper functions ###
 
@@ -23,7 +26,7 @@ def assemblyTargetFile(filePath):
     found = False
     start = True
     
-    fileContent.append("/* * * This is the beginning of the automated transplanted code * * */") 
+    fileContent.append("/* * * This is the beginning of the automatically transplanted code * * */") 
     fileContent.append("\n")  
     
     # Write content to variable, without double newlines
@@ -41,7 +44,7 @@ def assemblyTargetFile(filePath):
                 
     # Always end newlines and a comment           
     fileContent.append("\n")  
-    fileContent.append("/* * * This is the end of the automated transplanted code * * */")     
+    fileContent.append("/* * * This is the end of the automatically transplanted code * * */")     
     fileContent.append("\n") 
     
     # Read patch content (do this here because we do not want to have the whole patch in the memory all the time)
@@ -106,31 +109,31 @@ if (reuse == "1"):
     print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
 
     # Get donor
-    donorRepoURL = input("Please type in the url to the Git repository containing the desired functionality (without additional information) \n")
-    #donorRepoURL = "https://github.com/LPhD/EvoDiss.git"
+    #donorRepoURL = input("Please type in the url to the Git repository containing the desired functionality (without additional information) \n")
+    donorRepoURL = "https://github.com/LPhD/EvoDiss.git" ###################################################
     print("Set donor repo to: "+donorRepoURL+".")
-    donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")
-    #donorBranch = "OnlyBubble"
+    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")
+    donorBranch = "OnlyBubble" ########################################################################################
     print("Set donor branch to: "+donorBranch+".")
     os.system("git clone -b "+donorBranch+" "+donorRepoURL+" "+resultFoldername+"/Donor")  
 
 
     # Get target
-    targetRepoURL = input("\nPlease type in the url to the Git repository where you would like to add the functionality (without additional information) \n")
-    #targetRepoURL = "https://github.com/LPhD/EvoDiss.git"
+    #targetRepoURL = input("\nPlease type in the url to the Git repository where you would like to add the functionality (without additional information) \n")
+    targetRepoURL = "https://github.com/LPhD/EvoDiss.git" ############################################################
     print("Set target repo to: "+targetRepoURL+".")
-    targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")
-    #targetBranch = "Base_PL"
+    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")
+    targetBranch = "Base_PL" ########################################################################################################
     print("Set target branch to: "+targetBranch+".")
     os.system("git clone -b "+targetBranch+" "+targetRepoURL+" "+resultFoldername+"/Target") 
 
 
     # Get origin (common ancestor)
-    originRepoURL = input("\nPlease type in the url to the Git repository containing the common ancestor of donor and target (without additional information) \n")
-    #originRepoURL = "https://github.com/LPhD/EvoDiss.git"
+    #originRepoURL = input("\nPlease type in the url to the Git repository containing the common ancestor of donor and target (without additional information) \n")
+    originRepoURL = "https://github.com/LPhD/EvoDiss.git" #####################################################################
     print("Set origin repo to: "+originRepoURL+".")
-    originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n")
-    #originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b"
+    #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n")
+    originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" #########################################################################
     print("Set common ancestor (origin) to: "+originCommitID+".")
     os.system("git clone "+originRepoURL+" "+resultFoldername+"/Origin")  
     # Change current working directory to origin
@@ -140,27 +143,27 @@ if (reuse == "1"):
      
     # Import donor as CPG
     print(" ### Start importing donor as Code Property Graph. Please make sure the server is running ### ")
-    os.chdir(topLvlDir+"/"+resultFoldername)
-    os.system("tar -cvzf DonorProject Donor") 
-    os.system("jess-import DonorProject") 
+    #os.chdir(topLvlDir+"/"+resultFoldername) #################################################
+    #os.system("tar -cvzf DonorProject Donor") ##################################################################
+    #os.system("jess-import DonorProject") ###############################################################
 
 
     # Validate CPG
     print(" ### Validating CPG ### ")
-    os.chdir(topLvlDir)
-    from evaluation import evaluateProject
+    os.chdir(topLvlDir)   
     evaluateProject("DonorProject", "/Donor/")
 
 
 # Identify SU
 print(" ### Start of Semantic Unit identification process ### ")
+print(" ### Please select 'DonorProject' as input project ### ")
 os.chdir(topLvlDir)
-#import SUI ####################################################################################
+import SUI ####################################################################################
 
 
 # SU to code (into folder Code)
 print(" ### Convert SU back to source code ### ")
-#from codeConverter import convertToCode ####################################################################################
+convertToCode() ####################################################################################
 
 
 # Copy code results to the targetBranch and then compare
@@ -233,6 +236,7 @@ if (scenario1):
         assemblyTargetFile(file)
 
     print(" ### Code transplantation finished sucessfull! ### ")
+    print(" ### Please compile the code to check for duplicate identifiers ### ")
 else:   
 ## Sc 2: Diff SU vs origin        
     print("Found some similarities! Scenario 1 is negative!")

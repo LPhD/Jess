@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 from octopus.server.DBInterface import DBInterface
+from codeConverter import convertToCode
 import subprocess
 import os
 import shutil
+
 
 def getProjectPath (projectName):  
     #Name and path of the project
@@ -51,7 +53,7 @@ def evaluateProject (projectName, projectPath):
     fileOutput(getVisibleNodes(projectName), projectName)      
           
     print("Convert project back to source code...")
-    from codeConverter import convertToCode
+    convertToCode()
 
     print("Compare with original source code...")
     #Make new empty temp dir

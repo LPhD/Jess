@@ -60,7 +60,7 @@ projectName = 'DonorProject'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {65600}
+entryPointIds = {114832}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -419,8 +419,6 @@ def getFunctionDeclInHeader (verticeId):
     query = """g.V(%s).out(AST_EDGE).has('type', 'Identifier').values('code')""" % (verticeId)
     fName = db.runGremlinQuery(query)
     
-    print("Function name is: "+str(fName))
-    
     if(len(fName)>0):
         # Go to parent file
         # Follow IS_HEADER_OF
@@ -428,10 +426,7 @@ def getFunctionDeclInHeader (verticeId):
         query = """g.V(%s)
             .until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
             .in('IS_HEADER_OF').out('IS_FILE_OF').has('type', 'DeclStmt').has('code', textContains('%s')).id()
-        """ % (verticeId, fName[0])
-        
-        temp = db.runGremlinQuery(query) 
-        print("TempResult: "+str(temp))
+        """ % (verticeId, fName[0])        
         
         return db.runGremlinQuery(query)    
     else:
