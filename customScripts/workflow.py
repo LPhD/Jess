@@ -158,12 +158,12 @@ if (reuse == "1"):
 print(" ### Start of Semantic Unit identification process ### ")
 print(" ### Please select 'DonorProject' as input project ### ")
 os.chdir(topLvlDir)
-import SUI ####################################################################################
+#import SUI ####################################################################################
 
 
 # SU to code (into folder Code)
 print(" ### Convert SU back to source code ### ")
-convertToCode() ####################################################################################
+#convertToCode() ####################################################################################
 
 
 # Copy code results to the targetBranch and then compare
@@ -180,7 +180,7 @@ os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
 # Add new files, if any
 os.system("git add .") 
 # Reversed patch to simplify the addition
-os.system("git diff -w -b -R --staged --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
+os.system("git diff -w -b -R --staged --no-indent-heuristic --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
 
 # Regex pattern: Starts with +,-,@ or lines containing only whitespaces or lines containing only whitespaces and brackets
 p = re.compile("(^[+-@])|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)")

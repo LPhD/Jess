@@ -6,7 +6,7 @@ import shutil
 from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
 
-DEBUG = True
+DEBUG = False
 
 def initialize():
     # Get the ids from the SemanticUnit (first line is the projectName)
