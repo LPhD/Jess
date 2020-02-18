@@ -32,7 +32,7 @@ installed:
 - **Gradle 2.x.** Jess uses the gradle build tool, and some features
   specific to Gradle 2.0 and above.
   
-- **Git 2.14.6** Jess is hosted on Github, to contribute (and for an easy installation) you need Git. Furthermore, the automated migration process relies on functionality added with Version 2.14.6 of Git. 
+- **Git 2.14.6 (or higher)** Jess is hosted on Github, to contribute (and for an easy installation) you need Git. Furthermore, the automated migration process relies on functionality added with Version 2.14.6 of Git. 
 
 If you are on a Linux-based system, try the following to download the
 necessary dependencies:
