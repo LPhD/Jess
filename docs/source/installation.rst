@@ -6,7 +6,7 @@ System Requirements and Dependencies
 
 Jess is a Java Application and should work on systems offering a Java
 virtual machine, e.g., Microsoft Windows, Mac OS X or GNU/Linux. We
-have tested Jess on Debian and Ubuntu. If you plan to work with large
+have tested Jess on Ubuntu and recommend Version 18.x.x LTS. If you plan to work with large
 code bases such as the Linux Kernel, you should have at least 30GB of
 free disk space to store the database and 8GB of RAM to experience
 acceptable performance. In addition, the following software should be
@@ -32,7 +32,7 @@ installed:
 - **Gradle 2.x.** Jess uses the gradle build tool, and some features
   specific to Gradle 2.0 and above.
   
-- **Git** Jess is hosted on Github, to contribute (and for an easy installation) you need Git.
+- **Git 2.14.6** Jess is hosted on Github, to contribute (and for an easy installation) you need Git. Furthermore, the automated migration process relies on functionality added with Version 2.14.6 of Git. 
 
 If you are on a Linux-based system, try the following to download the
 necessary dependencies:
