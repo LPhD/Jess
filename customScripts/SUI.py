@@ -21,7 +21,7 @@ includeComments = True
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
-plotGraph = False
+plotGraph = True
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
@@ -60,7 +60,7 @@ projectName = 'DonorProject'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {45200}
+entryPointIds = {65600}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -253,6 +253,12 @@ def analyzeNode (currentNode):
         result = set(getFunctionDefOut(currentNode))           
         # Add FunctionDef to the Semantic Unit and get related elements
         analysisList.extend(result)
+        
+    # Get the declaration of the function in its header file (if existing)
+    if (type[0] == "FunctionDef"):
+        result = set(getFunctionDeclInHeader(currentNode))
+        # Just add, no further analysis (we do not need to look at the decl again, this is done for Decl and CallExpression)
+        semanticUnit.update(result) 
     
     # Get definition of the element that contains the condition or parameter
     # We need this for identification of statements that are connected to a #define       
@@ -405,7 +411,31 @@ def getEnclosedCodeOfFile (verticeId):
 # Return function definition vertice of a given function
 def getFunctionDefOut (verticeId):
     query = """g.V(%s).out().has('type', 'FunctionDef').id()""" % (verticeId)
-    return db.runGremlinQuery(query)        
+    return db.runGremlinQuery(query)  
+
+# Return function decl in the belonging header file (if existing) ###############
+def getFunctionDeclInHeader (verticeId):
+    # Get the name
+    query = """g.V(%s).out(AST_EDGE).has('type', 'Identifier').values('code')""" % (verticeId)
+    fName = db.runGremlinQuery(query)
+    
+    print("Function name is: "+str(fName))
+    
+    if(len(fName)>0):
+        # Go to parent file
+        # Follow IS_HEADER_OF
+        # Look in AST children for decl with same functionName
+        query = """g.V(%s)
+            .until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+            .in('IS_HEADER_OF').out('IS_FILE_OF').has('type', 'DeclStmt').has('code', textContains('%s')).id()
+        """ % (verticeId, fName[0])
+        
+        temp = db.runGremlinQuery(query) 
+        print("TempResult: "+str(temp))
+        
+        return db.runGremlinQuery(query)    
+    else:
+        return ""
 
 # Return AST parent of a given node (can be empty)
 def getParent (verticeId):
@@ -957,6 +987,7 @@ if (console):
     consoleInput()
 else: 
     # projectName must be set manually
+    print("* * * Please set project name and entry point manually (or set console to TRUE) in the SUI.py * * * ")
     db.connectToDatabase(projectName)
     print("Project is set to: "+projectName)
 
