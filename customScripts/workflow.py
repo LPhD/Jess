@@ -7,6 +7,19 @@ import os
 import shutil
 import re
 
+#### Global variables ####
+
+# Get current path
+topLvlDir = os.getcwd()
+# Add folder to work with
+resultFoldername = "Results"
+# Repo URL
+repoURL = "https://github.com/LPhD/EvoDiss.git" ###################################################
+# Relevant branches
+donorBranch = "OnlyBubble" ########################################################################################
+targetBranch = "Base_PL" ########################################################################################################
+originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" #########################################################################
+
 
 #### Helper functions ###
 
@@ -86,10 +99,7 @@ def getTargetFiles(patch, files):
     
 #### Helper functions end ###
 
-# Get current path
-topLvlDir = os.getcwd()
-# Add folder to work with
-resultFoldername = "Results"
+
 
 print(" ### Welcome to the interactive code migration workflow ### ")
 print(" ### Prerequisite 1: Version control with Git ### ")
@@ -109,33 +119,27 @@ if (reuse == "1"):
     print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
 
     # Get donor
-    #donorRepoURL = input("Please type in the url to the Git repository containing the desired functionality (without additional information) \n")
-    donorRepoURL = "https://github.com/LPhD/EvoDiss.git" ###################################################
-    print("Set donor repo to: "+donorRepoURL+".")
-    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")
-    donorBranch = "OnlyBubble" ########################################################################################
+    #repoURL = input("Please type in the url to the Git repository containing the desired functionality (without additional information) \n")
+    print("Set donor repo to: "+repoURL+".")
+    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
     print("Set donor branch to: "+donorBranch+".")
-    os.system("git clone -b "+donorBranch+" "+donorRepoURL+" "+resultFoldername+"/Donor")  
+    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/Donor")  
 
 
     # Get target
-    #targetRepoURL = input("\nPlease type in the url to the Git repository where you would like to add the functionality (without additional information) \n")
-    targetRepoURL = "https://github.com/LPhD/EvoDiss.git" ############################################################
-    print("Set target repo to: "+targetRepoURL+".")
-    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")
-    targetBranch = "Base_PL" ########################################################################################################
+    #repoURL = input("\nPlease type in the url to the Git repository where you would like to add the functionality (without additional information) \n")
+    print("Set target repo to: "+repoURL+".")
+    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    
     print("Set target branch to: "+targetBranch+".")
-    os.system("git clone -b "+targetBranch+" "+targetRepoURL+" "+resultFoldername+"/Target") 
+    os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/Target") 
 
 
     # Get origin (common ancestor)
-    #originRepoURL = input("\nPlease type in the url to the Git repository containing the common ancestor of donor and target (without additional information) \n")
-    originRepoURL = "https://github.com/LPhD/EvoDiss.git" #####################################################################
-    print("Set origin repo to: "+originRepoURL+".")
-    #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n")
-    originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" #########################################################################
+    #repoURL = input("\nPlease type in the url to the Git repository containing the common ancestor of donor and target (without additional information) \n")
+    print("Set origin repo to: "+repoURL+".")
+    #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n")    
     print("Set common ancestor (origin) to: "+originCommitID+".")
-    os.system("git clone "+originRepoURL+" "+resultFoldername+"/Origin")  
+    os.system("git clone "+repoURL+" "+resultFoldername+"/Origin")  
     # Change current working directory to origin
     os.chdir(topLvlDir+"/"+resultFoldername+"/Origin")
     os.system("git checkout "+originCommitID) 
@@ -158,12 +162,12 @@ if (reuse == "1"):
 print(" ### Start of Semantic Unit identification process ### ")
 print(" ### Please select 'DonorProject' as input project ### ")
 os.chdir(topLvlDir)
-#import SUI ####################################################################################
+import SUI ####################################################################################
 
 
 # SU to code (into folder Code)
 print(" ### Convert SU back to source code ### ")
-#convertToCode() ####################################################################################
+convertToCode() ####################################################################################
 
 
 # Copy code results to the targetBranch and then compare
@@ -180,7 +184,26 @@ os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
 # Add new files, if any
 os.system("git add .") 
 # Reversed patch to simplify the addition
-os.system("git diff -w -b -R --staged --no-indent-heuristic --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
+#os.system("git diff -w -b -R --staged --no-indent-heuristic --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
+os.system("git diff -w -b -R --staged --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
+
+
+
+
+##############################################################################################################
+# Create a new branch from SU
+#os.chdir(topLvlDir+"/Code") --------------------------------------------------------------------------------------------
+#os.system("git init") --------------------------------------------------------------------------------------------
+#os.system("git checkout -b SU") --------------------------------------------------------------------------------------------
+#os.system("git add .") --------------------------------------------------------------------------------------------
+#os.system("git commit -m \"New Branch for SU\" ") --------------------------------------------------------------------------------------------
+
+os.system("git merge --no-commit > "+topLvlDir+"/"+resultFoldername+"/Merge.txt") 
+
+
+
+os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
+##############################################################################################################
 
 # Regex pattern: Starts with +,-,@ or lines containing only whitespaces or lines containing only whitespaces and brackets
 p = re.compile("(^[+-@])|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)")
