@@ -117,27 +117,24 @@ if (reuse == "1"):
     os.makedirs(resultFoldername)
 
     print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
+    
+    #repoURL = input("Please type in the url to your Git repository \n") #############################
+    print("Set donor repo to: "+repoURL+".")
 
     # Get donor
-    #repoURL = input("Please type in the url to the Git repository containing the desired functionality (without additional information) \n")
-    print("Set donor repo to: "+repoURL+".")
-    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
+    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   #################################################
     print("Set donor branch to: "+donorBranch+".")
     os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/Donor")  
 
 
     # Get target
-    #repoURL = input("\nPlease type in the url to the Git repository where you would like to add the functionality (without additional information) \n")
-    print("Set target repo to: "+repoURL+".")
-    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    
+    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    #################################################
     print("Set target branch to: "+targetBranch+".")
     os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/Target") 
 
 
     # Get origin (common ancestor)
-    #repoURL = input("\nPlease type in the url to the Git repository containing the common ancestor of donor and target (without additional information) \n")
-    print("Set origin repo to: "+repoURL+".")
-    #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n")    
+    #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n") #################################################   
     print("Set common ancestor (origin) to: "+originCommitID+".")
     os.system("git clone "+repoURL+" "+resultFoldername+"/Origin")  
     # Change current working directory to origin
@@ -154,8 +151,8 @@ if (reuse == "1"):
 
     # Validate CPG
     print(" ### Validating CPG ### ")
-    os.chdir(topLvlDir)   
-    evaluateProject("DonorProject", "/Donor/")
+    #os.chdir(topLvlDir)    #################################################
+    #evaluateProject("DonorProject", "/Donor/") #################################################
 
 
 # Identify SU
@@ -165,9 +162,9 @@ os.chdir(topLvlDir)
 import SUI ####################################################################################
 
 
-# SU to code (into folder Code)
+# SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
 print(" ### Convert SU back to source code ### ")
-convertToCode() ####################################################################################
+convertToCode(True) ####################################################################################
 
 
 # Copy code results to the targetBranch and then compare
@@ -185,7 +182,7 @@ os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
 os.system("git add .") 
 # Reversed patch to simplify the addition
 #os.system("git diff -w -b -R --staged --no-indent-heuristic --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
-os.system("git diff -w -b -R --staged --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
+os.system("git diff -w -b -R --ignore-blank-lines --staged --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
 
 
 

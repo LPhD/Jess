@@ -21,7 +21,8 @@ def getProjectPath (projectName):
     'Origin.tar.gz':'/C/src/',
     'PL_Current.tar.gz':'/C/src/',
     'PV_Current.tar.gz':'/C/src/',
-    'sample':'/Example/'} 
+    'sample':'/Example/',
+    'DonorProject':''} 
 
     #Assemble path 
     return projectNameAndPath[projectName]
@@ -53,7 +54,7 @@ def evaluateProject (projectName, projectPath):
     fileOutput(getVisibleNodes(projectName), projectName)      
           
     print("Convert project back to source code...")
-    convertToCode()
+    convertToCode(False)
 
     print("Compare with original source code...")
     #Make new empty temp dir
@@ -67,8 +68,9 @@ def evaluateProject (projectName, projectPath):
     os.makedirs(foldername)
     #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder preserving their folder structure
     #(necessary because git diff --no-index does not allow for filtering of filetypes
-    os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp --parent '{}' "+foldername+"/ \;")
-    os.system("git diff -w -b --no-index "+foldername+" Code/  > EvaluationResult.txt")   
+    #os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp --parent '{}' "+foldername+"/ \;")
+    os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp  '{}' "+foldername+"/ \;")
+    os.system("git diff -w -b --ignore-blank-lines --no-index "+foldername+" Code/  > EvaluationResult.txt")   
      
         
     if (os.stat("EvaluationResult.txt").st_size == 0):
@@ -78,6 +80,6 @@ def evaluateProject (projectName, projectPath):
 
 
 # When called via console, fill these out and add your project path to getProjectPath function
-#projectName = "PV_Current.tar.gz"
+#projectName = "DonorProject"
 #projectName = input("Please type in the name of the project")
 #evaluateProject(projectName, getProjectPath(projectName))

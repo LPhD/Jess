@@ -28,7 +28,7 @@ def initialize():
     return [db, idList]
 
 
-def importData(db, idList):
+def importData(db, idList, SEMANTIC):
     # List that contains the code, filename, and linenumber of each statement of the SemanticUnit
     structuredCodeList = []
     # List to slice the idList in manageable chunks
@@ -80,7 +80,7 @@ def importData(db, idList):
     return structuredCodeList
 
 
-def writeOutput(structuredCodeList):  
+def writeOutput(structuredCodeList, SEMANTIC):  
     #Create folder and files for the Code (if its not already there)
     foldername = "Code"
     if os.path.exists(foldername):
@@ -175,14 +175,14 @@ def writeToFile(fileName, fileContent):
     file.write("\n")
     file.close() 
 
-def convertToCode():
+def convertToCode(SEMANTIC):
     input = initialize()    
-    output = importData(input[0], input[1])
+    output = importData(input[0], input[1], SEMANTIC)
     if(len(output)==0):
         print("Error: Output is empty")
     else:
-        writeOutput(output)
+        writeOutput(output, SEMANTIC)
         print("Code creation successfull")
 
 # When called via console, comment this line in to run the script   
-#convertToCode()    
+#convertToCode(SEMANTIC)    
