@@ -7,7 +7,9 @@ from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
 
 # Activate for debug outputs
-DEBUG = True
+DEBUG = False
+# Activate for generation of semantic code (enhances the normal code with semantic information)
+SEMANTIC = False
 # Lists all types that we need for the block based analysis
 typeList = ['FunctionDef']
 
@@ -54,22 +56,22 @@ def importData(db, idList):
                 if len(r) > 4:
                     structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), int(((r['cLine'])[0])), (r['code'])[0], (r['type'])[0]])                
          
-         
-        # Get block enders (FunctionDef etc) for semantic diff
-        query = """idListToNodes(%s)
-            .has('type', 'FunctionDef').out(AST_EDGE)
-            .has('type', 'CompoundStatement').out(AST_EDGE)
-            .has('type', 'BlockCloser')
-            .valueMap('path', 'line')
-        """ % (chunk) 
-        # Execute equery
-        result = db.runGremlinQuery(query)
         
-        # Add results to the code liste
-        for r in result:
-            print(r)
-            if len(r) > 1:
-                structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), 0, " #blockEnder# ", "blockEnder"])
+        if SEMANTIC:    
+            # Get block enders (FunctionDef etc) for semantic diff
+            query = """idListToNodes(%s)
+                .has('type', 'FunctionDef').out(AST_EDGE)
+                .has('type', 'CompoundStatement').out(AST_EDGE)
+                .has('type', 'BlockCloser')
+                .valueMap('path', 'line')
+            """ % (chunk) 
+            # Execute equery
+            result = db.runGremlinQuery(query)
+            
+            # Add results to the code liste
+            for r in result:
+                if len(r) > 1:
+                    structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), 0, " #blockEnder# ", "blockEnder"])
     
     
     # Sort the list content by file, by line and then by cLine
@@ -156,7 +158,7 @@ def writeOutput(structuredCodeList):
         
         # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
         # TODO: Systematically add all possible types (array? struct? preDefine?)
-        if (statement[4] in typeList):
+        if (SEMANTIC and (statement[4] in typeList)):
             lineContent = "#" + statement[4] + "# " + lineContent  
                 
     
