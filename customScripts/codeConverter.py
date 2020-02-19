@@ -6,7 +6,10 @@ import shutil
 from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
 
-DEBUG = False
+# Activate for debug outputs
+DEBUG = True
+# Lists all types that we need for the block based analysis
+typeList = ['FunctionDef']
 
 def initialize():
     # Get the ids from the SemanticUnit (first line is the projectName)
@@ -40,26 +43,34 @@ def importData(db, idList):
     # For each chunk
     for chunk in chunkList:
         # Get the code of the statements for the chunk
-        query = """idListToNodes(%s).valueMap('code', 'path', 'line', 'cLine')""" % (chunk)
+        query = """idListToNodes(%s).valueMap('code', 'path', 'line', 'cLine', 'type')""" % (chunk)
         # Execute equery
         result = db.runGremlinQuery(query)
 
         for r in result:  
             # Just add the statements to the results which contain all necessary information
-            if (('path' in r) and ('line' in r) and ('cLine' in r) and ('code' in r)):
-                # Get the filename (we need the path later)
-                locationFile = ntpath.basename((r['path'])[0])
-                
-                # Get the linenumber
-                locationLine = ((r['line'])[0])
-                
-                # Get the char number in the line
-                locationCLine = ((r['cLine'])[0])
-                
-                # Append filename, linenumber, cline and code (if exists) to the list
-                if len(r) > 3:
-                    structuredCodeList.append([locationFile, int(locationLine), int(locationCLine), (r['code'])[0]])
-
+            if (('path' in r) and ('line' in r) and ('cLine' in r) and ('code' in r) and ('type' in r)):                
+                # Append filename, linenumber, cline, code (if exists) and type to the list
+                if len(r) > 4:
+                    structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), int(((r['cLine'])[0])), (r['code'])[0], (r['type'])[0]])                
+         
+         
+        # Get block enders (FunctionDef etc) for semantic diff
+        query = """idListToNodes(%s)
+            .has('type', 'FunctionDef').out(AST_EDGE)
+            .has('type', 'CompoundStatement').out(AST_EDGE)
+            .has('type', 'BlockCloser')
+            .valueMap('path', 'line')
+        """ % (chunk) 
+        # Execute equery
+        result = db.runGremlinQuery(query)
+        
+        # Add results to the code liste
+        for r in result:
+            print(r)
+            if len(r) > 1:
+                structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), 0, " #blockEnder# ", "blockEnder"])
+    
     
     # Sort the list content by file, by line and then by cLine
     structuredCodeList = sorted(structuredCodeList, key=itemgetter(0,1,2))
@@ -142,6 +153,11 @@ def writeOutput(structuredCodeList):
 
         #Finally add the statement to the line
         lineContent = lineContent + statement[3]
+        
+        # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
+        # TODO: Systematically add all possible types (array? struct? preDefine?)
+        if (statement[4] in typeList):
+            lineContent = "#" + statement[4] + "# " + lineContent  
                 
     
     #Finally write the current line (last of the list)
