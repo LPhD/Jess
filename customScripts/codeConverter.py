@@ -56,7 +56,7 @@ def importData(db, idList, SEMANTIC):
                 if len(r) > 4:
                     structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), int(((r['cLine'])[0])), (r['code'])[0], (r['type'])[0]])                
          
-        
+        # # # Semantic Diff # # #
         if SEMANTIC:    
             # Get block enders (FunctionDef etc) for semantic diff
             query = """idListToNodes(%s)
@@ -71,8 +71,8 @@ def importData(db, idList, SEMANTIC):
             # Add results to the code liste
             for r in result:
                 if len(r) > 1:
-                    structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), 0, " #blockEnder# ", "blockEnder"])
-    
+                    structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), 0, " #BlockEnder# ", "BlockEnder"])
+            # # # Semantic Diff End # # #
     
     # Sort the list content by file, by line and then by cLine
     structuredCodeList = sorted(structuredCodeList, key=itemgetter(0,1,2))
@@ -97,9 +97,11 @@ def writeOutput(structuredCodeList, SEMANTIC):
     # We need this for multiline nodes to get the correct length
     additionalLines = 0
     additionalLinesPerFile = 0
+    # For semantic diff utility
+    inBlock = False
 
     # Print results
-    for statement in structuredCodeList: 
+    for statement in structuredCodeList:     
         if DEBUG: print("Result statement: "+str(statement))
 
         #Reset variables if line changed
@@ -131,6 +133,7 @@ def writeOutput(structuredCodeList, SEMANTIC):
             lineContent = "" 
             additionalLinesPerFile = 0
             additionalLines = 0
+            inBlock = False
             lChanged = True
             fChanged = True
         else:
@@ -156,11 +159,22 @@ def writeOutput(structuredCodeList, SEMANTIC):
         #Finally add the statement to the line
         lineContent = lineContent + statement[3]
         
+        # # # Semantic Diff # # #
+        # Turn trigger off, as we leave the block
+        if SEMANTIC and (statement[4] == "BlockEnder"):
+            inBlock = False
+            
+        # Add prefix for statements that are inside a block
+        if SEMANTIC and inBlock:
+            lineContent = "#Block# " + lineContent 
+            
         # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
         # TODO: Systematically add all possible types (array? struct? preDefine?)
         if (SEMANTIC and (statement[4] in typeList)):
             lineContent = "#" + statement[4] + "# " + lineContent  
-                
+            inBlock = True
+               
+        # # # Semantic Diff End # # #
     
     #Finally write the current line (last of the list)
     outputFileContent.append(lineContent)

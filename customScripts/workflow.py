@@ -23,13 +23,13 @@ originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" ####################
 
 #### Helper functions ###
 
-# Sometimes Git messes ob the matching of brackets (identifies similar lines), we need to reverse that
-def fixBrackets(patch):
+# Sometimes Git messes ob the matching of brackets or #endifs (identifies similar lines), we need to reverse that
+def fixBrackets(patch, ignorePattern):
     for index,line in enumerate(patch):
-        # Check for lines that contain only brackets
-        if re.match("^((\s*\n*[}{()]\s*\n*)+)$", line):
-            patch[index] = "+" + line
-
+        # Check for lines that contain ignored similarities
+        if re.match(ignorePattern, line):
+            patch[index] = "-" + line
+                        
     return patch
 
 # Add the patch content to the respective file   
@@ -52,8 +52,9 @@ def assemblyTargetFile(filePath):
                 if lasNewline:
                    fileContent.append("\n")
                    lasNewline = False
-                # Add the file content   
-                fileContent.append(line)
+                   
+                # Add the file content, remove the semantic diff words   
+                fileContent.append(line.replace("#Block#","").replace("#FunctionDef#","",1).replace("#BlockEnder#",""))
                 
     # Always end newlines and a comment           
     fileContent.append("\n")  
@@ -64,12 +65,12 @@ def assemblyTargetFile(filePath):
     with open(topLvlDir+"/"+resultFoldername+"/patch.patch", 'r') as patch:
         for line in patch:
             # Look for the part of the patch that belongs to the file
-            if line.startswith("--- b/"+filePath):
+            if line.startswith("+++ b/"+filePath):
                 found = True 
                 
             if start and not line.startswith("diff --git"):
                 # Here is the patch content for the current file
-                fileContent.append(line.replace("+","",1))
+                fileContent.append(line.replace("-","",1))
             elif line.startswith("diff --git"):
                 # Reset if we reach the beginning of a new header
                 found = False
@@ -92,7 +93,7 @@ def getTargetFiles(patch, files):
     # Search for filenames
     with open(patch, 'r') as file:
         for line in file:
-            if line.startswith("---"):
+            if line.startswith("+++"):
                 files.append(line.split("b/",1)[1].replace("\n",""))
 
     return files
@@ -159,18 +160,18 @@ if (reuse == "1"):
 print(" ### Start of Semantic Unit identification process ### ")
 print(" ### Please select 'DonorProject' as input project ### ")
 os.chdir(topLvlDir)
-import SUI ####################################################################################
+#import SUI ####################################################################################
 
 
 # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
 print(" ### Convert SU back to source code ### ")
-convertToCode(True) ####################################################################################
+#convertToCode(True) ####################################################################################
 
 
 # Copy code results to the targetBranch and then compare
-os.chdir(topLvlDir+"/Code")
+os.chdir(topLvlDir+"/Code") ###################################################################################
 # Find files that end with .c or .h, then copy them from Code to Target/src, including their parent structure (--parents). Be verbose (-v)
-os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;")
+os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;") ###################################################################################
 
 # # # Scenario analysis # # #
 print(" ### Starting analysis... ### ")
@@ -181,29 +182,20 @@ os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
 # Add new files, if any
 os.system("git add .") 
 # Reversed patch to simplify the addition
-#os.system("git diff -w -b -R --staged --no-indent-heuristic --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
-os.system("git diff -w -b -R --ignore-blank-lines --staged --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") 
+#os.system("git diff -w -b -R --staged --no-indent-heuristic --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") ###################################################################################
+
+#p = re.compile("(^[+-@])|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
 
 
+# Ignore whitespace, tab or blank line changes and changes similar to ignorePattern. Reversed patch to simplify the addition
+os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
 
 
-##############################################################################################################
-# Create a new branch from SU
-#os.chdir(topLvlDir+"/Code") --------------------------------------------------------------------------------------------
-#os.system("git init") --------------------------------------------------------------------------------------------
-#os.system("git checkout -b SU") --------------------------------------------------------------------------------------------
-#os.system("git add .") --------------------------------------------------------------------------------------------
-#os.system("git commit -m \"New Branch for SU\" ") --------------------------------------------------------------------------------------------
+# Regex pattern: Starts with +,-,@ or lines containing only whitespaces 
+changePattern = re.compile("(^[+-@])|(^(\s+)$)")
+# Ignore lines containing only brackets or #endifs
+ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
 
-os.system("git merge --no-commit > "+topLvlDir+"/"+resultFoldername+"/Merge.txt") 
-
-
-
-os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
-##############################################################################################################
-
-# Regex pattern: Starts with +,-,@ or lines containing only whitespaces or lines containing only whitespaces and brackets
-p = re.compile("(^[+-@])|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)")
 # Bool for the first scenario
 scenario1 = True
 # List for the file content of the patch
@@ -221,8 +213,8 @@ with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-
             skip = True
             
         if not skip: 
-            # Look for similar lines
-            if not re.match(p, line):
+            # Look for similar lines and ignore elements from the ignore pattern
+            if not (re.match(changePattern, line) or re.match(ignorePattern, line)):
                 print("Duplicate lines found: "+line)
                 scenario1 = False
          
@@ -236,12 +228,12 @@ if (scenario1):
     ### Only additions of SU -> Just add them to target, we are finished ###
     with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
         for line in file:
-            # Add all lines except removals to the patch
-            if not (line.startswith("-") and not line.startswith("---")):
+            # Add all lines except additions to the patch
+            if not (line.startswith("+") and not line.startswith("+++")):
                 patch.append(line)
                        
     # Fix brackets
-    patch = fixBrackets(patch) 
+    patch = fixBrackets(patch, ignorePattern) 
     
     # Write patch content to file (do we really need this or should we work with the patch variable?)
     file = open(topLvlDir+"/"+resultFoldername+"/patch.patch", 'w')   
