@@ -19,9 +19,62 @@ repoURL = "https://github.com/LPhD/EvoDiss.git" ################################
 donorBranch = "OnlyBubble" ########################################################################################
 targetBranch = "Base_PL" ########################################################################################################
 originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" #########################################################################
-
+# List for all files that need to be changed
+targetFiles = []
+# Dictionary for all additions (content of the donor file)
+additionList = {}
+# Dictionary for all removals (content of the target file)
+removalList = {}
+# Dictionary for all similar lines between donor and target file
+similarList = {}
+# List for the file content of the patch
+patch = []
+# Regex pattern: Starts with +,-,@ or lines containing only whitespaces 
+changePattern = re.compile("(^[+-@])|(^(\s+)$)")
+# Ignore lines containing only brackets or #endifs
+ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
+# Bool for scenario 1 (only additions)
+scenario1 = True
 
 #### Helper functions ###
+
+def sortDiffContent():
+    # Bool for skipping the patch header
+    skip = False
+    global removalList,additionList,similarList,scenario1
+    # Check if there are similar lines in the SU and the Target
+    with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
+        for line in file:
+            # Skip the header
+            if line.startswith("diff --git"):
+                skip = True
+            # Set current filename 
+            elif line.startswith("+++ b/"):    
+                fileName = line.replace("+++ b/","",1).replace("\n","",1)
+            
+            if not skip: 
+                # Look for similar lines and ignore elements from the ignore pattern
+                if not (re.match(changePattern, line) or re.match(ignorePattern, line)):
+                    print("Duplicate lines found: "+line)
+                    similarList[fileName].append(line)
+                    scenario1 = False
+                # Look for additions    
+                elif (line.startswith("+") and not line.startswith("+++")):
+                    print("Additional lines found: "+line)
+                    additionList[fileName].append(line)
+                # Look for removals 
+                elif (line.startswith("-") and not line.startswith("---")):   
+                    print("Removed lines found: "+line)
+                    removalList[fileName].append(line)
+
+    # We need an analysis of blocks here, as they were currently always identified as new lines (bc of the #Block# prefix
+    # We should use this to distinguish between renames and changes inside the blocks
+    # Different scenarios? Or more fine-grained ones?              
+             
+            # Stop skipping, as header ends here    
+            if line.startswith( "@@"):
+                skip = False   
+
 
 # Sometimes Git messes ob the matching of brackets or #endifs (identifies similar lines), we need to reverse that
 def fixBrackets(patch, ignorePattern):
@@ -93,15 +146,13 @@ def getTargetFiles(patch, files):
     # Search for filenames
     with open(patch, 'r') as file:
         for line in file:
-            if line.startswith("+++"):
-                files.append(line.split("b/",1)[1].replace("\n",""))
+            files.append(line.replace("\n",""))
 
     return files
     
-#### Helper functions end ###
+#### Helper functions end ####
 
-
-
+#### Begin of the workflow #### 
 print(" ### Welcome to the interactive code migration workflow ### ")
 print(" ### Prerequisite 1: Version control with Git ### ")
 print(" ### Prerequisite 2: Jess server is (re-)started before running the script ### ")
@@ -109,9 +160,7 @@ print(" ### Prerequisite 2: Jess server is (re-)started before running the scrip
 #Import new branches or reuse old ones?
 reuse = input("Would you like to work with a new project (1) or keep the last one (2) ?\n")
 
-
-if (reuse == "1"):
-    
+if (reuse == "1"):   
     # Delete old results
     if os.path.exists(resultFoldername):
         shutil.rmtree(resultFoldername)
@@ -162,67 +211,54 @@ print(" ### Please select 'DonorProject' as input project ### ")
 os.chdir(topLvlDir)
 #import SUI ####################################################################################
 
-
 # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
 print(" ### Convert SU back to source code ### ")
 #convertToCode(True) ####################################################################################
 
+# # # Scenario analysis # # #
+print(" ### Starting analysis... ### ")
 
+## Initalize analyses 
+print("Initializing...")
 # Copy code results to the targetBranch and then compare
 os.chdir(topLvlDir+"/Code") ###################################################################################
 # Find files that end with .c or .h, then copy them from Code to Target/src, including their parent structure (--parents). Be verbose (-v)
 os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;") ###################################################################################
+# Add new files, if any
+os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
+os.system("git add .") 
 
-# # # Scenario analysis # # #
-print(" ### Starting analysis... ### ")
+# Get names of changed files
+os.system("git diff --name-only --staged  > "+topLvlDir+"/"+resultFoldername+"/NameDiff.txt")
+# Get all affected files from the patch
+targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/NameDiff.txt", targetFiles)
+
+# Terminate the analysis if there are no changes
+if (len(targetFiles) == 0):
+    print("# # # No changes found. Terminating analysis... # # #")
+    exit()
+else:
+    # Initialize keys in the dictionaries
+    for fileName in targetFiles:
+        additionList[fileName] = []    
+        removalList[fileName] = []   
+        similarList[fileName] = []   
+
 
 ## Sc 1: Diff SU vs target
 print(" ### Check scenario 1 ### ")
-os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
-# Add new files, if any
-os.system("git add .") 
-# Reversed patch to simplify the addition
-#os.system("git diff -w -b -R --staged --no-indent-heuristic --find-copies > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt") ###################################################################################
-
-#p = re.compile("(^[+-@])|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
-
-
-# Ignore whitespace, tab or blank line changes and changes similar to ignorePattern. Reversed patch to simplify the addition
+# Ignore whitespace, tab or blank line changes. Reversed patch to simplify the addition
 os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
 
+# Saves the different changes into their respective dictionary
+sortDiffContent()      
 
-# Regex pattern: Starts with +,-,@ or lines containing only whitespaces 
-changePattern = re.compile("(^[+-@])|(^(\s+)$)")
-# Ignore lines containing only brackets or #endifs
-ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
+print(additionList)
+print(removalList)
+print(similarList)
 
-# Bool for the first scenario
-scenario1 = True
-# List for the file content of the patch
-patch = []
-# List for all files that need to be changed
-targetFiles = []
-# Bool for skipping the patch header
-skip = False
 
-# Check if there are similar lines in the SU and the Target
-with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
-    for line in file:
-        # Skip the header
-        if line.startswith( "diff --git"):
-            skip = True
-            
-        if not skip: 
-            # Look for similar lines and ignore elements from the ignore pattern
-            if not (re.match(changePattern, line) or re.match(ignorePattern, line)):
-                print("Duplicate lines found: "+line)
-                scenario1 = False
-         
-        # Stop skipping, as header ends here    
-        if line.startswith( "@@"):
-            skip = False         
-
-## Scenario 1
+## Scenario 1 is positive, if there are no similarities between donor and target
 if (scenario1):
     print("Found no similarities! Scenario 1 is positive!")
     ### Only additions of SU -> Just add them to target, we are finished ###
@@ -240,8 +276,7 @@ if (scenario1):
     file.write("".join(patch))
     file.close()  
     
-    # Get all affected files from the patch
-    targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/patch.patch", targetFiles)
+
 
     # Assembly target files and write them 
     for file in targetFiles:
