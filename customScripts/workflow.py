@@ -8,7 +8,7 @@ import shutil
 import re
 
 #### Global variables ####
-
+DEBUG = False
 # Get current path
 topLvlDir = os.getcwd()
 # Add folder to work with
@@ -32,7 +32,9 @@ patch = []
 # Regex pattern: Starts with +,-,@ or lines containing only whitespaces 
 changePattern = re.compile("(^[+-@])|(^(\s+)$)")
 # Ignore lines containing only brackets or #endifs
-ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
+#ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
+# TODO: Think about this
+ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)")
 # Bool for scenario 1 (only additions)
 scenario1 = True
 
@@ -55,27 +57,29 @@ def sortDiffContent():
             if not skip: 
                 # Look for similar lines and ignore elements from the ignore pattern
                 if not (re.match(changePattern, line) or re.match(ignorePattern, line)):
-                    print("Duplicate lines found: "+line)
+                    if DEBUG: print("Duplicate lines found: "+line)
                     similarList[fileName].append(line)
                     scenario1 = False
                 # Look for additions    
                 elif (line.startswith("+") and not line.startswith("+++")):
-                    print("Additional lines found: "+line)
-                    additionList[fileName].append(line)
+                    if DEBUG: print("Additional lines found: "+line)
+                    additionList[fileName].append(line.replace("+","",1))
                 # Look for removals 
                 elif (line.startswith("-") and not line.startswith("---")):   
-                    print("Removed lines found: "+line)
-                    removalList[fileName].append(line)
-
-    # We need an analysis of blocks here, as they were currently always identified as new lines (bc of the #Block# prefix
-    # We should use this to distinguish between renames and changes inside the blocks
-    # Different scenarios? Or more fine-grained ones?              
+                    if DEBUG: print("Removed lines found: "+line)
+                    removalList[fileName].append(line.replace("-","",1))           
              
             # Stop skipping, as header ends here    
             if line.startswith( "@@"):
                 skip = False   
 
-
+def blockScan():
+    # We need an analysis of blocks here, as they were currently always identified as new lines (bc of the #Block# prefix
+    # We should use this to distinguish between renames and changes inside the blocks
+    # Different scenarios? Or more fine-grained ones?  
+    print("Scan blocks")
+    
+    
 # Sometimes Git messes ob the matching of brackets or #endifs (identifies similar lines), we need to reverse that
 def fixBrackets(patch, ignorePattern):
     for index,line in enumerate(patch):
@@ -86,7 +90,8 @@ def fixBrackets(patch, ignorePattern):
     return patch
 
 # Add the patch content to the respective file   
-def assemblyTargetFile(filePath):    
+def mergeRemovalsAndCurrentFile(filePath):    
+    global additionList, removalList
     fileContent = []
     lasNewline = False
     found = False
@@ -95,45 +100,26 @@ def assemblyTargetFile(filePath):
     fileContent.append("/* * * This is the beginning of the automatically transplanted code * * */") 
     fileContent.append("\n")  
     
-    # Write content to variable, without double newlines
-    with open(topLvlDir+"/"+resultFoldername+"/Target/"+filePath, 'r') as file:
-        for line in file:
-            if line.startswith("\n"):    
-                lasNewline = True               
-            else:               
-                # Just add single newlines to the file
-                if lasNewline:
-                   fileContent.append("\n")
-                   lasNewline = False
-                   
-                # Add the file content, remove the semantic diff words   
-                fileContent.append(line.replace("#Block#","").replace("#FunctionDef#","",1).replace("#BlockEnder#",""))
+    # Write SU content to variable, without double newlines
+    for line in additionList[filePath]:
+        if line.startswith("\n"):    
+            lasNewline = True               
+        else:               
+            # Just add single newlines to the file
+            if lasNewline:
+               fileContent.append("\n")
+               lasNewline = False
+               
+            # Add the file content, remove the semantic diff words   
+            fileContent.append(line.replace("#Block#","").replace("#FunctionDef#","",1).replace("#BlockEnder#",""))
                 
-    # Always end newlines and a comment           
+    # Always end with newlines and a comment           
     fileContent.append("\n")  
     fileContent.append("/* * * This is the end of the automatically transplanted code * * */")     
     fileContent.append("\n") 
     
-    # Read patch content (do this here because we do not want to have the whole patch in the memory all the time)
-    with open(topLvlDir+"/"+resultFoldername+"/patch.patch", 'r') as patch:
-        for line in patch:
-            # Look for the part of the patch that belongs to the file
-            if line.startswith("+++ b/"+filePath):
-                found = True 
-                
-            if start and not line.startswith("diff --git"):
-                # Here is the patch content for the current file
-                fileContent.append(line.replace("-","",1))
-            elif line.startswith("diff --git"):
-                # Reset if we reach the beginning of a new header
-                found = False
-                start = False
-                
-            # Patch content begins after the @@    
-            if found:
-                if line.startswith("@@"):
-                    start = True
-    
+    # Add target content 
+    fileContent += removalList[filePath]   
    
     # Write assembled content to file
     file = open(topLvlDir+"/"+resultFoldername+"/Target/"+filePath, 'w')   
@@ -247,41 +233,21 @@ else:
 
 ## Sc 1: Diff SU vs target
 print(" ### Check scenario 1 ### ")
-# Ignore whitespace, tab or blank line changes. Reversed patch to simplify the addition
+# Ignore whitespace, tab or blank line changes. 
 os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
 
 # Saves the different changes into their respective dictionary
-sortDiffContent()      
+sortDiffContent()     
 
-print(additionList)
-print(removalList)
-print(similarList)
-
+# Looks for similarities in blocks or their identifiers
+blockScan() 
 
 ## Scenario 1 is positive, if there are no similarities between donor and target
 if (scenario1):
     print("Found no similarities! Scenario 1 is positive!")
     ### Only additions of SU -> Just add them to target, we are finished ###
-    with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
-        for line in file:
-            # Add all lines except additions to the patch
-            if not (line.startswith("+") and not line.startswith("+++")):
-                patch.append(line)
-                       
-    # Fix brackets
-    patch = fixBrackets(patch, ignorePattern) 
-    
-    # Write patch content to file (do we really need this or should we work with the patch variable?)
-    file = open(topLvlDir+"/"+resultFoldername+"/patch.patch", 'w')   
-    file.write("".join(patch))
-    file.close()  
-    
-
-
-    # Assembly target files and write them 
-    for file in targetFiles:
-        assemblyTargetFile(file)
-
+    for fileName in targetFiles:
+        mergeRemovalsAndCurrentFile(fileName)
     print(" ### Code transplantation finished sucessfull! ### ")
     print(" ### Please compile the code to check for duplicate identifiers ### ")
 else:   
