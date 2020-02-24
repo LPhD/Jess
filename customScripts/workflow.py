@@ -48,6 +48,8 @@ scenario1 = True
 #### Main function ####
 
 def workflow():
+    global additionList, removalList, similarList
+    
     #### Begin of the workflow #### 
     print(" ### Welcome to the interactive code migration workflow ### ")
     print(" ### Prerequisite 1: Version control with Git ### ")
@@ -111,8 +113,11 @@ def workflow():
 
     # Looks for similarities in blocks or their identifiers
     blockScan() 
+    
+    ## TODO structure: When we are in auto add mode, check for scenario 1? Or directly add?
 
-    ## Scenario 1 is positive, if there are no similarities between donor and target
+    ## Scenario 1 is positive, if there are no similarities between donor and target 
+    ## TODO needs rework with the new semantic diff
     if (scenario1):
         print("Found no similarities! Scenario 1 is positive!")
         ### Only additions of SU -> Just add them to target, we are finished ###
@@ -132,27 +137,27 @@ def workflow():
 # Creates all needed repositories
 def createRepos():
     #repoURL = input("Please type in the url to your Git repository \n") #############################
-        print("Set donor repo to: "+repoURL+".")
+    print("Set donor repo to: "+repoURL+".")
 
-        # Get donor
-        #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   #################################################
-        print("Set donor branch to: "+donorBranch+".")
-        os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/Donor")  
-
-
-        # Get target
-        #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    #################################################
-        print("Set target branch to: "+targetBranch+".")
-        os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/Target") 
+    # Get donor
+    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   #################################################
+    print("Set donor branch to: "+donorBranch+".")
+    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/Donor")  
 
 
-        # Get origin (common ancestor)
-        #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n") #################################################   
-        print("Set common ancestor (origin) to: "+originCommitID+".")
-        os.system("git clone "+repoURL+" "+resultFoldername+"/Origin")  
-        # Change current working directory to origin
-        os.chdir(topLvlDir+"/"+resultFoldername+"/Origin")
-        os.system("git checkout "+originCommitID)
+    # Get target
+    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    #################################################
+    print("Set target branch to: "+targetBranch+".")
+    os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/Target") 
+
+
+    # Get origin (common ancestor)
+    #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n") #################################################   
+    print("Set common ancestor (origin) to: "+originCommitID+".")
+    os.system("git clone "+repoURL+" "+resultFoldername+"/Origin")  
+    # Change current working directory to origin
+    os.chdir(topLvlDir+"/"+resultFoldername+"/Origin")
+    os.system("git checkout "+originCommitID)
  
  
 # Imports the Donor as Code Property Graph and validates the result
@@ -218,6 +223,7 @@ def sortDiffContent():
             # Stop skipping, as header ends here    
             if line.startswith( "@@"):
                 skip = False   
+
                 
 # We need a deeper analysis of blocks (identifiers vs inside), as they were currently always identified as new lines (bc of the #Block# prefix)
 def blockScan():
