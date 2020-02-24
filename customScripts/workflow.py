@@ -6,6 +6,7 @@ import subprocess
 import os
 import shutil
 import re
+import codecs
 
 #### Global variables ####
 DEBUG = False
@@ -45,8 +46,18 @@ def sortDiffContent():
     skip = False
     global removalList,additionList,similarList,scenario1
     # Check if there are similar lines in the SU and the Target
-    with open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding="iso-8859-1") as file:
+    with codecs.open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding='utf-8', errors='ignore') as file:
         for line in file:
+            #line.decode('cp1252').encode('utf-8')
+            #print("Before: "+line)
+            
+            #line.encode('utf-8')
+            
+            #print("After: "+line)
+            
+######################## ToDo Encoding problems            
+            
+            
             # Skip the header
             if line.startswith("diff --git"):
                 skip = True
@@ -72,12 +83,40 @@ def sortDiffContent():
             # Stop skipping, as header ends here    
             if line.startswith( "@@"):
                 skip = False   
-
+                
+# We need a deeper analysis of blocks (identifiers vs inside), as they were currently always identified as new lines (bc of the #Block# prefix)
 def blockScan():
-    # We need an analysis of blocks here, as they were currently always identified as new lines (bc of the #Block# prefix
-    # We should use this to distinguish between renames and changes inside the blocks
-    # Different scenarios? Or more fine-grained ones?  
+    global targetFiles, additionList, removalList, scenario1
+    currentBlock = ""
     print("Scan blocks")
+    for file in targetFiles:
+        for line in additionList[file]:
+            # Scan block content
+            if line.startswith("#Block#") or line.startswith("#FunctionDef#"):
+                # Beginning of the block
+                if line.startswith("#FunctionDef#") or line.startswith("#Block# #FunctionDef#"):
+                    # Get the identifiers of the functions (cut out the word befor the opening bracket)
+                    currentBlock = line.split(" (")[0].rsplit(' ',1)[1]
+                    print("Found beginning of block: "+currentBlock)
+                
+                    # Look for the identifier in the Target
+                    for anotherLine in removalList[file]:
+                        # TODO: Currently we can just check if the identifier name occurs in the target, we need a better method
+                        if currentBlock in anotherLine:
+                            # If the identifier of the function definition is used in the Target, set Scenario 1 to false
+                            print("Found current block: "+currentBlock)
+                            scenario1 = False
+
+                
+              
+                
+                    #print(removalList[file])
+                    # Look in other files? There could be other included files with the same functio name?
+                
+        # Is identifier in the file?
+                # No -> Do nothing. 
+                # TODO for later: We could analyse if the content is the same and the name changed, then we need a namechange in all occurences of the SU
+                # Yes -> Sc1 is false. Here we need further analysis.
     
     
 # Sometimes Git messes ob the matching of brackets or #endifs (identifies similar lines), we need to reverse that
@@ -176,6 +215,10 @@ if (reuse == "1"):
     # Change current working directory to origin
     os.chdir(topLvlDir+"/"+resultFoldername+"/Origin")
     os.system("git checkout "+originCommitID) 
+    
+    # Make sure file encoding is UTF-8
+    os.chdir(topLvlDir+"/"+resultFoldername)
+    os.system("find -iname '*.[c|h]' -exec iconv -f iso8859-2 -t utf-8 -o {}.converted {} \; -exec mv {}.converted {} \;")
 
      
     # Import donor as CPG
