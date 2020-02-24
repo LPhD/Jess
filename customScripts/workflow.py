@@ -8,18 +8,24 @@ import shutil
 import re
 import codecs
 
-#### Global variables ####
+
+#### Configuration ####
+# Enable fully automated addition of the Semantic Unit to the target software
+autoAdd = True
+# Enable debug output
 DEBUG = False
-# Get current path
-topLvlDir = os.getcwd()
-# Add folder to work with
-resultFoldername = "Results"
 # Repo URL
 repoURL = "https://github.com/LPhD/EvoDiss.git" ###################################################
 # Relevant branches
 donorBranch = "OnlyBubble" ########################################################################################
 targetBranch = "Base_PL" ########################################################################################################
 originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" #########################################################################
+
+#### Global variables ####
+# Get current path
+topLvlDir = os.getcwd()
+# Add folder to work with
+resultFoldername = "Results"
 # List for all files that need to be changed
 targetFiles = []
 # Dictionary for all additions (content of the donor file)
@@ -39,25 +45,154 @@ ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)")
 # Bool for scenario 1 (only additions)
 scenario1 = True
 
-#### Helper functions ###
+#### Main function ####
 
+def workflow():
+    #### Begin of the workflow #### 
+    print(" ### Welcome to the interactive code migration workflow ### ")
+    print(" ### Prerequisite 1: Version control with Git ### ")
+    print(" ### Prerequisite 2: Jess server is (re-)started before running the script ### ")
+    print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
+
+    #Import new branches or reuse old ones?
+    reuse = input("Would you like to work with a new project (1) or keep the last one (2) ?\n")
+
+    # Make a new CPG or reuse the previous one
+    if (reuse == "1"):   
+        # Delete old results
+        if os.path.exists(resultFoldername):
+            shutil.rmtree(resultFoldername)
+        os.makedirs(resultFoldername)
+
+        # Creates the needed repositories for Donor, Target and Origin
+        createRepos()
+        
+        # Imports the Donor as Code Property Graph and validates the result
+        importAndValidateCPG()
+         
+
+    # Identify SU
+    print(" ### Start of Semantic Unit identification process ### ")
+    print(" ### Please select 'DonorProject' as input project ### ")
+    os.chdir(topLvlDir)
+    #import SUI ####################################################################################
+
+    # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
+    print(" ### Convert SU back to source code ### ")
+    #convertToCode(True) ####################################################################################
+
+    # # # Scenario analysis # # #
+    print(" ### Starting analysis... ### ")
+
+    ## Initalize analyses 
+    print("Initializing...")  
+    # Set list of changed targetFiles 
+    initializeAnalysis()   
+
+    # Terminate the analysis if there are no changes
+    if (len(targetFiles) == 0):
+        print("# # # No changes found. Terminating analysis... # # #")
+        exit()
+    else:
+        # Initialize keys in the dictionaries
+        for fileName in targetFiles:
+            additionList[fileName] = []    
+            removalList[fileName] = []   
+            similarList[fileName] = []   
+
+
+    ## Sc 1: Diff SU vs target
+    print(" ### Check scenario 1 ### ")
+    # Ignore whitespace, tab or blank line changes. 
+    os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
+
+    # Saves the different changes into their respective dictionary
+    sortDiffContent()     
+
+    # Looks for similarities in blocks or their identifiers
+    blockScan() 
+
+    ## Scenario 1 is positive, if there are no similarities between donor and target
+    if (scenario1):
+        print("Found no similarities! Scenario 1 is positive!")
+        ### Only additions of SU -> Just add them to target, we are finished ###
+        for fileName in targetFiles:
+            mergeRemovalsAndCurrentFile(fileName)
+        print(" ### Code transplantation finished sucessfull! ### ")
+        print(" ### Please compile the code to check for duplicate identifiers ### ")
+    else:   
+    ## Sc 2: Diff SU vs origin        
+        print("Found some similarities! Scenario 1 is negative!")
+        print(" ### Check scenario 2 ### ")
+        
+     
+
+#### Helper functions ####
+
+# Creates all needed repositories
+def createRepos():
+    #repoURL = input("Please type in the url to your Git repository \n") #############################
+        print("Set donor repo to: "+repoURL+".")
+
+        # Get donor
+        #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   #################################################
+        print("Set donor branch to: "+donorBranch+".")
+        os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/Donor")  
+
+
+        # Get target
+        #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    #################################################
+        print("Set target branch to: "+targetBranch+".")
+        os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/Target") 
+
+
+        # Get origin (common ancestor)
+        #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n") #################################################   
+        print("Set common ancestor (origin) to: "+originCommitID+".")
+        os.system("git clone "+repoURL+" "+resultFoldername+"/Origin")  
+        # Change current working directory to origin
+        os.chdir(topLvlDir+"/"+resultFoldername+"/Origin")
+        os.system("git checkout "+originCommitID)
+ 
+ 
+# Imports the Donor as Code Property Graph and validates the result
+def importAndValidateCPG():
+    # Import donor as CPG
+    print(" ### Start importing donor as Code Property Graph. Please make sure the server is running ### ")
+    os.chdir(topLvlDir+"/"+resultFoldername) #################################################
+    os.system("tar -cvzf DonorProject Donor") ##################################################################
+    os.system("jess-import DonorProject") ###############################################################
+
+    # Validate CPG
+    print(" ### Validating CPG ### ")
+    os.chdir(topLvlDir)    #################################################
+    evaluateProject("DonorProject", "/Donor/") #################################################
+
+
+# Setup for the analysis (copy files to the right place to get list of changed files)
+def initializeAnalysis():
+    global targetFiles
+    # Copy code results to the targetBranch and then compare
+    os.chdir(topLvlDir+"/Code") ###################################################################################
+    # Find files that end with .c or .h, then copy them from Code to Target/src, including their parent structure (--parents). Be verbose (-v)
+    os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;") ###################################################################################
+    # Add new files, if any
+    os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
+    os.system("git add .") 
+    # Get names of changed files
+    os.system("git diff --name-only --staged  > "+topLvlDir+"/"+resultFoldername+"/NameDiff.txt")
+    # Get all affected files from the patch
+    targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/NameDiff.txt", targetFiles)        
+
+        
+# Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
 def sortDiffContent():
     # Bool for skipping the patch header
     skip = False
     global removalList,additionList,similarList,scenario1
     # Check if there are similar lines in the SU and the Target
     with codecs.open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding='utf-8', errors='ignore') as file:
-        for line in file:
-            #line.decode('cp1252').encode('utf-8')
-            #print("Before: "+line)
-            
-            #line.encode('utf-8')
-            
-            #print("After: "+line)
-            
-######################## ToDo Encoding problems            
-            
-            
+        for line in file:          
             # Skip the header
             if line.startswith("diff --git"):
                 skip = True
@@ -177,132 +312,10 @@ def getTargetFiles(patch, files):
     
 #### Helper functions end ####
 
-#### Begin of the workflow #### 
-print(" ### Welcome to the interactive code migration workflow ### ")
-print(" ### Prerequisite 1: Version control with Git ### ")
-print(" ### Prerequisite 2: Jess server is (re-)started before running the script ### ")
-
-#Import new branches or reuse old ones?
-reuse = input("Would you like to work with a new project (1) or keep the last one (2) ?\n")
-
-if (reuse == "1"):   
-    # Delete old results
-    if os.path.exists(resultFoldername):
-        shutil.rmtree(resultFoldername)
-    os.makedirs(resultFoldername)
-
-    print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
-    
-    #repoURL = input("Please type in the url to your Git repository \n") #############################
-    print("Set donor repo to: "+repoURL+".")
-
-    # Get donor
-    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   #################################################
-    print("Set donor branch to: "+donorBranch+".")
-    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/Donor")  
+# Start the workflow
+workflow()
 
 
-    # Get target
-    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    #################################################
-    print("Set target branch to: "+targetBranch+".")
-    os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/Target") 
-
-
-    # Get origin (common ancestor)
-    #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n") #################################################   
-    print("Set common ancestor (origin) to: "+originCommitID+".")
-    os.system("git clone "+repoURL+" "+resultFoldername+"/Origin")  
-    # Change current working directory to origin
-    os.chdir(topLvlDir+"/"+resultFoldername+"/Origin")
-    os.system("git checkout "+originCommitID) 
-    
-    # Make sure file encoding is UTF-8
-    os.chdir(topLvlDir+"/"+resultFoldername)
-    os.system("find -iname '*.[c|h]' -exec iconv -f iso8859-2 -t utf-8 -o {}.converted {} \; -exec mv {}.converted {} \;")
-
-     
-    # Import donor as CPG
-    print(" ### Start importing donor as Code Property Graph. Please make sure the server is running ### ")
-    #os.chdir(topLvlDir+"/"+resultFoldername) #################################################
-    #os.system("tar -cvzf DonorProject Donor") ##################################################################
-    #os.system("jess-import DonorProject") ###############################################################
-
-
-    # Validate CPG
-    print(" ### Validating CPG ### ")
-    #os.chdir(topLvlDir)    #################################################
-    #evaluateProject("DonorProject", "/Donor/") #################################################
-
-
-# Identify SU
-print(" ### Start of Semantic Unit identification process ### ")
-print(" ### Please select 'DonorProject' as input project ### ")
-os.chdir(topLvlDir)
-#import SUI ####################################################################################
-
-# SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
-print(" ### Convert SU back to source code ### ")
-#convertToCode(True) ####################################################################################
-
-# # # Scenario analysis # # #
-print(" ### Starting analysis... ### ")
-
-## Initalize analyses 
-print("Initializing...")
-# Copy code results to the targetBranch and then compare
-os.chdir(topLvlDir+"/Code") ###################################################################################
-# Find files that end with .c or .h, then copy them from Code to Target/src, including their parent structure (--parents). Be verbose (-v)
-os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;") ###################################################################################
-# Add new files, if any
-os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
-os.system("git add .") 
-
-# Get names of changed files
-os.system("git diff --name-only --staged  > "+topLvlDir+"/"+resultFoldername+"/NameDiff.txt")
-# Get all affected files from the patch
-targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/NameDiff.txt", targetFiles)
-
-# Terminate the analysis if there are no changes
-if (len(targetFiles) == 0):
-    print("# # # No changes found. Terminating analysis... # # #")
-    exit()
-else:
-    # Initialize keys in the dictionaries
-    for fileName in targetFiles:
-        additionList[fileName] = []    
-        removalList[fileName] = []   
-        similarList[fileName] = []   
-
-
-## Sc 1: Diff SU vs target
-print(" ### Check scenario 1 ### ")
-# Ignore whitespace, tab or blank line changes. 
-os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
-
-# Saves the different changes into their respective dictionary
-sortDiffContent()     
-
-# Looks for similarities in blocks or their identifiers
-blockScan() 
-
-## Scenario 1 is positive, if there are no similarities between donor and target
-if (scenario1):
-    print("Found no similarities! Scenario 1 is positive!")
-    ### Only additions of SU -> Just add them to target, we are finished ###
-    for fileName in targetFiles:
-        mergeRemovalsAndCurrentFile(fileName)
-    print(" ### Code transplantation finished sucessfull! ### ")
-    print(" ### Please compile the code to check for duplicate identifiers ### ")
-else:   
-## Sc 2: Diff SU vs origin        
-    print("Found some similarities! Scenario 1 is negative!")
-    print(" ### Check scenario 2 ### ")
-    
- 
-
-
-
-# Addition of variability?
 
 
 # Currently not needed stuff #
@@ -326,3 +339,9 @@ else:
 #os.system("git checkout -b SU") --------------------------------------------------------------------------------------------
 #os.system("git add .") --------------------------------------------------------------------------------------------
 #os.system("git commit -m \"New Branch for SU\" ") --------------------------------------------------------------------------------------------
+
+# Make sure file encoding is UTF-8
+#os.chdir(topLvlDir+"/"+resultFoldername)
+#os.system("find -iname '*.[c|h]' -exec iconv -f iso8859-2 -t utf-8 -o {}.converted {} \; -exec mv {}.converted {} \;")
+
+# Addition of variability?
