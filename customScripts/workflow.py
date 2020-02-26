@@ -79,9 +79,31 @@ def workflow():
     os.chdir(topLvlDir)
     #import SUI ####################################################################################
 
-    # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
-    print(" ### Convert SU back to source code ### ")
-    #convertToCode(True) ####################################################################################
+    
+    
+    # # # Just add the Semantic Unit to the Target if autoAdd is enabled, no further analysis # # #
+    if autoAdd:
+        print(" ### Automated addition mode is activated ### ")
+        print(" ### Convert SU back to source code ### ")
+        # SU to code (into folder Code) 
+        convertToCode(False)
+        # Import SU as CPG (+ validation and creation of ID list needed for the conversion back to code)
+        importSUasCPG()      
+        # Add prefixes
+        addPrefixes()
+        # SU to code (into folder Code) 
+        convertToCode(False)
+        ## Add code to target
+        
+        print(" ### Automated addition finished sucessfull ### ")
+        # Terminate the workflow
+        exit()
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #                                                 
+    else:
+        print(" ### Convert SU back to source code ### ")
+        # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
+        #convertToCode(True) ####################################################################################
+    
 
     # # # Scenario analysis # # #
     print(" ### Starting analysis... ### ")
@@ -114,7 +136,6 @@ def workflow():
     # Looks for similarities in blocks or their identifiers
     blockScan() 
     
-    ## TODO structure: When we are in auto add mode, check for scenario 1? Or directly add?
 
     ## Scenario 1 is positive, if there are no similarities between donor and target 
     ## TODO needs rework with the new semantic diff
@@ -164,14 +185,33 @@ def createRepos():
 def importAndValidateCPG():
     # Import donor as CPG
     print(" ### Start importing donor as Code Property Graph. Please make sure the server is running ### ")
-    os.chdir(topLvlDir+"/"+resultFoldername) #################################################
-    os.system("tar -cvzf DonorProject Donor") ##################################################################
-    os.system("jess-import DonorProject") ###############################################################
+    os.chdir(topLvlDir+"/"+resultFoldername) 
+    os.system("tar -cvzf DonorProject Donor") 
+    os.system("jess-import DonorProject") 
 
-    # Validate CPG
+    # Validate CPG (this includes creating the ID list that is used by the codeConverter)
     print(" ### Validating CPG ### ")
-    os.chdir(topLvlDir)    #################################################
-    evaluateProject("DonorProject", "/Donor/") #################################################
+    os.chdir(topLvlDir)    
+    evaluateProject("DonorProject", "/Donor/") 
+
+
+# Imports the SU as Code Property Graph 
+def importSUasCPG():
+    # Import SU as CPG
+    print(" ### Start importing Semantic Unit as Code Property Graph. Please make sure the server is running ### ")
+    os.chdir(topLvlDir) 
+    os.system("tar -cvzf SU Code") 
+    os.system("jess-import SU") 
+    
+    # Validate CPG (this includes creating the ID list that is used by the codeConverter)
+    print(" ### Validating CPG ### ") 
+    evaluateProject("SU", "/Code/") 
+
+
+# Adds prefixes to all identifiers in the SU that were declared inside
+def addPrefixes():
+    #?
+    print("Add prefixes here")
 
 
 # Setup for the analysis (copy files to the right place to get list of changed files)
