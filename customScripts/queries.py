@@ -143,6 +143,13 @@ query = """idListToNodes(%s).sideEffect{}""" % (nodeIds)
 query = """idListToNodes(%s).sideEffect{}.statements()""" % (nodeIds)
 # Maps code and location values for each node (returns a list() of dict() data structure)
 query = """idListToNodes(%s).valueMap('code', 'path')""" % (nodeIds)
+# Get the names of all elements that can be declared on file scope
+query = """g.V().has('type', within(%s)).as('declares').out('IS_AST_PARENT', 'DECLARES')
+.union(
+    has('type', within('Identifier', 'PreMacroIdentifier')).values('code')
+    ,has('type', 'Decl').values('identifier')
+    )
+.dedup().as('identifiers')""" % (["FunctionDef", "DeclStmt", "StructUnionEnum", "PreDefine"] )  
 
 query = "g.V(1274008)"
 #query = "g.V(651336)"

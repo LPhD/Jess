@@ -77,7 +77,7 @@ def workflow():
     print(" ### Start of Semantic Unit identification process ### ")
     print(" ### Please select 'DonorProject' as input project ### ")
     os.chdir(topLvlDir)
-    #import SUI ####################################################################################
+    import SUI ####################################################################################
 
     
     
@@ -204,14 +204,21 @@ def importSUasCPG():
     os.system("jess-import SU") 
     
     # Validate CPG (this includes creating the ID list that is used by the codeConverter)
+    #TODO we could skip this step for performance. But then we need to tell the codeConverter the right projectname and ids
     print(" ### Validating CPG ### ") 
     evaluateProject("SU", "/Code/") 
 
 
 # Adds prefixes to all identifiers in the SU that were declared inside
 def addPrefixes():
-    #?
-    print("Add prefixes here")
+    print("Adding prefixes...")
+    # Connect to SU project
+    db = DBInterface()
+    db.connectToDatabase("SU")
+    
+    query = """g.V().has('type', 'Identifier').values("code")"""    
+    
+    print(db.runGremlinQuery(query))  
 
 
 # Setup for the analysis (copy files to the right place to get list of changed files)
