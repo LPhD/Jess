@@ -11,7 +11,7 @@ import codecs
 
 #### Configuration ####
 # Enable fully automated addition of the Semantic Unit to the target software
-autoAdd = True
+autoAdd = False
 # Enable debug output
 DEBUG = False
 # Repo URL
@@ -85,14 +85,14 @@ def workflow():
     if autoAdd:
         print(" ### Automated addition mode is activated ### ")
         print(" ### Convert SU back to source code ### ")
-        # SU to code (into folder Code) 
-        convertToCode(False)
+        # SU to code (into folder "Test\Test") 
+        convertToCode(False, "Test\Test")
         # Import SU as CPG (+ validation and creation of ID list needed for the conversion back to code)
         importSUasCPG()      
         # Add prefixes
         addPrefixes()
-        # SU to code (into folder Code) 
-        convertToCode(False)
+        # SU to code (into folder "Test\Test") 
+        convertToCode(False, "Test\Test")
         ## Add code to target
         
         print(" ### Automated addition finished sucessfull ### ")
@@ -102,7 +102,7 @@ def workflow():
     else:
         print(" ### Convert SU back to source code ### ")
         # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
-        #convertToCode(True) ####################################################################################
+        convertToCode(True, "Test\Test2") ####################################################################################
     
 
     # # # Scenario analysis # # #

@@ -80,9 +80,8 @@ def importData(db, idList, SEMANTIC):
     return structuredCodeList
 
 
-def writeOutput(structuredCodeList, SEMANTIC):  
+def writeOutput(structuredCodeList, SEMANTIC, foldername):  
     #Create folder and files for the Code (if its not already there)
-    foldername = "Code"
     if os.path.exists(foldername):
         shutil.rmtree(foldername)
     
@@ -189,14 +188,14 @@ def writeToFile(fileName, fileContent):
     file.write("\n")
     file.close() 
 
-def convertToCode(SEMANTIC):
+def convertToCode(SEMANTIC, foldername):
     input = initialize()    
     output = importData(input[0], input[1], SEMANTIC)
     if(len(output)==0):
         print("Error: Output is empty")
     else:
-        writeOutput(output, SEMANTIC)
+        writeOutput(output, SEMANTIC, foldername)
         print("Code creation successfull")
 
 # When called via console, comment this line in to run the script   
-#convertToCode(SEMANTIC)    
+#convertToCode(SEMANTIC, "Code")    

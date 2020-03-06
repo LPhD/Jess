@@ -54,7 +54,8 @@ def evaluateProject (projectName, projectPath):
     fileOutput(getVisibleNodes(projectName), projectName)      
           
     print("Convert project back to source code...")
-    convertToCode(False)
+    codeFoldername = "CodeToEvaluate"
+    convertToCode(False, codeFoldername)
 
     print("Compare with original source code...")
     #Make new empty temp dir
@@ -70,7 +71,7 @@ def evaluateProject (projectName, projectPath):
     #(necessary because git diff --no-index does not allow for filtering of filetypes
     #os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp --parent '{}' "+foldername+"/ \;")
     os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp  '{}' "+foldername+"/ \;")
-    os.system("git diff -w -b --ignore-blank-lines --no-index "+foldername+" Code/  > EvaluationResult.txt")   
+    os.system("git diff -w -b --ignore-blank-lines --no-index "+foldername+" "+codeFoldername+"/  > EvaluationResult.txt")   
      
         
     if (os.stat("EvaluationResult.txt").st_size == 0):
@@ -80,6 +81,6 @@ def evaluateProject (projectName, projectPath):
 
 
 # When called via console, fill these out and add your project path to getProjectPath function
-#projectName = "DonorProject"
+# = "EvoDiss.tar.gz"
 #projectName = input("Please type in the name of the project")
 #evaluateProject(projectName, getProjectPath(projectName))
