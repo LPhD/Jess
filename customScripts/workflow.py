@@ -78,32 +78,18 @@ def workflow():
     print(" ### Start of Semantic Unit identification process ### ")
     print(" ### Please select 'DonorProject' as input project ### ")
     os.chdir(topLvlDir)
-    import SUI ####################################################################################
-
-    
+    #import SUI ####################################################################################  
     
     # # # Just add the Semantic Unit to the Target if autoAdd is enabled, no further analysis # # #
     if autoAdd:
-        print(" ### Automated addition mode is activated ### ")
-        print(" ### Convert SU back to source code ### ")
-        # SU to code (into folder AutoAddCode) 
-        convertToCode(False, topLvlDir+"/"+resultFoldername, "AutoAddCode")
-        # Import SU as CPG (+ validation and creation of ID list needed for the conversion back to code)
-        importProjectasCPG("SU")      
-        # Add prefixes
-        addPrefixes()
-        # SU to code (into folder AutoAddCode) 
-        convertToCode(False, topLvlDir+"/"+resultFoldername, "AutoAddCode")
-        ## Add code to target
-        
-        print(" ### Automated addition finished sucessfull ### ")
-        # Terminate the workflow
-        exit()
+        # Currently not working
+        autoAddFunct()
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #                                                 
     else:
+        print("This is true")
         print(" ### Convert SU back to source code ### ")
         # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
-        convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode") ####################################################################################
+        #convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode") ####################################################################################
     
 
     # # # Scenario analysis # # #
@@ -112,21 +98,17 @@ def workflow():
     ## Initalize analyses 
     print("Initializing...")  
     # Set list of changed targetFiles 
-    initializeAnalysis()   
-
-  
-    
-    #Diff SU and Target
-    
-    
-    #Stop here
-    exit()
-    
+    initializeAnalysis()     
+      
 
     ## Sc 1: Diff SU vs target
     print(" ### Check scenario 1 ### ")
     # Ignore whitespace, tab or blank line changes. 
-    os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
+    #Diff SU and Target (both with semantically enhanced code)
+    os.chdir(topLvlDir+"/"+resultFoldername)
+    os.system("git diff -w -b --ignore-blank-lines  --no-index SUCode/ TargetProjectSliceCode/  > S1Diff.txt")
+    
+# TODO
 
     # Saves the different changes into their respective dictionary
     sortDiffContent()     
@@ -253,6 +235,10 @@ def sortDiffContent():
     # Bool for skipping the patch header
     skip = False
     global removalList,additionList,similarList,scenario1
+    
+    
+#ToDo here: b vs a, remove foldername from line 250    
+    
     # Check if there are similar lines in the SU and the Target
     with codecs.open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding='utf-8', errors='ignore') as file:
         for line in file:          
@@ -373,7 +359,26 @@ def getTargetFiles(patch, files):
             files.append(line.replace("\n",""))
 
     return files
-    
+
+
+# Currently not working. Possible function for automated evaluation? Just adds the SU to the target.    
+def autoAddFunct():    
+    print(" ### Automated addition mode is activated ### ")
+    print(" ### Convert SU back to source code ### ")
+    # SU to code (into folder AutoAddCode) 
+    convertToCode(False, topLvlDir+"/"+resultFoldername, "AutoAddCode")
+    # Import SU as CPG (+ validation and creation of ID list needed for the conversion back to code)
+    importProjectasCPG("SU")      
+    # Add prefixes
+    addPrefixes()
+    # SU to code (into folder AutoAddCode) 
+    convertToCode(False, topLvlDir+"/"+resultFoldername, "AutoAddCode")
+    ## Add code to target
+
+    print(" ### Automated addition finished sucessfull ### ")
+    # Terminate the workflow
+    exit()
+        
 #### Helper functions end ####
 
 # Start the workflow
@@ -391,6 +396,8 @@ workflow()
 #os.system("git diff --name-only --staged  > "+topLvlDir+"/"+resultFoldername+"/NameDiff.txt")
 # Get all affected files from the patch
 #targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/NameDiff.txt", targetFiles) 
+ 
+#os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
  
 # Reset working directory
 #print("Reset Target directory")
