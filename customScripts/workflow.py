@@ -54,6 +54,7 @@ def workflow():
     print(" ### Welcome to the interactive code migration workflow ### ")
     print(" ### Prerequisite 1: Version control with Git ### ")
     print(" ### Prerequisite 2: Jess server is (re-)started before running the script ### ")
+    print(" ### Prerequisite 3: The top level folder for source files is called 'src' ### ")
     print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
 
     #Import new branches or reuse old ones?
@@ -70,7 +71,7 @@ def workflow():
         createRepos()
         
         # Imports the Donor as Code Property Graph and validates the result
-        importAndValidateCPG()
+        importProjectasCPG("DonorProject")
          
 
     # Identify SU
@@ -85,14 +86,14 @@ def workflow():
     if autoAdd:
         print(" ### Automated addition mode is activated ### ")
         print(" ### Convert SU back to source code ### ")
-        # SU to code (into folder "Test\Test") 
-        convertToCode(False, "Test\Test")
+        # SU to code (into folder AutoAddCode) 
+        convertToCode(False, topLvlDir+"/"+resultFoldername, "AutoAddCode")
         # Import SU as CPG (+ validation and creation of ID list needed for the conversion back to code)
-        importSUasCPG()      
+        importProjectasCPG("SU")      
         # Add prefixes
         addPrefixes()
-        # SU to code (into folder "Test\Test") 
-        convertToCode(False, "Test\Test")
+        # SU to code (into folder AutoAddCode) 
+        convertToCode(False, topLvlDir+"/"+resultFoldername, "AutoAddCode")
         ## Add code to target
         
         print(" ### Automated addition finished sucessfull ### ")
@@ -102,7 +103,7 @@ def workflow():
     else:
         print(" ### Convert SU back to source code ### ")
         # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
-        convertToCode(True, "Test\Test2") ####################################################################################
+        convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode") ####################################################################################
     
 
     # # # Scenario analysis # # #
@@ -113,17 +114,14 @@ def workflow():
     # Set list of changed targetFiles 
     initializeAnalysis()   
 
-    # Terminate the analysis if there are no changes
-    if (len(targetFiles) == 0):
-        print("# # # No changes found. Terminating analysis... # # #")
-        exit()
-    else:
-        # Initialize keys in the dictionaries
-        for fileName in targetFiles:
-            additionList[fileName] = []    
-            removalList[fileName] = []   
-            similarList[fileName] = []   
-
+  
+    
+    #Diff SU and Target
+    
+    
+    #Stop here
+    exit()
+    
 
     ## Sc 1: Diff SU vs target
     print(" ### Check scenario 1 ### ")
@@ -163,50 +161,79 @@ def createRepos():
     # Get donor
     #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   #################################################
     print("Set donor branch to: "+donorBranch+".")
-    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/Donor")  
+    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/DonorProjectCode")  
 
 
     # Get target
     #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    #################################################
     print("Set target branch to: "+targetBranch+".")
-    os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/Target") 
+    os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
 
 
     # Get origin (common ancestor)
     #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n") #################################################   
     print("Set common ancestor (origin) to: "+originCommitID+".")
-    os.system("git clone "+repoURL+" "+resultFoldername+"/Origin")  
+    os.system("git clone "+repoURL+" "+resultFoldername+"/OriginProjectCode")  
     # Change current working directory to origin
-    os.chdir(topLvlDir+"/"+resultFoldername+"/Origin")
+    os.chdir(topLvlDir+"/"+resultFoldername+"/OriginProjectCode")
     os.system("git checkout "+originCommitID)
  
  
-# Imports the Donor as Code Property Graph and validates the result
-def importAndValidateCPG():
-    # Import donor as CPG
-    print(" ### Start importing donor as Code Property Graph. Please make sure the server is running ### ")
-    os.chdir(topLvlDir+"/"+resultFoldername) 
-    os.system("tar -cvzf DonorProject Donor") 
-    os.system("jess-import DonorProject") 
-
-    # Validate CPG (this includes creating the ID list that is used by the codeConverter)
-    print(" ### Validating CPG ### ")
-    os.chdir(topLvlDir)    
-    evaluateProject("DonorProject", "/Donor/") 
-
-
-# Imports the SU as Code Property Graph 
-def importSUasCPG():
+# Imports the "projectname" as Code Property Graph 
+def importProjectasCPG(projectname):
     # Import SU as CPG
-    print(" ### Start importing Semantic Unit as Code Property Graph. Please make sure the server is running ### ")
-    os.chdir(topLvlDir) 
-    os.system("tar -cvzf SU Code") 
-    os.system("jess-import SU") 
+    print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ")
+    os.chdir(topLvlDir+"/"+resultFoldername) 
+    os.system("tar -cvzf "+projectname+" "+projectname+"Code") 
+    os.system("jess-import "+projectname+"") 
     
     # Validate CPG (this includes creating the ID list that is used by the codeConverter)
     #TODO we could skip this step for performance. But then we need to tell the codeConverter the right projectname and ids
-    print(" ### Validating CPG ### ") 
-    evaluateProject("SU", "/Code/") 
+    print(" ### Validating CPG of "+projectname+" ### ") 
+    # Project name, working directory, internal structure of the project
+    evaluateProject(projectname, topLvlDir+"/"+resultFoldername , "/"+projectname+"Code/") 
+
+
+# Setup for the analysis (copy files to the right place to get list of changed files)
+def initializeAnalysis():
+    global targetFiles, additionList, removalList, similarList  
+    affectedTargetCodeFolder = "TargetProjectSliceCode"
+    
+    # Delete old results
+    os.chdir(topLvlDir+"/"+resultFoldername)
+    if os.path.exists(affectedTargetCodeFolder):
+        shutil.rmtree(affectedTargetCodeFolder)
+    os.makedirs(affectedTargetCodeFolder)
+    
+    #Get filenames from SUCode
+    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
+    targetFiles = os.listdir()
+    
+    # Terminate the analysis if there are no changes
+    if (len(targetFiles) == 0):
+        print("# # # No changes found. Terminating analysis... # # #")
+        exit()
+    else:
+        # Initialize keys in the dictionaries
+        for fileName in targetFiles:
+            additionList[fileName] = []    
+            removalList[fileName] = []   
+            similarList[fileName] = [] 
+   
+    #Copy only affected files from TargetCode to affectedTargetCodeFolder
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    for file in targetFiles:
+        os.system("cp --parent -v -r "+file+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder+"/")
+    
+    #Import Target as CPG 
+    importProjectasCPG("TargetProjectSlice")
+    
+    #Remove old code results (replace the affected Target files with their semantic enhanced version)
+    shutil.rmtree(affectedTargetCodeFolder)
+    
+    #Export target to code with semantic enhancement
+    convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder)
+       
 
 
 # Adds prefixes to all identifiers in the SU that were declared inside
@@ -219,22 +246,6 @@ def addPrefixes():
     query = """g.V().has('type', 'Identifier').values("code")"""    
     
     print(db.runGremlinQuery(query))  
-
-
-# Setup for the analysis (copy files to the right place to get list of changed files)
-def initializeAnalysis():
-    global targetFiles
-    # Copy code results to the targetBranch and then compare
-    os.chdir(topLvlDir+"/Code") ###################################################################################
-    # Find files that end with .c or .h, then copy them from Code to Target/src, including their parent structure (--parents). Be verbose (-v)
-    os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;") ###################################################################################
-    # Add new files, if any
-    os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
-    os.system("git add .") 
-    # Get names of changed files
-    os.system("git diff --name-only --staged  > "+topLvlDir+"/"+resultFoldername+"/NameDiff.txt")
-    # Get all affected files from the patch
-    targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/NameDiff.txt", targetFiles)        
 
         
 # Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
@@ -371,7 +382,15 @@ workflow()
 
 
 
-# Currently not needed stuff #
+# Currently not needed stuff #   
+
+# Add new files, if any
+#os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
+#os.system("git add .") 
+# Get names of changed files
+#os.system("git diff --name-only --staged  > "+topLvlDir+"/"+resultFoldername+"/NameDiff.txt")
+# Get all affected files from the patch
+#targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/NameDiff.txt", targetFiles) 
  
 # Reset working directory
 #print("Reset Target directory")
@@ -396,5 +415,10 @@ workflow()
 # Make sure file encoding is UTF-8
 #os.chdir(topLvlDir+"/"+resultFoldername)
 #os.system("find -iname '*.[c|h]' -exec iconv -f iso8859-2 -t utf-8 -o {}.converted {} \; -exec mv {}.converted {} \;")
+
+# Copy code results to the targetBranch and then compare
+#os.chdir(topLvlDir+"/"+resultFoldername+"/Code") ###################################################################################
+# Find files that end with .c or .h, then copy them from Code to Target/src, including their parent structure (--parents). Be verbose (-v)
+#os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;") ###################################################################################
 
 # Addition of variability?

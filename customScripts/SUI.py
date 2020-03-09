@@ -60,7 +60,7 @@ projectName = 'DonorProject'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {114832}
+entryPointIds = {49184}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -827,7 +827,7 @@ def fileOutput ():
         print("Code output is only available if --generateOnlyVisibleCode-- is selected")
    
         
-    with open('result.txt', 'w') as file_handler:
+    with open('Results/result.txt', 'w') as file_handler:
         file_handler.write(projectName+"\n")
         for item in semanticUnit:
             file_handler.write("{}\n".format(item))

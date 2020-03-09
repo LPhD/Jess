@@ -49,13 +49,13 @@ def fileOutput (result, projectName):
             file_handler.write("{}\n".format(item))  
             
 # Main function
-def evaluateProject (projectName, projectPath):            
+def evaluateProject (projectName, workingdir, projectPath):            
     print("Export visible node ids to file...")
     fileOutput(getVisibleNodes(projectName), projectName)      
           
     print("Convert project back to source code...")
     codeFoldername = "CodeToEvaluate"
-    convertToCode(False, codeFoldername)
+    convertToCode(False, workingdir, codeFoldername)
 
     print("Compare with original source code...")
     #Make new empty temp dir
@@ -63,7 +63,10 @@ def evaluateProject (projectName, projectPath):
     if os.path.exists(foldername):
         shutil.rmtree(foldername)
         
+    # TODO: Caution, working directory can changes, paths are hardcoded here    
     basePath = os.getcwd().replace("/customScripts", "/projects/octopus/data/projects/"+projectName+"/src")
+    basePath = basePath.replace("/Results","")
+
     pathToOriginalProject = basePath+projectPath    
 
     os.makedirs(foldername)

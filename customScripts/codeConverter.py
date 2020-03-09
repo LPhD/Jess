@@ -10,6 +10,8 @@ from octopus.server.DBInterface import DBInterface
 DEBUG = False
 # Activate for generation of semantic code (enhances the normal code with semantic information)
 SEMANTIC = False
+# Set working directory
+workingdir = ""
 # Lists all types that we need for the block based analysis
 typeList = ['FunctionDef']
 
@@ -188,14 +190,16 @@ def writeToFile(fileName, fileContent):
     file.write("\n")
     file.close() 
 
-def convertToCode(SEMANTIC, foldername):
+def convertToCode(SEMANTIC, workingdir, foldername):
+    os.chdir(workingdir)
     input = initialize()    
     output = importData(input[0], input[1], SEMANTIC)
     if(len(output)==0):
         print("Error: Output is empty")
+        exit()
     else:
         writeOutput(output, SEMANTIC, foldername)
         print("Code creation successfull")
 
 # When called via console, comment this line in to run the script   
-#convertToCode(SEMANTIC, "Code")    
+#convertToCode(SEMANTIC, os.getcwd(), "Code")    
