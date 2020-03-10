@@ -7,7 +7,7 @@ from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
 
 # Activate for debug outputs
-DEBUG = False
+DEBUG = True
 # Activate for generation of semantic code (enhances the normal code with semantic information)
 SEMANTIC = False
 # Set working directory
@@ -60,26 +60,31 @@ def importData(db, idList, SEMANTIC):
          
         # # # Semantic Diff # # #
         if SEMANTIC:    
-            # Get block enders (FunctionDef etc) for semantic diff
-            query = """idListToNodes(%s)
-                .has('type', 'FunctionDef').out(AST_EDGE)
-                .has('type', 'CompoundStatement').out(AST_EDGE)
-                .has('type', 'BlockCloser')
-                .valueMap('path', 'line')
-            """ % (chunk) 
-            # Execute equery
-            result = db.runGremlinQuery(query)
-            
-            # Add results to the code liste
-            for r in result:
-                if len(r) > 1:
-                    structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), 0, " #BlockEnder# ", "BlockEnder"])
-            # # # Semantic Diff End # # #
+            enhanceWithSemantic(db,structuredCodeList, chunk)
+        # # # Semantic Diff End # # #
     
     # Sort the list content by file, by line and then by cLine
     structuredCodeList = sorted(structuredCodeList, key=itemgetter(0,1,2))
     
     return structuredCodeList
+
+# Writes #BlockEnder# after the end of a function
+def enhanceWithSemantic(db, structuredCodeList, chunk):
+    # Get block enders (FunctionDef etc) for semantic diff
+    query = """idListToNodes(%s)
+        .has('type', 'FunctionDef').out(AST_EDGE)
+        .has('type', 'CompoundStatement').out(AST_EDGE)
+        .has('type', 'BlockCloser')
+        .valueMap('path', 'line')
+    """ % (chunk) 
+    # Execute equery
+    result = db.runGremlinQuery(query)
+    
+    # Add results to the code liste
+    for r in result:
+        if len(r) > 1:
+            structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), 0, " ###BlockEnder### ", "BlockEnder"])
+    #We do not need to return the list here, as it is a mutable object        
 
 
 def writeOutput(structuredCodeList, SEMANTIC, foldername):  
@@ -104,6 +109,11 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
     # Print results
     for statement in structuredCodeList:     
         if DEBUG: print("Result statement: "+str(statement))
+        
+        #Remove missleading newlines at the end of some statements linke preDefines
+        if statement[3].endswith("\n"):
+            #Remove the last two chars (the newline) from the code string
+            statement[3] = statement[3][:-2]
 
         #Reset variables if line changed
         if (not (lastLine + additionalLines) == statement[1]):
@@ -163,17 +173,23 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         # # # Semantic Diff # # #
         # Turn trigger off, as we leave the block
         if SEMANTIC and (statement[4] == "BlockEnder"):
+            #Insert the block name to the statement
+            lineContent = lineContent.replace("BlockEnder", "BlockEnder "+blockname)
             inBlock = False
+            if DEBUG: print("Found block ender line: "+str(statement[1]))
             
         # Add prefix for statements that are inside a block
         if SEMANTIC and inBlock:
-            lineContent = "#Block# " + lineContent 
+            lineContent = "###Block "+blockname+"### " + lineContent 
+            if DEBUG: print("Found block: "+statement[3])
             
         # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
         # TODO: Systematically add all possible types (array? struct? preDefine?)
         if (SEMANTIC and (statement[4] in typeList)):
-            lineContent = "#" + statement[4] + "# " + lineContent  
+            blockname = statement[3].rpartition("(")[0]            
+            lineContent = "####" + statement[4] +" "+ blockname + "### " + lineContent  
             inBlock = True
+            if DEBUG: print("Found block starter: "+statement[3])
                
         # # # Semantic Diff End # # #
     

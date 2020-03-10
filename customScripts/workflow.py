@@ -103,10 +103,9 @@ def workflow():
 
     ## Sc 1: Diff SU vs target
     print(" ### Check scenario 1 ### ")
-    # Ignore whitespace, tab or blank line changes. 
-    #Diff SU and Target (both with semantically enhanced code)
+    #Diff SU and Target (both with semantically enhanced code). Ignore whitespace, tab or blank line changes.
     os.chdir(topLvlDir+"/"+resultFoldername)
-    os.system("git diff -w -b --ignore-blank-lines  --no-index SUCode/ TargetProjectSliceCode/  > S1Diff.txt")
+    os.system("git diff -w -b --ignore-blank-lines --no-index SUCode/ TargetProjectSliceCode/  > S1Diff.txt")
     
 # TODO
 
