@@ -103,9 +103,10 @@ def workflow():
 
     ## Sc 1: Diff SU vs target
     print(" ### Check scenario 1 ### ")
-    #Diff SU and Target (both with semantically enhanced code). Ignore whitespace, tab or blank line changes.
+    #Diff SU and Target (both with semantically enhanced code). Ignore whitespace, tab or blank line changes. Use the histogram algorithm, as it is better at finding moved functions. The "patience" algorithm is an alternative, ToDO: check which one behaves better.
     os.chdir(topLvlDir+"/"+resultFoldername)
-    os.system("git diff -w -b --ignore-blank-lines --no-index SUCode/ TargetProjectSliceCode/  > S1Diff.txt")
+    os.system("git diff -w -b --ignore-blank-lines --no-index --histogram TargetProjectSliceCode/ SUCode/ > S1Diff.txt")    
+    
     
 # TODO
 
@@ -207,13 +208,13 @@ def initializeAnalysis():
         os.system("cp --parent -v -r "+file+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder+"/")
     
     #Import Target as CPG 
-    importProjectasCPG("TargetProjectSlice")
+    #importProjectasCPG("TargetProjectSlice") #######################################################################################################################################
     
     #Remove old code results (replace the affected Target files with their semantic enhanced version)
-    shutil.rmtree(affectedTargetCodeFolder)
+    #shutil.rmtree(affectedTargetCodeFolder) #######################################################################################################################################
     
     #Export target to code with semantic enhancement
-    convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder)
+    #convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) ############################################################################################################
        
 
 
