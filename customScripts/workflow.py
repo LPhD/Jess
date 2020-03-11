@@ -106,13 +106,12 @@ def workflow():
     #Diff SU and Target (both with semantically enhanced code). Ignore whitespace, tab or blank line changes. Use the histogram algorithm, as it is better at finding moved functions. The "patience" algorithm is an alternative, ToDO: check which one behaves better.
     os.chdir(topLvlDir+"/"+resultFoldername)
     os.system("git diff -w -b --ignore-blank-lines --no-index --histogram TargetProjectSliceCode/ SUCode/ > S1Diff.txt")    
-    
-    
-# TODO
 
     # Saves the different changes into their respective dictionary
-    sortDiffContent()     
-
+    sortDiffContent()         
+    
+# TODO
+    
     # Looks for similarities in blocks or their identifiers
     blockScan() 
     
@@ -178,7 +177,7 @@ def importProjectasCPG(projectname):
 
 # Setup for the analysis (copy files to the right place to get list of changed files)
 def initializeAnalysis():
-    global targetFiles, additionList, removalList, similarList  
+    global additionList, removalList, similarList  
     affectedTargetCodeFolder = "TargetProjectSliceCode"
     
     # Delete old results
@@ -189,23 +188,24 @@ def initializeAnalysis():
     
     #Get filenames from SUCode
     os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
-    targetFiles = os.listdir()
+    os.system("find -iname '*.[c|h]' > targetFiles.list")
+
+    # Initialize keys in the dictionaries
+    with open ("targetFiles.list") as targetFiles:
+        for line in targetFiles:
+            #Skip the first two chars (./) and the last one (linebreak)
+            line = line[+2:-1]
+            additionList[line] = []    
+            removalList[line] = []   
+            similarList[line] = [] 
     
-    # Terminate the analysis if there are no changes
-    if (len(targetFiles) == 0):
-        print("# # # No changes found. Terminating analysis... # # #")
-        exit()
-    else:
-        # Initialize keys in the dictionaries
-        for fileName in targetFiles:
-            additionList[fileName] = []    
-            removalList[fileName] = []   
-            similarList[fileName] = [] 
-   
-    #Copy only affected files from TargetCode to affectedTargetCodeFolder
+    #Remove the list    
+    os.remove("targetFiles.list")     
+            
+    #Copy only affected files from TargetCode to affectedTargetCodeFolder (prints an error if there are files in the SU that are not in the Target, this is ok)
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
-    for file in targetFiles:
-        os.system("cp --parent -v -r "+file+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder+"/")
+    for filename in list(additionList.keys()):
+        os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder+"/")
     
     #Import Target as CPG 
     #importProjectasCPG("TargetProjectSlice") #######################################################################################################################################
@@ -235,19 +235,22 @@ def sortDiffContent():
     # Bool for skipping the patch header
     skip = False
     global removalList,additionList,similarList,scenario1
-    
-    
-#ToDo here: b vs a, remove foldername from line 250    
+     
     
     # Check if there are similar lines in the SU and the Target
     with codecs.open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding='utf-8', errors='ignore') as file:
         for line in file:          
+            if DEBUG: print("Line: "+line)
+            
             # Skip the header
             if line.startswith("diff --git"):
                 skip = True
             # Set current filename 
             elif line.startswith("+++ b/"):    
-                fileName = line.replace("+++ b/","",1).replace("\n","",1)
+                # We take the SU structure as basis, as it can contain additional files and folders
+                fileName = line.replace("+++ b/SUCode/","",1).replace("\n","",1)
+                if DEBUG: print("Filename: "+fileName)
+# TODO Here, we could filter for files that are completely new                                   
             
             if not skip: 
                 # Look for similar lines and ignore elements from the ignore pattern
@@ -271,7 +274,7 @@ def sortDiffContent():
                 
 # We need a deeper analysis of blocks (identifiers vs inside), as they were currently always identified as new lines (bc of the #Block# prefix)
 def blockScan():
-    global targetFiles, additionList, removalList, scenario1
+    global additionList, removalList, scenario1
     currentBlock = ""
     print("Scan blocks")
     for file in targetFiles:
