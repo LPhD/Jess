@@ -7,6 +7,7 @@ import os
 import shutil
 import re
 import codecs
+import pathlib
 
 
 #### Configuration ####
@@ -26,22 +27,20 @@ originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" ####################
 topLvlDir = os.getcwd()
 # Add folder to work with
 resultFoldername = "Results"
-# List for all files that need to be changed
-targetFiles = []
 # Dictionary for all additions (content of the donor file)
 additionList = {}
 # Dictionary for all removals (content of the target file)
 removalList = {}
 # Dictionary for all similar lines between donor and target file
 similarList = {}
+# List for all files that exist in the SU but not in Target
+newFiles = []
 # List for the file content of the patch
 patch = []
 # Regex pattern: Starts with +,-,@ or lines containing only whitespaces 
 changePattern = re.compile("(^[+-@])|(^(\s+)$)")
-# Ignore lines containing only brackets or #endifs
-#ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
-# TODO: Think about this
-ignorePattern = re.compile("(^((\s*[}{()]\s*)+)$)")
+# Ignore lines containing only closing brackets or #endifs
+ignorePattern = re.compile("(^((\s*[})]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
 # Bool for scenario 1 (only additions)
 scenario1 = True
 
@@ -72,7 +71,12 @@ def workflow():
         
         # Imports the Donor as Code Property Graph and validates the result
         importProjectasCPG("DonorProject")
-         
+    else:
+        #Reset Target Repo (remove unversioned files)
+        print("Reset Target directory")
+        os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+        os.system("git reset --hard")
+        os.system("git clean -fd")
 
     # Identify SU
     print(" ### Start of Semantic Unit identification process ### ")
@@ -99,12 +103,13 @@ def workflow():
     os.system("git diff -w -b --ignore-blank-lines --no-index --histogram TargetProjectSliceCode/ SUCode/ > S1Diff.txt")    
 
     # Saves the different changes into their respective dictionary
+    print(" ### Analyzing diff... ### ")
     sortDiffContent()         
     
 # TODO
     
     # Looks for similarities in blocks or their identifiers
-    blockScan() 
+    #blockScan() 
     
 
     ## Scenario 1 is positive, if there are no similarities between donor and target 
@@ -112,8 +117,8 @@ def workflow():
     if (scenario1):
         print("Found no similarities! Scenario 1 is positive!")
         ### Only additions of SU -> Just add them to target, we are finished ###
-        for fileName in targetFiles:
-            mergeRemovalsAndCurrentFile(fileName)
+        #for fileName in targetFiles:
+           # mergeRemovalsAndCurrentFile(fileName)
         print(" ### Code transplantation finished sucessfull! ### ")
         print(" ### Please compile the code to check for duplicate identifiers ### ")
     else:   
@@ -121,7 +126,30 @@ def workflow():
         print("Found some similarities! Scenario 1 is negative!")
         print(similarList)
         print(" ### Check scenario 2 ### ")
+    
+    
+    # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
+    # Otherwise (aside from defines) they cannot affect Target (as there are no uses from Target files to them)
+    # newFile are collected in sortDiffContent
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    for fileName in newFiles:
+        #Create needed directories
+        print(fileName.rpartition("/")[0])
+        pathlib.Path(fileName.rpartition("/")[0]).mkdir(parents=True, exist_ok=True) 
+        #Write file content of the new files to Target directory
+        with open(fileName, 'w') as targetFile:
+            targetFile.write("\n".join(additionList[fileName]))
+            #Clean up before or here?  
+            # Removes duplicated newlines and semantic enhancement from the code files
+            #cleanUpFileContent()
+    
+    print(additionList.keys())
+
+    # Create the final files    
+    assembleFiles()   
         
+#TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
+#TODO Syntax check?
      
 
 #### Helper functions ####
@@ -174,9 +202,9 @@ def initializeAnalysis():
     
     # Delete old results
     os.chdir(topLvlDir+"/"+resultFoldername)
-    if os.path.exists(affectedTargetCodeFolder):
-        shutil.rmtree(affectedTargetCodeFolder)
-    os.makedirs(affectedTargetCodeFolder)
+    #if os.path.exists(affectedTargetCodeFolder): #######################################################################################################################################
+    #    shutil.rmtree(affectedTargetCodeFolder)
+    #os.makedirs(affectedTargetCodeFolder)
     
     #Get filenames from SUCode
     os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
@@ -195,24 +223,28 @@ def initializeAnalysis():
     os.remove("targetFiles.list")     
             
     #Copy only affected files from TargetCode to affectedTargetCodeFolder (prints an error if there are files in the SU that are not in the Target, this is ok)
-    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
-    for filename in list(additionList.keys()):
-        os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder+"/")
+    #os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    #for filename in list(additionList.keys()):
+        #os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder+"/") #######################################################################################################################################
     
     #Import Target as CPG 
-    importProjectasCPG("TargetProjectSlice") #######################################################################################################################################
+    #importProjectasCPG("TargetProjectSlice") #######################################################################################################################################
     
     #Remove old code results (replace the affected Target files with their semantic enhanced version)
-    shutil.rmtree(affectedTargetCodeFolder) #######################################################################################################################################
+    #shutil.rmtree(affectedTargetCodeFolder) #######################################################################################################################################
     
     #Export target to code with semantic enhancement
-    convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) ############################################################################################################
+    #convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) ############################################################################################################
        
        
 # Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
 def sortDiffContent():
+    # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged)
+    listOfDefines = []
     # Bool for skipping the patch header
     skip = False
+    # Bool for collecting new files
+    newFile = False
     global removalList,additionList,similarList,scenario1
      
     
@@ -228,26 +260,50 @@ def sortDiffContent():
             elif line.startswith("+++ b/"):    
                 # We take the SU structure as basis, as it can contain additional files and folders
                 fileName = line.replace("+++ b/SUCode/","",1).replace("\n","",1)
+                #Collect all files from the SU that do not exist in Target
+                if newFile:
+                    newFiles.append(fileName)
+                    newFile = False
                 if DEBUG: print("Filename: "+fileName)
-# TODO Here, we could filter for files that are completely new                                   
+            # Filter for completely new files
+            elif line.startswith("--- /dev/null"): 
+                newFile = True
             
             if not skip: 
                 # Look for similar lines and ignore elements from the ignore pattern
-                if not (re.match(changePattern, line) or re.match(ignorePattern, line) or line.startswith("\\ No newline at")):
+                if not (re.match(changePattern, line) or line.startswith("\\ No newline at")):
                     if DEBUG: print("Duplicate lines found: "+line)
-                    similarList[fileName].append(line)
-# TODO Here we can use language information maybe? Like #endif or header ifdefs that are not really interesting                    
-                    scenario1 = False
                     
-                # Look for additions    
+                    #Some lines may be found as equal, but do not have a functional effect (brackets, #endif, etc)
+                    #Here we filter out missclassified block-enders (and add them to the addition list where they belong)
+#ToDo: Do we need a stack to match openers and enders?
+                    if re.match(ignorePattern, line):
+                        additionList[fileName].append(line)
+                        print("Found missclassified duplicate line: "+line+" in file: "+fileName)
+                    else:
+                        similarList[fileName].append(line)
+                        scenario1 = False                 
+                    
+                    
+                # Look for additions (lines contained in SU but not in Target)    
                 elif (line.startswith("+") and not line.startswith("+++")):
+                    line = line.replace("+","",1)
                     if DEBUG: print("Additional lines found: "+line)
-                    additionList[fileName].append(line.replace("+","",1))
-                # Look for removals 
+                    additionList[fileName].append(line)
+                                     
+                    #Look for for non-function-like macros (identifier does not contain an opening bracket)
+                    if re.match("^\s*\#define [^(]+ ", line):
+                        print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
+                        #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
+                        listOfDefines.append(line)
+
+                    
+                # Look for removals (lines contained in Target but not in SU)   
                 elif (line.startswith("-") and not line.startswith("---")):   
                     if DEBUG: print("Removed lines found: "+line)
                     removalList[fileName].append(line.replace("-","",1))           
-             
+ 
+ 
             # Stop skipping, as header ends here    
             if line.startswith( "@@"):
                 skip = False   
@@ -287,18 +343,10 @@ def blockScan():
                 # TODO for later: We could analyse if the content is the same and the name changed, then we need a namechange in all occurences of the SU
                 # Yes -> Sc1 is false. Here we need further analysis.
     
-    
-# Sometimes Git messes ob the matching of brackets or #endifs (identifies similar lines), we need to reverse that
-def fixBrackets(patch, ignorePattern):
-    for index,line in enumerate(patch):
-        # Check for lines that contain ignored similarities
-        if re.match(ignorePattern, line):
-            patch[index] = "-" + line
-                        
-    return patch
 
-# Add the patch content to the respective file   
-def mergeRemovalsAndCurrentFile(filePath):    
+
+# Add the patch content to the respective file (append the content from SU to the TargetFiles?)   
+def assembleFiles():    
     global additionList, removalList
     fileContent = []
     lasNewline = False
@@ -360,6 +408,7 @@ workflow()
 #os.chdir(topLvlDir+"/"+resultFoldername+"/Target/")
 #os.system("git reset --hard")
 #os.system("git clean -fd")
+
 # Apply patch
 #os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/patch.patch")
 #os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
@@ -431,5 +480,15 @@ workflow()
 #    query = """g.V().has('type', 'Identifier').values("code")"""    
 #    
 #    print(db.runGremlinQuery(query))  
+
+    
+# Sometimes Git messes ob the matching of brackets or #endifs (identifies similar lines), we need to reverse that
+#def fixBrackets(patch, ignorePattern):
+#    for index,line in enumerate(patch):
+#        # Check for lines that contain ignored similarities
+#        if re.match(ignorePattern, line):
+#            patch[index] = "-" + line
+#                        
+#    return patch
 
 # Addition of variability?
