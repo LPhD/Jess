@@ -362,7 +362,10 @@ def assembleFiles(filePath):
     fileContent = []
     lasNewline = False
     found = False
-    start = True
+    start = True    
+        
+    # Add target content (because similar lines stay in target and can be used by the SU, which therefore has to come after)
+    fileContent += removalList[filePath]  
     
     fileContent.append("/* * * This is the beginning of the automatically transplanted code * * */") 
     fileContent.append("\n")  
@@ -385,10 +388,7 @@ def assembleFiles(filePath):
     fileContent.append("\n")  
     fileContent.append("/* * * This is the end of the automatically transplanted code * * */")     
     fileContent.append("\n") 
-    
-    # Add target content 
-    fileContent += removalList[filePath]   
-
+ 
    
     # Write assembled content to file
     file = open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'w')   
