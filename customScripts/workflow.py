@@ -41,6 +41,8 @@ patch = []
 changePattern = re.compile("(^[+-@])|(^(\s+)$)")
 # Ignore lines containing only closing brackets or #endifs
 ignorePattern = re.compile("(^((\s*[})]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
+# Semantic blocks begin and end with ###
+blockPattern = re.compile("###.*###")
 # Bool for scenario 1 (only additions)
 scenario1 = True
 
@@ -104,7 +106,11 @@ def workflow():
 
     # Saves the different changes into their respective dictionary
     print(" ### Analyzing diff... ### ")
-    sortDiffContent()         
+    sortAndAnalyzeDiffContent()   
+
+    # Creates all files from the SU in Target, that did not exist there before
+    print("Create completely new files in Target...")
+    createCompletelyNewFiles()    
     
 # TODO
     
@@ -126,27 +132,12 @@ def workflow():
         print("Found some similarities! Scenario 1 is negative!")
         print(similarList)
         print(" ### Check scenario 2 ### ")
-    
-    
-    # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
-    # Otherwise (aside from defines) they cannot affect Target (as there are no uses from Target files to them)
-    # newFile are collected in sortDiffContent
-    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
-    for fileName in newFiles:
-        #Create needed directories
-        print(fileName.rpartition("/")[0])
-        pathlib.Path(fileName.rpartition("/")[0]).mkdir(parents=True, exist_ok=True) 
-        #Write file content of the new files to Target directory
-        with open(fileName, 'w') as targetFile:
-            targetFile.write("\n".join(additionList[fileName]))
-            #Clean up before or here?  
-            # Removes duplicated newlines and semantic enhancement from the code files
-            #cleanUpFileContent()
-    
-    print(additionList.keys())
 
-    # Create the final files    
-    assembleFiles()   
+    # Create the final files 
+    for fileName in additionList.keys():
+        assembleFiles(fileName) 
+       
+      
         
 #TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
 #TODO Syntax check?
@@ -238,7 +229,7 @@ def initializeAnalysis():
        
        
 # Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
-def sortDiffContent():
+def sortAndAnalyzeDiffContent():
     # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged)
     listOfDefines = []
     # Bool for skipping the patch header
@@ -287,7 +278,9 @@ def sortDiffContent():
                     
                 # Look for additions (lines contained in SU but not in Target)    
                 elif (line.startswith("+") and not line.startswith("+++")):
-                    line = line.replace("+","",1)
+                    # Remove the + at the beginning and the semantic enhancement 
+                    line = re.sub(blockPattern, '', line.replace("+","",1))
+                    
                     if DEBUG: print("Additional lines found: "+line)
                     additionList[fileName].append(line)
                                      
@@ -301,14 +294,32 @@ def sortDiffContent():
                 # Look for removals (lines contained in Target but not in SU)   
                 elif (line.startswith("-") and not line.startswith("---")):   
                     if DEBUG: print("Removed lines found: "+line)
-                    removalList[fileName].append(line.replace("-","",1))           
- 
+                    # Add line to the list, remove the - at the beginning and the semantic enhancement
+                    removalList[fileName].append(re.sub(blockPattern, '', line.replace("-","",1)))           
+                                       
  
             # Stop skipping, as header ends here    
             if line.startswith( "@@"):
                 skip = False   
 
-                
+
+
+# Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
+# Otherwise (aside from defines) they cannot affect Target (as there are no uses from Target files to them)
+def createCompletelyNewFiles():
+    # newFiles are collected in sortAndAnalyzeDiffContent
+    global additionList, newFiles  
+    # Go to Target directory
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    # Iterate through all completely new files
+    for fileName in newFiles:
+        #Create needed directories
+        pathlib.Path(fileName.rpartition("/")[0]).mkdir(parents=True, exist_ok=True) 
+        #Write file content of the new files to Target directory, remove the file content afterwards from the additionList
+        with open(fileName, 'w') as targetFile:
+            targetFile.write("\n".join(additionList.pop(fileName)))
+ 
+ 
 # We need a deeper analysis of blocks (identifiers vs inside), as they were currently always identified as new lines (bc of the #Block# prefix)
 def blockScan():
     global additionList, removalList, scenario1
@@ -346,8 +357,8 @@ def blockScan():
 
 
 # Add the patch content to the respective file (append the content from SU to the TargetFiles?)   
-def assembleFiles():    
-    global additionList, removalList
+def assembleFiles(filePath):    
+    global additionList, removalList, blockPattern
     fileContent = []
     lasNewline = False
     found = False
@@ -366,8 +377,9 @@ def assembleFiles():
                fileContent.append("\n")
                lasNewline = False
                
-            # Add the file content, remove the semantic diff words   
-            fileContent.append(line.replace("#Block#","").replace("#FunctionDef#","",1).replace("#BlockEnder#",""))
+            # Add the file content   
+            fileContent.append(line)
+            #fileContent.append(line.replace("#Block#","").replace("#FunctionDef#","",1).replace("#BlockEnder#",""))
                 
     # Always end with newlines and a comment           
     fileContent.append("\n")  
@@ -376,9 +388,10 @@ def assembleFiles():
     
     # Add target content 
     fileContent += removalList[filePath]   
+
    
     # Write assembled content to file
-    file = open(topLvlDir+"/"+resultFoldername+"/Target/"+filePath, 'w')   
+    file = open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'w')   
     file.write("".join(fileContent))
     file.close()
 
