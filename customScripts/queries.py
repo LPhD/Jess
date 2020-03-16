@@ -161,6 +161,11 @@ query = """g.V(118992).repeat(__.in('IS_AST_PARENT')).emit().union(
             __.has('type', 'FunctionDef').as('result'),
             __.has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type', 'BlockCloser').as('result')
         ).select('result').unfold().id()""" 
+# First get all parent nodes that implement variability, then get their AST parent or child nodes (PreElif/Else/Endif/PreIf)
+query =  """g.V(192720)
+    .repeat(__.in('VARIABILITY').simplePath()).emit().dedup().as('result')
+    .repeat(__.both('IS_AST_PARENT').simplePath().has('type', within('PreIfStatement','PreElIfStatement','PreElseStatement','PreEndIfStatement'))).emit().dedup().as('result')
+    .select('result').unfold().dedup().id()"""          
         
 query = "g.V(1274008)"
 #query = "g.V(651336)"
@@ -173,8 +178,10 @@ query = "g.V().has('code', textContains('sccb_mgr_info'))"
 
 query = "g.V().has('type', 'structUnionEnum')"
 
-        
+
+   
       
+
 
 # Execute equery
 result = db.runGremlinQuery(query)
