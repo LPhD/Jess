@@ -667,8 +667,11 @@ def addVariability ():
     if (DEBUG) : print("Checking for variability information...")    
 
     global semanticUnit
-    # Get the parent variability nodes, add them to the SemanticUnit (without dupes) 
-    query = """idListToNodes(%s).in('VARIABILITY').emit().repeat(out('IS_AST_PARENT')).id()""" % (list(semanticUnit))   
+    # Get the parent variability nodes, add them (and all connected AST elements) to the SemanticUnit (without dupes) 
+    query = """idListToNodes(%s)
+    .repeat(__.in('VARIABILITY').simplePath()).emit().dedup().as('result')
+    .repeat(__.both('IS_AST_PARENT').simplePath().has('type', within('PreIfStatement','PreElIfStatement','PreElseStatement','PreEndIfStatement'))).emit().dedup().as('result')
+    .select('result').unfold().dedup().id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
     
