@@ -60,7 +60,7 @@ projectName = 'DonorProject'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {49184}
+entryPointIds = {135176}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -649,12 +649,10 @@ def addParentFunctions ():
 
     global semanticUnit
     # Get the compound statements and function definitions, add them to the SemanticUnit (without dupes)
-    query = """idListToNodes(%s).union(
-        __.in('IS_AST_PARENT').has('type', 'CompoundStatement'), 
-        __.in('IS_AST_PARENT').has('type', 'FunctionDef'), 
-        __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef'),
-        has('type', 'CompoundStatement').out('IS_AST_PARENT').has('type', 'BlockCloser')
-        ).dedup().id()""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT').simplePath()).emit().union(
+            __.has('type', 'FunctionDef').as('result'),
+            __.has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type', 'BlockCloser').as('result')
+        ).select('result').unfold().dedup().id()"""  % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
     
@@ -669,7 +667,7 @@ def addVariability ():
     if (DEBUG) : print("Checking for variability information...")    
 
     global semanticUnit
-    # Get the parent variability nodes, add them to the SemanticUnit (without dupes)
+    # Get the parent variability nodes, add them to the SemanticUnit (without dupes) 
     query = """idListToNodes(%s).in('VARIABILITY').emit().repeat(out('IS_AST_PARENT')).id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
@@ -982,7 +980,7 @@ if (console):
     consoleInput()
 else: 
     # projectName must be set manually
-    print("* * * Please set project name and entry point manually (or set console to TRUE) in the SUI.py * * * ")
+    print("* * * Please set project name and entry point manually (or set console to 'True') in the SUI.py * * * ")
     db.connectToDatabase(projectName)
     print("Project is set to: "+projectName)
 
