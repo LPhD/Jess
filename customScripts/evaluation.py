@@ -74,13 +74,13 @@ def evaluateProject (projectName, workingdir, projectPath):
     #(necessary because git diff --no-index does not allow for filtering of filetypes
     #os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp --parent '{}' "+foldername+"/ \;")
     os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp  '{}' "+foldername+"/ \;")
-    os.system("git diff -w -b --ignore-blank-lines --no-index "+foldername+" "+codeFoldername+"/  > EvaluationResult.txt")   
+    os.system("git diff -w -b --ignore-blank-lines --no-index "+foldername+" "+codeFoldername+"/  > "+ProjectName+"EvaluationResult.txt")   
      
         
-    if (os.stat("EvaluationResult.txt").st_size == 0):
+    if (os.stat(ProjectName+"EvaluationResult.txt").st_size == 0):
         print("* * * Evaluation was successful, no differences found * * *")
     else:
-        print("Found some differences, please look at EvaluationResult.txt for more details")
+        print("Found some differences, please look at [ProjectName]EvaluationResult.txt for more details")
 
 
 # When called via console, fill these out and add your project path to getProjectPath function
