@@ -170,24 +170,33 @@ def analyzeNode (currentNode):
         
         # For every enclosed file, get related elements
         analysisList.extend(result)
+        # Print result
+        if (DEBUG): print("Result structural relation: "+str(result)+"\n")
         
     # Get all enclosed lines of code if current vertice is a File
     if (type[0] == "File"):
         result = set(getEnclosedCodeOfFile(currentNode))
         # For every enclosed code line, get related elements
         analysisList.extend(result)
-                  
+        # Print result
+        if (DEBUG): print("Result structural relation: "+str(result)+"\n")
+        
     # Get enclosed vertices if current vertice is a function declaration
     if ((type[0] == "FunctionDef") and (includeEnclosedCode == True)):
         result = set(getASTChildren(currentNode))           
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result)         
+         # Print result
+        if (DEBUG): print("Result structural relation: "+str(result)+"\n")
         
     # Get enclosed vertices if current vertice is a for-, while- or if-statement
     if ((type[0] in ["IfStatement","ForStatement","WhileStatement", "SwitchStatement"]) and (includeEnclosedCode == True)):             
         result = set(getASTChildren(currentNode))
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result) 
+         # Print result
+        if (DEBUG): print("Result structural relation: "+str(result)+"\n")
+
     # Get only the Syntax Elements of the selected statement     
     elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):       
         # Get corresponding else-statement only if the configuration is selected
@@ -203,6 +212,8 @@ def analyzeNode (currentNode):
         result = set(getInitAndCondition(currentNode))
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result)         
+         # Print result
+        if (DEBUG): print("Result structural relation: "+str(result)+"\n")
                    
     # Get the corresponding if, if current vertice is an else-statement
     if (type[0] == "ElseStatement"):            
@@ -211,12 +222,17 @@ def analyzeNode (currentNode):
             result.update(set(getASTChildren(currentNode)))
         # Get related elements of the if/else-statement
         analysisList.extend(result)         
+         # Print result
+        if (DEBUG): print("Result structural relation: "+str(result)+"\n")
 
     # Get the AST children if current vertice is an expression or identifierDecl statement
     if (type[0] in ["ExpressionStatement", "IdentifierDeclStatement"]):                       
         result = set(getASTChildren(currentNode))
+        print("Expression: "+str(result))
         # Get related elements of the AST children
         analysisList.extend(result)          
+         # Print result
+        if (DEBUG): print("Result structural relation: "+str(result)+"\n")
         
 ##################################################################################################################           
 ################################### Call relations ############################################################### 
@@ -228,21 +244,29 @@ def analyzeNode (currentNode):
         result = set(getCalledFunctionDef(currentNode))                
         # Get related elements of the called function
         analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result call relation: "+str(result)+"\n")
         
     # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (LookForAllFunctionCalls == True)): 
         result = set(getCallsToFunction(currentNode))
         analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result call relation: "+str(result)+"\n")
     
     # Get macro identifier    
     if (type[0] in ["PreUndef","PreDefine"]):    
         result = set(getMacroIdentifier(currentNode))
         analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result call relation: "+str(result)+"\n")
 
     # Get all statements (limited to preprocessor and function-like macro calls) connected to the PreMacroIdentifier     
     if (type[0] == "PreMacroIdentifier"):  
         result = set(getRelationsToMacro(currentNode))
         analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result call relation: "+str(result)+"\n")
 
         
 ##################################################################################################################
@@ -253,12 +277,16 @@ def analyzeNode (currentNode):
         result = set(getFunctionDefOut(currentNode))           
         # Add FunctionDef to the Semantic Unit and get related elements
         analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result define relation: "+str(result)+"\n")
         
     # Get the declaration of the function in its header file (if existing)
     if (type[0] == "FunctionDef"):
         result = set(getFunctionDeclInHeader(currentNode))
         # Just add, no further analysis (we do not need to look at the decl again, this is done for Decl and CallExpression)
         semanticUnit.update(result) 
+         # Print result
+        if (DEBUG): print("Result define relation: "+str(result)+"\n")
     
     # Get definition of the element that contains the condition or parameter
     # We need this for identification of statements that are connected to a #define       
@@ -266,6 +294,8 @@ def analyzeNode (currentNode):
         result = set(getParent(currentNode))
         # Add FunctionDef to the Semantic Unit and get related elements
         analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result define relation: "+str(result)+"\n")
 
 
 ##################################################################################################################
@@ -277,6 +307,8 @@ def analyzeNode (currentNode):
         result = set(getDefinesAndUses(currentNode))
         # Get related elements of the called function
         analysisList.extend(result)
+        # Print result
+        if (DEBUG): print("Result data flow relation: "+str(result)+"\n")
         
 ##################################################################################################################
 ##################################### Control Flow ###############################################################       
@@ -287,14 +319,18 @@ def analyzeNode (currentNode):
         result = set(getGotos(currentNode))  
         # Just add, no further analysis (we do not need to look at the gotos again, as they will result in the used labels)
         semanticUnit.update(result) 
-        
+         # Print result
+        if (DEBUG): print("Result control flow relation: "+str(result)+"\n")
+       
     # Get enclosed vertices if current vertice is a GotoStatement 
     if (type[0] == "GotoStatement"): 
         # Get all labels that were refered by this goto
         result = set(getLabels(currentNode))  
         # Just add, no further analysis (we do not need to look at the labels again, as they will result in the used gotos)
         semanticUnit.update(result) 
-    
+        # Print result
+        if (DEBUG): print("Result control flow relation: "+str(result)+"\n")
+   
         
 ####################################################################################################################
 #################################### Variability ###################################################################          
@@ -314,6 +350,8 @@ def analyzeNode (currentNode):
                  
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result)
+        # Print result
+        if (DEBUG): print("Result variability relation: "+str(result)+"\n")
                              
     #Get enclosed vertices if current vertice is a pre-elif-statement       
     if (type[0] == "PreElIfStatement"):        
@@ -331,6 +369,8 @@ def analyzeNode (currentNode):
         
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result)
+        # Print result
+        if (DEBUG): print("Result variability relation: "+str(result)+"\n")
       
     #Get enclosed vertices if current vertice is a pre-else-statement     
     if (type[0] == "PreElseStatement"):
@@ -340,11 +380,15 @@ def analyzeNode (currentNode):
         result.update(set(getPreIf(currentNode)))                        
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result)
-        
+        # Print result
+        if (DEBUG): print("Result variability relation: "+str(result)+"\n")
+       
     #Get enclosed vertices if current vertice is a pre-endif-statement     
     if (type[0] == "PreEndIfStatement"):
         # Get the starting #if and add it to the semanticUnit
         analysisList.extend(set(getPreIf(currentNode)))    
+        # Print result
+        if (DEBUG): print("Result variability relation: "+str(result)+"\n")
 
 
 ##############################################################################################################################
@@ -354,11 +398,13 @@ def analyzeNode (currentNode):
     if (type[0] in["PreDiagnostic", "PreOther", "PreLine", "PrePragma"]):
         result = set(getASTChildren(currentNode))
         analysisList.extend(result)
+        # Print result
+        if (DEBUG): print("Result AST children: "+str(result)+"\n")
                 
 #####################################################################################################################
 #################################### End of rules  ##################################################################                     
 
-    if (DEBUG): print("Result: "+str(result)+"\n")
+    
     
     # Do nothing for (as intended):
     # PreInclude, PreIncludeNext (included file possible, but why not just give the file as entry point?)
