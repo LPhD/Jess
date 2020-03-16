@@ -2,12 +2,13 @@
 import ntpath
 import os
 import shutil
+import pathlib
 
 from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
 
 # Activate for debug outputs
-DEBUG = True
+DEBUG = False
 # Activate for generation of semantic code (enhances the normal code with semantic information)
 SEMANTIC = False
 # Set working directory
@@ -54,9 +55,12 @@ def importData(db, idList, SEMANTIC):
         for r in result:  
             # Just add the statements to the results which contain all necessary information
             if (('path' in r) and ('line' in r) and ('cLine' in r) and ('code' in r) and ('type' in r)):                
-                # Append filename, linenumber, cline, code (if exists) and type to the list
+                # Append internal path(0) (structure inside project), linenumber (1), cline(2), code(3) (if exists) and type(4) to the list
                 if len(r) > 4:
-                    structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), int(((r['cLine'])[0])), (r['code'])[0], (r['type'])[0]])                
+                    # Get the internal structure by splitting after the last src
+                    internalPath = r['path'][0].rsplit("/src/",1)[1]
+                    # Assemble the list
+                    structuredCodeList.append([internalPath, int(((r['line'])[0])), int(((r['cLine'])[0])), (r['code'])[0], (r['type'])[0]])                
          
         # # # Semantic Diff # # #
         if SEMANTIC:    
@@ -83,15 +87,14 @@ def enhanceWithSemantic(db, structuredCodeList, chunk):
     # Add results to the code liste
     for r in result:
         if len(r) > 1:
-            structuredCodeList.append([ntpath.basename((r['path'])[0]), int(((r['line'])[0])), 0, " ###BlockEnder### ", "BlockEnder"])
+            structuredCodeList.append([r['path'][0].rsplit("/src/",1)[1], int(((r['line'])[0])), 0, " ###BlockEnder### ", "BlockEnder"])
     #We do not need to return the list here, as it is a mutable object        
 
 
 def writeOutput(structuredCodeList, SEMANTIC, foldername):  
     #Create folder and files for the Code (if its not already there)
     if os.path.exists(foldername):
-        shutil.rmtree(foldername)
-    
+        shutil.rmtree(foldername)   
     os.makedirs(foldername)
 
     # Counter
@@ -106,11 +109,17 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
     # For semantic diff utility
     inBlock = False
 
-    # Print results
+    # For each entry in the patch list, build the file content
+    # filename (0), linenumber (1), cline(2), code(3) (if exists), type(4) and internal path(5) (structure inside project) 
     for statement in structuredCodeList:     
         if DEBUG: print("Result statement: "+str(statement))
         
-        #Remove missleading newlines at the end of some statements linke preDefines
+        # Check if the current statement is inside a folder structure
+        if ("/" in statement[0]):
+            #Make the folder structure inside of foldername folder
+            pathlib.Path(foldername+"/"+statement[0].rpartition("/")[0]).mkdir(parents=True, exist_ok=True) 
+        
+        #Remove missleading newlines at the end of some statements like preDefines
         if statement[3].endswith("\n"):
             #Remove the last two chars (the newline) from the code string
             statement[3] = statement[3][:-2]
@@ -206,6 +215,7 @@ def writeToFile(fileName, fileContent):
     file.write("\n")
     file.close() 
 
+# Enhance output with semantics?, output relative to what dir?, output folder name?
 def convertToCode(SEMANTIC, workingdir, foldername):
     os.chdir(workingdir)
     input = initialize()    
