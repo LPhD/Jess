@@ -41,8 +41,8 @@ patch = []
 changePattern = re.compile("(^[+-@])|(^(\s+)$)")
 # Ignore lines containing only closing brackets or #endifs
 ignorePattern = re.compile("(^((\s*[})]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
-# Semantic blocks begin and end with ###
-blockPattern = re.compile("###.*###")
+# Semantic blocks begin and end with ### (the *? activates non-greedy behavior, as the block should end with the first ###)
+blockPattern = re.compile("###.*?###")
 # Bool for scenario 1 (only additions)
 scenario1 = True
 
@@ -382,7 +382,6 @@ def assembleFiles(filePath):
                
             # Add the file content   
             fileContent.append(line)
-            #fileContent.append(line.replace("#Block#","").replace("#FunctionDef#","",1).replace("#BlockEnder#",""))
                 
     # Always end with newlines and a comment           
     fileContent.append("\n")  
