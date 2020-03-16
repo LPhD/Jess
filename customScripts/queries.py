@@ -14,7 +14,8 @@ import random
 #projectName = 'Collection'
 #projectName = 'expat'
 #projectName = 'sample'
-projectName = 'PV_Current.tar.gz'
+#projectName = 'PV_Current.tar.gz'
+projectName = 'DonorProject'
 #Connect do database of project
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -150,7 +151,17 @@ query = """g.V().has('type', within(%s)).as('declares').out('IS_AST_PARENT', 'DE
     ,has('type', 'Decl').values('identifier')
     )
 .dedup().as('identifiers')""" % (["FunctionDef", "DeclStmt", "StructUnionEnum", "PreDefine"] )  
-
+# Follow the AST structure upwards until there are no more AST edges (at a functionDef typically). On this way, save all compound statements, their block closers, and functionDefs. In the end, print all visited paths 
+query = """g.V(118992).repeat(__.in('IS_AST_PARENT')).emit().union(
+            __.has('type', 'FunctionDef').as('result'),
+            __.has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type', 'BlockCloser').as('result')
+        ).path().by('code')""" 
+# Follow the AST structure upwards until there are no more AST edges (at a functionDef typically). On this way, save all compound statements, their block closers, and functionDefs. In the end, gather all results and print their ids
+query = """g.V(118992).repeat(__.in('IS_AST_PARENT')).emit().union(
+            __.has('type', 'FunctionDef').as('result'),
+            __.has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type', 'BlockCloser').as('result')
+        ).select('result').unfold().id()""" 
+        
 query = "g.V(1274008)"
 #query = "g.V(651336)"
 #query = "g.V(749568)"
@@ -162,13 +173,8 @@ query = "g.V().has('code', textContains('sccb_mgr_info'))"
 
 query = "g.V().has('type', 'structUnionEnum')"
 
-query = """g.V(90328).union(
-    __.in('IS_AST_PARENT').has('type', 'CompoundStatement'), 
-    __.in('IS_AST_PARENT').has('type', 'FunctionDef'), 
-    __.in('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().in('IS_AST_PARENT').has('type', 'FunctionDef'),
-    has('type', 'CompoundStatement').out('IS_AST_PARENT').has('type', 'BlockCloser')
-    ).dedup().id()"""  
-
+        
+      
 
 # Execute equery
 result = db.runGremlinQuery(query)
