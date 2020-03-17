@@ -70,9 +70,10 @@ def workflow():
 
         # Creates the needed repositories for Donor, Target and Origin
         createRepos()
-        
+                
         # Imports the Donor as Code Property Graph and validates the result
-        importProjectasCPG("DonorProject")
+        os.chdir(topLvlDir+"/"+resultFoldername)
+        importProjectasCPG("DonorProject", "/DonorProjectCode/src")
     else:
         #Reset Target Repo (remove unversioned files)
         print("Reset Target directory")
@@ -84,11 +85,11 @@ def workflow():
     print(" ### Start of Semantic Unit identification process ### ")
     print(" ### Please select 'DonorProject' as input project ### ")
     os.chdir(topLvlDir)
-    #import SUI ####################################################################################    
+    import SUI ####################################################################################    
 
     print(" ### Convert SU back to source code ### ")
     # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
-    #convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode") ####################################################################################    
+    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src") ####################################################################################    
 
     # # # Scenario analysis # # #
     print(" ### Starting analysis... ### ")
@@ -172,10 +173,9 @@ def createRepos():
  
  
 # Imports the "projectname" as Code Property Graph 
-def importProjectasCPG(projectname):
+def importProjectasCPG(projectname, internalPath):
     # Import SU as CPG
-    print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ")
-    os.chdir(topLvlDir+"/"+resultFoldername) 
+    print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ") 
     os.system("tar -cvzf "+projectname+" "+projectname+"Code") 
     os.system("jess-import "+projectname+"") 
     
@@ -183,22 +183,22 @@ def importProjectasCPG(projectname):
     #TODO we could skip this step for performance. But then we need to tell the codeConverter the right projectname and ids
     print(" ### Validating CPG of "+projectname+" ### ") 
     # Project name, working directory, internal structure of the project
-    evaluateProject(projectname, topLvlDir+"/"+resultFoldername , "/"+projectname+"Code/") 
+    evaluateProject(projectname, topLvlDir+"/"+resultFoldername , internalPath) 
 
 
 # Setup for the analysis (copy files to the right place to get list of changed files)
 def initializeAnalysis():
     global additionList, removalList, similarList  
-    affectedTargetCodeFolder = "TargetProjectSliceCode"
+    affectedTargetCodeFolder = "TargetProjectSliceCode/src"
     
     # Delete old results
     os.chdir(topLvlDir+"/"+resultFoldername)
-    #if os.path.exists(affectedTargetCodeFolder): #######################################################################################################################################
-    #    shutil.rmtree(affectedTargetCodeFolder)
-    #os.makedirs(affectedTargetCodeFolder)
+    if os.path.exists(affectedTargetCodeFolder): #######################################################################################################################################
+        shutil.rmtree(affectedTargetCodeFolder)
+    os.makedirs(affectedTargetCodeFolder)
     
     #Get filenames from SUCode
-    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
+    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
     os.system("find -iname '*.[c|h]' > targetFiles.list")
 
     # Initialize keys in the dictionaries
@@ -209,23 +209,27 @@ def initializeAnalysis():
             additionList[line] = []    
             removalList[line] = []   
             similarList[line] = [] 
+            
+    if DEBUG: print("Target files: "+str(additionList))  
     
     #Remove the list    
     os.remove("targetFiles.list")     
             
     #Copy only affected files from TargetCode to affectedTargetCodeFolder (prints an error if there are files in the SU that are not in the Target, this is ok)
-    #os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
-    #for filename in list(additionList.keys()):
-        #os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder+"/") #######################################################################################################################################
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    print("Copy differing files from Target. File not found messages mean, the file exits in the SU but not in Target. This is ok")
+    for filename in list(additionList.keys()):
+        os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder) #######################################################################################################################################
     
+    os.chdir(topLvlDir+"/"+resultFoldername)
     #Import Target as CPG 
-    #importProjectasCPG("TargetProjectSlice") #######################################################################################################################################
+    importProjectasCPG("TargetProjectSlice", "/"+affectedTargetCodeFolder) #######################################################################################################################################
     
     #Remove old code results (replace the affected Target files with their semantic enhanced version)
-    #shutil.rmtree(affectedTargetCodeFolder) #######################################################################################################################################
+    shutil.rmtree(affectedTargetCodeFolder) #######################################################################################################################################
     
     #Export target to code with semantic enhancement
-    #convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) ############################################################################################################
+    convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) ############################################################################################################
        
        
 # Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
@@ -250,7 +254,7 @@ def sortAndAnalyzeDiffContent():
             # Set current filename 
             elif line.startswith("+++ b/"):    
                 # We take the SU structure as basis, as it can contain additional files and folders
-                fileName = line.replace("+++ b/SUCode/","",1).replace("\n","",1)
+                fileName = line.replace("+++ b/SUCode/src/","",1).replace("\n","",1)
                 #Collect all files from the SU that do not exist in Target
                 if newFile:
                     newFiles.append(fileName)

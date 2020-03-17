@@ -228,4 +228,4 @@ def convertToCode(SEMANTIC, workingdir, foldername):
         print("Code creation successfull")
 
 # When called via console, comment this line in to run the script   
-#convertToCode(SEMANTIC, os.getcwd(), "Code")    
+#convertToCode(SEMANTIC, os.getcwd(), "Code/src")    
