@@ -14,7 +14,7 @@ import pathlib
 # Enable fully automated addition of the Semantic Unit to the target software
 autoAdd = False
 # Enable debug output
-DEBUG = False
+DEBUG = True
 # Repo URL
 repoURL = "https://github.com/LPhD/EvoDiss.git" ###################################################
 # Relevant branches
@@ -111,7 +111,7 @@ def workflow():
 
     # Creates all files from the SU in Target, that did not exist there before
     print("Create completely new files in Target...")
-    createCompletelyNewFiles()    
+    createCompletelyNewFiles(newFiles)    
     
 # TODO
     
@@ -174,7 +174,20 @@ def createRepos():
  
 # Imports the "projectname" as Code Property Graph 
 def importProjectasCPG(projectname, internalPath):
-    # Import SU as CPG
+    #Check if the project contains code files, do not import it as CPG if not
+    if not os.listdir(projectname+"Code/src"):
+        print("There are no source files in "+projectname)
+        # Copy files from SU to Target if the SU contains only new files
+        if projectname == "TargetProjectSlice":
+            # Creates all files from the SU in Target, that did not exist there before
+            print("Create completely new files in Target...")
+            # Create new list as addition list is changed during function
+            newFileList = list(additionList.keys())
+            createCompletelyNewFiles(newFileList)
+            print(" # # # Automated transplantation finished sucessfull # # # ")
+        # Exit as we are finished
+        exit()
+
     print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ") 
     os.system("tar -cvzf "+projectname+" "+projectname+"Code") 
     os.system("jess-import "+projectname+"") 
@@ -210,7 +223,7 @@ def initializeAnalysis():
             removalList[line] = []   
             similarList[line] = [] 
             
-    if DEBUG: print("Target files: "+str(additionList))  
+    if DEBUG: print("Target files: "+str(additionList.keys()))  
     
     #Remove the list    
     os.remove("targetFiles.list")     
@@ -234,20 +247,18 @@ def initializeAnalysis():
        
 # Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
 def sortAndAnalyzeDiffContent():
+    global removalList,additionList,similarList,scenario1, newFiles
     # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged)
     listOfDefines = []
     # Bool for skipping the patch header
     skip = False
     # Bool for collecting new files
     newFile = False
-    global removalList,additionList,similarList,scenario1
-     
+         
     
     # Check if there are similar lines in the SU and the Target
     with codecs.open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding='utf-8', errors='ignore') as file:
-        for line in file:          
-            if DEBUG: print("Line: "+line)
-            
+        for line in file:                     
             # Skip the header
             if line.startswith("diff --git"):
                 skip = True
@@ -259,7 +270,7 @@ def sortAndAnalyzeDiffContent():
                 if newFile:
                     newFiles.append(fileName)
                     newFile = False
-                if DEBUG: print("Filename: "+fileName)
+                if DEBUG: print("Diff filename: "+fileName)
             # Filter for completely new files
             elif line.startswith("--- /dev/null"): 
                 newFile = True
@@ -284,8 +295,7 @@ def sortAndAnalyzeDiffContent():
                 elif (line.startswith("+") and not line.startswith("+++")):
                     # Remove the + at the beginning and the semantic enhancement 
                     line = re.sub(blockPattern, '', line.replace("+","",1))
-                    
-                    if DEBUG: print("Additional lines found: "+line)
+                    # Add the line to its list
                     additionList[fileName].append(line)
                                      
                     #Look for for non-function-like macros (identifier does not contain an opening bracket)
@@ -297,7 +307,6 @@ def sortAndAnalyzeDiffContent():
                     
                 # Look for removals (lines contained in Target but not in SU)   
                 elif (line.startswith("-") and not line.startswith("---")):   
-                    if DEBUG: print("Removed lines found: "+line)
                     # Add line to the list, remove the - at the beginning and the semantic enhancement
                     removalList[fileName].append(re.sub(blockPattern, '', line.replace("-","",1)))           
                                        
@@ -310,13 +319,15 @@ def sortAndAnalyzeDiffContent():
 
 # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
 # Otherwise (aside from defines) they cannot affect Target (as there are no uses from Target files to them)
-def createCompletelyNewFiles():
-    # newFiles are collected in sortAndAnalyzeDiffContent
-    global additionList, newFiles  
+def createCompletelyNewFiles(fileList):
+    global additionList 
+    
+    if DEBUG: print("List of completely new files: "+str(fileList))
+    
     # Go to Target directory
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
     # Iterate through all completely new files
-    for fileName in newFiles:
+    for fileName in fileList:
         #Create needed directories
         pathlib.Path(fileName.rpartition("/")[0]).mkdir(parents=True, exist_ok=True) 
         #Write file content of the new files to Target directory, remove the file content afterwards from the additionList
