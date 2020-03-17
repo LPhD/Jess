@@ -22,7 +22,7 @@ def getProjectPath (projectName):
     'PL_Current.tar.gz':'/C/src/',
     'PV_Current.tar.gz':'/C/src/',
     'sample':'/Example/',
-    'DonorProject':''} 
+    'DonorProject':'/DonorProjectCode/src/'} 
 
     #Assemble path 
     return projectNameAndPath[projectName]
@@ -70,13 +70,17 @@ def evaluateProject (projectName, workingdir, projectPath):
     pathToOriginalProject = basePath+projectPath    
 
     os.makedirs(foldername)
+    
     #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder preserving their folder structure
     #(necessary because git diff --no-index does not allow for filtering of filetypes
-    #os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp --parent '{}' "+foldername+"/ \;")
-    os.system("find "+pathToOriginalProject+" -iname '*.[c|h]' -exec cp  '{}' "+foldername+"/ \;")
+    os.chdir(pathToOriginalProject)    
+    os.system("find -iname '*.[c|h]' -exec cp --parent  '{}' "+workingdir+"/"+foldername+"/ \;")
+    
+    # Go back to the current dir
+    os.chdir(workingdir)
+    # Get changes
     os.system("git diff -w -b --ignore-blank-lines --no-index "+foldername+" "+codeFoldername+"/  > "+projectName+"EvaluationResult.txt")   
-     
-        
+            
     if (os.stat(projectName+"EvaluationResult.txt").st_size == 0):
         print("* * * Evaluation was successful, no differences found * * *")
     else:
@@ -84,6 +88,6 @@ def evaluateProject (projectName, workingdir, projectPath):
 
 
 # When called via console, fill these out and add your project path to getProjectPath function
-# = "EvoDiss.tar.gz"
+projectName = "DonorProject"
 #projectName = input("Please type in the name of the project")
-#evaluateProject(projectName, getProjectPath(projectName))
+evaluateProject(projectName, os.getcwd(), getProjectPath(projectName))
