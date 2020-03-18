@@ -124,11 +124,8 @@ public abstract class DirectoryTreeImporter {
 		File filename;
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
 				//Remove whitespaces and quotes from filename
-				filename = new File(includeNode.getAstNode().getEscapedCodeStr());
-				
-//				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s+", "");
-				
-//				filename = filename.substring(lastIndexOf("\\")+1);
+				filename = new File(includeNode.getAstNode().getEscapedCodeStr().replaceAll("\"|\\s+", ""));
+
 				
 				System.out.println("Looking at: "+filename.getName());
 				
