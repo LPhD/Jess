@@ -30,7 +30,6 @@ public class CParserWrapper {
 			System.err.println("Error walking source files: " + err.getMessage());
 		} finally {
 			parser.shutdown();
-			System.out.println("Shutdown");
 		}
 	}
 

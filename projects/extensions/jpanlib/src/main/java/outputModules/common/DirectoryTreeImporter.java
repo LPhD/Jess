@@ -117,22 +117,14 @@ public abstract class DirectoryTreeImporter {
 	 * include link. Then removes the includeNode from the list.
 	 */
 	public void matchIncludeToFile() {	
-		System.out.println("Match include analysis");
-		System.out.println("Files: "+IncludeAnalyzer.fileNodeList.toString());
-		System.out.println("Includes: "+IncludeAnalyzer.includeNodeList.toString());
-		
 		File filename;
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
 				//Remove whitespaces and quotes from filename
 				filename = new File(includeNode.getAstNode().getEscapedCodeStr().replaceAll("\"|\\s+", ""));
-
-				
-				System.out.println("Looking at: "+filename.getName());
 				
 				//Draw includes-connection if filename and included filename match
 				if(IncludeAnalyzer.fileNodeList.containsKey(filename.getName())) {
 					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename.getName()));
-					System.out.println("Draw link from: "+filename+" to: "+IncludeAnalyzer.fileNodeList.get(filename.getName()));
 				}	
 			}	
 	}
