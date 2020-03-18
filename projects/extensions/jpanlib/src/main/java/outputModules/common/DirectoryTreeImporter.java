@@ -32,11 +32,11 @@ public abstract class DirectoryTreeImporter {
 		//Connect files with included files
 		matchIncludeToFile();
 		//Clears list of include statements and files in this directory
-		IncludeAnalyzer.includeNodeList.clear();
-		IncludeAnalyzer.fileNodeList.clear();
+//		IncludeAnalyzer.includeNodeList.clear();
+//		IncludeAnalyzer.fileNodeList.clear();
 		//Clears list of header and c files in this directory
-		headerList.clear();
-		cFileList.clear();
+//		headerList.clear();
+//		cFileList.clear();
 		//Leave directory
 		directoryStack.pop();
 	}
@@ -117,15 +117,15 @@ public abstract class DirectoryTreeImporter {
 		System.out.println("Files: "+IncludeAnalyzer.fileNodeList.toString());
 		System.out.println("Includes: "+IncludeAnalyzer.includeNodeList.toString());
 		
-		String filename = "";
-			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
-				//Remove whitespaces and quotes from filename
-				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s+", "");
-				//Draw includes-connection if filename and included filename match
-				if(IncludeAnalyzer.fileNodeList.containsKey(filename)) {
-					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename));
-				}	
-			}	
+//		String filename = "";
+//			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
+//				//Remove whitespaces and quotes from filename
+//				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s+", "");
+//				//Draw includes-connection if filename and included filename match
+//				if(IncludeAnalyzer.fileNodeList.containsKey(filename)) {
+//					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename));
+//				}	
+//			}	
 	}
 	
 	protected abstract void linkWithParentDirectory(FileDatabaseNode node);
