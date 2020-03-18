@@ -23,7 +23,7 @@ generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = True
 ###################### Configuration options for entry point input ## ####################
-console = True
+console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = True
 ##########################################################################################
@@ -60,7 +60,7 @@ projectName = 'DonorProject'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {135328}
+entryPointIds = {184448}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -287,6 +287,14 @@ def analyzeNode (currentNode):
         semanticUnit.update(result) 
          # Print result
         if (DEBUG): print("Result define relation: "+str(result)+"\n")
+        
+    # Get the definition of the function in its c file (if existing) and the include statement
+    if (type[0] == "DeclStmt"):
+        result = set(getFunctionDefinCFile(currentNode))
+        # Add FunctionDef to the Semantic Unit and get related elements
+        analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result define relation: "+str(result)+"\n")        
     
     # Get definition of the element that contains the condition or parameter
     # We need this for identification of statements that are connected to a #define       
@@ -477,6 +485,34 @@ def getFunctionDeclInHeader (verticeId):
         return db.runGremlinQuery(query)    
     else:
         return ""
+
+# Return function def in the belonging C file (if existing) and the belonging include statement  ###############
+def getFunctionDefinCFile (verticeId):
+    # Get the name of function and header file
+    query = """g.V(%s).union(
+        __.out('DECLARES'),
+        __.in('IS_FILE_OF')
+    ).values('code')""" % (verticeId)
+    # 0 is function name, 1 is header file name
+    names = db.runGremlinQuery(query)
+  
+    if(len(names) > 1):
+        # Do this only for function declares that contain a '('
+        fName = names[0].rpartition("(")[0]  
+        if(len(fName) > 0):       
+            # Go to parent file
+            # Follow IS_HEADER_OF
+            # 1. Look in AST children for decl with same functionName  
+            # 2. Look in AST children for include of header file
+            query = """g.V(%s).in('IS_FILE_OF').out('IS_HEADER_OF').union(
+                __.out('IS_FILE_OF').has('type', 'Function').has('code', textContains('%s')).out('IS_FUNCTION_OF_AST'),
+                __.out('IS_FILE_OF').has('type', 'PreInclude').has('code', textContains('%s'))
+            ).id()""" % (verticeId, fName, names[1])        
+            
+        return db.runGremlinQuery(query)
+    else:
+        return ""
+
 
 # Return AST parent of a given node (can be empty)
 def getParent (verticeId):
