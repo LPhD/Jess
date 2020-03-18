@@ -26,23 +26,22 @@ public abstract class DirectoryTreeImporter {
 		directoryStack.push(node);
 	}
 
-	//Dirs are exited from leaf to root
+	//Dirs are exited from leaf to root (from lower to higher)
 	public void exitDir(Path dir) {
 		System.out.println("Current path: "+dir);
 		
-		//Only do the analysis if there are files to analyze
-		if (!IncludeAnalyzer.fileNodeList.isEmpty()){
+		//Just analyze once when the top dir is reached
+		if (dir.endsWith("/src")){
 			//Connect c files with its header files
 			matchHeaderToFile();
 			//Connect files with included files
 			matchIncludeToFile();
-			
-			//Clear the list to trigger the analysis just once
-			IncludeAnalyzer.fileNodeList.clear();
 		}
 		
 		//Leave directory
 		directoryStack.pop();
+		
+		System.out.println(directoryStack.toString());
 	}
 
 	public void enterFile(Path pathToFile) {
