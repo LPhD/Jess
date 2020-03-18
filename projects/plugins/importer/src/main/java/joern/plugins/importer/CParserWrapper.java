@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import fileWalker.OrderedWalker;
 import fileWalker.SourceFileWalker;
-import includeAnalysis.IncludeAnalyzer;
 import tools.parser.CParserCSVOutput;
 
 public class CParserWrapper {
@@ -35,9 +34,14 @@ public class CParserWrapper {
 			sourceFileWalker.walk(fileAndDirNames);
 			System.out.println("Walking end");
 			
-			System.out.println("Match include analysis 2");
-			System.out.println("Files: "+IncludeAnalyzer.fileNodeList.toString());
-			System.out.println("Includes: "+IncludeAnalyzer.includeNodeList.toString());
+//			System.out.println("Match include analysis 2");
+//			System.out.println("Files: "+IncludeAnalyzer.fileNodeList.toString());
+//			System.out.println("Includes: "+IncludeAnalyzer.includeNodeList.toString());
+//			
+
+			//Connect files with included files
+//			DirectoryTreeImporter.matchIncludeToFile();
+			
 			
 		} catch (IOException err) {
 			System.err.println("Error walking source files: " + err.getMessage());
