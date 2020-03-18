@@ -113,6 +113,10 @@ public abstract class DirectoryTreeImporter {
 	 * an "IS_HEADER_OF" link. Then removes both files from the list.
 	 */
 	public void matchIncludeToFile() {	
+		System.out.println("Match include analysis");
+		System.out.println("Files: "+IncludeAnalyzer.fileNodeList.toString());
+		System.out.println("Includes: "+IncludeAnalyzer.includeNodeList.toString());
+		
 		String filename = "";
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
 				//Remove whitespaces and quotes from filename
