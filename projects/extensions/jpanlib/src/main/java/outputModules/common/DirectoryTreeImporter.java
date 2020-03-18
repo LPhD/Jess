@@ -45,6 +45,7 @@ public abstract class DirectoryTreeImporter {
 		insertFileNode(pathToFile, node);
 		linkWithParentDirectory(node);
 		state.setCurrentFileNode(node);
+		
 		//Adds file to list of files for this directory
 		IncludeAnalyzer.fileNodeList.put(node.getFileName(), node);
 		
@@ -95,8 +96,6 @@ public abstract class DirectoryTreeImporter {
 	 * an "IS_HEADER_OF" link. Then removes both files from the list.
 	 */
 	public void matchHeaderToFile() {
-		System.out.println("Match header to file");
-		
 		//For each c file
 		cFileList.forEach((cKey,cValue) -> {
 			// If there exists a header with the same name
@@ -125,9 +124,13 @@ public abstract class DirectoryTreeImporter {
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
 				//Remove whitespaces and quotes from filename
 				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s+", "");
+				
+				System.out.println("Looking at: "+filename);
+				
 				//Draw includes-connection if filename and included filename match
 				if(IncludeAnalyzer.fileNodeList.containsKey(filename)) {
 					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename));
+					System.out.println("Draw link from: "+filename+" to: "+IncludeAnalyzer.fileNodeList.get(filename));
 				}	
 			}	
 	}
