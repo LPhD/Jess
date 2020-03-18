@@ -36,15 +36,9 @@ public abstract class DirectoryTreeImporter {
 			matchHeaderToFile();
 			//Connect files with included files
 			matchIncludeToFile();
-
-		
-			//Clears list of include statements and files in this directory
-			IncludeAnalyzer.includeNodeList.clear();
-			IncludeAnalyzer.fileNodeList.clear();
 			
-			//Clears list of header and c files in this directory
-			headerList.clear();
-			cFileList.clear();
+			//Clear the list to trigger the analysis just once
+			IncludeAnalyzer.fileNodeList.clear();
 		}
 		
 		//Leave directory
