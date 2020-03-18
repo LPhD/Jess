@@ -26,21 +26,26 @@ public abstract class DirectoryTreeImporter {
 		directoryStack.push(node);
 	}
 
+	//Dirs are exited from leaf to root
 	public void exitDir(Path dir) {
 		System.out.println("Current path: "+dir);
 		
-		//Connect c files with its header files
-		matchHeaderToFile();
-		//Connect files with included files
-		matchIncludeToFile();
+		//Only do the analysis if there are files to analyze
+		if (!IncludeAnalyzer.fileNodeList.isEmpty()){
+			//Connect c files with its header files
+			matchHeaderToFile();
+			//Connect files with included files
+			matchIncludeToFile();
+
 		
-		//Clears list of include statements and files in this directory
-		IncludeAnalyzer.includeNodeList.clear();
-		IncludeAnalyzer.fileNodeList.clear();
-		
-		//Clears list of header and c files in this directory
-		headerList.clear();
-		cFileList.clear();
+			//Clears list of include statements and files in this directory
+			IncludeAnalyzer.includeNodeList.clear();
+			IncludeAnalyzer.fileNodeList.clear();
+			
+			//Clears list of header and c files in this directory
+			headerList.clear();
+			cFileList.clear();
+		}
 		
 		//Leave directory
 		directoryStack.pop();
