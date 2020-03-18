@@ -1,5 +1,6 @@
 package outputModules.common;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Stack;
@@ -120,17 +121,21 @@ public abstract class DirectoryTreeImporter {
 		System.out.println("Files: "+IncludeAnalyzer.fileNodeList.toString());
 		System.out.println("Includes: "+IncludeAnalyzer.includeNodeList.toString());
 		
-		String filename = "";
+		File filename;
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
 				//Remove whitespaces and quotes from filename
-				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s+", "");
+				filename = new File(includeNode.getAstNode().getEscapedCodeStr());
 				
-				System.out.println("Looking at: "+filename);
+//				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s+", "");
+				
+//				filename = filename.substring(lastIndexOf("\\")+1);
+				
+				System.out.println("Looking at: "+filename.getName());
 				
 				//Draw includes-connection if filename and included filename match
-				if(IncludeAnalyzer.fileNodeList.containsKey(filename)) {
-					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename));
-					System.out.println("Draw link from: "+filename+" to: "+IncludeAnalyzer.fileNodeList.get(filename));
+				if(IncludeAnalyzer.fileNodeList.containsKey(filename.getName())) {
+					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename.getName()));
+					System.out.println("Draw link from: "+filename+" to: "+IncludeAnalyzer.fileNodeList.get(filename.getName()));
 				}	
 			}	
 	}
