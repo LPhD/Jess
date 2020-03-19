@@ -35,6 +35,8 @@ removalList = {}
 similarList = {}
 # List for all files that exist in the SU but not in Target
 newFiles = []
+# Dict for all function names that already exist in Target and are not changed by SU
+unchangedFunctionNames = {}
 # List for the file content of the patch
 patch = []
 # Regex pattern: Starts with +,-,@ or lines containing only whitespaces 
@@ -101,9 +103,8 @@ def workflow():
       
     ## Sc 1: Diff SU vs target
     print(" ### Check scenario 1 ### ")
-    #Diff SU and Target (both with semantically enhanced code). Ignore whitespace, tab or blank line changes. Use the histogram algorithm, as it is better at finding moved functions. The "patience" algorithm is an alternative, ToDO: check which one behaves better.
-    os.chdir(topLvlDir+"/"+resultFoldername)
-    os.system("git diff -w -b --ignore-blank-lines --no-index --histogram TargetProjectSliceCode/ SUCode/ > S1Diff.txt")    
+    #Diff SU and Target (both with semantically enhanced code).   
+    getDiffs()
 
     # Saves the different changes into their respective dictionary
     print(" ### Analyzing diff... ### ")
@@ -244,7 +245,31 @@ def initializeAnalysis():
     
     #Export target to code with semantic enhancement
     convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) ############################################################################################################
-       
+
+
+#Create relatable diffs for SU and Target using grep
+def getDiffs():    
+    os.chdir(topLvlDir+"/"+resultFoldername)
+    # Make folders for diff results
+    if os.path.exists("DiffResults/"):
+        shutil.rmtree("DiffResults/")
+    os.makedirs("DiffResults/")
+    os.makedirs("DiffResults/Similarities")
+    os.makedirs("DiffResults/Additions")
+    #Do we need that?
+    os.makedirs("DiffResults/Removals")
+    
+    #Find similar lines for each file-pair of SU and Target
+    for filename in additionList.keys():
+        # -F disables regex (see input as string only), -x matches complete lines, -f compares files. Here we get all similar lines among SU and Target
+        os.system("grep -F -x -f TargetProjectSliceCode/src/"+filename+" SUCode/src/"+filename+" > DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt")   
+
+#ToDo This seems not to work so well        
+        # -v finds all different lines (seems not to work with -F). We now look for all lines that are only contained in SU (and therefore not in the similarities diff)
+        os.system("grep -v -x -f DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt SUCode/src/"+filename+" > DiffResults/Additions/"+filename.replace("/","")+"Diff.txt")       
+        # Finally we now look for all lines that are only contained in Target (and therefore not in the similarities diff)
+        os.system("grep -v -x -f DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt TargetProjectSliceCode/src/"+filename+" > DiffResults/Removals/"+filename.replace("/","")+"Diff.txt")         
+
        
 # Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
 def sortAndAnalyzeDiffContent():
@@ -300,6 +325,8 @@ def sortAndAnalyzeDiffContent():
                                 #Do nothing? We do not need to add the block, as it is already contained in Target.
                                 #It can savely stay there
                                 #But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
+                                #Add a key for the file, so that we can look in the respective header file
+                                unchangedFunctionNames[file.replace(".c", ".h", 1)].append(line)
                                                       
                             # Reset collectors
                             currentSimilarBlock = []
@@ -372,6 +399,9 @@ def sortAndAnalyzeDiffContent():
             # Stop skipping, as header ends here (has no effect if the @@ occurs inside the diff)    
             if line.startswith( "@@"):
                 skip = False   
+                
+    # Check header files for declarations of functions contained in Target and SU
+    print("Unchanged functions: "+str(unchangedFunctionNames))
 
 
 
@@ -494,6 +524,10 @@ workflow()
 #os.system("git diff --name-only --staged  > "+topLvlDir+"/"+resultFoldername+"/NameDiff.txt")
 # Get all affected files from the patch
 #targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/NameDiff.txt", targetFiles) 
+
+#Diff SU and Target (both with semantically enhanced code). Ignore whitespace, tab or blank line changes. Use the histogram algorithm, as it is better at finding moved functions. The "patience" algorithm is an alternative, ToDO: check which one behaves better.
+#os.system("git diff -w -b --ignore-blank-lines --no-index --histogram TargetProjectSliceCode/ SUCode/ > S1Diff.txt")    
+#os.system("git diff -w -b --ignore-blank-lines --no-index --patience TargetProjectSliceCode/ SUCode/ > S1Diff.txt")  
  
 #os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
  
