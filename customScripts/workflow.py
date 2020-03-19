@@ -29,7 +29,7 @@ topLvlDir = os.getcwd()
 resultFoldername = "Results"
 # Dictionary for all additions (content of the donor file)
 additionList = {}
-# Dictionary for all removals (content of the target file)
+# Dictionary for all removals (content of the target file). We also add similar lines that can savely remain in the target (like whole method blocks)
 removalList = {}
 # Dictionary for all similar lines between donor and target file
 similarList = {}
@@ -73,7 +73,7 @@ def workflow():
                 
         # Imports the Donor as Code Property Graph and validates the result
         os.chdir(topLvlDir+"/"+resultFoldername)
-        importProjectasCPG("DonorProject", "/DonorProjectCode/src")
+        #importProjectasCPG("DonorProject", "/DonorProjectCode/src") ########################################  
     else:
         #Reset Target Repo (remove unversioned files)
         print("Reset Target directory")
@@ -109,7 +109,8 @@ def workflow():
     print(" ### Analyzing diff... ### ")
     sortAndAnalyzeDiffContent()   
 
-    # Creates all files from the SU in Target, that did not exist there before
+    # Creates all files from the SU in Target, that did not exist there before. 
+    #The additionlists contains afterwards only the changed files of Target, as the completely new files were removed during the process.
     print("Create completely new files in Target...")
     createCompletelyNewFiles(newFiles)    
     
@@ -134,7 +135,7 @@ def workflow():
         print(similarList)
         print(" ### Check scenario 2 ### ")
 
-    # Create the final files 
+    # Create the final files (this is here for testing purposes, currently it just adds everything from the additionList to Target)
     for fileName in additionList.keys():
         assembleFiles(fileName) 
        
@@ -250,6 +251,10 @@ def sortAndAnalyzeDiffContent():
     global removalList,additionList,similarList,scenario1, newFiles
     # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged)
     listOfDefines = []
+    # Collect lines of a block contained (at least partially) in Target and SU 
+    currentSimilarBlock = []
+    # Are there changes inside blocks?
+    inBlockChange = False
     # Bool for skipping the patch header
     skip = False
     # Bool for collecting new files
@@ -276,42 +281,95 @@ def sortAndAnalyzeDiffContent():
                 newFile = True
             
             if not skip: 
+           
                 # Look for similar lines and ignore elements from the ignore pattern
                 if not (re.match(changePattern, line) or line.startswith("\\ No newline at")):
-                    if DEBUG: print("Duplicate lines found: "+line)
-                    
-                    #Some lines may be found as equal, but do not have a functional effect (brackets, #endif, etc)
-                    #Here we filter out missclassified block-enders (and add them to the addition list where they belong)
-#ToDo: Do we need a stack to match openers and enders?
-                    if re.match(ignorePattern, line):
-                        additionList[fileName].append(line)
-                        print("Found missclassified duplicate line: "+line+" in file: "+fileName)
+                                       
+                    #Analyse whole blocks, not individual lines
+                    if line.startswith(" ###"):
+                        if DEBUG: print("Duplicate in-block lines found: "+line)
+                        currentSimilarBlock.append(line)
+                        if "###BlockEnder" in line:
+                            print("Block ends here")
+                            # Are there changes inside the block or are they completely similar?
+                            if inBlockChange:
+                                #ToDO
+                                print("Warning: In-block change(s) found!")
+                                print(currentSimilarBlock)
+                            else:
+                                #Do nothing? We do not need to add the block, as it is already contained in Target.
+                                #It can savely stay there
+                                #But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
+                                                      
+                            # Reset collectors
+                            currentSimilarBlock = []
+                            inBlockChange = False
+                            
                     else:
-                        similarList[fileName].append(line)
-                        scenario1 = False                 
+                        if DEBUG: print("Duplicate lines found: "+line)
+                        #Some lines may be found as equal, but do not have a functional effect (brackets, #endif, etc)
+                        #Here we filter out missclassified block-enders (and add them to the addition list where they belong)
+#ToDo: Do we need a stack to match openers and enders?
+                        if re.match(ignorePattern, line):
+                            additionList[fileName].append(line)
+                            print("Found missclassified duplicate line: "+line+" in file: "+fileName)
+                        else:
+                            similarList[fileName].append(line)
+                            scenario1 = False                 
                     
                     
                 # Look for additions (lines contained in SU but not in Target)    
                 elif (line.startswith("+") and not line.startswith("+++")):
-                    # Remove the + at the beginning and the semantic enhancement 
-                    line = re.sub(blockPattern, '', line.replace("+","",1))
-                    # Add the line to its list
-                    additionList[fileName].append(line)
-                                     
-                    #Look for for non-function-like macros (identifier does not contain an opening bracket)
-                    if re.match("^\s*\#define [^(]+ ", line):
-                        print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
-                        #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
-                        listOfDefines.append(line)
+                
+                    #Analyse whole blocks, not individual lines
+                    if line.startswith("+###") and len(currentSimilarBlock) > 0:
+                        if DEBUG: print("Warning: In-block change found: "+line)
+                        inBlockChange = True
+                        currentSimilarBlock.append(line)
+                        # We know that his block contains changes, so we do not need to check again
+                        if "+###BlockEnder" in line:
+                            #ToDO
+                            print("Warning: In-block change(s) found!")
+                            print(currentSimilarBlock)
+                            
+                            # Reset collectors
+                            currentSimilarBlock = []
+                            inBlockChange = False
+                    else:              
+                        # Remove the + at the beginning and the semantic enhancement 
+                        line = re.sub(blockPattern, '', line.replace("+","",1))
+                        # Add the line to its list
+                        additionList[fileName].append(line)
+                                         
+                        #Look for for non-function-like macros (identifier does not contain an opening bracket)
+                        if re.match("^\s*\#define [^(]+ ", line):
+                            print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
+                            #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
+                            listOfDefines.append(line)
 
                     
                 # Look for removals (lines contained in Target but not in SU)   
-                elif (line.startswith("-") and not line.startswith("---")):   
-                    # Add line to the list, remove the - at the beginning and the semantic enhancement
-                    removalList[fileName].append(re.sub(blockPattern, '', line.replace("-","",1)))           
+                elif (line.startswith("-") and not line.startswith("---")):  
+                
+                    #Analyse whole blocks, not individual lines
+                    if line.startswith("-###") and len(currentSimilarBlock) > 0:
+                        if DEBUG: print("Warning: In-block change found: "+line)
+                        inBlockChange = True
+                        currentSimilarBlock.append(line)
+                        if "-###BlockEnder" in line:
+                            #ToDO
+                            print("Warning: In-block change(s) found!")
+                            print(currentSimilarBlock)
+                            
+                            # Reset collectors
+                            currentSimilarBlock = []
+                            inBlockChange = False
+                    else:        
+                        # Add line to the list, remove the - at the beginning and the semantic enhancement
+                        removalList[fileName].append(re.sub(blockPattern, '', line.replace("-","",1)))           
                                        
  
-            # Stop skipping, as header ends here    
+            # Stop skipping, as header ends here (has no effect if the @@ occurs inside the diff)    
             if line.startswith( "@@"):
                 skip = False   
 
@@ -378,12 +436,19 @@ def assembleFiles(filePath):
     lasNewline = False
     found = False
     start = True    
-        
+     
+
+#TODO instead read in each file? currently we are missing similar lines. Then we just have to watch removals (inside blocks) and do not have to collect them?    
     # Add target content (because similar lines stay in target and can be used by the SU, which therefore has to come after)
-    fileContent += removalList[filePath]  
+    with codecs.open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'r', encoding='utf-8', errors='ignore') as targetFile:
+        fileContent += targetFile.read()
+    #fileContent += removalList[filePath]  
     
+    fileContent.append("\n") 
     fileContent.append("/* * * This is the beginning of the automatically transplanted code * * */") 
     fileContent.append("\n")  
+    
+#TODO add variability implementation here    
     
     # Write SU content to variable, without double newlines
     for line in additionList[filePath]:
@@ -397,6 +462,8 @@ def assembleFiles(filePath):
                
             # Add the file content   
             fileContent.append(line)
+                
+#TODO add variability implementation here  
                 
     # Always end with newlines and a comment           
     fileContent.append("\n")  
