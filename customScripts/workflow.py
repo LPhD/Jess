@@ -87,11 +87,11 @@ def workflow():
     print(" ### Start of Semantic Unit identification process ### ")
     print(" ### Please select 'DonorProject' as input project ### ")
     os.chdir(topLvlDir)
-    import SUI ####################################################################################    
+    #import SUI ####################################################################################    
 
     print(" ### Convert SU back to source code ### ")
     # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
-    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src") ####################################################################################    
+    #convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src") ####################################################################################    
 
     # # # Scenario analysis # # #
     print(" ### Starting analysis... ### ")
@@ -208,9 +208,9 @@ def initializeAnalysis():
     
     # Delete old results
     os.chdir(topLvlDir+"/"+resultFoldername)
-    if os.path.exists(affectedTargetCodeFolder): #######################################################################################################################################
-        shutil.rmtree(affectedTargetCodeFolder)
-    os.makedirs(affectedTargetCodeFolder)
+    #if os.path.exists(affectedTargetCodeFolder): #######################################################################################################################################
+        #shutil.rmtree(affectedTargetCodeFolder)
+    #os.makedirs(affectedTargetCodeFolder)
     
     #Get filenames from SUCode
     os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
@@ -233,42 +233,67 @@ def initializeAnalysis():
     #Copy only affected files from TargetCode to affectedTargetCodeFolder (prints an error if there are files in the SU that are not in the Target, this is ok)
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
     print("Copy differing files from Target. File not found messages mean, the file exits in the SU but not in Target. This is ok")
-    for filename in list(additionList.keys()):
-        os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder) #######################################################################################################################################
+    #for filename in list(additionList.keys()):
+        #os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder) #######################################################################################################################################
     
     os.chdir(topLvlDir+"/"+resultFoldername)
     #Import Target as CPG 
-    importProjectasCPG("TargetProjectSlice", "/"+affectedTargetCodeFolder) #######################################################################################################################################
+    #importProjectasCPG("TargetProjectSlice", "/"+affectedTargetCodeFolder) #######################################################################################################################################
     
     #Remove old code results (replace the affected Target files with their semantic enhanced version)
-    shutil.rmtree(affectedTargetCodeFolder) #######################################################################################################################################
+    #shutil.rmtree(affectedTargetCodeFolder) #######################################################################################################################################
     
     #Export target to code with semantic enhancement
-    convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) ############################################################################################################
+    #convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) ############################################################################################################
 
 
 #Create relatable diffs for SU and Target using grep
 def getDiffs():    
+    similaritiesPath="DiffResults/Similarities/"
+    targetExclusivePath= "DiffResults/TargetExclusive/"
+    SUExclusivePath= "DiffResults/SUExclusive/"
+    
     os.chdir(topLvlDir+"/"+resultFoldername)
     # Make folders for diff results
     if os.path.exists("DiffResults/"):
         shutil.rmtree("DiffResults/")
     os.makedirs("DiffResults/")
-    os.makedirs("DiffResults/Similarities")
-    os.makedirs("DiffResults/Additions")
+    os.makedirs(similaritiesPath)
+    os.makedirs(SUExclusivePath)
     #Do we need that?
-    os.makedirs("DiffResults/Removals")
+    os.makedirs(targetExclusivePath)
     
     #Find similar lines for each file-pair of SU and Target
     for filename in additionList.keys():
+        diffFileName = filename.replace("/","")+"Diff.txt"
+        # Filename for the collected similarities
+        diffFileNameSimilarities = similaritiesPath+diffFileName
+    
         # -F disables regex (see input as string only), -x matches complete lines, -f compares files. Here we get all similar lines among SU and Target
-        os.system("grep -F -x -f TargetProjectSliceCode/src/"+filename+" SUCode/src/"+filename+" > DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt")   
+# ToDo think about implementing this? We iterate over the file currently twice (here and later)       
+        os.system("grep -Fxf TargetProjectSliceCode/src/"+filename+" SUCode/src/"+filename+" > "+diffFileNameSimilarities)  
+
+        #Open Target and the similarities for a file pair
+        with codecs.open(diffFileNameSimilarities, 'r', encoding='utf-8', errors='ignore') as similarFile:
+            with codecs.open("TargetProjectSliceCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as targetFile:
+                targetFileContent = targetFile.readlines()
+                similarFileContent = similarFile.readlines()
+                
+                #Remove each similar line from target (to get only the lines that are exclusively in target)
+                for line in similarFileContent:
+                    if line in targetFileContent:
+                        print(line+" is in Target and SU")
+                        targetFileContent.remove(line)
+                        
+        with codecs.open(targetExclusivePath+diffFileName, 'w', encoding='utf-8', errors='ignore') as targetExclusiveFile:
+            for line in targetFileContent:
+                targetExclusiveFile.write(line)                    
 
 #ToDo This seems not to work so well        
         # -v finds all different lines (seems not to work with -F). We now look for all lines that are only contained in SU (and therefore not in the similarities diff)
-        os.system("grep -v -x -f DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt SUCode/src/"+filename+" > DiffResults/Additions/"+filename.replace("/","")+"Diff.txt")       
+        #os.system("grep -vxFf DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt SUCode/src/"+filename+" > "+diffFileName)       
         # Finally we now look for all lines that are only contained in Target (and therefore not in the similarities diff)
-        os.system("grep -v -x -f DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt TargetProjectSliceCode/src/"+filename+" > DiffResults/Removals/"+filename.replace("/","")+"Diff.txt")         
+        #os.system("grep -vxFf DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt TargetProjectSliceCode/src/"+filename+" > "+diffFileName)         
 
        
 # Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
@@ -541,6 +566,12 @@ workflow()
 #os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/patch.patch")
 #os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
 #os.system("git apply "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")   
+
+#ToDo This seems not to work so well        
+        # -v finds all different lines (seems not to work with -F). We now look for all lines that are only contained in SU (and therefore not in the similarities diff)
+        #os.system("grep -vxFf DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt SUCode/src/"+filename+" > "+diffFileName)       
+        # Finally we now look for all lines that are only contained in Target (and therefore not in the similarities diff)
+        #os.system("grep -vxFf DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt TargetProjectSliceCode/src/"+filename+" > "+diffFileName) 
 
 # Regex pattern: Starts with +,-,@ or "diff --git" or "index" followed by a number or lines containing only whitespaces or lines containing only whitespaces and brackets
 #p = re.compile("(^[+-@])|(^diff --git)|(^index \d)|(^deleted file mode \d)|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)")
