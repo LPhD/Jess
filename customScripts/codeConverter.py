@@ -31,7 +31,7 @@ def initialize():
     return [db, idList]
 
 
-def importData(db, idList, SEMANTIC):
+def importData(db, idList, SEMANTIC):                     
     # List that contains the code, filename, and linenumber of each statement of the SemanticUnit
     structuredCodeList = []
     # List to slice the idList in manageable chunks
@@ -54,9 +54,13 @@ def importData(db, idList, SEMANTIC):
 
         for r in result:  
             # Just add the statements to the results which contain all necessary information
-            if (('path' in r) and ('line' in r) and ('cLine' in r) and ('code' in r) and ('type' in r)):                
+            if (('path' in r) and ('line' in r) and ('cLine' in r) and ('code' in r) and ('type' in r)):   
+            
                 # Append internal path(0) (structure inside project), linenumber (1), cline(2), code(3) (if exists) and type(4) to the list
                 if len(r) > 4:
+                
+
+        
                     # Get the internal structure by splitting after the last src
                     internalPath = r['path'][0].rsplit("/src/",1)[1]
                     # Assemble the list
@@ -64,16 +68,21 @@ def importData(db, idList, SEMANTIC):
          
         # # # Semantic Diff # # #
         if SEMANTIC:    
-            enhanceWithSemantic(db,structuredCodeList, chunk)
+            enhanceWithSemanticForFunctionBlocks(db,structuredCodeList, chunk)
         # # # Semantic Diff End # # #
     
     # Sort the list content by file, by line and then by cLine
     structuredCodeList = sorted(structuredCodeList, key=itemgetter(0,1,2))
     
+    # # # Semantic Diff # # #
+    if SEMANTIC:
+        enhanceWithSemanticForIfDefBlocks(structuredCodeList)
+    # # # Semantic Diff End # # #    
+    
     return structuredCodeList
 
 # Writes #BlockEnder# after the end of a function
-def enhanceWithSemantic(db, structuredCodeList, chunk):
+def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk):
     # Get block enders (FunctionDef etc) for semantic diff
     query = """idListToNodes(%s)
         .has('type', 'FunctionDef').out(AST_EDGE)
@@ -84,11 +93,39 @@ def enhanceWithSemantic(db, structuredCodeList, chunk):
     # Execute equery
     result = db.runGremlinQuery(query)
     
-    # Add results to the code liste
+    # Add results to the code list
     for r in result:
         if len(r) > 1:
             structuredCodeList.append([r['path'][0].rsplit("/src/",1)[1], int(((r['line'])[0])), 0, " ###BlockEnder### ", "BlockEnder"])
-    #We do not need to return the list here, as it is a mutable object        
+    #We do not need to return the list here, as it is a mutable object   
+
+
+# Add prefixes to all elements of an ifdef block (to make them more unique). This needs the ordered list (as we stay inside a file)
+def enhanceWithSemanticForIfDefBlocks(structuredCodeList):
+    # Collects the blockstarters     
+    ifStack = []
+    
+    for line in structuredCodeList:    
+        # Compare type
+        if line[4] == "PreIfStatement":
+            # Add code of the starting pre if to the stack (and replace any line breaks that could cause problems otherwise)
+            ifStack.append(line[3].replace("\n",""))
+            #Add prefix #*# PreIfBlock #*#
+            line[3] = "#*#PreIfBlock #*# "+line[3]
+            
+        elif line[4] == "PreElIfStatement" and len(ifStack) > 0:    
+            #Add #*# PreIfBlock if code #*# before the elif
+            line[3] = "#*#PreIfBlock "+ifStack[-1]+" #*# "+line[3]
+            
+        elif line[4] == "PreElseStatement" and len(ifStack) > 0:      
+            #Add #*# PreIfBlock if code #*# before the else
+            line[3] = "#*#PreIfBlock "+ifStack[-1]+" #*# "+line[3]
+            
+        elif line[4] == "PreEndIfStatement" and len(ifStack) > 0:      
+            #Add #*# PreIfBlock if code #*# before the endif end removes the blockstarter from the stack
+            line[3] = "#*#PreIfBlock "+ifStack.pop()+" #*# "+line[3]
+            
+#ToDo check if we change file but have still items on the stack    
 
 
 def writeOutput(structuredCodeList, SEMANTIC, foldername):  
