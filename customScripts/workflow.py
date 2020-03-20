@@ -104,14 +104,10 @@ def workflow():
     # Set list of changed targetFiles 
     initializeAnalysis()     
       
-    ## Sc 1: Diff SU vs target
+    ## Sc 1: Diff SU vs target 
     print(" ### Check scenario 1 ### ")
-    #Diff SU and Target (both with semantically enhanced code).   
+    #Diff SU and Target (both with semantically enhanced code). Saves the different changes into their respective dictionary.
     getDiffs()
-
-    # Saves the different changes into their respective dictionary
-    print(" ### Analyzing diff... ### ")
-    sortAndAnalyzeDiffContent()   
 
     # Creates all files from the SU in Target, that did not exist there before. 
     #The additionlists contains afterwards only the changed files of Target, as the completely new files were removed during the process.
@@ -238,9 +234,9 @@ def initializeAnalysis():
     if DEBUG: print("Files exclusive to the SU: "+str(newFiles))  
     
 
-    #Copy only affected files from TargetCode to affectedTargetCodeFolder (prints an error if there are files in the SU that are not in the Target, this is ok)
+    #Copy only affected files from TargetCode to affectedTargetCodeFolder 
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
-    print("Copy differing files from Target. File not found messages mean, the file exits in the SU but not in Target. This is ok")
+    print("Copy differing files from Target")
     #for filename in list(additionList.keys()):
         #os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder) #######################################################################################################################################
     
@@ -256,7 +252,12 @@ def initializeAnalysis():
 
 
 #Create relatable diffs for SU and Target using grep
-def getDiffs():              
+def getDiffs():       
+    # Collect lines of a block contained (at least partially) in Target and SU 
+    currentSimilarBlock = []    
+    # Are there changes inside blocks?
+    inBlockChange = False
+    
     os.chdir(topLvlDir+"/"+resultFoldername)
     # Make folders for diff results
     if os.path.exists(diffFoldername):
@@ -267,7 +268,7 @@ def getDiffs():
     for filename in additionList.keys():
         diffFileName = filename.replace("/",".")+"Diff.txt"
        
-        #Open Target and SU file pair
+        #Open Target and SU file pair (do this nested, as otherwise the readeability of one line is bad)
         with codecs.open("SUCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as SUFile:
             with codecs.open("TargetProjectSliceCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as targetFile:
                 with codecs.open(diffFoldername+diffFileName, 'w', encoding='utf-8', errors='ignore') as diffFile:
@@ -277,26 +278,26 @@ def getDiffs():
                     
                     #Compare each line of SU with each line of Target (and remove matched lines from targetFileContent afterwards, to reduce matching effort)
                     for line in SUFileContent:
-                    
-                        # line is in Target and SU
-                        if line in targetFileContent:
-                            diffFile.write(" "+line)
-#ToDo we could add analysis here             
-                            analyzeSimilarities() 
+                                                
+                        # line is in Target and SU (ignore empty lines)
+                        if not line.startswith("\n") and line in targetFileContent:
+                            diffFile.write(" "+line)        
+                            # Do we have to return the boolean to change it?
+                            inBlockChange = analyzeSimilarities(line, filename, currentSimilarBlock, inBlockChange) 
                                                                                                                                          
                             #Remove line from target to reduce effort and get the Target exclusive files
                             targetFileContent.remove(line)
                             
                         # line is in SU but not in Target
-                        else:
+                        elif not line.startswith("\n"):
                             diffFile.write("+"+line)
-                            analyzeAdditions()
+                            inBlockChange = analyzeAdditions(line, filename, currentSimilarBlock, inBlockChange)
                      
 # TODO do we need that? 
-                    #Write the remaining lines of Target (Target exclusive lines)        
-                    for line in targetFileContent:    
-                        diffFile.write("-"+line)
-                        analyzeRemovals()      
+   #                 #Write the remaining lines of Target (Target exclusive lines)        
+  #                  for line in targetFileContent:    
+   #                     diffFile.write("-"+line)
+    #                    analyzeRemovals(line, currentSimilarBlock, inBlockChange)      
                               
         # Check header files for declarations of functions contained in Target and SU
         print("Unchanged functions: "+str(unchangedFunctionNames))
@@ -304,17 +305,18 @@ def getDiffs():
         
 
 # Analyses the code exclusive to the SU
-def analyzeAdditions():
+def analyzeAdditions(line, fileName, currentSimilarBlock, inBlockChange):
+    global additionList, unchangedFunctionNames, scenario1
     # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged, then we need to change this variable to global)
     listOfDefines = []
     
     #Analyse whole blocks, not individual lines
-    if line.startswith("+###") and len(currentSimilarBlock) > 0:
+    if line.startswith("###") and len(currentSimilarBlock) > 0:
         if DEBUG: print("Warning: In-block change found: "+line)
         inBlockChange = True
         currentSimilarBlock.append(line)
         # We know that his block contains changes, so we do not need to check again
-        if "+###BlockEnder" in line:
+        if "###BlockEnder" in line:
             #ToDO
             print("Warning: In-block change(s) found!")
             print(currentSimilarBlock)
@@ -323,8 +325,8 @@ def analyzeAdditions():
             currentSimilarBlock = []
             inBlockChange = False
     else:              
-        # Remove the + at the beginning and the semantic enhancement 
-        line = re.sub(blockPattern, '', line.replace("+","",1))
+        # Remove the the semantic enhancement 
+        line = re.sub(blockPattern, '', line)
         # Add the line to its list
         additionList[fileName].append(line)
                          
@@ -333,17 +335,18 @@ def analyzeAdditions():
             print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
             #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
             listOfDefines.append(line)
-
+            
+    return inBlockChange
 
 
 # Analyses the code exclusive to the Target
-def analyzeRemovals():
+def analyzeRemovals(line, currentSimilarBlock, inBlockChange):
     #Analyse whole blocks, not individual lines
-    if line.startswith("-###") and len(currentSimilarBlock) > 0:
+    if line.startswith("###") and len(currentSimilarBlock) > 0:
         if DEBUG: print("Warning: In-block change found: "+line)
         inBlockChange = True
         currentSimilarBlock.append(line)
-        if "-###BlockEnder" in line:
+        if "###BlockEnder" in line:
             #ToDO
             print("Warning: In-block change(s) found!")
             print(currentSimilarBlock)
@@ -352,15 +355,18 @@ def analyzeRemovals():
             currentSimilarBlock = []
             inBlockChange = False
     else:        
-        # Add line to the list, remove the - at the beginning and the semantic enhancement
-        removalList[fileName].append(re.sub(blockPattern, '', line.replace("-","",1)))      
-                        
+        # Add line to the list, remove the  the semantic enhancement
+        removalList[fileName].append(re.sub(blockPattern, '', line))      
+
+    return inBlockChange                        
                         
                         
 # Analyses the code contained in SU and Target
-def analyzeSimilarities():
-#Analyse whole blocks, not individual lines
-    if line.startswith(" ###"):
+def analyzeSimilarities(line, fileName, currentSimilarBlock, inBlockChange):
+    global similarList, additionList, unchangedFunctionNames, scenario1
+ 
+    #Analyse whole blocks, not individual lines
+    if line.startswith("###"):
         if DEBUG: print("Duplicate in-block lines found: "+line)
         currentSimilarBlock.append(line)
         if "###BlockEnder" in line:
@@ -375,7 +381,15 @@ def analyzeSimilarities():
                 #It can savely stay there
                 #But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
                 #Add a key for the file, so that we can look in the respective header file
-                unchangedFunctionNames[file.replace(".c", ".h", 1)].append(line)
+                headerFilename = fileName.replace(".c", ".h", 1)
+                
+                # Check if we have a key for the headerfile
+                if headerFilename in unchangedFunctionNames:
+                    #Append entry for existing key
+                    unchangedFunctionNames[headerFilename].append(line)
+                else:
+                    #Make new entry if none exists for this file
+                    unchangedFunctionNames[headerFilename] = [line]
                                       
             # Reset collectors
             currentSimilarBlock = []
@@ -393,25 +407,7 @@ def analyzeSimilarities():
             similarList[fileName].append(line)
             scenario1 = False  
   
-
-  
-# Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
-def sortAndAnalyzeDiffContent():
-    global removalList,additionList,similarList,scenario1
-
-    
-    # Collect lines of a block contained (at least partially) in Target and SU 
-    currentSimilarBlock = []
-    
-    # Are there changes inside blocks?
-    inBlockChange = False
-
-    
-
-
-     
-                                       
-
+    return inBlockChange
 
 
 # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
