@@ -8,6 +8,7 @@ import shutil
 import re
 import codecs
 import pathlib
+import glob
 
 
 #### Configuration ####
@@ -27,6 +28,8 @@ originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" ####################
 topLvlDir = os.getcwd()
 # Add folder to work with
 resultFoldername = "Results"
+# Add folder for diffs
+diffFoldername = "DiffResults/"
 # Dictionary for all additions (content of the donor file)
 additionList = {}
 # Dictionary for all removals (content of the target file). We also add similar lines that can savely remain in the target (like whole method blocks)
@@ -176,7 +179,7 @@ def createRepos():
  
 # Imports the "projectname" as Code Property Graph 
 def importProjectasCPG(projectname, internalPath):
-    #Check if the project contains code files, do not import it as CPG if not
+    #Check if the project contains code files, do not import it as CPG if so
     if not os.listdir(projectname+"Code/src"):
         print("There are no source files in "+projectname)
         # Copy files from SU to Target if the SU contains only new files
@@ -203,7 +206,7 @@ def importProjectasCPG(projectname, internalPath):
 
 # Setup for the analysis (copy files to the right place to get list of changed files)
 def initializeAnalysis():
-    global additionList, removalList, similarList  
+    global additionList, removalList, similarList, newFiles 
     affectedTargetCodeFolder = "TargetProjectSliceCode/src"
     
     # Delete old results
@@ -211,25 +214,30 @@ def initializeAnalysis():
     #if os.path.exists(affectedTargetCodeFolder): #######################################################################################################################################
         #shutil.rmtree(affectedTargetCodeFolder)
     #os.makedirs(affectedTargetCodeFolder)
-    
-    #Get filenames from SUCode
-    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
-    os.system("find -iname '*.[c|h]' > targetFiles.list")
 
-    # Initialize keys in the dictionaries
-    with open ("targetFiles.list") as targetFiles:
-        for line in targetFiles:
-            #Skip the first two chars (./) and the last one (linebreak)
-            line = line[+2:-1]
+#TODO check if this really works recursively    
+    #Get filenames from Target    
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    targetFiles = glob.glob('*.[c|h]', recursive=True)
+    #Get filenames from SUCode 
+    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
+    SUFiles = glob.glob('*.[c|h]', recursive=True)
+    
+
+    for line in SUFiles:
+        #Collect all files that can be affected by a merge
+        if line in targetFiles:
             additionList[line] = []    
             removalList[line] = []   
             similarList[line] = [] 
+        #Collect files exclusive to the SU    
+        else:
+            newFiles.append(line)
             
-    if DEBUG: print("Target files: "+str(additionList.keys()))  
+    if DEBUG: print("Affected files: "+str(additionList.keys()))  
+    if DEBUG: print("Files exclusive to the SU: "+str(newFiles))  
     
-    #Remove the list    
-    os.remove("targetFiles.list")     
-            
+
     #Copy only affected files from TargetCode to affectedTargetCodeFolder (prints an error if there are files in the SU that are not in the Target, this is ok)
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
     print("Copy differing files from Target. File not found messages mean, the file exits in the SU but not in Target. This is ok")
@@ -248,185 +256,161 @@ def initializeAnalysis():
 
 
 #Create relatable diffs for SU and Target using grep
-def getDiffs():    
-    similaritiesPath="DiffResults/Similarities/"
-    targetExclusivePath= "DiffResults/TargetExclusive/"
-    SUExclusivePath= "DiffResults/SUExclusive/"
-    
+def getDiffs():              
     os.chdir(topLvlDir+"/"+resultFoldername)
     # Make folders for diff results
-    if os.path.exists("DiffResults/"):
-        shutil.rmtree("DiffResults/")
-    os.makedirs("DiffResults/")
-    os.makedirs(similaritiesPath)
-    os.makedirs(SUExclusivePath)
-    #Do we need that?
-    os.makedirs(targetExclusivePath)
+    if os.path.exists(diffFoldername):
+        shutil.rmtree(diffFoldername)
+    os.makedirs(diffFoldername)
     
     #Find similar lines for each file-pair of SU and Target
     for filename in additionList.keys():
-        diffFileName = filename.replace("/","")+"Diff.txt"
-        # Filename for the collected similarities
-        diffFileNameSimilarities = similaritiesPath+diffFileName
-    
-        # -F disables regex (see input as string only), -x matches complete lines, -f compares files. Here we get all similar lines among SU and Target
-# ToDo think about implementing this? We iterate over the file currently twice (here and later)       
-        os.system("grep -Fxf TargetProjectSliceCode/src/"+filename+" SUCode/src/"+filename+" > "+diffFileNameSimilarities)  
-
-        #Open Target and the similarities for a file pair
-        with codecs.open(diffFileNameSimilarities, 'r', encoding='utf-8', errors='ignore') as similarFile:
-            with codecs.open("TargetProjectSliceCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as targetFile:
-                targetFileContent = targetFile.readlines()
-                similarFileContent = similarFile.readlines()
-                
-                #Remove each similar line from target (to get only the lines that are exclusively in target)
-                for line in similarFileContent:
-                    if line in targetFileContent:
-                        print(line+" is in Target and SU")
-                        targetFileContent.remove(line)
-                        
-        with codecs.open(targetExclusivePath+diffFileName, 'w', encoding='utf-8', errors='ignore') as targetExclusiveFile:
-            for line in targetFileContent:
-                targetExclusiveFile.write(line)                    
-
-#ToDo This seems not to work so well        
-        # -v finds all different lines (seems not to work with -F). We now look for all lines that are only contained in SU (and therefore not in the similarities diff)
-        #os.system("grep -vxFf DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt SUCode/src/"+filename+" > "+diffFileName)       
-        # Finally we now look for all lines that are only contained in Target (and therefore not in the similarities diff)
-        #os.system("grep -vxFf DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt TargetProjectSliceCode/src/"+filename+" > "+diffFileName)         
-
+        diffFileName = filename.replace("/",".")+"Diff.txt"
        
+        #Open Target and SU file pair
+        with codecs.open("SUCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as SUFile:
+            with codecs.open("TargetProjectSliceCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as targetFile:
+                with codecs.open(diffFoldername+diffFileName, 'w', encoding='utf-8', errors='ignore') as diffFile:
+                    #Get the content of the two files
+                    targetFileContent = targetFile.readlines()
+                    SUFileContent = SUFile.readlines()
+                    
+                    #Compare each line of SU with each line of Target (and remove matched lines from targetFileContent afterwards, to reduce matching effort)
+                    for line in SUFileContent:
+                    
+                        # line is in Target and SU
+                        if line in targetFileContent:
+                            diffFile.write(" "+line)
+#ToDo we could add analysis here             
+                            analyzeSimilarities() 
+                                                                                                                                         
+                            #Remove line from target to reduce effort and get the Target exclusive files
+                            targetFileContent.remove(line)
+                            
+                        # line is in SU but not in Target
+                        else:
+                            diffFile.write("+"+line)
+                            analyzeAdditions()
+                     
+# TODO do we need that? 
+                    #Write the remaining lines of Target (Target exclusive lines)        
+                    for line in targetFileContent:    
+                        diffFile.write("-"+line)
+                        analyzeRemovals()      
+                              
+        # Check header files for declarations of functions contained in Target and SU
+        print("Unchanged functions: "+str(unchangedFunctionNames))
+        
+        
+
+# Analyses the code exclusive to the SU
+def analyzeAdditions():
+    # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged, then we need to change this variable to global)
+    listOfDefines = []
+    
+    #Analyse whole blocks, not individual lines
+    if line.startswith("+###") and len(currentSimilarBlock) > 0:
+        if DEBUG: print("Warning: In-block change found: "+line)
+        inBlockChange = True
+        currentSimilarBlock.append(line)
+        # We know that his block contains changes, so we do not need to check again
+        if "+###BlockEnder" in line:
+            #ToDO
+            print("Warning: In-block change(s) found!")
+            print(currentSimilarBlock)
+            
+            # Reset collectors
+            currentSimilarBlock = []
+            inBlockChange = False
+    else:              
+        # Remove the + at the beginning and the semantic enhancement 
+        line = re.sub(blockPattern, '', line.replace("+","",1))
+        # Add the line to its list
+        additionList[fileName].append(line)
+                         
+        #Look for for non-function-like macros (identifier does not contain an opening bracket)
+        if re.match("^\s*\#define [^(]+ ", line):
+            print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
+            #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
+            listOfDefines.append(line)
+
+
+
+# Analyses the code exclusive to the Target
+def analyzeRemovals():
+    #Analyse whole blocks, not individual lines
+    if line.startswith("-###") and len(currentSimilarBlock) > 0:
+        if DEBUG: print("Warning: In-block change found: "+line)
+        inBlockChange = True
+        currentSimilarBlock.append(line)
+        if "-###BlockEnder" in line:
+            #ToDO
+            print("Warning: In-block change(s) found!")
+            print(currentSimilarBlock)
+            
+            # Reset collectors
+            currentSimilarBlock = []
+            inBlockChange = False
+    else:        
+        # Add line to the list, remove the - at the beginning and the semantic enhancement
+        removalList[fileName].append(re.sub(blockPattern, '', line.replace("-","",1)))      
+                        
+                        
+                        
+# Analyses the code contained in SU and Target
+def analyzeSimilarities():
+#Analyse whole blocks, not individual lines
+    if line.startswith(" ###"):
+        if DEBUG: print("Duplicate in-block lines found: "+line)
+        currentSimilarBlock.append(line)
+        if "###BlockEnder" in line:
+            print("Block ends here")
+            # Are there changes inside the block or are they completely similar?
+            if inBlockChange:
+                #ToDO
+                print("Warning: In-block change(s) found!")
+                print(currentSimilarBlock)
+            else:
+                #Do nothing? We do not need to add the block, as it is already contained in Target.
+                #It can savely stay there
+                #But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
+                #Add a key for the file, so that we can look in the respective header file
+                unchangedFunctionNames[file.replace(".c", ".h", 1)].append(line)
+                                      
+            # Reset collectors
+            currentSimilarBlock = []
+            inBlockChange = False
+            
+    else:
+        if DEBUG: print("Duplicate lines found: "+line)
+        #Some lines may be found as equal, but do not have a functional effect (brackets, #endif, etc)
+        #Here we filter out missclassified block-enders (and add them to the addition list where they belong)
+#ToDo: Do we need a stack to match openers and enders?
+        if re.match(ignorePattern, line):
+            additionList[fileName].append(line)
+            print("Found missclassified duplicate line: "+line+" in file: "+fileName)
+        else:
+            similarList[fileName].append(line)
+            scenario1 = False  
+  
+
+  
 # Saves the content of the diff in 3 separate lists (adds, removals, similar lines)        
 def sortAndAnalyzeDiffContent():
-    global removalList,additionList,similarList,scenario1, newFiles
-    # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged)
-    listOfDefines = []
+    global removalList,additionList,similarList,scenario1
+
+    
     # Collect lines of a block contained (at least partially) in Target and SU 
     currentSimilarBlock = []
+    
     # Are there changes inside blocks?
     inBlockChange = False
-    # Bool for skipping the patch header
-    skip = False
-    # Bool for collecting new files
-    newFile = False
-         
-    
-    # Check if there are similar lines in the SU and the Target
-    with codecs.open(topLvlDir+"/"+resultFoldername+"/S1Diff.txt", 'r', encoding='utf-8', errors='ignore') as file:
-        for line in file:                     
-            # Skip the header
-            if line.startswith("diff --git"):
-                skip = True
-            # Set current filename 
-            elif line.startswith("+++ b/"):    
-                # We take the SU structure as basis, as it can contain additional files and folders
-                fileName = line.replace("+++ b/SUCode/src/","",1).replace("\n","",1)
-                #Collect all files from the SU that do not exist in Target
-                if newFile:
-                    newFiles.append(fileName)
-                    newFile = False
-                if DEBUG: print("Diff filename: "+fileName)
-            # Filter for completely new files
-            elif line.startswith("--- /dev/null"): 
-                newFile = True
-            
-            if not skip: 
-           
-                # Look for similar lines and ignore elements from the ignore pattern
-                if not (re.match(changePattern, line) or line.startswith("\\ No newline at")):
-                                       
-                    #Analyse whole blocks, not individual lines
-                    if line.startswith(" ###"):
-                        if DEBUG: print("Duplicate in-block lines found: "+line)
-                        currentSimilarBlock.append(line)
-                        if "###BlockEnder" in line:
-                            print("Block ends here")
-                            # Are there changes inside the block or are they completely similar?
-                            if inBlockChange:
-                                #ToDO
-                                print("Warning: In-block change(s) found!")
-                                print(currentSimilarBlock)
-                            else:
-                                #Do nothing? We do not need to add the block, as it is already contained in Target.
-                                #It can savely stay there
-                                #But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
-                                #Add a key for the file, so that we can look in the respective header file
-                                unchangedFunctionNames[file.replace(".c", ".h", 1)].append(line)
-                                                      
-                            # Reset collectors
-                            currentSimilarBlock = []
-                            inBlockChange = False
-                            
-                    else:
-                        if DEBUG: print("Duplicate lines found: "+line)
-                        #Some lines may be found as equal, but do not have a functional effect (brackets, #endif, etc)
-                        #Here we filter out missclassified block-enders (and add them to the addition list where they belong)
-#ToDo: Do we need a stack to match openers and enders?
-                        if re.match(ignorePattern, line):
-                            additionList[fileName].append(line)
-                            print("Found missclassified duplicate line: "+line+" in file: "+fileName)
-                        else:
-                            similarList[fileName].append(line)
-                            scenario1 = False                 
-                    
-                    
-                # Look for additions (lines contained in SU but not in Target)    
-                elif (line.startswith("+") and not line.startswith("+++")):
-                
-                    #Analyse whole blocks, not individual lines
-                    if line.startswith("+###") and len(currentSimilarBlock) > 0:
-                        if DEBUG: print("Warning: In-block change found: "+line)
-                        inBlockChange = True
-                        currentSimilarBlock.append(line)
-                        # We know that his block contains changes, so we do not need to check again
-                        if "+###BlockEnder" in line:
-                            #ToDO
-                            print("Warning: In-block change(s) found!")
-                            print(currentSimilarBlock)
-                            
-                            # Reset collectors
-                            currentSimilarBlock = []
-                            inBlockChange = False
-                    else:              
-                        # Remove the + at the beginning and the semantic enhancement 
-                        line = re.sub(blockPattern, '', line.replace("+","",1))
-                        # Add the line to its list
-                        additionList[fileName].append(line)
-                                         
-                        #Look for for non-function-like macros (identifier does not contain an opening bracket)
-                        if re.match("^\s*\#define [^(]+ ", line):
-                            print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
-                            #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
-                            listOfDefines.append(line)
 
-                    
-                # Look for removals (lines contained in Target but not in SU)   
-                elif (line.startswith("-") and not line.startswith("---")):  
-                
-                    #Analyse whole blocks, not individual lines
-                    if line.startswith("-###") and len(currentSimilarBlock) > 0:
-                        if DEBUG: print("Warning: In-block change found: "+line)
-                        inBlockChange = True
-                        currentSimilarBlock.append(line)
-                        if "-###BlockEnder" in line:
-                            #ToDO
-                            print("Warning: In-block change(s) found!")
-                            print(currentSimilarBlock)
-                            
-                            # Reset collectors
-                            currentSimilarBlock = []
-                            inBlockChange = False
-                    else:        
-                        # Add line to the list, remove the - at the beginning and the semantic enhancement
-                        removalList[fileName].append(re.sub(blockPattern, '', line.replace("-","",1)))           
+    
+
+
+     
                                        
- 
-            # Stop skipping, as header ends here (has no effect if the @@ occurs inside the diff)    
-            if line.startswith( "@@"):
-                skip = False   
-                
-    # Check header files for declarations of functions contained in Target and SU
-    print("Unchanged functions: "+str(unchangedFunctionNames))
 
 
 
@@ -566,6 +550,11 @@ workflow()
 #os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/patch.patch")
 #os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
 #os.system("git apply "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")   
+
+    
+        # -F disables regex (see input as string only), -x matches complete lines, -f compares files. Here we get all similar lines among SU and Target
+# ToDo think about implementing this? We iterate over the file currently twice (here and later)      Currently, we do not have the right order 
+        #os.system("grep -Fxf TargetProjectSliceCode/src/"+filename+" SUCode/src/"+filename+" > "+diffFileNameSimilarities) 
 
 #ToDo This seems not to work so well        
         # -v finds all different lines (seems not to work with -F). We now look for all lines that are only contained in SU (and therefore not in the similarities diff)
