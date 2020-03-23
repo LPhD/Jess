@@ -222,15 +222,13 @@ def initializeAnalysis():
 #######################################################################################################################################
         shutil.rmtree(affectedTargetCodeFolder)
     os.makedirs(affectedTargetCodeFolder)
-
-#TODO check if this really works recursively    
+ 
     #Get filenames from Target    
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
-    targetFiles = glob.glob('*.[c|h]', recursive=True)
+    targetFiles = glob.glob('**/*.[c|h]', recursive=True)
     #Get filenames from SUCode 
     os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
-    SUFiles = glob.glob('*.[c|h]', recursive=True)
-    
+    SUFiles = glob.glob('**/*.[c|h]', recursive=True)    
 
     for line in SUFiles:
         #Collect all files that can be affected by a merge
@@ -244,8 +242,7 @@ def initializeAnalysis():
             
     if DEBUG: print("Affected files: "+str(additionList.keys()))  
     if DEBUG: print("Files exclusive to the SU: "+str(newFiles))  
-    
-
+ 
     #Copy only affected files from TargetCode to affectedTargetCodeFolder 
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
     print("Copy differing files from Target")
@@ -283,6 +280,9 @@ def getDiffs():
     #Find similar lines for each file-pair of SU and Target
     for filename in additionList.keys():
         diffFileName = filename.replace("/",".")+"Diff.txt"
+        
+        if DEBUG: print("Current diff file: "+diffFileName)
+        if DEBUG: print("Current filename: "+filename)
        
         #Open Target and SU file pair (do this nested, as otherwise the readeability of one line is bad)
         with codecs.open("SUCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as SUFile:
@@ -334,8 +334,8 @@ def analyzeAdditions(line, fileName, currentSimilarBlock, inBlockChange):
         # We know that his block contains changes, so we do not need to check again
         if "###BlockEnder" in line:
             #ToDO
-            print("Warning: In-block change(s) found!")
-            print(currentSimilarBlock)
+            #print("Warning: In-block change(s) found!")
+            #print(currentSimilarBlock)
             
             # Reset collectors
             currentSimilarBlock = []
@@ -364,8 +364,8 @@ def analyzeRemovals(line, currentSimilarBlock, inBlockChange):
         currentSimilarBlock.append(line)
         if "###BlockEnder" in line:
             #ToDO
-            print("Warning: In-block change(s) found!")
-            print(currentSimilarBlock)
+            #print("Warning: In-block change(s) found!")
+            #print(currentSimilarBlock)
             
             # Reset collectors
             currentSimilarBlock = []
@@ -391,7 +391,7 @@ def analyzeSimilarities(line, fileName, currentSimilarBlock, inBlockChange):
             if inBlockChange:
                 #ToDO
                 print("Warning: In-block change(s) found!")
-                print(currentSimilarBlock)
+                #print(currentSimilarBlock)
             else:
                 #Do nothing? We do not need to add the block, as it is already contained in Target.
                 #It can savely stay there
