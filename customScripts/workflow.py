@@ -36,6 +36,8 @@ additionList = {}
 removalList = {}
 # Dictionary for all similar lines between donor and target file
 similarList = {}
+# Collect lines of a block contained (at least partially) in Target and SU 
+currentSimilarBlock = []
 # List for all files that exist in the SU but not in Target
 newFiles = []
 # Dict for all function names that already exist in Target and are not changed by SU
@@ -52,6 +54,8 @@ functionBlockPattern = re.compile("###.*?###")
 ifdefBlockPattern = re.compile("#\*#.*?#\*#")
 # Combines all semantic block patterns (for removing them all)
 semanticBlockPattern = re.compile("(###.*?###)|(#\*#.*?#\*#)")
+# Are there changes inside blocks?
+inBlockChange = False
 # Bool for scenario 1 (only additions)
 scenario1 = True
 
@@ -263,12 +267,7 @@ def initializeAnalysis():
 
 
 #Create relatable diffs for SU and Target using grep
-def getDiffs():       
-    # Collect lines of a block contained (at least partially) in Target and SU 
-    currentSimilarBlock = []    
-    # Are there changes inside blocks?
-    inBlockChange = False
-    
+def getDiffs():        
     os.chdir(topLvlDir+"/"+resultFoldername)
     # Make folders for diff results
     if os.path.exists(diffFoldername):
@@ -296,8 +295,8 @@ def getDiffs():
                         # line is in Target and SU (ignore empty lines)
                         if not line.startswith("\n") and line in targetFileContent:
                             diffFile.write(" "+line)        
-                            # Do we have to return the boolean to change it?
-                            inBlockChange = analyzeSimilarities(line, filename, currentSimilarBlock, inBlockChange) 
+                            # Changes inBlockChange and currentSimilarBlock
+                            analyzeSimilarities(line, filename) 
                                                                                                                                          
                             #Remove line from target to reduce effort and get the Target exclusive files
                             targetFileContent.remove(line)
@@ -305,7 +304,8 @@ def getDiffs():
                         # line is in SU but not in Target
                         elif not line.startswith("\n"):
                             diffFile.write("+"+line)
-                            inBlockChange = analyzeAdditions(line, filename, currentSimilarBlock, inBlockChange)
+                            # Changes inBlockChange and currentSimilarBlock
+                            analyzeAdditions(line, filename)
                      
 # TODO do we need that? 
    #                 #Write the remaining lines of Target (Target exclusive lines)        
@@ -319,10 +319,12 @@ def getDiffs():
         
 
 # Analyses the code exclusive to the SU
-def analyzeAdditions(line, fileName, currentSimilarBlock, inBlockChange):
-    global additionList, unchangedFunctionNames, scenario1
+def analyzeAdditions(line, fileName):
+    global additionList, unchangedFunctionNames, scenario1, currentSimilarBlock, inBlockChange
     # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged, then we need to change this variable to global)
     listOfDefines = []
+    
+    print("Current block: "+str(currentSimilarBlock))
     
     #Analyse whole blocks, not individual lines
     if line.startswith("###") and len(currentSimilarBlock) > 0:
@@ -336,6 +338,7 @@ def analyzeAdditions(line, fileName, currentSimilarBlock, inBlockChange):
             #print(currentSimilarBlock)
             
             # Reset collectors
+            print("Block ended!")
             currentSimilarBlock = []
             inBlockChange = False
     else:              
@@ -349,12 +352,10 @@ def analyzeAdditions(line, fileName, currentSimilarBlock, inBlockChange):
             print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
             #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
             listOfDefines.append(line)
-            
-    return inBlockChange
 
 
 # Analyses the code exclusive to the Target
-def analyzeRemovals(line, currentSimilarBlock, inBlockChange):
+def analyzeRemovals(line):
     #Analyse whole blocks, not individual lines
     if line.startswith("###") and len(currentSimilarBlock) > 0:
         if DEBUG: print("Warning: In-block change found: "+line)
@@ -371,13 +372,12 @@ def analyzeRemovals(line, currentSimilarBlock, inBlockChange):
     else:        
         # Add line to the list, remove the  the semantic enhancement
         removalList[fileName].append(re.sub(semanticBlockPattern, '', line))      
-
-    return inBlockChange                        
+                        
                         
                         
 # Analyses the code contained in SU and Target
-def analyzeSimilarities(line, fileName, currentSimilarBlock, inBlockChange):
-    global similarList, additionList, unchangedFunctionNames, scenario1
+def analyzeSimilarities(line, fileName):
+    global similarList, additionList, unchangedFunctionNames, scenario1, currentSimilarBlock, inBlockChange
  
     #Analyse whole blocks, not individual lines
     if line.startswith("###"):
@@ -406,6 +406,7 @@ def analyzeSimilarities(line, fileName, currentSimilarBlock, inBlockChange):
                     unchangedFunctionNames[headerFilename] = [line]
                                       
             # Reset collectors
+            print("Block ended!")
             currentSimilarBlock = []
             inBlockChange = False
             
@@ -420,8 +421,6 @@ def analyzeSimilarities(line, fileName, currentSimilarBlock, inBlockChange):
         else:
             similarList[fileName].append(line)
             scenario1 = False  
-  
-    return inBlockChange
 
 
 # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
