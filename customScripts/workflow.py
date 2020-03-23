@@ -193,9 +193,7 @@ def importProjectasCPG(projectname, internalPath):
         if projectname == "TargetProjectSlice":
             # Creates all files from the SU in Target, that did not exist there before
             print("Create completely new files in Target...")
-            # Create new list as addition list is changed during function
-            newFileList = list(additionList.keys())
-            createCompletelyNewFiles(newFileList)
+            createCompletelyNewFiles(newFiles)
             print(" # # # Automated transplantation finished sucessfull # # # ")
         # Exit as we are finished
         exit()
@@ -433,16 +431,24 @@ def createCompletelyNewFiles(fileList):
     
     if DEBUG: print("List of completely new files: "+str(fileList))
     
-    # Go to Target directory
-    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    # Go to SU directory (not Donor, as the completely new files are still slices)
+    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
     # Iterate through all completely new files
     for fileName in fileList:
-        #Create needed directories
-        pathlib.Path(fileName.rpartition("/")[0]).mkdir(parents=True, exist_ok=True) 
-        #Write file content of the new files to Target directory, remove the file content afterwards from the additionList
-        with open(fileName, 'w') as targetFile:
-            targetFile.write("\n".join(additionList.pop(fileName)))
- 
+        #Copy file from SU to Target
+        os.system("cp --parent -v -r "+fileName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+        
+        #Read current file content (with semantic enhancement)
+        with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+fileName, 'r') as file:
+            fileContent = file.readlines()
+            
+        #Remove semantic enhancement   
+        with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+fileName, 'w') as file:    
+            for line in fileContent:
+                line = re.sub(semanticBlockPattern, '', line)
+                file.write(line)
+                           
+    os.chdir(topLvlDir+"/"+resultFoldername)
  
 # We need a deeper analysis of blocks (identifiers vs inside), as they were currently always identified as new lines (bc of the #Block# prefix)
 def blockScan():
