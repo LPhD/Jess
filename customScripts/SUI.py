@@ -454,22 +454,22 @@ def analyzeNode (currentNode):
         
 # Return all vertices of type file that belong to the given directory (not recursive)        
 def getIncludedFiles (verticeId):
-    query = """g.V(%s).out().has('type', 'File').id()""" % (verticeId)
+    query = """g.V(%s).out().has('type', 'File').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)
     
 # Return all vertices of type file and directory that belong to the given directory (recursive)        
 def getIncludedFilesAndDirectories (verticeId):
-    query = """g.V(%s).out().has('type', within('File', 'Directory')).id()""" % (verticeId)
+    query = """g.V(%s).out().has('type', within('File', 'Directory')).dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)    
        
 # Return all AST vertices and their children that belong to the given file 
 def getEnclosedCodeOfFile (verticeId):
-    query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)
+    query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT','VARIABILITY','IS_FILE_OF','IS_FUNCTION_OF_AST')).dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)   
            
 # Return function definition vertice of a given function
 def getFunctionDefOut (verticeId):
-    query = """g.V(%s).out().has('type', 'FunctionDef').id()""" % (verticeId)
+    query = """g.V(%s).out().has('type', 'FunctionDef').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)  
 
 # Return function decl in the belonging header file (if existing) ###############
@@ -484,7 +484,7 @@ def getFunctionDeclInHeader (verticeId):
         # Look in AST children for decl with same functionName
         query = """g.V(%s)
             .until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
-            .in('IS_HEADER_OF').out('IS_FILE_OF').has('type', 'DeclStmt').has('code', textContains('%s')).id()
+            .in('IS_HEADER_OF').out('IS_FILE_OF').has('type', 'DeclStmt').has('code', textContains('%s')).dedup().id()
         """ % (verticeId, fName[0])        
         
         return db.runGremlinQuery(query)    
@@ -512,7 +512,7 @@ def getFunctionDefinCFile (verticeId):
             query = """g.V(%s).in('IS_FILE_OF').out('IS_HEADER_OF').union(
                 __.out('IS_FILE_OF').has('type', 'Function').has('code', textContains('%s')).out('IS_FUNCTION_OF_AST'),
                 __.out('IS_FILE_OF').has('type', 'PreInclude').has('code', textContains('%s'))
-            ).id()""" % (verticeId, fName, names[1])        
+            ).dedup().id()""" % (verticeId, fName, names[1])        
             
         return db.runGremlinQuery(query)
     else:
@@ -521,7 +521,7 @@ def getFunctionDefinCFile (verticeId):
 
 # Return AST parent of a given node (can be empty)
 def getParent (verticeId):
-    query = """g.V(%s).out('IS_AST_PARENT').id()""" % (verticeId)
+    query = """g.V(%s).out('IS_AST_PARENT').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)                 
 
 # Return all GotoStatements that use the given label
@@ -536,7 +536,7 @@ def getGotos (verticeId):
         .until(has('type', 'File'))
         .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
         .until(has('type', 'GotoStatement').out('IS_AST_PARENT').has('code', '%s'))
-        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()
+        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).dedup().id()
     """ % (verticeId, name[0]) 
     return db.runGremlinQuery(query)
 
@@ -552,13 +552,13 @@ def getLabels (verticeId):
         .until(has('type', 'File'))
         .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
         .until(has('type', 'Label').out('IS_AST_PARENT').has('code', '%s'))
-        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()
+        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).dedup().id()
     """ % (verticeId, name[0]) 
     return db.runGremlinQuery(query)
     
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
-    query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT')).unfold().id()""" % (verticeId)
+    query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT')).unfold().dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)    
     
 # Return the called function id
@@ -579,7 +579,7 @@ def getCalledFunctionDef (verticeId):
             .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode')
             .union(
                 until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id().as('sameFileResult')
                 ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
                 .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
                     .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
@@ -588,9 +588,9 @@ def getCalledFunctionDef (verticeId):
                         select('externalHeaderFileResult').until(has('type', 'File'))
                             .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
                             .union(
-                            __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
+                            __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').dedup().id().as('idOfIncludeStatement'),
                             __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-                                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+                                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id().as('sameFileResult')
                             )
                     )
             )""" % (verticeId, functionName[0], functionName[0], functionName[0])                  
@@ -616,16 +616,16 @@ def getCallsToFunction (verticeId):
             union(
                 until(has('type', 'Callee').has('code', '%s'))
                     .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
-                    .in('IS_AST_PARENT').in('IS_AST_PARENT').id().as('sameFileResult')
+                    .in('IS_AST_PARENT').in('IS_AST_PARENT').dedup().id().as('sameFileResult')
                 ,__.in('INCLUDES').in('IS_AST_PARENT').as('result').in('IS_FILE_OF')
                     .until(has('type', 'Callee').has('code', '%s'))                        
                     .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
-                    .in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().id()
+                    .in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().dedup().id()
                 ,__.in('IS_HEADER_OF').as('hFile').out('IS_FILE_OF').has('type', 'DeclStmt').has('code', textContains('%s')).as('result')
                     .select('hFile').in('INCLUDES').in('IS_AST_PARENT').as('result').in('IS_FILE_OF')
                     .until(has('type', 'Callee').has('code', '%s'))                        
                     .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
-                    .in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().id()       
+                    .in('IS_AST_PARENT').in('IS_AST_PARENT').as('result').select('result').unfold().dedup().dedup().id()       
             )         
             """ % (verticeId, functionName[0], functionName[0], functionName[0], functionName[0])  
             
@@ -636,40 +636,40 @@ def getCallsToFunction (verticeId):
 def getDefinesAndUses (verticeId):
     # USE edges and DEF edges
     # Here we can get results that do not appear in the code (e.g. Argument or Parameter nodes)
-    query = """g.V(%s).both('USE','DEF').both('USE','DEF').simplePath().id()"""   % (verticeId)
+    query = """g.V(%s).both('USE','DEF').both('USE','DEF').simplePath().dedup().id()"""   % (verticeId)
     return db.runGremlinQuery(query)     
     
 
 # Return all AST children except the CompoundStatement and the ElseStatement and their children  
 def getInitAndCondition (verticeId):
-    query = """g.V(%s).out('IS_AST_PARENT').has('type', without('CompoundStatement', 'ElseStatement')).emit().repeat(out('IS_AST_PARENT')).id()""" % (verticeId)
+    query = """g.V(%s).out('IS_AST_PARENT').has('type', without('CompoundStatement', 'ElseStatement')).emit().repeat(out('IS_AST_PARENT')).dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query) 
     
 # Return the If of an else statement    
 def getIfStatement (verticeId):
-    query = """g.V(%s).in('IS_AST_PARENT').has('type','IfStatement').id()""" % (verticeId)
+    query = """g.V(%s).in('IS_AST_PARENT').has('type','IfStatement').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)  
 
 # Return the corresponding else-statement of an if-statement    
 def getElse (verticeId):
-    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'ElseStatement').id()""" % (verticeId)
+    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'ElseStatement').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)    
 
 # Return the corresponding #endif-statement of an #if-statement 
 def getEndIf (verticeId):
     # Find the #endif
-    query = """g.V(%s).until(has('type', 'PreEndIfStatement')).repeat(out('IS_AST_PARENT')).has('type', 'PreEndIfStatement').id()""" % (verticeId)   
+    query = """g.V(%s).until(has('type', 'PreEndIfStatement')).repeat(out('IS_AST_PARENT')).has('type', 'PreEndIfStatement').dedup().id()""" % (verticeId)   
     return db.runGremlinQuery(query)     
     
 # Return the corresponding the condition of an #if/#elif-statement    
 def getPreIfCondition (verticeId):
     # Get all AST childs that belong to the condition
-    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'PreIfCondition').emit().repeat(out('IS_AST_PARENT')).id()""" % (verticeId) 
+    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'PreIfCondition').emit().repeat(out('IS_AST_PARENT')).dedup().id()""" % (verticeId) 
     return db.runGremlinQuery(query) 
 
 # Return the corresponding macro identifier of an #define/#undefine statement
 def getMacroIdentifier (verticeId):
-    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'PreMacroIdentifier').id()""" % (verticeId) 
+    query = """g.V(%s).out('IS_AST_PARENT').has('type', 'PreMacroIdentifier').dedup().id()""" % (verticeId) 
     return db.runGremlinQuery(query) 
 
 # Return all statements that are connected to a macro identifier (uses and defines)    
@@ -695,7 +695,7 @@ def getRelationsToMacro (verticeId):
             inV().has('type', 'File')
                 .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).emit().dedup().has('code', textContains('%s')).as("result")
             )
-            .select("result").unfold().dedup().id()
+            .select("result").unfold().dedup().dedup().id()
             """ % (verticeId, tempResult[0], tempResult[0])  
    
     return db.runGremlinQuery(query)     
@@ -705,19 +705,19 @@ def getRelationsToMacro (verticeId):
 # Return the blockstarter #if
 def getPreIf (verticeId):
     # We need the __. before in, so Groovy doesn't confuse it with its own keyword in
-    query = """g.V(%s).until(has('type', 'PreIfStatement')).repeat(__.in('IS_AST_PARENT')).id()""" % (verticeId)
+    query = """g.V(%s).until(has('type', 'PreIfStatement')).repeat(__.in('IS_AST_PARENT')).dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query) 
         
 # Return all variable statements of the current node   
 def getVariableStatements (verticeId):
-    query = """g.V(%s).out('VARIABILITY').id()""" % (verticeId)
+    query = """g.V(%s).out('VARIABILITY').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query) 
     
 # Return all variable statements of the current feature, this is done once in the beginning of the entry point is a feature   
 def getFeatureBlocks (featureName):
     for currentNode in featureName:    
         # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
-        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').id())""" % (currentNode)     
+        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').dedup().id())""" % (currentNode)     
         result = db.runGremlinQuery(query)              
         
         if (len(result) == 0):
@@ -772,7 +772,7 @@ def addComments ():
 
     global semanticUnit
     # Get the parent comment nodes, add them to the SemanticUnit (without dupes)
-    query = """idListToNodes(%s).in('COMMENTS').id()""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).in('COMMENTS').dedup().id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
     
@@ -789,7 +789,7 @@ def addExternalIncludes ():
     global semanticUnit
     # Go to the parent file nodes, then get all includes that include libraries (nodes who have an AST child of type PreIncludeSystemHeader) and add them to the SU
     query = """idListToNodes(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
-            ..dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(out('IS_AST_PARENT').has('type', 'PreIncludeSystemHeader')).id().dedup()""" % (list(semanticUnit))   
+            .dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(out('IS_AST_PARENT').has('type', 'PreIncludeSystemHeader')).dedup().id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
     
@@ -980,7 +980,7 @@ def plotResults ():
 def getASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
-    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).id()""" % (list(semanticUnit))  
+    query = """idListToNodes(%s).not(has('type', within('Symbol','CFGExitNode','CFGEntryNode'))).dedup().id()""" % (list(semanticUnit))  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for fileOutput)
     semanticUnit = result
@@ -995,7 +995,7 @@ def getVisibleASTNodes():
     # Remove unneeded nodes
     query = """idListToNodes(%s).has('type', within(%s))
         .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
-        .id()""" % (list(semanticUnit), visibleStatementTypes)  
+        .dedup().id()""" % (list(semanticUnit), visibleStatementTypes)  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
     semanticUnit = result
