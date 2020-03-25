@@ -2,10 +2,13 @@
 import os
 import pygraphviz as pgv
 import ntpath
+import time
 
 from octopus.server.DBInterface import DBInterface
 from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
+#Timer
+start_time = time.time()
 
 ################# Configuration options for Semantic Unit identification #################
 includeEnclosedCode = True
@@ -122,6 +125,7 @@ def identifySemanticUnits ():
         # Get the #ifndef #def and #endif for header files?
         
         print("Analysis finished, making graph...")
+        print ("Analysis took", time.time() - start_time, "seconds to run")
         print("--------------------------------------------------------------------------------- \n")
 
         if (plotGraph):
