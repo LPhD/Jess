@@ -17,6 +17,7 @@ LookForAllFunctionCalls = False
 ############### Further options to refine the Semantic Unit after analysis ###############
 includeVariabilityInformation = True
 includeComments = True
+includeExternalLibraryIncludes = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
@@ -60,7 +61,7 @@ projectName = 'DonorProject'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {184448}
+entryPointIds = {106536}
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -112,7 +113,11 @@ def identifySemanticUnits ():
         
         #Check for comments
         if(includeComments):
-            addComments()        
+            addComments()       
+
+        #Check for includes of (external) libraries
+        if(includeExternalLibraryIncludes):
+            addExternalIncludes()             
         
         # Get the #ifndef #def and #endif for header files?
         
@@ -437,7 +442,7 @@ def analyzeNode (currentNode):
     # 'ParameterType' int (contained in ParameterList)
     # 'RelationalExpression' i > 5 (contained in condition)
     # 'ArrayIndexing' array[1]    
-    # 'Decl', DeclStmt (already contained in DeclStmt/FunctionDef/Callee. For entry point: Choose FunctionDef instead)    
+    # 'Decl' (already contained in DeclStmt/FunctionDef/Callee)    
     # 'PreInclude', 'PreIncludeNext' (choose the file instead)
     ####################### C ++ specific (maybe done later) ###############################################
     # 'ClassDef'
@@ -486,7 +491,7 @@ def getFunctionDeclInHeader (verticeId):
     else:
         return ""
 
-# Return function def in the belonging C file (if existing) and the belonging include statement  ###############
+# Return function def in the belonging C file (if existing) and the belonging include statement  
 def getFunctionDefinCFile (verticeId):
     # Get the name of function and header file
     query = """g.V(%s).union(
@@ -772,6 +777,23 @@ def addComments ():
     result = db.runGremlinQuery(query)       
     
     if (DEBUG) : print("Found additional comment nodes: "+str(result)+"\n")
+    
+    semanticUnit.update(result)
+
+######################################### External Libraries Checking #################################################################
+
+# Return all include statements for each file of the SU that includes external libraries
+def addExternalIncludes ():
+    if (DEBUG) : print("Checking for external includes...")    
+
+    global semanticUnit
+    # Go to the parent file nodes, then get all includes that include libraries (nodes who have an AST child of type PreIncludeSystemHeader) and add them to the SU
+    query = """idListToNodes(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+            ..dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(out('IS_AST_PARENT').has('type', 'PreIncludeSystemHeader')).id().dedup()""" % (list(semanticUnit))   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found additional includes of libraries: "+str(result)+"\n")
     
     semanticUnit.update(result)
     
