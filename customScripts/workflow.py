@@ -9,7 +9,9 @@ import re
 import codecs
 import pathlib
 import glob
-
+import time
+#Timer
+start_time = time.time()
 
 #### Configuration ####
 # Enable fully automated addition of the Semantic Unit to the target software
@@ -119,6 +121,19 @@ def workflow():
     print(" ### Check scenario 1 ### ")
     #Diff SU and Target (both with semantically enhanced code). Saves the different changes into their respective dictionary.
     getDiffs()
+    
+    # Check header files for declarations of functions contained in Target and SU
+    print("Unchanged functions: "+str(unchangedFunctionNames))
+    checkHeadersForUnchangedFunctionDecls()
+    
+    #ToDo
+    # Check similarities for entries that can savely remain in the SU (like inclusion of system headers)
+    
+    #ToDo
+    #Copy functions that contain changes, change their name, scan whole SU for calls of that function and also change that name
+    
+    #ToDo
+    #Do the same for global variables that are similar (change name everywhere in SU)
 
     # Creates all files from the SU in Target, that did not exist there before. 
     #The additionlists contains afterwards only the changed files of Target, as the completely new files were removed during the process.
@@ -150,7 +165,7 @@ def workflow():
     for fileName in additionList.keys():
         assembleFiles(fileName) 
        
-      
+    print ("The whole workflow took", time.time() - start_time, "seconds to run")  
         
 #TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
 #TODO Syntax check?
@@ -294,7 +309,9 @@ def getDiffs():
                                                 
                         # line is in Target and SU (ignore empty lines)
                         if not line.startswith("\n") and line in targetFileContent:
-                            diffFile.write(" "+line)        
+                            #We write this here only for logging purposes
+                            if DEBUG: diffFile.write(" "+line)        
+                            
                             # Changes inBlockChange and currentSimilarBlock
                             analyzeSimilarities(line, filename) 
                                                                                                                                          
@@ -303,7 +320,9 @@ def getDiffs():
                             
                         # line is in SU but not in Target
                         elif not line.startswith("\n"):
-                            diffFile.write("+"+line)
+                            #We write this here only for logging purposes
+                            if DEBUG: diffFile.write("+"+line)
+                            
                             # Changes inBlockChange and currentSimilarBlock
                             analyzeAdditions(line, filename)
                      
@@ -313,14 +332,13 @@ def getDiffs():
    #                     diffFile.write("-"+line)
     #                    analyzeRemovals(line, currentSimilarBlock, inBlockChange)      
                               
-        # Check header files for declarations of functions contained in Target and SU
-        print("Unchanged functions: "+str(unchangedFunctionNames))
+
         
         
 
 # Analyses the code exclusive to the SU
 def analyzeAdditions(line, fileName):
-    global additionList, unchangedFunctionNames, scenario1, currentSimilarBlock, inBlockChange
+    global additionList, scenario1, currentSimilarBlock, inBlockChange
     # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged, then we need to change this variable to global)
     listOfDefines = []
     
@@ -391,19 +409,20 @@ def analyzeSimilarities(line, fileName):
                 print("Warning: In-block change(s) found!")
                 #print(currentSimilarBlock)
             else:
-                #Do nothing? We do not need to add the block, as it is already contained in Target.
-                #It can savely stay there
-                #But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
-                #Add a key for the file, so that we can look in the respective header file
+                # We do not need to add the block, as it is already contained in Target. It can savely stay there.
+                # But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
+                # Add a key for the file, so that we can look in the respective header file
                 headerFilename = fileName.replace(".c", ".h", 1)
+                # Gets only the type and name of the function
+                result = re.search('###BlockEnder (.*) ###', line)
                 
                 # Check if we have a key for the headerfile
                 if headerFilename in unchangedFunctionNames:
                     #Append entry for existing key
-                    unchangedFunctionNames[headerFilename].append(line)
+                    unchangedFunctionNames[headerFilename].append(result.group(1))
                 else:
                     #Make new entry if none exists for this file
-                    unchangedFunctionNames[headerFilename] = [line]
+                    unchangedFunctionNames[headerFilename] = [result.group(1)]
                                       
             # Reset collectors
             print("Block ended!")
@@ -422,6 +441,29 @@ def analyzeSimilarities(line, fileName):
             similarList[fileName].append(line)
             scenario1 = False  
 
+
+# For every function name in unchangedFunctionNames, there should be a header File with its declaration in similarList
+def checkHeadersForUnchangedFunctionDecls():
+    global unchangedFunctionNames, similarList
+
+    for filename in unchangedFunctionNames.keys():
+        # Check if we have the needed header file in the similarList
+        if filename in similarList.keys():
+            # Check for every function name
+            for functionName in unchangedFunctionNames[filename]:
+                found = False
+                for index, value in enumerate(similarList[filename]):
+                    # If there is an entry that contains this name in the similarList
+                    if functionName in value:
+                        if DEBUG: print("Found matching decl for "+functionName+" in: "+filename)
+                        found = True
+                        #Remove content of the current entry
+                        similarList[filename][index] = ""
+                   
+                if not found:  print("Found probably missing declaration of the following function in "+filename+": "+functionName)
+        else:
+            print("Found probably missing declaration of the following functions in "+filename+": "+str(unchangedFunctionNames[filename]))
+  
 
 # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
 # Otherwise (aside from defines) they cannot affect Target (as there are no uses from Target files to them)
