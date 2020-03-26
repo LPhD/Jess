@@ -117,10 +117,15 @@ def workflow():
     # Set list of changed targetFiles 
     initializeAnalysis()     
       
-    ## Sc 1: Diff SU vs target 
-    print(" ### Check scenario 1 ### ")
+    ## Diff SU vs Target 
+    print(" ### Diff SU vs Target  ### ")
     #Diff SU and Target (both with semantically enhanced code). Saves the different changes into their respective dictionary.
     getDiffs()
+    
+    ### Scenario 1 is positive, if there are no similarities between donor and target ###
+    if (scenario1):
+        finishWithScenario1()
+
     
     # Check header files for declarations of functions contained in Target and SU
     print("Unchanged functions: "+str(unchangedFunctionNames))
@@ -131,12 +136,12 @@ def workflow():
     
     #ToDo
     #Copy functions that contain changes, change their name, scan whole SU for calls of that function and also change that name
+    #Caution: Scanning the additonList is not enough, as we also have completelyNewFiles
     
     #ToDo
     #Do the same for global variables that are similar (change name everywhere in SU)
 
     # Creates all files from the SU in Target, that did not exist there before. 
-    #The additionlists contains afterwards only the changed files of Target, as the completely new files were removed during the process.
     print("Create completely new files in Target...")
     createCompletelyNewFiles(newFiles)    
     
@@ -146,20 +151,11 @@ def workflow():
     #blockScan() 
     
 
-    ## Scenario 1 is positive, if there are no similarities between donor and target 
-    ## TODO needs rework with the new semantic diff
-    if (scenario1):
-        print("Found no similarities! Scenario 1 is positive!")
-        ### Only additions of SU -> Just add them to target, we are finished ###
-        #for fileName in targetFiles:
-           # mergeRemovalsAndCurrentFile(fileName)
-        print(" ### Code transplantation finished sucessfull! ### ")
-        print(" ### Please compile the code to check for duplicate identifiers ### ")
-    else:   
+  
     ## Sc 2: Diff SU vs origin        
-        print("Found some similarities! Scenario 1 is negative!")
-        print(similarList)
-        print(" ### Check scenario 2 ### ")
+    print("Found some similarities! Scenario 1 is negative!")
+    print(similarList)
+    print(" ### Check scenario 2 ### ")
 
     # Create the final files (this is here for testing purposes, currently it just adds everything from the additionList to Target)
     for fileName in additionList.keys():
@@ -203,6 +199,7 @@ def createRepos():
     os.system("git checkout "+originCommitID)
  
  
+ 
 # Imports the "projectname" as Code Property Graph 
 def importProjectasCPG(projectname, internalPath):
     #Check if the project contains code files, do not import it as CPG if so
@@ -228,6 +225,7 @@ def importProjectasCPG(projectname, internalPath):
     evaluateProject(projectname, topLvlDir+"/"+resultFoldername , internalPath) 
 
 
+
 # Setup for the analysis (copy files to the right place to get list of changed files)
 def initializeAnalysis():
     global additionList, removalList, similarList, newFiles 
@@ -247,15 +245,15 @@ def initializeAnalysis():
     os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
     SUFiles = glob.glob('**/*.[c|h]', recursive=True)    
 
-    for line in SUFiles:
+    for fileName in SUFiles:
         #Collect all files that can be affected by a merge
-        if line in targetFiles:
-            additionList[line] = []    
-            removalList[line] = []   
-            similarList[line] = [] 
+        if fileName in targetFiles:
+            additionList[fileName] = []    
+            removalList[fileName] = []   
+            similarList[fileName] = [] 
         #Collect files exclusive to the SU    
         else:
-            newFiles.append(line)
+            newFiles.append(fileName)
             
     if DEBUG: print("Affected files: "+str(additionList.keys()))  
     if DEBUG: print("Files exclusive to the SU: "+str(newFiles))  
@@ -281,8 +279,11 @@ def initializeAnalysis():
 ############################################################################################################
 
 
-#Create relatable diffs for SU and Target using grep
-def getDiffs():        
+
+#Create relatable diffs for SU and Target using own implementation
+def getDiffs():      
+    global scenario1
+    
     os.chdir(topLvlDir+"/"+resultFoldername)
     # Make folders for diff results
     if os.path.exists(diffFoldername):
@@ -318,27 +319,22 @@ def getDiffs():
                             #Remove line from target to reduce effort and get the Target exclusive files
                             targetFileContent.remove(line)
                             
+                            #Finally set the switch for scenario1 to false, as we do not have only additions
+                            scenario1 = False 
+                            
                         # line is in SU but not in Target
                         elif not line.startswith("\n"):
                             #We write this here only for logging purposes
                             if DEBUG: diffFile.write("+"+line)
                             
                             # Changes inBlockChange and currentSimilarBlock
-                            analyzeAdditions(line, filename)
-                     
-# TODO do we need that? 
-   #                 #Write the remaining lines of Target (Target exclusive lines)        
-  #                  for line in targetFileContent:    
-   #                     diffFile.write("-"+line)
-    #                    analyzeRemovals(line, currentSimilarBlock, inBlockChange)      
+                            analyzeAdditions(line, filename)   
                               
-
-        
-        
+             
 
 # Analyses the code exclusive to the SU
 def analyzeAdditions(line, fileName):
-    global additionList, scenario1, currentSimilarBlock, inBlockChange
+    global additionList, currentSimilarBlock, inBlockChange
     # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged, then we need to change this variable to global)
     listOfDefines = []
     
@@ -349,6 +345,7 @@ def analyzeAdditions(line, fileName):
         if DEBUG: print("Warning: In-block change found: "+line)
         inBlockChange = True
         currentSimilarBlock.append(line)
+        
         # We know that his block contains changes, so we do not need to check again
         if "###BlockEnder" in line:
             #ToDO
@@ -371,31 +368,12 @@ def analyzeAdditions(line, fileName):
             #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
             listOfDefines.append(line)
 
-
-# Analyses the code exclusive to the Target
-def analyzeRemovals(line):
-    #Analyse whole blocks, not individual lines
-    if line.startswith("###") and len(currentSimilarBlock) > 0:
-        if DEBUG: print("Warning: In-block change found: "+line)
-        inBlockChange = True
-        currentSimilarBlock.append(line)
-        if "###BlockEnder" in line:
-            #ToDO
-            #print("Warning: In-block change(s) found!")
-            #print(currentSimilarBlock)
-            
-            # Reset collectors
-            currentSimilarBlock = []
-            inBlockChange = False
-    else:        
-        # Add line to the list, remove the  the semantic enhancement
-        removalList[fileName].append(re.sub(semanticBlockPattern, '', line))      
                         
                         
                         
 # Analyses the code contained in SU and Target
 def analyzeSimilarities(line, fileName):
-    global similarList, additionList, unchangedFunctionNames, scenario1, currentSimilarBlock, inBlockChange
+    global similarList, additionList, unchangedFunctionNames, currentSimilarBlock, inBlockChange
  
     #Analyse whole blocks, not individual lines
     if line.startswith("###"):
@@ -431,16 +409,29 @@ def analyzeSimilarities(line, fileName):
             
     else:
         if DEBUG: print("Duplicate lines found: "+line)
-        #Some lines may be found as equal, but do not have a functional effect (brackets, #endif, etc)
-        #Here we filter out missclassified block-enders (and add them to the addition list where they belong)
-#ToDo: Do we need a stack to match openers and enders?
-        if re.match(ignorePattern, line):
-            additionList[fileName].append(line)
-            print("Found missclassified duplicate line: "+line+" in file: "+fileName)
-        else:
-            similarList[fileName].append(line)
-            scenario1 = False  
+        similarList[fileName].append(line)
 
+
+
+# Add code lines and completely new files to target, then exit the script 
+def finishWithScenario1():
+    global additionList, newFiles
+    print("Found no similarities! Scenario 1 is positive!")
+    
+    ### Only additions of SU -> Just add them to target, we are finished ###
+    for fileName in additionList.keys():
+        assembleFiles(fileName) 
+        
+    # Creates all files from the SU in Target, that did not exist there before (based on the newFiles list). 
+    print("Create completely new files in Target...")
+    createCompletelyNewFiles(newFiles)      
+    
+    #Finish workflow
+    print(" ### Code transplantation finished sucessfull! ### ")
+    print(" ### Please compile the code to check for duplicate identifiers ### ")
+    exit()
+
+         
 
 # For every function name in unchangedFunctionNames, there should be a header File with its declaration in similarList
 def checkHeadersForUnchangedFunctionDecls():
@@ -465,11 +456,10 @@ def checkHeadersForUnchangedFunctionDecls():
             print("Found probably missing declaration of the following functions in "+filename+": "+str(unchangedFunctionNames[filename]))
   
 
+
 # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
 # Otherwise (aside from defines) they cannot affect Target (as there are no uses from Target files to them)
-def createCompletelyNewFiles(fileList):
-    global additionList 
-    
+def createCompletelyNewFiles(fileList):  
     if DEBUG: print("List of completely new files: "+str(fileList))
     
     # Go to SU directory (not Donor, as the completely new files are still slices)
@@ -610,6 +600,17 @@ workflow()
 #os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
 #os.system("git apply "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")   
 
+        # This problem should be solved with the semantic enhancement 
+        
+        #Some lines may be found as equal, but do not have a functional effect (brackets, #endif, etc)
+        #Here we filter out missclassified block-enders (and add them to the addition list where they belong)
+#ToDo: Do we need a stack to match openers and enders?
+#        if re.match(ignorePattern, line):
+#            additionList[fileName].append(line)
+#            print("Found missclassified duplicate line: "+line+" in file: "+fileName)
+#        else:
+#            similarList[fileName].append(line)
+#            scenario1 = False 
     
         # -F disables regex (see input as string only), -x matches complete lines, -f compares files. Here we get all similar lines among SU and Target
 # ToDo think about implementing this? We iterate over the file currently twice (here and later)      Currently, we do not have the right order 
@@ -699,3 +700,31 @@ workflow()
 #    return patch
 
 # Addition of variability?
+
+
+# Analyses the code exclusive to the Target
+#def analyzeRemovals(line):
+    #Analyse whole blocks, not individual lines
+#    if line.startswith("###") and len(currentSimilarBlock) > 0:
+#        if DEBUG: print("Warning: In-block change found: "+line)
+#        inBlockChange = True
+#        currentSimilarBlock.append(line)
+#        if "###BlockEnder" in line:
+            #ToDO
+            #print("Warning: In-block change(s) found!")
+            #print(currentSimilarBlock)
+            
+            # Reset collectors
+#            currentSimilarBlock = []
+#            inBlockChange = False
+ #   else:        
+        # Add line to the list, remove the  the semantic enhancement
+#        removalList[fileName].append(re.sub(semanticBlockPattern, '', line))      
+
+
+                     
+# TODO do we need that? 
+   #                 #Write the remaining lines of Target (Target exclusive lines)        
+  #                  for line in targetFileContent:    
+   #                     diffFile.write("-"+line)
+    #                    analyzeRemovals(line, currentSimilarBlock, inBlockChange) 
