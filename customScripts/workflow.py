@@ -126,6 +126,10 @@ def workflow():
     if (scenario1):
         finishWithScenario1()
 
+    ## Got on with analyses for Scenario 2       
+    print("Found some similarities! Scenario 1 is negative!")
+    print(similarList)
+    print(" ### Check scenario 2 ### ")
     
     # Check header files for declarations of functions contained in Target and SU
     print("Unchanged functions: "+str(unchangedFunctionNames))
@@ -134,6 +138,11 @@ def workflow():
     #ToDo
     # Check similarities for entries that can savely remain in the SU (like inclusion of system headers)
     
+    # TODO
+    
+    # Looks for similarities in blocks or their identifiers
+    #blockScan() 
+    
     #ToDo
     #Copy functions that contain changes, change their name, scan whole SU for calls of that function and also change that name
     #Caution: Scanning the additonList is not enough, as we also have completelyNewFiles
@@ -141,21 +150,10 @@ def workflow():
     #ToDo
     #Do the same for global variables that are similar (change name everywhere in SU)
 
+
     # Creates all files from the SU in Target, that did not exist there before. 
     print("Create completely new files in Target...")
     createCompletelyNewFiles(newFiles)    
-    
-# TODO
-    
-    # Looks for similarities in blocks or their identifiers
-    #blockScan() 
-    
-
-  
-    ## Sc 2: Diff SU vs origin        
-    print("Found some similarities! Scenario 1 is negative!")
-    print(similarList)
-    print(" ### Check scenario 2 ### ")
 
     # Create the final files (this is here for testing purposes, currently it just adds everything from the additionList to Target)
     for fileName in additionList.keys():
@@ -219,7 +217,7 @@ def importProjectasCPG(projectname, internalPath):
     os.system("jess-import "+projectname+"") 
     
     # Validate CPG (this includes creating the ID list that is used by the codeConverter)
-    #TODO we could skip this step for performance. But then we need to tell the codeConverter the right projectname and ids
+#TODO we could skip this step for performance. But then we need to tell the codeConverter the right projectname and ids
     print(" ### Validating CPG of "+projectname+" ### ") 
     # Project name, working directory, internal structure of the project
     evaluateProject(projectname, topLvlDir+"/"+resultFoldername , internalPath) 
@@ -329,6 +327,8 @@ def getDiffs():
                             
                             # Changes inBlockChange and currentSimilarBlock
                             analyzeAdditions(line, filename)   
+                            
+#TODO We should check for functions that are shorter in SU that in Target (=missing some lines in SU). This also implies that we need an own implementation for SU.                            
                               
              
 
@@ -348,7 +348,7 @@ def analyzeAdditions(line, fileName):
         
         # We know that his block contains changes, so we do not need to check again
         if "###BlockEnder" in line:
-            #ToDO
+#ToDO
             #print("Warning: In-block change(s) found!")
             #print(currentSimilarBlock)
             
@@ -365,7 +365,7 @@ def analyzeAdditions(line, fileName):
         #Look for for non-function-like macros (identifier does not contain an opening bracket)
         if re.match("^\s*\#define [^(]+ ", line):
             print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
-            #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
+#TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
             listOfDefines.append(line)
 
                         
@@ -373,7 +373,7 @@ def analyzeAdditions(line, fileName):
                         
 # Analyses the code contained in SU and Target
 def analyzeSimilarities(line, fileName):
-    global similarList, additionList, unchangedFunctionNames, currentSimilarBlock, inBlockChange
+    global similarList, unchangedFunctionNames, currentSimilarBlock, inBlockChange
  
     #Analyse whole blocks, not individual lines
     if line.startswith("###"):
@@ -383,9 +383,11 @@ def analyzeSimilarities(line, fileName):
             print("Block ends here")
             # Are there changes inside the block or are they completely similar?
             if inBlockChange:
-                #ToDO
+#ToDO
                 print("Warning: In-block change(s) found!")
-                #print(currentSimilarBlock)
+                print(currentSimilarBlock)
+                prepareChangedBlock(currentSimilarBlock)
+                
             else:
                 # We do not need to add the block, as it is already contained in Target. It can savely stay there.
                 # But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
@@ -410,6 +412,20 @@ def analyzeSimilarities(line, fileName):
     else:
         if DEBUG: print("Duplicate lines found: "+line)
         similarList[fileName].append(line)
+
+
+
+def prepareChangedBlock(currentSimilarBlock):
+    global additionList
+    
+    #add whole block to additionList
+    #get identifier of block
+    #add prefix to identifer after we gathered all additions
+    #what if a completely reused  method also uses the changed method? this will not occur in the additionlist
+    #so we also have to look at the similarlist. There we should change the identifer of the call, but then we have to copy the functions again. instead, implement variability! #ifdef SU for additions, with #else or ifndef for Target exclusive content. But where to put the #define? What if we want both behaviors?
+    
+#ToDo: Think about dynamically building the merge result with functions, defines and ifdefs as fix points, to preserve each of their relevant orders.
+    
 
 
 
@@ -449,7 +465,8 @@ def checkHeadersForUnchangedFunctionDecls():
                         if DEBUG: print("Found matching decl for "+functionName+" in: "+filename)
                         found = True
                         #Remove content of the current entry
-                        similarList[filename][index] = ""
+#ToDo: We currently do not to that, becaus of the block scan for changed functions. Why do we do that anyway?                        
+                        #similarList[filename][index] = ""
                    
                 if not found:  print("Found probably missing declaration of the following function in "+filename+": "+functionName)
         else:
@@ -480,6 +497,7 @@ def createCompletelyNewFiles(fileList):
                 file.write(line)
                            
     os.chdir(topLvlDir+"/"+resultFoldername)
+
  
 # We need a deeper analysis of blocks (identifiers vs inside), as they were currently always identified as new lines (bc of the #Block# prefix)
 def blockScan():
@@ -503,12 +521,7 @@ def blockScan():
                             # If the identifier of the function definition is used in the Target, set Scenario 1 to false
                             print("Found current block: "+currentBlock)
                             scenario1 = False
-
                 
-              
-                
-                    #print(removalList[file])
-                    # Look in other files? There could be other included files with the same functio name?
                 
         # Is identifier in the file?
                 # No -> Do nothing. 
