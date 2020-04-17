@@ -28,6 +28,8 @@ originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" ####################
 #### Global variables ####
 # Get current path
 topLvlDir = os.getcwd()
+# Name of the configuration option to de/endable the SU
+SUName = "SU"
 # Add folder to work with
 resultFoldername = "Results"
 # Add folder for diffs
@@ -486,10 +488,17 @@ def createCompletelyNewFiles(fileList):
         #Copy file from SU to Target
         os.system("cp --parent -v -r "+fileName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
         
+        #Soround the SU code with an ifdef block
+#TODO We could/should add an include statement for a configuarion file here?        
+        fileContent = ["#ifdef "+SUName+"\n"]
+        
         #Read current file content (with semantic enhancement)
         with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+fileName, 'r') as file:
-            fileContent = file.readlines()
-            
+            fileContent += file.readlines()
+        
+        #End the ifdef block of the SU
+        fileContent += ["#endif\n"]
+        
         #Remove semantic enhancement   
         with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+fileName, 'w') as file:    
             for line in fileContent:
