@@ -330,7 +330,8 @@ def getDiffs():
                             anchorIndex = anchorIndex + 1
                             
                             #Add line after anchorIndex to mergeResult
-                            mergeResult[filename].insert(anchorIndex, line)
+#TODO Refine this behaviour to add the ifdef around coherent lines                             
+                            mergeResult[filename].insert(anchorIndex, "#ifdef "+SUName+"\n"+line+"#endif\n")
                             #Also add an empty line to the copy, to keep the indices consistent
                             mergeResultCopy_forSearching.insert(anchorIndex, "")
                             
