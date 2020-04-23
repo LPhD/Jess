@@ -38,8 +38,10 @@ diffFoldername = "DiffResults/"
 additionList = {}
 # Dictionary for all removals (content of the target file). We also add similar lines that can savely remain in the target (like whole method blocks)
 removalList = {}
-# Dictionary for all similar lines between donor and target file
+# Dictionary for all similar lines between donor and target file (with the relative order of their appearence in SU)
 similarList = {}
+# Dictionary for the final merge result
+mergeResult = {}
 # Collect lines of a block contained (at least partially) in Target and SU 
 currentSimilarBlock = []
 # List for all files that exist in the SU but not in Target
@@ -128,7 +130,7 @@ def workflow():
     if (scenario1):
         finishWithScenario1()
 
-    ## Got on with analyses for Scenario 2       
+    ## Go on with analyses for Scenario 2       
     print("Found some similarities! Scenario 1 is negative!")
     print(similarList)
     print(" ### Check scenario 2 ### ")
@@ -228,7 +230,7 @@ def importProjectasCPG(projectname, internalPath):
 
 # Setup for the analysis (copy files to the right place to get list of changed files)
 def initializeAnalysis():
-    global additionList, removalList, similarList, newFiles 
+    global additionList, removalList, similarList, mergeResult, newFiles 
     affectedTargetCodeFolder = "TargetProjectSliceCode/src"
     
     # Delete old results
@@ -251,6 +253,7 @@ def initializeAnalysis():
             additionList[fileName] = []    
             removalList[fileName] = []   
             similarList[fileName] = [] 
+            mergeResult[fileName] = [] 
         #Collect files exclusive to the SU    
         else:
             newFiles.append(fileName)
@@ -302,33 +305,83 @@ def getDiffs():
             with codecs.open("TargetProjectSliceCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as targetFile:
                 with codecs.open(diffFoldername+diffFileName, 'w', encoding='utf-8', errors='ignore') as diffFile:
                     #Get the content of the two files
-                    targetFileContent = targetFile.readlines()
+                    #targetFileContent = targetFile.readlines()
                     SUFileContent = SUFile.readlines()
+                    
+                    #Set initial merge result based on target
+                    mergeResult[filename] = targetFile.readlines()
+                    #Copy the merge result, as we need one list for searching (where matches get erased) and one for building the merge content
+                    mergeResultCopy_forSearching = mergeResult[filename].copy()
+                    
+                    #This index is for preserving the relative order of the statements. Currently, we add lines based on the position of their predecessor
+                    anchorIndex = 0
+                    
+                    print("Initial merge content: "+str(mergeResult))
+                    print("Initial merge content copy: "+str(mergeResultCopy_forSearching))
+                   
                     
                     #Compare each line of SU with each line of Target (and remove matched lines from targetFileContent afterwards, to reduce matching effort)
                     for line in SUFileContent:
-                                                
-                        # line is in Target and SU (ignore empty lines)
-                        if not line.startswith("\n") and line in targetFileContent:
-                            #We write this here only for logging purposes
-                            if DEBUG: diffFile.write(" "+line)        
+                        found = False
+                        
+                        #For each line of Target
+                        for index, targetLine in enumerate(mergeResultCopy_forSearching):
+                            # line is in Target and SU (ignore empty lines)
+                            if line == targetLine:
+                                print("Found same line: "+line+" at index: "+str(index))
+                                
+                                #We write this here only for logging purposes
+                                if DEBUG: diffFile.write(" "+line)   
+                                
+                                #Here, we get all lines that are common to SU and Target
+                                
+                                #Set the current anchorIndex, so that we insert the SU lines at the right position if possible
+                                anchorIndex = index
+                                
+                                found = True
+                                
+                                #Clear the matched line, as we need a one to one matching
+                                mergeResultCopy_forSearching[index] = ""
                             
-                            # Changes inBlockChange and currentSimilarBlock
-                            analyzeSimilarities(line, filename) 
-                                                                                                                                         
-                            #Remove line from target to reduce effort and get the Target exclusive files
-                            targetFileContent.remove(line)
+                                #Stops the iteration, as we change the length of the list and do not need to iterate further
+                                break
+                                
+                        # line is in SU but not in Target        
+                        if not found:
+                            print("+ + + Found additional line: "+line+" at index: "+str(index))
                             
-                            #Finally set the switch for scenario1 to false, as we do not have only additions
-                            scenario1 = False 
-                            
-                        # line is in SU but not in Target
-                        elif not line.startswith("\n"):
                             #We write this here only for logging purposes
                             if DEBUG: diffFile.write("+"+line)
                             
+                            #We set the new index of the current line as new anchor
+                            anchorIndex = anchorIndex + 1
+                            
+                            #Add line after anchorIndex to mergeResult
+                            mergeResult[filename].insert(anchorIndex, line)
+                            #Also add an empty line to the copy, to keep the indices consistent
+                            mergeResultCopy_forSearching.insert(anchorIndex, "")
+                            
+                            print("Insert new line at index: "+str(anchorIndex))
+                            
+                            #Check if line belongs to a block, keep blocks whole
+ 
+ 
+                        # line is in Target and SU (ignore empty lines)
+                        #if not line.startswith("\n") and line in targetFileContent:    
+                            
                             # Changes inBlockChange and currentSimilarBlock
-                            analyzeAdditions(line, filename)   
+                            #analyzeSimilarities(line, filename) 
+                                                                                                                                         
+                            #Remove line from target to reduce effort and get the Target exclusive files
+                            #targetFileContent.remove(line)
+                            
+                            #Finally set the switch for scenario1 to false, as we do not have only additions
+                            #scenario1 = False 
+                            
+                        # line is in SU but not in Target
+                        #elif not line.startswith("\n"):                            
+                            # Changes inBlockChange and currentSimilarBlock
+                            #analyzeAdditions(line, filename)   
                             
 #TODO We should check for functions that are shorter in SU that in Target (=missing some lines in SU). This also implies that we need an own implementation for SU.                            
                               
@@ -541,7 +594,7 @@ def blockScan():
 
 # Add the patch content to the respective file (append the content from SU to the TargetFiles?)   
 def assembleFiles(filePath):    
-    global additionList, removalList
+    global additionList, removalList, mergeResult
     fileContent = []
     lasNewline = False
     found = False
@@ -552,10 +605,10 @@ def assembleFiles(filePath):
     # Add target content (because similar lines stay in target and can be used by the SU, which therefore has to come after)
     with codecs.open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'r', encoding='utf-8', errors='ignore') as targetFile:
         fileContent += targetFile.read()
-    #fileContent += removalList[filePath]  
+ 
     
     fileContent.append("\n") 
-    fileContent.append("/* * * This is the beginning of the automatically transplanted code * * */") 
+    fileContent.append("#ifdef "+SUName+"\n") 
     fileContent.append("\n")  
     
 #TODO add variability implementation here    
@@ -577,13 +630,14 @@ def assembleFiles(filePath):
                 
     # Always end with newlines and a comment           
     fileContent.append("\n")  
-    fileContent.append("/* * * This is the end of the automatically transplanted code * * */")     
+    fileContent.append("#endif")     
     fileContent.append("\n") 
  
    
     # Write assembled content to file
     file = open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'w')   
-    file.write("".join(fileContent))
+    #file.write("".join(fileContent))
+    file.write("".join(mergeResult[filePath]))
     file.close()
 
         
