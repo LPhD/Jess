@@ -124,36 +124,7 @@ def workflow():
     ## Diff SU vs Target 
     print(" ### Diff SU vs Target  ### ")
     #Diff SU and Target (both with semantically enhanced code). Saves the different changes into their respective dictionary.
-    getDiffs()
-    
-    ### Scenario 1 is positive, if there are no similarities between donor and target ###
-    if (scenario1):
-        finishWithScenario1()
-
-    ## Go on with analyses for Scenario 2       
-    print("Found some similarities! Scenario 1 is negative!")
-    print(similarList)
-    print(" ### Check scenario 2 ### ")
-    
-    # Check header files for declarations of functions contained in Target and SU
-    print("Unchanged functions: "+str(unchangedFunctionNames))
-    checkHeadersForUnchangedFunctionDecls()
-    
-    #ToDo
-    # Check similarities for entries that can savely remain in the SU (like inclusion of system headers)
-    
-    # TODO
-    
-    # Looks for similarities in blocks or their identifiers
-    #blockScan() 
-    
-    #ToDo
-    #Copy functions that contain changes, change their name, scan whole SU for calls of that function and also change that name
-    #Caution: Scanning the additonList is not enough, as we also have completelyNewFiles
-    
-    #ToDo
-    #Do the same for global variables that are similar (change name everywhere in SU)
-
+    getDiffs()            
 
     # Creates all files from the SU in Target, that did not exist there before. 
     print("Create completely new files in Target...")
@@ -286,6 +257,8 @@ def initializeAnalysis():
 #Create relatable diffs for SU and Target using own implementation
 def getDiffs():      
     global scenario1
+    # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged, then we need to change this variable to global)
+    listOfDefines = []
     
     os.chdir(topLvlDir+"/"+resultFoldername)
     # Make folders for diff results
@@ -304,21 +277,15 @@ def getDiffs():
         with codecs.open("SUCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as SUFile:
             with codecs.open("TargetProjectSliceCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as targetFile:
                 with codecs.open(diffFoldername+diffFileName, 'w', encoding='utf-8', errors='ignore') as diffFile:
-                    #Get the content of the two files
-                    #targetFileContent = targetFile.readlines()
-                    SUFileContent = SUFile.readlines()
-                    
+                    #Get the content of SU
+                    SUFileContent = SUFile.readlines()                    
                     #Set initial merge result based on target
                     mergeResult[filename] = targetFile.readlines()
                     #Copy the merge result, as we need one list for searching (where matches get erased) and one for building the merge content
                     mergeResultCopy_forSearching = mergeResult[filename].copy()
                     
                     #This index is for preserving the relative order of the statements. Currently, we add lines based on the position of their predecessor
-                    anchorIndex = 0
-                    
-                    print("Initial merge content: "+str(mergeResult))
-                    print("Initial merge content copy: "+str(mergeResultCopy_forSearching))
-                   
+                    anchorIndex = 0                                       
                     
                     #Compare each line of SU with each line of Target (and remove matched lines from targetFileContent afterwards, to reduce matching effort)
                     for line in SUFileContent:
@@ -328,7 +295,7 @@ def getDiffs():
                         for index, targetLine in enumerate(mergeResultCopy_forSearching):
                             # line is in Target and SU (ignore empty lines)
                             if line == targetLine:
-                                print("Found same line: "+line+" at index: "+str(index))
+                                if DEBUG: print("Found same line: "+line+" at index: "+str(index))
                                 
                                 #We write this here only for logging purposes
                                 if DEBUG: diffFile.write(" "+line)   
@@ -348,8 +315,14 @@ def getDiffs():
                                 
                         # line is in SU but not in Target        
                         if not found:
-                            print("+ + + Found additional line: "+line+" at index: "+str(index))
+                            if DEBUG: print("+ + + Found additional line: "+line+" at index: "+str(index))
                             
+                            #Look for for non-function-like macros (identifier does not contain an opening bracket)
+                            if re.match("^\s*\#define [^(]+ ", line):
+                                print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
+                                listOfDefines.append(line)
+#TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
+                                       
                             #We write this here only for logging purposes
                             if DEBUG: diffFile.write("+"+line)
                             
@@ -363,35 +336,15 @@ def getDiffs():
                             
                             print("Insert new line at index: "+str(anchorIndex))
                             
-                            #Check if line belongs to a block, keep blocks whole
- 
- 
-                        # line is in Target and SU (ignore empty lines)
-                        #if not line.startswith("\n") and line in targetFileContent:    
-                            
-                            # Changes inBlockChange and currentSimilarBlock
-                            #analyzeSimilarities(line, filename) 
-                                                                                                                                         
-                            #Remove line from target to reduce effort and get the Target exclusive files
-                            #targetFileContent.remove(line)
-                            
-                            #Finally set the switch for scenario1 to false, as we do not have only additions
-                            #scenario1 = False 
-                            
-                        # line is in SU but not in Target
-                        #elif not line.startswith("\n"):                            
-                            # Changes inBlockChange and currentSimilarBlock
-                            #analyzeAdditions(line, filename)   
-                            
-#TODO We should check for functions that are shorter in SU that in Target (=missing some lines in SU). This also implies that we need an own implementation for SU.                            
+# TODO Check if line belongs to a block, keep blocks whole
+# ToDo: Add more complex analysis for #ifdefs and #defines? Currently we are just looking at one previous line
+                        
                               
              
 
 # Analyses the code exclusive to the SU
 def analyzeAdditions(line, fileName):
     global additionList, currentSimilarBlock, inBlockChange
-    # Collect all non-function-like defines here, to scan the whole project afterwards (after SU and Target are merged, then we need to change this variable to global)
-    listOfDefines = []
     
     print("Current block: "+str(currentSimilarBlock))
     
@@ -411,17 +364,9 @@ def analyzeAdditions(line, fileName):
             print("Block ended!")
             currentSimilarBlock = []
             inBlockChange = False
-    else:              
-        # Remove the the semantic enhancement 
-        line = re.sub(semanticBlockPattern, '', line)
-        # Add the line to its list
-        additionList[fileName].append(line)
+
                          
-        #Look for for non-function-like macros (identifier does not contain an opening bracket)
-        if re.match("^\s*\#define [^(]+ ", line):
-            print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
-#TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
-            listOfDefines.append(line)
+
 
                         
                         
@@ -443,44 +388,13 @@ def analyzeSimilarities(line, fileName):
                 print(currentSimilarBlock)
                 prepareChangedBlock(currentSimilarBlock)
                 
-            else:
-                # We do not need to add the block, as it is already contained in Target. It can savely stay there.
-                # But we need to add the declaration in the header file (or in fact check if it is collected in the similar lines and remove it from there)
-                # Add a key for the file, so that we can look in the respective header file
-                headerFilename = fileName.replace(".c", ".h", 1)
-                # Gets only the type and name of the function
-                result = re.search('###BlockEnder (.*) ###', line)
-                
-                # Check if we have a key for the headerfile
-                if headerFilename in unchangedFunctionNames:
-                    #Append entry for existing key
-                    unchangedFunctionNames[headerFilename].append(result.group(1))
-                else:
-                    #Make new entry if none exists for this file
-                    unchangedFunctionNames[headerFilename] = [result.group(1)]
                                       
             # Reset collectors
             print("Block ended!")
             currentSimilarBlock = []
             inBlockChange = False
             
-    else:
-        if DEBUG: print("Duplicate lines found: "+line)
-        similarList[fileName].append(line)
 
-
-
-def prepareChangedBlock(currentSimilarBlock):
-    global additionList
-    
-    #add whole block to additionList
-    #get identifier of block
-    #add prefix to identifer after we gathered all additions
-    #what if a completely reused  method also uses the changed method? this will not occur in the additionlist
-    #so we also have to look at the similarlist. There we should change the identifer of the call, but then we have to copy the functions again. instead, implement variability! #ifdef SU for additions, with #else or ifndef for Target exclusive content. But where to put the #define? What if we want both behaviors?
-    
-#ToDo: Think about dynamically building the merge result with functions, defines and ifdefs as fix points, to preserve each of their relevant orders.
-    
 
 
 
@@ -502,32 +416,7 @@ def finishWithScenario1():
     print(" ### Please compile the code to check for duplicate identifiers ### ")
     exit()
 
-         
-
-# For every function name in unchangedFunctionNames, there should be a header File with its declaration in similarList
-def checkHeadersForUnchangedFunctionDecls():
-    global unchangedFunctionNames, similarList
-
-    for filename in unchangedFunctionNames.keys():
-        # Check if we have the needed header file in the similarList
-        if filename in similarList.keys():
-            # Check for every function name
-            for functionName in unchangedFunctionNames[filename]:
-                found = False
-                for index, value in enumerate(similarList[filename]):
-                    # If there is an entry that contains this name in the similarList
-                    if functionName in value:
-                        if DEBUG: print("Found matching decl for "+functionName+" in: "+filename)
-                        found = True
-                        #Remove content of the current entry
-#ToDo: We currently do not to that, becaus of the block scan for changed functions. Why do we do that anyway?                        
-                        #similarList[filename][index] = ""
-                   
-                if not found:  print("Found probably missing declaration of the following function in "+filename+": "+functionName)
-        else:
-            print("Found probably missing declaration of the following functions in "+filename+": "+str(unchangedFunctionNames[filename]))
-  
-
+           
 
 # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
 # Otherwise (aside from defines) they cannot affect Target (as there are no uses from Target files to them)
@@ -561,84 +450,17 @@ def createCompletelyNewFiles(fileList):
     os.chdir(topLvlDir+"/"+resultFoldername)
 
  
-# We need a deeper analysis of blocks (identifiers vs inside), as they were currently always identified as new lines (bc of the #Block# prefix)
-def blockScan():
-    global additionList, removalList, scenario1
-    currentBlock = ""
-    print("Scan blocks")
-    for file in targetFiles:
-        for line in additionList[file]:
-            # Scan block content
-            if line.startswith("#Block#") or line.startswith("#FunctionDef#"):
-                # Beginning of the block
-                if line.startswith("#FunctionDef#") or line.startswith("#Block# #FunctionDef#"):
-                    # Get the identifiers of the functions (cut out the word befor the opening bracket)
-                    currentBlock = line.split(" (")[0].rsplit(' ',1)[1]
-                    print("Found beginning of block: "+currentBlock)
-                
-                    # Look for the identifier in the Target
-                    for anotherLine in removalList[file]:
-                        # TODO: Currently we can just check if the identifier name occurs in the target, we need a better method
-                        if currentBlock in anotherLine:
-                            # If the identifier of the function definition is used in the Target, set Scenario 1 to false
-                            print("Found current block: "+currentBlock)
-                            scenario1 = False
-                
-                
-        # Is identifier in the file?
-                # No -> Do nothing. 
-                # TODO for later: We could analyse if the content is the same and the name changed, then we need a namechange in all occurences of the SU
-                # Yes -> Sc1 is false. Here we need further analysis.
-    
-
 
 # Add the patch content to the respective file (append the content from SU to the TargetFiles?)   
 def assembleFiles(filePath):    
-    global additionList, removalList, mergeResult
-    fileContent = []
-    lasNewline = False
-    found = False
-    start = True    
-     
-
-#TODO instead read in each file? currently we are missing similar lines. Then we just have to watch removals (inside blocks) and do not have to collect them?    
-    # Add target content (because similar lines stay in target and can be used by the SU, which therefore has to come after)
-    with codecs.open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'r', encoding='utf-8', errors='ignore') as targetFile:
-        fileContent += targetFile.read()
- 
+    global mergeResult
     
-    fileContent.append("\n") 
-    fileContent.append("#ifdef "+SUName+"\n") 
-    fileContent.append("\n")  
-    
-#TODO add variability implementation here    
-    
-    # Write SU content to variable, without double newlines
-    for line in additionList[filePath]:
-        if line.startswith("\n"):    
-            lasNewline = True               
-        else:               
-            # Just add single newlines to the file
-            if lasNewline:
-               fileContent.append("\n")
-               lasNewline = False
-               
-            # Add the file content   
-            fileContent.append(line)
-                
-#TODO add variability implementation here  
-                
-    # Always end with newlines and a comment           
-    fileContent.append("\n")  
-    fileContent.append("#endif")     
-    fileContent.append("\n") 
- 
-   
     # Write assembled content to file
-    file = open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'w')   
-    #file.write("".join(fileContent))
-    file.write("".join(mergeResult[filePath]))
-    file.close()
+    with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'w') as file:
+        for line in mergeResult[filePath]:
+            line = re.sub(semanticBlockPattern, '', line)
+            file.write(line)
+        
 
         
 #### Helper functions end ####
