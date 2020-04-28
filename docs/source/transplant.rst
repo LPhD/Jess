@@ -5,7 +5,7 @@ Introduction
 -------------------------------------
 
 The last step of Jess' workflow is the automated migration of the identified Semantic Unit to a target software (called Target). 
-This process is also known as software transplantation (see http://crest.cs.ucl.ac.uk/autotransplantation/downloads/autotransplantation.pdf), where code is extracted and transplanted the Donor to a new target, 
+This process is also known as software transplantation (`see this paper <http://crest.cs.ucl.ac.uk/autotransplantation/downloads/autotransplantation.pdf>`_), where code is extracted and transplanted the Donor to a new target, 
 where Target should recieve additional functionality from Donor.
 
 The workflow.py script realizes an interactive workflow for this scenario.
@@ -22,12 +22,15 @@ First, you have to start the jess-server (terminal 1) and then open a new termin
 Note that the server needs to be restarted before each use of the script. Furthermore, the top level source code folder must be called src (this requirement should be omitted in the future).
 
 Terminal 1:
+
 .. code-block:: none
 
     cd $JESS
     ./jess-server.sh
 
+
 Terminal 2:
+
 .. code-block:: none
 
     cd $JESS/customScripts
@@ -41,7 +44,7 @@ After the code is cloned, Donor is imported as Code Property Graph with the proj
 
 If you choose (2), the last step is skipped. This means in particular the imported DonorProject stays the same (including node IDs).
 
-The next step is the invocation of the .. toctree:: slicing .. script. The only difference is that you have to choose DonorProject as input.
+The next step is the invocation of the Semantic Unit Identification script. The only difference is that you have to choose DonorProject as input.
 
 After the Semantic Unit is identified, it is automatically transplanted into Target. Therefore, the code of the Semantic Unit is inserted at suitable places of Target. 
 However, some fine polishing of the result is necessary, as the transplantation process does not solve conflicts or does not always know the right order of statements. 
