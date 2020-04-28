@@ -45,6 +45,7 @@ Contents:
 	installation
 	import
 	slicing
+	transplant
 ..
    Indices and tables
    ==================
