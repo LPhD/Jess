@@ -291,7 +291,7 @@ def getDiffs():
                         #For each line of Target
                         for index, targetLine in enumerate(mergeResultCopy_forSearching):
                             # line is in Target and SU (ignore empty lines)
-                            if line == targetLine:
+                            if (not line == "\n") and line == targetLine:
                                 if DEBUG: print("Found same line: "+line+" at index: "+str(index))
                                 
                                 #We write this here only for logging purposes
@@ -308,9 +308,12 @@ def getDiffs():
                                     #Also add an empty line to the copy, to keep the indices consistent
                                     mergeResultCopy_forSearching.insert(anchorIndex+1, "")
                                 
-                                
-                                #Set the current anchorIndex, so that we insert the SU lines at the right position if possible
-                                anchorIndex = index
+                                #If we added an additional line before the current index, we need to increment the anchor
+                                if anchorIndex <= index and lastLineIsExclusive:
+                                    anchorIndex = index +1
+                                else:
+                                    #Set the current anchorIndex, so that we insert the SU lines at the right position if possible
+                                    anchorIndex = index
                                                                 
                                 #Set new bools
                                 found = True
@@ -320,7 +323,7 @@ def getDiffs():
                                 break
                                 
                         # line is in SU but not in Target        
-                        if not found:
+                        if (not line == "\n") and not found:
                             if DEBUG: print("+ + + Found additional line: "+line+" at index: "+str(index))
                             
                             #Look for for non-function-like macros (identifier does not contain an opening bracket)
