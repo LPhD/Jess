@@ -27,9 +27,9 @@ generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = True
 ###################### Configuration options for entry point input ## ####################
-console = False
+console = True
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 ##########################################################################################
 
 
@@ -64,7 +64,12 @@ projectName = 'DonorProject'
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-entryPointIds = {106536}
+
+# 118808 main function
+# 348272 bubbleReversed call in main
+entryPointIds = {118808}
+#entryPointIds = {348272}
+
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
 semanticUnit = set()
@@ -237,7 +242,6 @@ def analyzeNode (currentNode):
     # Get the AST children if current vertice is an expression or identifierDecl statement
     if (type[0] in ["ExpressionStatement", "IdentifierDeclStatement"]):                       
         result = set(getASTChildren(currentNode))
-        print("Expression: "+str(result))
         # Get related elements of the AST children
         analysisList.extend(result)          
          # Print result

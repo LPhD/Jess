@@ -10,52 +10,38 @@ import codecs
 import pathlib
 import glob
 import time
+
+
 #Timer
 start_time = time.time()
+
 
 #### Configuration ####
 # Enable debug output
 DEBUG = False
-# Repo URL
-repoURL = "https://github.com/LPhD/EvoDiss.git" ###################################################
-# Relevant branches
-donorBranch = "OnlyBubble" ########################################################################################
-targetBranch = "Base_PL" ########################################################################################################
-originCommitID = "cbaaa929cd2b646cfd332ea753543e08a405bc4b" #########################################################################
+# Name of the configuration option to de/endable the SU
+SUName = "SU"
+
 
 #### Global variables ####
 # Get current path
 topLvlDir = os.getcwd()
-# Name of the configuration option to de/endable the SU
-SUName = "SU"
 # Add folder to work with
 resultFoldername = "Results"
 # Add folder for diffs
 diffFoldername = "DiffResults/"
 # Dictionary for the final merge result, key is the filepath (e.g. /src/C.c)
 mergeResult = {}
-# Collect lines of a block contained (at least partially) in Target and SU 
-currentSimilarBlock = []
 # List for all files that exist in the SU but not in Target
 newFiles = []
-# Dict for all function names that already exist in Target and are not changed by SU
-unchangedFunctionNames = {}
-# List for the file content of the patch
-patch = []
-# Regex pattern: Starts with +,-,@ or lines containing only whitespaces 
-changePattern = re.compile("(^[+-@])|(^(\s+)$)")
-# Ignore lines containing only closing brackets or #endifs
-ignorePattern = re.compile("(^((\s*[})]\s*)+)$)|(^((\s*\#endif\s*)+)$)")
 # Semantic blocks begin and end with ### (the *? activates non-greedy behavior, as the block should end with the first ###)
 functionBlockPattern = re.compile("###.*?###")
 # Semantic blocks begin and end with ### (the *? activates non-greedy behavior, as the block should end with the first #*#)
 ifdefBlockPattern = re.compile("#\*#.*?#\*#")
 # Combines all semantic block patterns (for removing them all)
 semanticBlockPattern = re.compile("(###.*?###)|(#\*#.*?#\*#)")
-# Are there changes inside blocks?
-inBlockChange = False
-# Bool for scenario 1 (only additions)
-scenario1 = True
+
+
 
 #### Main function ####
 
@@ -84,8 +70,8 @@ def workflow():
                 
         # Imports the Donor as Code Property Graph and validates the result
         os.chdir(topLvlDir+"/"+resultFoldername)
-        #importProjectasCPG("DonorProject", "/DonorProjectCode/src") 
-####################################################################################################  
+        importProjectasCPG("DonorProject", "/DonorProjectCode/src") 
+  
     else:
         #Reset Target Repo (remove unversioned files)
         print("Reset Target directory")
@@ -97,16 +83,11 @@ def workflow():
     print(" ### Start of Semantic Unit identification process ### ")
     print(" ### Please select 'DonorProject' as input project ### ")
     os.chdir(topLvlDir)
-    import SUI 
-####################################################################################    
-
-    print(" ### Convert SU back to source code ### ")
+    import SUI  
+    
     # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
-    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src") 
-####################################################################################    
-
-    # # # Scenario analysis # # #
-    print(" ### Starting analysis... ### ")
+    print(" ### Convert SU back to source code ### ")    
+    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")     
 
     ## Initalize analyses 
     print("Initializing...")  
@@ -123,6 +104,7 @@ def workflow():
     createCompletelyNewFiles(newFiles)    
 
     # Create the final files 
+    print("Create merged files in Target...")
     for fileName in mergeResult.keys():
         assembleFiles(fileName) 
         
@@ -139,20 +121,16 @@ def workflow():
 
 # Creates all needed repositories
 def createRepos():
-    #repoURL = input("Please type in the url to your Git repository \n") 
-#############################
+    repoURL = input("Please type in the url to your Git repository \n") 
     print("Set donor repo to: "+repoURL+".")
 
     # Get donor
-    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
-#################################################
+    donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
     print("Set donor branch to: "+donorBranch+".")
     os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/DonorProjectCode")  
 
-
     # Get target
-    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    
-#################################################
+    targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    
     print("Set target branch to: "+targetBranch+".")
     os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
  
@@ -192,7 +170,6 @@ def initializeAnalysis():
     # Delete old results
     os.chdir(topLvlDir+"/"+resultFoldername)
     if os.path.exists(affectedTargetCodeFolder): 
-#######################################################################################################################################
         shutil.rmtree(affectedTargetCodeFolder)
     os.makedirs(affectedTargetCodeFolder)
  
@@ -219,20 +196,16 @@ def initializeAnalysis():
     print("Copy differing files from Target")
     for filename in list(mergeResult.keys()):
         os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder)
-#######################################################################################################################################
     
     os.chdir(topLvlDir+"/"+resultFoldername)
     #Import Target as CPG 
     importProjectasCPG("TargetProjectSlice", "/"+affectedTargetCodeFolder) 
-#######################################################################################################################################
     
     #Remove old code results (replace the affected Target files with their semantic enhanced version)
     shutil.rmtree(affectedTargetCodeFolder) 
-#######################################################################################################################################
     
     #Export target to code with semantic enhancement
     convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) 
-############################################################################################################
 
 
 
