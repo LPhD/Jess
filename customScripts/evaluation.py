@@ -84,7 +84,7 @@ def evaluateProject (projectName, workingdir, projectPath):
     if (os.stat(projectName+"EvaluationResult.txt").st_size == 0):
         print("* * * Evaluation was successful, no differences found * * *")
     else:
-        print("Found some differences, please look at [ProjectName]EvaluationResult.txt for more details")
+        print("Found some differences, please look at "+projectName+"EvaluationResult.txt for more details")
 
 
 # When called via console, fill these out and add your project path to getProjectPath function

@@ -14,10 +14,8 @@ import time
 start_time = time.time()
 
 #### Configuration ####
-# Enable fully automated addition of the Semantic Unit to the target software
-autoAdd = False
 # Enable debug output
-DEBUG = True
+DEBUG = False
 # Repo URL
 repoURL = "https://github.com/LPhD/EvoDiss.git" ###################################################
 # Relevant branches
@@ -157,16 +155,6 @@ def createRepos():
 #################################################
     print("Set target branch to: "+targetBranch+".")
     os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
-
-
-    # Get origin (common ancestor)
-    #originCommitID = input("Please type in the commit ID of the commit that marks the last version before donor and target diverged (origin) \n") 
-#################################################   
-    print("Set common ancestor (origin) to: "+originCommitID+".")
-    os.system("git clone "+repoURL+" "+resultFoldername+"/OriginProjectCode")  
-    # Change current working directory to origin
-    os.chdir(topLvlDir+"/"+resultFoldername+"/OriginProjectCode")
-    os.system("git checkout "+originCommitID)
  
  
  
@@ -302,7 +290,6 @@ def getDiffs():
                                 
                                 #If the previous line was the last line of a SU exclusive block 
                                 if lastLineIsExclusive:
-                                    print("Add endif here")
                                     #Add the #endif after the index of the last SU exclusive line (which ends the block)
                                     mergeResult[filename].insert(anchorIndex+1, "#endif\n")
                                     #Also add an empty line to the copy, to keep the indices consistent
@@ -337,11 +324,9 @@ def getDiffs():
                             
                             #We set the new index of the current line as new anchor
                             anchorIndex = anchorIndex + 1
-                            
-                            
+                                                       
                             #If this is the first line of a SU exclusive block, insert an #ifdef
                             if not lastLineIsExclusive:
-                                print("Add ifdef here")
                                 mergeResult[filename].insert(anchorIndex, "#ifdef "+SUName+"\n")
                                 #Also add an empty line to the copy, to keep the indices consistent
                                 mergeResultCopy_forSearching.insert(anchorIndex, "")
@@ -355,7 +340,7 @@ def getDiffs():
                             
                             lastLineIsExclusive = True
                             
-                            print("Insert new line at index: "+str(anchorIndex))
+                            if DEBUG: print("Insert new line: "+line+"+ at index: "+str(anchorIndex))
                             
 # TODO Check if line belongs to a block, keep blocks whole
 # ToDo: Add more complex analysis for #ifdefs and #defines? Currently we are just looking at one previous line
@@ -412,162 +397,3 @@ def assembleFiles(filePath):
 
 # Start the workflow
 workflow()
-
-
-
-
-# Currently not needed stuff #   
-
-# Add new files, if any
-#os.chdir(topLvlDir+"/"+resultFoldername+"/Target/src/")
-#os.system("git add .") 
-# Get names of changed files
-#os.system("git diff --name-only --staged  > "+topLvlDir+"/"+resultFoldername+"/NameDiff.txt")
-# Get all affected files from the patch
-#targetFiles = getTargetFiles(topLvlDir+"/"+resultFoldername+"/NameDiff.txt", targetFiles) 
-
-#Diff SU and Target (both with semantically enhanced code). Ignore whitespace, tab or blank line changes. Use the histogram algorithm, as it is better at finding moved functions. The "patience" algorithm is an alternative, ToDO: check which one behaves better.
-#os.system("git diff -w -b --ignore-blank-lines --no-index --histogram TargetProjectSliceCode/ SUCode/ > S1Diff.txt")    
-#os.system("git diff -w -b --ignore-blank-lines --no-index --patience TargetProjectSliceCode/ SUCode/ > S1Diff.txt")  
- 
-#os.system("git diff -w -b --ignore-blank-lines --staged  > "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
- 
-# Reset working directory
-#print("Reset Target directory")
-#os.chdir(topLvlDir+"/"+resultFoldername+"/Target/")
-#os.system("git reset --hard")
-#os.system("git clean -fd")
-
-# Apply patch
-#os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/patch.patch")
-#os.system("git apply --stat "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")
-#os.system("git apply "+topLvlDir+"/"+resultFoldername+"/S1Diff.txt")   
-
-        # This problem should be solved with the semantic enhancement 
-        
-        #Some lines may be found as equal, but do not have a functional effect (brackets, #endif, etc)
-        #Here we filter out missclassified block-enders (and add them to the addition list where they belong)
-#ToDo: Do we need a stack to match openers and enders?
-#        if re.match(ignorePattern, line):
-#            additionList[fileName].append(line)
-#            print("Found missclassified duplicate line: "+line+" in file: "+fileName)
-#        else:
-#            similarList[fileName].append(line)
-#            scenario1 = False 
-    
-        # -F disables regex (see input as string only), -x matches complete lines, -f compares files. Here we get all similar lines among SU and Target
-# ToDo think about implementing this? We iterate over the file currently twice (here and later)      Currently, we do not have the right order 
-        #os.system("grep -Fxf TargetProjectSliceCode/src/"+filename+" SUCode/src/"+filename+" > "+diffFileNameSimilarities) 
-
-#ToDo This seems not to work so well        
-        # -v finds all different lines (seems not to work with -F). We now look for all lines that are only contained in SU (and therefore not in the similarities diff)
-        #os.system("grep -vxFf DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt SUCode/src/"+filename+" > "+diffFileName)       
-        # Finally we now look for all lines that are only contained in Target (and therefore not in the similarities diff)
-        #os.system("grep -vxFf DiffResults/Similarities/"+filename.replace("/","")+"Diff.txt TargetProjectSliceCode/src/"+filename+" > "+diffFileName) 
-
-# Regex pattern: Starts with +,-,@ or "diff --git" or "index" followed by a number or lines containing only whitespaces or lines containing only whitespaces and brackets
-#p = re.compile("(^[+-@])|(^diff --git)|(^index \d)|(^deleted file mode \d)|(^(\s+)$)|(^((\s*[}{()]\s*)+)$)")
-
-# Create a new branch from SU
-#os.chdir(topLvlDir+"/Code") --------------------------------------------------------------------------------------------
-#os.system("git init") --------------------------------------------------------------------------------------------
-#os.system("git checkout -b SU") --------------------------------------------------------------------------------------------
-#os.system("git add .") --------------------------------------------------------------------------------------------
-#os.system("git commit -m \"New Branch for SU\" ") --------------------------------------------------------------------------------------------
-
-# Make sure file encoding is UTF-8
-#os.chdir(topLvlDir+"/"+resultFoldername)
-#os.system("find -iname '*.[c|h]' -exec iconv -f iso8859-2 -t utf-8 -o {}.converted {} \; -exec mv {}.converted {} \;")
-
-
- 
-# Returns the file names of all files that are affected by changes
-#def getTargetFiles(patch, files):
-#    # Search for filenames
-#    with open(patch, 'r') as file:
-#        for line in file:
-#            files.append(line.replace("\n",""))
-#
-#    return files
-
-# Copy code results to the targetBranch and then compare
-#os.chdir(topLvlDir+"/"+resultFoldername+"/Code") ###################################################################################
-# Find files that end with .c or .h, then copy them from Code to Target/src, including their parent structure (--parents). Be verbose (-v)
-#os.system("find -iname '*.[c|h]' -exec cp --parent -v {} "+topLvlDir+"/"+resultFoldername+"/Target/src/ \;") ###################################################################################
-
-#    # # # Just add the Semantic Unit to the Target if autoAdd is enabled, no further analysis # # #
-#    if autoAdd:
-#        # Currently not working
-#        autoAddFunct()
-#    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #                                                 
-#    else:
-#        print("This is true")
-
-# Currently not working. Possible function for automated evaluation? Just adds the SU to the target.    
-#def autoAddFunct():    
-#    print(" ### Automated addition mode is activated ### ")
-#    print(" ### Convert SU back to source code ### ")
-#    # SU to code (into folder AutoAddCode) 
-#    convertToCode(False, topLvlDir+"/"+resultFoldername, "AutoAddCode")
-#    # Import SU as CPG (+ validation and creation of ID list needed for the conversion back to code)
-#    importProjectasCPG("SU")      
-#    # Add prefixes
-#    addPrefixes()
-#    # SU to code (into folder AutoAddCode) 
-#    convertToCode(False, topLvlDir+"/"+resultFoldername, "AutoAddCode")
-#    ## Add code to target
-#
-#    print(" ### Automated addition finished sucessfull ### ")
-#    # Terminate the workflow
-#    exit()
-
-# Adds prefixes to all identifiers in the SU that were declared inside
-#def addPrefixes():
-#    print("Adding prefixes...")
-#    # Connect to SU project
-#    db = DBInterface()
-#    db.connectToDatabase("SU")
-#    
-#    query = """g.V().has('type', 'Identifier').values("code")"""    
-#    
-#    print(db.runGremlinQuery(query))  
-
-    
-# Sometimes Git messes ob the matching of brackets or #endifs (identifies similar lines), we need to reverse that
-#def fixBrackets(patch, ignorePattern):
-#    for index,line in enumerate(patch):
-#        # Check for lines that contain ignored similarities
-#        if re.match(ignorePattern, line):
-#            patch[index] = "-" + line
-#                        
-#    return patch
-
-# Addition of variability?
-
-
-# Analyses the code exclusive to the Target
-#def analyzeRemovals(line):
-    #Analyse whole blocks, not individual lines
-#    if line.startswith("###") and len(currentSimilarBlock) > 0:
-#        if DEBUG: print("Warning: In-block change found: "+line)
-#        inBlockChange = True
-#        currentSimilarBlock.append(line)
-#        if "###BlockEnder" in line:
-            #ToDO
-            #print("Warning: In-block change(s) found!")
-            #print(currentSimilarBlock)
-            
-            # Reset collectors
-#            currentSimilarBlock = []
-#            inBlockChange = False
- #   else:        
-        # Add line to the list, remove the  the semantic enhancement
-#        removalList[fileName].append(re.sub(semanticBlockPattern, '', line))      
-
-
-                     
-# TODO do we need that? 
-   #                 #Write the remaining lines of Target (Target exclusive lines)        
-  #                  for line in targetFileContent:    
-   #                     diffFile.write("-"+line)
-    #                    analyzeRemovals(line, currentSimilarBlock, inBlockChange) 
