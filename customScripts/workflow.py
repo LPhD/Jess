@@ -34,13 +34,7 @@ SUName = "SU"
 resultFoldername = "Results"
 # Add folder for diffs
 diffFoldername = "DiffResults/"
-# Dictionary for all additions (content of the donor file)
-additionList = {}
-# Dictionary for all removals (content of the target file). We also add similar lines that can savely remain in the target (like whole method blocks)
-removalList = {}
-# Dictionary for all similar lines between donor and target file (with the relative order of their appearence in SU)
-similarList = {}
-# Dictionary for the final merge result
+# Dictionary for the final merge result, key is the filepath (e.g. /src/C.c)
 mergeResult = {}
 # Collect lines of a block contained (at least partially) in Target and SU 
 currentSimilarBlock = []
@@ -68,7 +62,7 @@ scenario1 = True
 #### Main function ####
 
 def workflow():
-    global additionList, removalList, similarList
+    global mergeResult
     
     #### Begin of the workflow #### 
     print(" ### Welcome to the interactive code migration workflow ### ")
@@ -130,10 +124,13 @@ def workflow():
     print("Create completely new files in Target...")
     createCompletelyNewFiles(newFiles)    
 
-    # Create the final files (this is here for testing purposes, currently it just adds everything from the additionList to Target)
-    for fileName in additionList.keys():
+    # Create the final files 
+    for fileName in mergeResult.keys():
         assembleFiles(fileName) 
-       
+        
+    #Finish workflow
+    print(" ### Code transplantation finished sucessfull! ### ")
+    print(" ### Please compile the code to check for duplicate identifiers ### ")               
     print ("The whole workflow took", time.time() - start_time, "seconds to run")  
         
 #TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
@@ -201,7 +198,7 @@ def importProjectasCPG(projectname, internalPath):
 
 # Setup for the analysis (copy files to the right place to get list of changed files)
 def initializeAnalysis():
-    global additionList, removalList, similarList, mergeResult, newFiles 
+    global mergeResult, newFiles 
     affectedTargetCodeFolder = "TargetProjectSliceCode/src"
     
     # Delete old results
@@ -220,22 +217,19 @@ def initializeAnalysis():
 
     for fileName in SUFiles:
         #Collect all files that can be affected by a merge
-        if fileName in targetFiles:
-            additionList[fileName] = []    
-            removalList[fileName] = []   
-            similarList[fileName] = [] 
+        if fileName in targetFiles: 
             mergeResult[fileName] = [] 
         #Collect files exclusive to the SU    
         else:
             newFiles.append(fileName)
             
-    if DEBUG: print("Affected files: "+str(additionList.keys()))  
+    if DEBUG: print("Affected files: "+str(mergeResult.keys()))  
     if DEBUG: print("Files exclusive to the SU: "+str(newFiles))  
  
     #Copy only affected files from TargetCode to affectedTargetCodeFolder 
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
     print("Copy differing files from Target")
-    for filename in list(additionList.keys()):
+    for filename in list(mergeResult.keys()):
         os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder)
 #######################################################################################################################################
     
@@ -267,7 +261,7 @@ def getDiffs():
     os.makedirs(diffFoldername)
     
     #Find similar lines for each file-pair of SU and Target
-    for filename in additionList.keys():
+    for filename in mergeResult.keys():
         diffFileName = filename.replace("/",".")+"Diff.txt"
         
         if DEBUG: print("Current diff file: "+diffFileName)
@@ -285,7 +279,10 @@ def getDiffs():
                     mergeResultCopy_forSearching = mergeResult[filename].copy()
                     
                     #This index is for preserving the relative order of the statements. Currently, we add lines based on the position of their predecessor
-                    anchorIndex = 0                                       
+                    anchorIndex = 0       
+                    
+                    #We want to keep the SU exclusive blocks together, so we check if the previous line was exclusive
+                    lastLineIsExclusive = False                    
                     
                     #Compare each line of SU with each line of Target (and remove matched lines from targetFileContent afterwards, to reduce matching effort)
                     for line in SUFileContent:
@@ -300,16 +297,25 @@ def getDiffs():
                                 #We write this here only for logging purposes
                                 if DEBUG: diffFile.write(" "+line)   
                                 
-                                #Here, we get all lines that are common to SU and Target
+                                #Clear the matched line, as we need a one to one matching
+                                mergeResultCopy_forSearching[index] = ""
+                                
+                                #If the previous line was the last line of a SU exclusive block 
+                                if lastLineIsExclusive:
+                                    print("Add endif here")
+                                    #Add the #endif after the index of the last SU exclusive line (which ends the block)
+                                    mergeResult[filename].insert(anchorIndex+1, "#endif\n")
+                                    #Also add an empty line to the copy, to keep the indices consistent
+                                    mergeResultCopy_forSearching.insert(anchorIndex+1, "")
+                                
                                 
                                 #Set the current anchorIndex, so that we insert the SU lines at the right position if possible
                                 anchorIndex = index
-                                
+                                                                
+                                #Set new bools
                                 found = True
-                                
-                                #Clear the matched line, as we need a one to one matching
-                                mergeResultCopy_forSearching[index] = ""
-                            
+                                lastLineIsExclusive = False
+                                                            
                                 #Stops the iteration, as we change the length of the list and do not need to iterate further
                                 break
                                 
@@ -329,11 +335,22 @@ def getDiffs():
                             #We set the new index of the current line as new anchor
                             anchorIndex = anchorIndex + 1
                             
-                            #Add line after anchorIndex to mergeResult
-#TODO Refine this behaviour to add the ifdef around coherent lines                             
-                            mergeResult[filename].insert(anchorIndex, "#ifdef "+SUName+"\n"+line+"#endif\n")
+                            
+                            #If this is the first line of a SU exclusive block, insert an #ifdef
+                            if not lastLineIsExclusive:
+                                print("Add ifdef here")
+                                mergeResult[filename].insert(anchorIndex, "#ifdef "+SUName+"\n")
+                                #Also add an empty line to the copy, to keep the indices consistent
+                                mergeResultCopy_forSearching.insert(anchorIndex, "")
+                                #We set the new index of the current line as new anchor
+                                anchorIndex = anchorIndex + 1
+                           
+                            # Add the SU exclusive line at the new index
+                            mergeResult[filename].insert(anchorIndex, line)
                             #Also add an empty line to the copy, to keep the indices consistent
                             mergeResultCopy_forSearching.insert(anchorIndex, "")
+                            
+                            lastLineIsExclusive = True
                             
                             print("Insert new line at index: "+str(anchorIndex))
                             
@@ -341,83 +358,7 @@ def getDiffs():
 # ToDo: Add more complex analysis for #ifdefs and #defines? Currently we are just looking at one previous line
                         
                               
-             
-
-# Analyses the code exclusive to the SU
-def analyzeAdditions(line, fileName):
-    global additionList, currentSimilarBlock, inBlockChange
-    
-    print("Current block: "+str(currentSimilarBlock))
-    
-    #Analyse whole blocks, not individual lines
-    if line.startswith("###") and len(currentSimilarBlock) > 0:
-        if DEBUG: print("Warning: In-block change found: "+line)
-        inBlockChange = True
-        currentSimilarBlock.append(line)
-        
-        # We know that his block contains changes, so we do not need to check again
-        if "###BlockEnder" in line:
-#ToDO
-            #print("Warning: In-block change(s) found!")
-            #print(currentSimilarBlock)
-            
-            # Reset collectors
-            print("Block ended!")
-            currentSimilarBlock = []
-            inBlockChange = False
-
-                         
-
-
-                        
-                        
-                        
-# Analyses the code contained in SU and Target
-def analyzeSimilarities(line, fileName):
-    global similarList, unchangedFunctionNames, currentSimilarBlock, inBlockChange
- 
-    #Analyse whole blocks, not individual lines
-    if line.startswith("###"):
-        if DEBUG: print("Duplicate in-block lines found: "+line)
-        currentSimilarBlock.append(line)
-        if "###BlockEnder" in line:
-            print("Block ends here")
-            # Are there changes inside the block or are they completely similar?
-            if inBlockChange:
-#ToDO
-                print("Warning: In-block change(s) found!")
-                print(currentSimilarBlock)
-                prepareChangedBlock(currentSimilarBlock)
-                
-                                      
-            # Reset collectors
-            print("Block ended!")
-            currentSimilarBlock = []
-            inBlockChange = False
-            
-
-
-
-
-# Add code lines and completely new files to target, then exit the script 
-def finishWithScenario1():
-    global additionList, newFiles
-    print("Found no similarities! Scenario 1 is positive!")
-    
-    ### Only additions of SU -> Just add them to target, we are finished ###
-    for fileName in additionList.keys():
-        assembleFiles(fileName) 
-        
-    # Creates all files from the SU in Target, that did not exist there before (based on the newFiles list). 
-    print("Create completely new files in Target...")
-    createCompletelyNewFiles(newFiles)      
-    
-    #Finish workflow
-    print(" ### Code transplantation finished sucessfull! ### ")
-    print(" ### Please compile the code to check for duplicate identifiers ### ")
-    exit()
-
-           
+                     
 
 # Write completely new files directly to Target. We need to syntax check later, as they could accidentally double declare identifiers.
 # Otherwise (aside from defines) they cannot affect Target (as there are no uses from Target files to them)
