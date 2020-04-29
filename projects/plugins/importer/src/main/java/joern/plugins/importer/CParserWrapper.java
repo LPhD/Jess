@@ -25,7 +25,7 @@ public class CParserWrapper {
 
 	public void walkCodebase(String[] fileAndDirNames) {
 		try {
-			sourceFileWalker.walk(fileAndDirNames);
+			sourceFileWalker.walk(fileAndDirNames);	
 		} catch (IOException err) {
 			System.err.println("Error walking source files: " + err.getMessage());
 		} finally {

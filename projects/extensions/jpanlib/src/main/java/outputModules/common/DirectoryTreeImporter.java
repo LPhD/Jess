@@ -1,5 +1,6 @@
 package outputModules.common;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Stack;
@@ -26,19 +27,18 @@ public abstract class DirectoryTreeImporter {
 		directoryStack.push(node);
 	}
 
-	public void exitDir(Path dir) {
-		//Connect c files with its header files
-		matchHeaderToFile();
-		//Connect files with included files
-		matchIncludeToFile();
-		//Clears list of include statements and files in this directory
-		IncludeAnalyzer.includeNodeList.clear();
-		IncludeAnalyzer.fileNodeList.clear();
-		//Clears list of header and c files in this directory
-		headerList.clear();
-		cFileList.clear();
+	//Dirs are exited from leaf to root (from lower to higher)
+	public void exitDir(Path dir) {	
 		//Leave directory
 		directoryStack.pop();
+		
+		//Just analyze once when the top dir is reached
+		if (directoryStack.isEmpty()){
+			//Connect c files with its header files
+			matchHeaderToFile();
+			//Connect files with included files
+			matchIncludeToFile();
+		}		
 	}
 
 	public void enterFile(Path pathToFile) {
@@ -46,8 +46,10 @@ public abstract class DirectoryTreeImporter {
 		insertFileNode(pathToFile, node);
 		linkWithParentDirectory(node);
 		state.setCurrentFileNode(node);
+		
 		//Adds file to list of files for this directory
 		IncludeAnalyzer.fileNodeList.put(node.getFileName(), node);
+		
 		// Adds file to header list or c file list (or none of them)
 		String nodeName = node.getFileName();
 		if(nodeName.endsWith(".h")) {
@@ -91,9 +93,8 @@ public abstract class DirectoryTreeImporter {
 	}
 	
 	/**
-	 * Matches the fileDatabaseNodes in IncludeAnalyzer.fileNodeList with the
-	 * includeNodes in IncludeAnalyzer.includeNodeList and connects them with an
-	 * include link. Then removes the includeNode from the list.
+	 * Matches the nodes in headerList with the nodes in cFileList and connects them with
+	 * an "IS_HEADER_OF" link. Then removes both files from the list.
 	 */
 	public void matchHeaderToFile() {
 		//For each c file
@@ -108,21 +109,27 @@ public abstract class DirectoryTreeImporter {
 		});
 	}
 	
+	
+	
 	/**
-	 * Matches the nodes in headerList with the nodes in cFileList and connects them with
-	 * an "IS_HEADER_OF" link. Then removes both files from the list.
+	 * Matches the fileDatabaseNodes in IncludeAnalyzer.fileNodeList with the
+	 * includeNodes in IncludeAnalyzer.includeNodeList and connects them with an
+	 * include link. Then removes the includeNode from the list.
 	 */
 	public void matchIncludeToFile() {	
-		String filename = "";
+		File filename;
 			for (ASTDatabaseNode includeNode : IncludeAnalyzer.includeNodeList) {
 				//Remove whitespaces and quotes from filename
-				filename = (includeNode.getAstNode().getEscapedCodeStr()).replaceAll("\"|\\s+", "");
+				filename = new File(includeNode.getAstNode().getEscapedCodeStr().replaceAll("\"|\\s+", ""));
+				
 				//Draw includes-connection if filename and included filename match
-				if(IncludeAnalyzer.fileNodeList.containsKey(filename)) {
-					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename));
+				if(IncludeAnalyzer.fileNodeList.containsKey(filename.getName())) {
+					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename.getName()));
 				}	
 			}	
 	}
+	
+
 	
 	protected abstract void linkWithParentDirectory(FileDatabaseNode node);
 	protected abstract void insertNode(FileDatabaseNode node);

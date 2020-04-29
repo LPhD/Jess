@@ -26,7 +26,15 @@ You can select the entry point and the project to be analyzed via console input.
 The rules for finding semantically related elements can be configured with the configuration options inside the script. 
 For more details, read the full documentation: https://jess.readthedocs.io/en/
 
--patchCreator: Creates a reduced code slice based on the results of SUI.py. 
+-codeConverter: Creates a reduced code slice based on the results of SUI.py. 
 This slice follows the same structure (e.g., folder and file names and nesting, line numbers of the code statements) as the original project, 
 but only contains the lines of code that are part of the identified semantic unit. 
 This slice can then be merged (for example via git merge) into the desired project.
+
+-evaluation: Validates the Code Property Graph of a project against the original source code (by converting the graph back to code and diffing it).
+The name and project structure must be edited inside the script. 
+
+-workflow: Realizes an interactive workflow for the migration of a Semantic Unit from a donor to a target software.
+Contains the functionality of the SUI, codeConverter and evaluation script.
+Furthermore, the script clones the necessary Git branches/commits and allows to semi-automate the whole migration process.
+Currently, the configuration of the Semantic Unit identification process must still be set manually in the SUI script.
