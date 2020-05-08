@@ -52,8 +52,12 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		if(ctx.getText().equals(";")) {
 //			System.out.println("Found irrelevant water: "+ctx.start);
 		} else {
-			System.out.println("Found water: "+ctx.getText()+ "at line: "+ctx.getStart().getLine());
+//			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getStart().getLine());
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx);
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getParent());
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getParent().getText());
 		}
+		System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getStart().getLine());
 	}
 
 	@Override
