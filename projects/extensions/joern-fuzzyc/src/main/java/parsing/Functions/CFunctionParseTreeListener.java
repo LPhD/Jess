@@ -1,5 +1,7 @@
 package parsing.Functions;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+
 import antlr.FunctionBaseListener;
 import antlr.FunctionParser;
 import parsing.ANTLRParserDriver;
@@ -56,8 +58,12 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx);
 			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getParent());
 			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getParent().getText());
-			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getStart().getParent().getText());
-			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getStart().getParent().getLine());
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+((ParserRuleContext) ctx.getStart()).getParent().getStart().getLine());
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+((ParserRuleContext) ctx.getStart()).getParent().getStart().getText());
+			
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.toInfoString(null));
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.toString());
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getSourceInterval());
 		}
 	}
 
