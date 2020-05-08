@@ -56,8 +56,9 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx);
 			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getParent());
 			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getParent().getText());
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getStart().getParent().getText());
+			System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getStart().getParent().getLine());
 		}
-		System.out.println("Found water: "+ctx.getText()+ " in function beginning at line: "+ctx.getStart().getLine());
 	}
 
 	@Override
