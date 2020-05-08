@@ -52,7 +52,9 @@ parameter_name: identifier;
 param_type_list: '(' VOID ')'
                | '(' NEWLINE? (param_type NEWLINE? (',' NEWLINE? param_type)*)? ')';
 
-param_type: param_decl_specifiers param_type_id;
+param_type: param_decl_specifiers param_type_id
+                | '...' ;
+                
 param_type_id: ptrs? ('(' NEWLINE? param_type_id NEWLINE? ')' | parameter_name?) type_suffix?;
 
 // operator-identifiers not implemented

@@ -32,6 +32,19 @@ public class OtherTests extends FunctionDefinitionTests {
 				+ "))))) ;)))", output);
 	}
 	
+	
+	@Test
+	public void testDeclWithParamVarArgs() {
+		String input = "void log_debug(const char *fmt, ...);";
+
+		ModuleParser parser = createParser(input);
+		String output = parser.simple_decl().toStringTree(parser);
+		assertEquals("(simple_decl (var_decl (type_name (base_type void)) "
+				+ "(init_declarator_list (init_declarator (declarator (identifier log_debug) "
+				+ "(type_suffix (param_type_list ( (param_type (param_decl_specifiers (type_name const (base_type char) (ptr_operator *) (base_type fmt))) param_type_id) "
+				+ ", (param_type ...) ))))) ;)))", output);
+	}
+	
 	@Test
 	public void testOperatorOverloading() {
 		String input = "inline bool operator == (const PlMessageHeader &b) const {}";
