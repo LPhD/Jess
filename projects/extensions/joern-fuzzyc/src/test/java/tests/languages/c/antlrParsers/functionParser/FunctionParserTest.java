@@ -28,7 +28,7 @@ public class FunctionParserTest extends FunctionParserTestBase {
 		assertEquals("(statements (statement (simple_decl (var_decl (type_name (base_type int)) "
 				+ "(init_declarator_list (init_declarator (declarator (identifier a))"
 				+ " = "
-				+ "(initializer (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (constant 5))))))))))))))))))) "
+				+ "(argument (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (constant 5))))))))))))))))))) "
 				+ ";)))) "
 				+ "(statement (newline \\n)))"
 				,output);

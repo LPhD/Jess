@@ -786,26 +786,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitInit_declarator_list(FunctionParser.Init_declarator_listContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#initializer}.
-	 * @param ctx the parse tree
-	 */
-	void enterInitializer(FunctionParser.InitializerContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#initializer}.
-	 * @param ctx the parse tree
-	 */
-	void exitInitializer(FunctionParser.InitializerContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#initializer_list}.
-	 * @param ctx the parse tree
-	 */
-	void enterInitializer_list(FunctionParser.Initializer_listContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#initializer_list}.
-	 * @param ctx the parse tree
-	 */
-	void exitInitializer_list(FunctionParser.Initializer_listContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link FunctionParser#class_def}.
 	 * @param ctx the parse tree
 	 */
@@ -1234,6 +1214,18 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitIncDecOp(FunctionParser.IncDecOpContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code arrayAssign}
+	 * labeled alternative in {@link FunctionParser#postfix_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayAssign(FunctionParser.ArrayAssignContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrayAssign}
+	 * labeled alternative in {@link FunctionParser#postfix_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayAssign(FunctionParser.ArrayAssignContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code primaryOnly}
 	 * labeled alternative in {@link FunctionParser#postfix_expression}.
 	 * @param ctx the parse tree
@@ -1282,25 +1274,35 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPtrMemberAccess(FunctionParser.PtrMemberAccessContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#function_argument_list}.
+	 * Enter a parse tree produced by {@link FunctionParser#initializer_expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunction_argument_list(FunctionParser.Function_argument_listContext ctx);
+	void enterInitializer_expression(FunctionParser.Initializer_expressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link FunctionParser#function_argument_list}.
+	 * Exit a parse tree produced by {@link FunctionParser#initializer_expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunction_argument_list(FunctionParser.Function_argument_listContext ctx);
+	void exitInitializer_expression(FunctionParser.Initializer_expressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#function_argument}.
+	 * Enter a parse tree produced by {@link FunctionParser#argument_list}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunction_argument(FunctionParser.Function_argumentContext ctx);
+	void enterArgument_list(FunctionParser.Argument_listContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link FunctionParser#function_argument}.
+	 * Exit a parse tree produced by {@link FunctionParser#argument_list}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunction_argument(FunctionParser.Function_argumentContext ctx);
+	void exitArgument_list(FunctionParser.Argument_listContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#argument}.
+	 * @param ctx the parse tree
+	 */
+	void enterArgument(FunctionParser.ArgumentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#argument}.
+	 * @param ctx the parse tree
+	 */
+	void exitArgument(FunctionParser.ArgumentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#primary_expression}.
 	 * @param ctx the parse tree

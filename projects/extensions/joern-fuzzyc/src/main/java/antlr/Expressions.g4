@@ -3,7 +3,11 @@ import ModuleLex;
 
 expr: assign_expr (ESCAPE NEWLINE)* (NEWLINE* ',' NEWLINE* expr)? (ESCAPE NEWLINE)*;
 
-assign_expr: conditional_expression (NEWLINE* assignment_operator NEWLINE* assign_expr)?;
+
+
+assign_expr: conditional_expression (NEWLINE* assignment_operator NEWLINE* assign_expr)?; //something = something
+
+
 
 conditional_expression: or_expression #normOr
 		      | or_expression (NEWLINE* '?' NEWLINE* expr NEWLINE* ':' NEWLINE* conditional_expression) #cndExpr;
@@ -68,19 +72,24 @@ inc_dec: ('--' | '++');
 // here because C programs can use 'public', 'protected' or 'private'
 // as variable names.
 
-postfix_expression: postfix_expression NEWLINE* '[' expr ']' #arrayIndexing
-                  | postfix_expression NEWLINE* '(' function_argument_list ')' #funcCall
+postfix_expression: postfix_expression NEWLINE* '[' expr? ']' #arrayIndexing
+                  | postfix_expression NEWLINE* '(' argument_list? ')' #funcCall
                   | postfix_expression '.' NEWLINE* TEMPLATE? (identifier) #memberAccess
                   | postfix_expression '->' NEWLINE* TEMPLATE? (identifier) #ptrMemberAccess
                   | postfix_expression NEWLINE* inc_dec #incDecOp
+                  | type_name? initializer_expression #arrayAssign // arrayName[] = {1}
                   | primary_expression # primaryOnly
                   | ptr_operator? inc_dec NEWLINE* ptr_operator? primary_expression #incDecOp
                   ;
+                  
+initializer_expression:  OPENING_CURLY NEWLINE* (COMMENT NEWLINE*)* argument_list? NEWLINE* (COMMENT NEWLINE*)* CLOSING_CURLY;   //Can be an empty list
 
-function_argument_list: ( function_argument+ (',' NEWLINE* function_argument+)* )?;
-//Allow newlines in between arguments without a ',' separator, as they can be macro calls
-function_argument: assign_expr NEWLINE*;
+argument_list: argument NEWLINE* (','?  NEWLINE* (COMMENT NEWLINE*)* argument)* ','?;       // Allows empty arguments after a comma           
 
+argument: assign_expr
+           | ( (COMMENT NEWLINE*)* pre_macro_identifier NEWLINE*)+
+           | ( (COMMENT NEWLINE*)* macroCall NEWLINE*)+
+        ;
 
 primary_expression: identifier | constant | '(' expr ')';
 

@@ -16,14 +16,7 @@ special_datatype:SPECIAL_DATA identifier? OPENING_CURLY {skipToEndOfObject(); } 
         
 init_declarator_list: init_declarator (','  NEWLINE* init_declarator)* ';';
 
-initializer: assign_expr
-           | ( (COMMENT NEWLINE*)* pre_macro_identifier NEWLINE*)+
-           | ( (COMMENT NEWLINE*)* macroCall NEWLINE*)+
-           |'{' NEWLINE* (COMMENT NEWLINE*)* initializer_list NEWLINE* (COMMENT NEWLINE*)* '}'
-           |'{' NEWLINE* (COMMENT NEWLINE*)* '}'
-;
 
-initializer_list: initializer (','  NEWLINE* (COMMENT NEWLINE*)* initializer)* ','?;
 
 
 class_def: CLASS_KEY class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;

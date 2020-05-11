@@ -705,17 +705,6 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		builder.exitUnaryOperator(ctx);
 	}
 
-	@Override
-	public void enterFunction_argument_list(FunctionParser.Function_argument_listContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterArgumentList(ctx);
-	}
-
-	@Override
-	public void exitFunction_argument_list(FunctionParser.Function_argument_listContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.exitArgumentList(ctx);
-	}
 
 	@Override
 	public void enterInc_dec(FunctionParser.Inc_decContext ctx) {
@@ -814,27 +803,27 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 	}
 
 	@Override
-	public void enterFunction_argument(FunctionParser.Function_argumentContext ctx) {
+	public void enterArgument_list(FunctionParser.Argument_listContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterArgumentList(ctx);
+	}
+
+	@Override
+	public void exitArgument_list(FunctionParser.Argument_listContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitArgumentList(ctx);
+	}
+	
+	@Override
+	public void enterArgument(FunctionParser.ArgumentContext ctx) {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterArgument(ctx);
 	}
 
 	@Override
-	public void exitFunction_argument(FunctionParser.Function_argumentContext ctx) {
+	public void exitArgument(FunctionParser.ArgumentContext ctx) {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitArgument(ctx);
-	}
-
-	@Override
-	public void enterInitializer_list(FunctionParser.Initializer_listContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterInitializerList(ctx);
-	}
-
-	@Override
-	public void exitInitializer_list(FunctionParser.Initializer_listContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.exitInitializerList(ctx);
 	}
 
 	@Override

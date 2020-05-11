@@ -61,7 +61,6 @@ The selected elements of the Semantic Unit (output) depend on the type of the gi
 	• 'CFGEntryNode' ENRTY
 	• 'CFGExitNode' EXIT
 	• 'Symbol' (already contained in the dataflow analysis)
-	• 'InitializerList' 7 (size of list)
 	• 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
 	• 'IdentifierDecl' i (contained in IdentifierDeclStatement)
 	• 'ParameterType' int (contained in ParameterList)

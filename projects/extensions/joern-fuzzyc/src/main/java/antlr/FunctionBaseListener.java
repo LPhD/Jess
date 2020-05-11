@@ -910,30 +910,6 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInitializer(FunctionParser.InitializerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInitializer(FunctionParser.InitializerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterInitializer_list(FunctionParser.Initializer_listContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInitializer_list(FunctionParser.Initializer_listContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterClass_def(FunctionParser.Class_defContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1438,6 +1414,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArrayAssign(FunctionParser.ArrayAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayAssign(FunctionParser.ArrayAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPrimaryOnly(FunctionParser.PrimaryOnlyContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1486,25 +1474,37 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunction_argument_list(FunctionParser.Function_argument_listContext ctx) { }
+	@Override public void enterInitializer_expression(FunctionParser.Initializer_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunction_argument_list(FunctionParser.Function_argument_listContext ctx) { }
+	@Override public void exitInitializer_expression(FunctionParser.Initializer_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunction_argument(FunctionParser.Function_argumentContext ctx) { }
+	@Override public void enterArgument_list(FunctionParser.Argument_listContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunction_argument(FunctionParser.Function_argumentContext ctx) { }
+	@Override public void exitArgument_list(FunctionParser.Argument_listContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArgument(FunctionParser.ArgumentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArgument(FunctionParser.ArgumentContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

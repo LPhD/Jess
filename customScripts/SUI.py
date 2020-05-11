@@ -439,7 +439,6 @@ def analyzeNode (currentNode):
     # 'ReturnType' void
     # 'CFGEntryNode' ENRTY
     # 'CFGExitNode' EXIT
-    # 'InitializerList' 7 (size of list)
     # 'PreMacroParameters' parameters of a function-like macro
     # 'PreMacro' the macro content
     # 'BreakStatement', 'ContinueStatement'

@@ -4,7 +4,7 @@ grammar FineSimpleDecl;
 import SimpleDecl;
 
 init_declarator: declarator '(' expr? ')' #initDeclWithCall
-               | declarator NEWLINE? '=' NEWLINE? initializer #initDeclWithAssign
+               | declarator NEWLINE? '=' NEWLINE? argument #initDeclWithAssign
                | declarator #initDeclSimple
                ;
 

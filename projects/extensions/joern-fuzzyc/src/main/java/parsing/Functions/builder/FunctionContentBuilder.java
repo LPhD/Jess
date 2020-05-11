@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import antlr.FunctionParser.Additive_expressionContext;
 import antlr.FunctionParser.And_expressionContext;
+import antlr.FunctionParser.ArgumentContext;
+import antlr.FunctionParser.Argument_listContext;
 import antlr.FunctionParser.ArrayIndexingContext;
 import antlr.FunctionParser.Assign_exprContext;
 import antlr.FunctionParser.Bit_and_expressionContext;
@@ -36,8 +38,6 @@ import antlr.FunctionParser.Expr_statementContext;
 import antlr.FunctionParser.For_init_statementContext;
 import antlr.FunctionParser.For_statementContext;
 import antlr.FunctionParser.FuncCallContext;
-import antlr.FunctionParser.Function_argumentContext;
-import antlr.FunctionParser.Function_argument_listContext;
 import antlr.FunctionParser.GotoStatementContext;
 import antlr.FunctionParser.IdentifierContext;
 import antlr.FunctionParser.If_statementContext;
@@ -47,7 +47,6 @@ import antlr.FunctionParser.Inclusive_or_expressionContext;
 import antlr.FunctionParser.InitDeclSimpleContext;
 import antlr.FunctionParser.InitDeclWithAssignContext;
 import antlr.FunctionParser.InitDeclWithCallContext;
-import antlr.FunctionParser.Initializer_listContext;
 import antlr.FunctionParser.LabelContext;
 import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
@@ -140,7 +139,6 @@ import ast.expressions.ForInit;
 import ast.expressions.Identifier;
 import ast.expressions.IncDec;
 import ast.expressions.InclusiveOrExpression;
-import ast.expressions.InitializerList;
 import ast.expressions.MemberAccess;
 import ast.expressions.MultiplicativeExpression;
 import ast.expressions.OrExpression;
@@ -1084,16 +1082,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	}
 
-	public void enterArgumentList(Function_argument_listContext ctx) {
-		ArgumentList expr = new ArgumentList();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);
-	}
-
-	public void exitArgumentList(Function_argument_listContext ctx) {
-		nesting.consolidateSubExpression(ctx);
-	}
-
 	public void enterCondition(ConditionContext ctx) {
 		Condition expr = new Condition();
 		nodeToRuleContext.put(expr, ctx);
@@ -1282,23 +1270,24 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		nesting.consolidateSubExpression(ctx);
 	}
 
-	public void enterArgument(Function_argumentContext ctx) {
+
+	public void enterArgumentList(Argument_listContext ctx) {
+		ArgumentList expr = new ArgumentList();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);
+	}
+
+	public void exitArgumentList(Argument_listContext ctx) {
+		nesting.consolidateSubExpression(ctx);
+	}
+	
+	public void enterArgument(ArgumentContext ctx) {
 		Argument expr = new Argument();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
-	public void exitArgument(Function_argumentContext ctx) {
-		nesting.consolidateSubExpression(ctx);
-	}
-
-	public void enterInitializerList(Initializer_listContext ctx) {
-		InitializerList expr = new InitializerList();
-		nodeToRuleContext.put(expr, ctx);
-		stack.push(expr);
-	}
-
-	public void exitInitializerList(Initializer_listContext ctx) {
+	public void exitArgument(ArgumentContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 

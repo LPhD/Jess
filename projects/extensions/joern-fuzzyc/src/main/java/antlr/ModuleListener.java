@@ -570,26 +570,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitInit_declarator_list(ModuleParser.Init_declarator_listContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#initializer}.
-	 * @param ctx the parse tree
-	 */
-	void enterInitializer(ModuleParser.InitializerContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#initializer}.
-	 * @param ctx the parse tree
-	 */
-	void exitInitializer(ModuleParser.InitializerContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#initializer_list}.
-	 * @param ctx the parse tree
-	 */
-	void enterInitializer_list(ModuleParser.Initializer_listContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#initializer_list}.
-	 * @param ctx the parse tree
-	 */
-	void exitInitializer_list(ModuleParser.Initializer_listContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link ModuleParser#class_def}.
 	 * @param ctx the parse tree
 	 */
@@ -1018,6 +998,18 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitIncDecOp(ModuleParser.IncDecOpContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code arrayAssign}
+	 * labeled alternative in {@link ModuleParser#postfix_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayAssign(ModuleParser.ArrayAssignContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrayAssign}
+	 * labeled alternative in {@link ModuleParser#postfix_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayAssign(ModuleParser.ArrayAssignContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code primaryOnly}
 	 * labeled alternative in {@link ModuleParser#postfix_expression}.
 	 * @param ctx the parse tree
@@ -1066,25 +1058,35 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPtrMemberAccess(ModuleParser.PtrMemberAccessContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#function_argument_list}.
+	 * Enter a parse tree produced by {@link ModuleParser#initializer_expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunction_argument_list(ModuleParser.Function_argument_listContext ctx);
+	void enterInitializer_expression(ModuleParser.Initializer_expressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ModuleParser#function_argument_list}.
+	 * Exit a parse tree produced by {@link ModuleParser#initializer_expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunction_argument_list(ModuleParser.Function_argument_listContext ctx);
+	void exitInitializer_expression(ModuleParser.Initializer_expressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#function_argument}.
+	 * Enter a parse tree produced by {@link ModuleParser#argument_list}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunction_argument(ModuleParser.Function_argumentContext ctx);
+	void enterArgument_list(ModuleParser.Argument_listContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ModuleParser#function_argument}.
+	 * Exit a parse tree produced by {@link ModuleParser#argument_list}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunction_argument(ModuleParser.Function_argumentContext ctx);
+	void exitArgument_list(ModuleParser.Argument_listContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#argument}.
+	 * @param ctx the parse tree
+	 */
+	void enterArgument(ModuleParser.ArgumentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#argument}.
+	 * @param ctx the parse tree
+	 */
+	void exitArgument(ModuleParser.ArgumentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#primary_expression}.
 	 * @param ctx the parse tree

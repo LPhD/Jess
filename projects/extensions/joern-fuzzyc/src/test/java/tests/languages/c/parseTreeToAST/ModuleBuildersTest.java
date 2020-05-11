@@ -102,7 +102,7 @@ public class ModuleBuildersTest {
 				"      {-1, UTF8_LEAD_4},\n" + 
 				"      {-2, UTF8_LEAD_4 UTF8_FOLLOW},\n" + 
 				"      {-3, UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW},\n" + 
-				"      {00, UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW UTF8_FOLLOW},\n" + 
+				"      {00, UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW UTF8_FOLLOW},\n" + 		//Caution: Ends with an empty argument
 				"  };" +
 				"}";
 		List<ASTNode> codeItems = parseInput(input);

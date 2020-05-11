@@ -11,6 +11,7 @@ import ast.expressions.AdditiveExpression;
 import ast.expressions.AndExpression;
 import ast.expressions.AssignmentExpression;
 import ast.expressions.BitAndExpression;
+import ast.expressions.Callee;
 import ast.expressions.CastExpression;
 import ast.expressions.ConditionalExpression;
 import ast.expressions.EqualityExpression;
@@ -254,8 +255,8 @@ public class ExpressionParsingTest {
 		String input = "if(foo()){};";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
-		CallExpression expr = (CallExpression) ((Condition) starter.getCondition()).getExpression();
-		assertEquals("foo", expr.getTargetFunc().getEscapedCodeStr());
+		Callee expr = (Callee) ((Condition) starter.getCondition()).getExpression();
+		assertEquals("foo", expr.getEscapedCodeStr());
 	}
 	
 	@Test
