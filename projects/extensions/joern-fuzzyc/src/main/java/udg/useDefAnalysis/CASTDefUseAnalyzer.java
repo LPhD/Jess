@@ -2,6 +2,8 @@ package udg.useDefAnalysis;
 
 import java.util.List;
 
+import org.omg.CORBA.Environment;
+
 import udg.ASTProvider;
 import udg.useDefAnalysis.environments.ArgumentEnvironment;
 import udg.useDefAnalysis.environments.ArrayIndexingEnvironment;
@@ -19,14 +21,12 @@ import udg.useDefAnalysis.environments.UseEnvironment;
 /**
  * C-specific implementation of ASTDefUseAnalyzer.
  */
-public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer
-{
+public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer {
 
 	TaintSources taintSources = new TaintSources();
 
 	@Override
-	public void reset()
-	{
+	public void reset() {
 		super.reset();
 		taintSources = new TaintSources();
 	}
@@ -35,8 +35,7 @@ public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer
 	 * Inform the ASTAnalyzer about (callee, argNum)-pairs that define their
 	 * arguments. For example, 'recv' defines its first argument.
 	 */
-	public void addTaintSource(String callee, int argNum)
-	{
+	public void addTaintSource(String callee, int argNum) {
 		taintSources.add(callee, argNum);
 	}
 
@@ -44,19 +43,17 @@ public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer
 	 * Creates a UseDefEnvironment for a given AST node.
 	 */
 	@Override
-	protected UseDefEnvironment createUseDefEnvironment(ASTProvider astProvider)
-	{
+	protected UseDefEnvironment createUseDefEnvironment(ASTProvider astProvider) {
 
 		String nodeType = astProvider.getTypeAsString();
 
-		switch (nodeType)
-		{
+		switch (nodeType) {
 		case "AssignmentExpression":
 			return new AssignmentEnvironment();
 		case "PostIncDecOperationExpression":
 			return new IncDecEnvironment();
 		case "PreIncDecOperationExpression":
-			return new IncDecEnvironment();	
+			return new IncDecEnvironment();
 		case "IdentifierDecl":
 		case "Parameter":
 			return new DeclEnvironment();
@@ -65,7 +62,16 @@ public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer
 			return createCallEnvironment(astProvider);
 
 		case "Argument":
-			return createArgumentEnvironment(astProvider);
+			UseDefEnvironment env = environmentStack.get(environmentStack.size() - 2);
+			
+			//Parent environment can either be a function call
+			if (env.getClass().equals(CallEnvironment.class)) {
+				return createArgumentEnvironment(astProvider, env);
+			//Or just an initializer	
+			} else {
+				return new UseDefEnvironment();
+			}
+							
 
 		case "PtrMemberAccess":
 			return new PtrMemberAccessEnvironment();
@@ -91,31 +97,26 @@ public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer
 		}
 	}
 
-	private UseDefEnvironment createCallEnvironment(ASTProvider astProvider)
-	{
+	private UseDefEnvironment createCallEnvironment(ASTProvider astProvider) {
 		CallEnvironment callEnv = new CallEnvironment();
 		// inform calls of any arguments it might taint
 
 		String callee = astProvider.getChild(0).getEscapedCodeStr();
-		if (taintSources.isTaintSource(callee))
-		{
-			List<Integer> taintedArgs = taintSources
-					.getTaintedArgsForCallee(callee);
+		if (taintSources.isTaintSource(callee)) {
+			List<Integer> taintedArgs = taintSources.getTaintedArgsForCallee(callee);
 			callEnv.setTaintedArgs(taintedArgs);
 		}
 		return callEnv;
 	}
 
-	private ArgumentEnvironment createArgumentEnvironment(
-			ASTProvider astProvider)
-	{
+	private ArgumentEnvironment createArgumentEnvironment(ASTProvider astProvider, UseDefEnvironment env) {
 		ArgumentEnvironment argEnv = new ArgumentEnvironment();
-		CallEnvironment callEnv = (CallEnvironment) environmentStack
-				.get(environmentStack.size() - 2);
+
+		CallEnvironment callEnv = (CallEnvironment) environmentStack.get(environmentStack.size() - 2);
 
 		if (callEnv.isArgumentTainted(astProvider.getChildNumber()))
 			argEnv.setIsTainted();
 
-		return argEnv;
+		return argEnv;			
 	}
 }

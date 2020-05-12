@@ -89,6 +89,7 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 		assertEquals(5, useDefGraph.getUsesAndDefsForSymbol("tmp").size());
 		assertEquals(8, useDefGraph.getUsesAndDefsForSymbol("i").size());
 	}
+	
 
 	private UseDefGraph createUDGForCode(String code) {
 		CFG cfg = getCFGForCode(code);

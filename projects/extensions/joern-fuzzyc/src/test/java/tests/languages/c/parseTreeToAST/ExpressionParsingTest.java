@@ -255,8 +255,18 @@ public class ExpressionParsingTest {
 		String input = "if(foo()){};";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
-		Callee expr = (Callee) ((Condition) starter.getCondition()).getExpression();
+		Callee expr = (Callee) ((Condition) starter.getCondition()).getExpression().getChild(0);
 		assertEquals("foo", expr.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void funCallExpression() {
+		String input = "foo();";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement expr = (ExpressionStatement) contentItem.getStatements().get(0);
+		assertEquals("foo ( );", expr.getEscapedCodeStr());
+		CallExpression callEx = (CallExpression) expr.getChild(0);
+		assertEquals("foo", callEx.getTargetFunc().getEscapedCodeStr());
 	}
 	
 	@Test

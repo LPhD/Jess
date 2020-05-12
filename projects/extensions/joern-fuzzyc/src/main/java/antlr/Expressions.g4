@@ -73,7 +73,7 @@ inc_dec: ('--' | '++');
 // as variable names.
 
 postfix_expression: postfix_expression NEWLINE* '[' expr? ']' #arrayIndexing
-                  | postfix_expression NEWLINE* '(' argument_list? ')' #funcCall
+                  | postfix_expression NEWLINE* '(' argument_list ')' #funcCall
                   | postfix_expression '.' NEWLINE* TEMPLATE? (identifier) #memberAccess
                   | postfix_expression '->' NEWLINE* TEMPLATE? (identifier) #ptrMemberAccess
                   | postfix_expression NEWLINE* inc_dec #incDecOp
@@ -84,7 +84,7 @@ postfix_expression: postfix_expression NEWLINE* '[' expr? ']' #arrayIndexing
                   
 initializer_expression:  OPENING_CURLY NEWLINE* (COMMENT NEWLINE*)* argument_list? NEWLINE* (COMMENT NEWLINE*)* CLOSING_CURLY;   //Can be an empty list
 
-argument_list: argument NEWLINE* (','?  NEWLINE* (COMMENT NEWLINE*)* argument)* ','?;       // Allows empty arguments after a comma           
+argument_list: argument? NEWLINE* (','?  NEWLINE* (COMMENT NEWLINE*)* argument)* ','?;       // Allows empty arguments after a comma           
 
 argument: assign_expr
            | ( (COMMENT NEWLINE*)* pre_macro_identifier NEWLINE*)+
