@@ -1,9 +1,6 @@
 package udg.useDefAnalysis;
 
 import java.util.List;
-
-import org.omg.CORBA.Environment;
-
 import udg.ASTProvider;
 import udg.useDefAnalysis.environments.ArgumentEnvironment;
 import udg.useDefAnalysis.environments.ArrayIndexingEnvironment;
