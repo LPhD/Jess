@@ -1,20 +1,20 @@
 grammar SimpleDecl;
-import ModuleLex, Expressions;
+import ModuleLex, Expressions, Preprocessor;
 
 simple_decl : var_decl;
 
-var_decl : (TYPEDEF? template_decl_start?) class_def  NEWLINE? init_declarator_list? #declByClass
+var_decl : (TYPEDEF? template_decl_start?) class_def  NEWLINE? init_declarator_list? pre_other? #declByClass
          | (TYPEDEF? template_decl_start?) type_name  NEWLINE? init_declarator_list #declByType
-         | CV_QUALIFIER? TYPEDEF? special_datatype  NEWLINE? init_declarator_list? ';'? #StructUnionEnum
+         | CV_QUALIFIER? TYPEDEF? special_datatype  NEWLINE? init_declarator_list? pre_other? ';'? #StructUnionEnum
          ;
          
-special_datatype:SPECIAL_DATA identifier? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
-        | SPECIAL_DATA identifier ptrs? identifier ptrs? '=' {skipToEndOfObject(); }         //Designated initializer
-        | SPECIAL_DATA identifier  //Short declaration
+special_datatype:SPECIAL_DATA pre_other? identifier? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
+        | SPECIAL_DATA pre_other? identifier ptrs? identifier ptrs? '=' {skipToEndOfObject(); }         //Designated initializer
+        | SPECIAL_DATA pre_other? identifier  //Short declaration
         ;
 
         
-init_declarator_list: init_declarator (','  NEWLINE* init_declarator)* ';';
+init_declarator_list: init_declarator (','  NEWLINE* init_declarator)* pre_other? ';';
 
 
 

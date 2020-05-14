@@ -398,6 +398,14 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testComplexArrayDeclaration() {
+		String input = "uint8_t h_table[H_SIZE] __attribute__((aligned(64)));";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("uint8_t h_table [ H_SIZE ] __attribute__ ( ( aligned ( 64 ) ) ) ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testFuncWithNewlines() {
 		String input = "static\n void\n foo(){}";
 		List<ASTNode> codeItems = parseInput(input);
