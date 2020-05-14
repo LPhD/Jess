@@ -21,7 +21,7 @@ STATIC: 'static';
 VOID: 'void'; 
 UNSIGNED: 'unsigned'; 
 SIGNED: 'signed';
-CV_QUALIFIER:  ('const' | 'volatile' );
+CV_QUALIFIER:  ('const' | 'volatile' | '__thread' );
 EXTERN: 'extern';
 
 // Keywords shared among C++/Java

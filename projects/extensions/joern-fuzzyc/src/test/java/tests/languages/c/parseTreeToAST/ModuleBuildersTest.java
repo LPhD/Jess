@@ -246,32 +246,7 @@ public class ModuleBuildersTest {
 		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
 		assertEquals("XML_SetEncoding", decl.getName().getEscapedCodeStr());
 	}
-	
-	@Test
-	public void testFunctionDeclWithTypePerMacro2() {
-		String input = "XMLPARSEAPI(const XML_Char *)\n" + 
-				"XML_GetBase(XML_Parser parser);";
-		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
-		assertEquals("XMLPARSEAPI ( const XML_Char * ) \n" + 
-				" XML_GetBase ( XML_Parser parser ) ;", codeItem.getEscapedCodeStr());
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
-		assertEquals("XML_GetBase", decl.getName().getEscapedCodeStr());
-	}
-	
-	
-	@Test
-	public void testFunctionDeclWithTypePerMacro3() {
-		String input = "XMLPARSEAPI(int)\n" + 
-				"XML_GetIdAttributeIndex(XML_Parser parser);";
-		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
-		assertEquals("XMLPARSEAPI ( int ) \n" + 
-				" XML_GetIdAttributeIndex ( XML_Parser parser ) ;", codeItem.getEscapedCodeStr());
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
-		assertEquals("XML_GetIdAttributeIndex", decl.getName().getEscapedCodeStr());
-	}
-	
+		
 	
 	@Test
 	public void testDeclWithExternKeyword() {
@@ -403,6 +378,15 @@ public class ModuleBuildersTest {
 		Statement codeItem = (Statement) codeItems.get(0);
 		
 		assertEquals("static int blogic_diskparam ( struct scsi_device * sdev , struct block_device * dev , int * params ) ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testThreadFuncDeclaration() {
+		String input = "__thread int threadFunc() {}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
+		assertEquals("threadFunc", codeItem.getName());
+		assertEquals("__thread int threadFunc ( ) ", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test
