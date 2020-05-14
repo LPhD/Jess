@@ -9,13 +9,13 @@ import Preprocessor, Custom, ModuleLex, Common, Expressions, FineSimpleDecl;
 statements: (statement)*;
 
 statement: opening_curly
-         | closing_curly
-         | pre_statement
+         | closing_curly         
          | block_starter
          | jump_statement
          | label 
          | simple_decl
          | expr_statement
+         | pre_statement
          | comment
          | newline //We need this here so we can remove newline nodes from the function parser stack
          | custom

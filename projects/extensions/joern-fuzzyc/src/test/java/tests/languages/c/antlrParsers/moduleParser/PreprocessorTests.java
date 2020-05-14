@@ -52,7 +52,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "int foo(){ #ifdef x \n #ifdef y \n #else #endif #endif abc(); } foo();";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #ifdef x \\n #ifdef y \\n #else #endif #endif abc ( ) ; })) (water foo) (water () (water )) (water ;))";
+		String outputExpected = "(code (function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #ifdef x \\n #ifdef y \\n #else #endif #endif abc ( ) ; })) (pre_statement (pre_command (macroCall (pre_macro_identifier (identifier foo)) ( )))) (water ;))";
 		assertEquals(outputExpected, output);
 	}
 
@@ -71,7 +71,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "foo(){ #ifdef x \n #else #ifdef y \n #endif #endif abc(); } foo();";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (function_def (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #ifdef x \\n #else #ifdef y \\n #endif #endif abc ( ) ; })) (water foo) (water () (water )) (water ;))";
+		String outputExpected = "(code (function_def (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #ifdef x \\n #else #ifdef y \\n #endif #endif abc ( ) ; })) (pre_statement (pre_command (macroCall (pre_macro_identifier (identifier foo)) ( )))) (water ;))";
 		assertEquals(outputExpected, output);
 	}
 

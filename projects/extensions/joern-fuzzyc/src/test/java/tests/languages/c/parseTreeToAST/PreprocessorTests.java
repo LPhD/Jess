@@ -300,6 +300,13 @@ public class PreprocessorTests {
 	}
 	
 	@Test
+	public void testMacroCall() {
+		String input = "CHECK_AND_RETURN(ptr)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("MacroCall", contentItem.getStatement(0).getTypeAsString());
+	}
+	
+	@Test
 	public void testPreUndef() {
 		String input = "#undef ___config_enabled";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);

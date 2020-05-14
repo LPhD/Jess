@@ -48,6 +48,7 @@ import antlr.FunctionParser.InitDeclSimpleContext;
 import antlr.FunctionParser.InitDeclWithAssignContext;
 import antlr.FunctionParser.InitDeclWithCallContext;
 import antlr.FunctionParser.LabelContext;
+import antlr.FunctionParser.MacroCallContext;
 import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.NewlineContext;
@@ -110,6 +111,7 @@ import ast.c.preprocessor.commands.PreIncludeSystemHeader;
 import ast.c.preprocessor.commands.PreLine;
 import ast.c.preprocessor.commands.PreOther;
 import ast.c.preprocessor.commands.PrePragma;
+import ast.c.preprocessor.commands.macro.MacroCall;
 import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.c.preprocessor.commands.macro.PreMacro;
 import ast.c.preprocessor.commands.macro.PreMacroIdentifier;
@@ -409,6 +411,16 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	// ----------------------------------Preprocessor command handling--------------------------------------------------------------
 
+	/**
+	 * Pushes the item on the stack
+	 * 
+	 * @param ctx
+	 */
+	public void enterMacroCall(MacroCallContext ctx) {
+		replaceTopOfStack(new MacroCall(), ctx);
+	}
+	
+	
 	/**
 	 * Pushes the item on the stack
 	 * 

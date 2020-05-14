@@ -84,6 +84,13 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterPreMacro(ctx);
 	}
+	
+	// Preprocessor handling
+	@Override
+	public void enterMacroCall(FunctionParser.MacroCallContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterMacroCall(ctx);
+	}
 
 	// Preprocessor handling
 	@Override
