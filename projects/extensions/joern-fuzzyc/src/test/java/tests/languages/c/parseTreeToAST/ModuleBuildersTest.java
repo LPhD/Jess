@@ -390,6 +390,14 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testThreadStructDeclaration() {
+		String input = "__thread struct threadStruct{};";
+		List<ASTNode> codeItems = parseInput(input);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
+		assertEquals("__thread struct threadStruct { } ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testFuncWithNewlines() {
 		String input = "static\n void\n foo(){}";
 		List<ASTNode> codeItems = parseInput(input);
