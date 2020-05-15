@@ -11,8 +11,6 @@ public class ExpressionStatement extends ExpressionHolderStatement {
 		if (expr == null)
 			return "";
 
-		//Add semicolon in the end to preserve syntactic correctness
-		setCodeStr(expr.getEscapedCodeStr()+";");
 		return getCodeStr();
 	}
 }

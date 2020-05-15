@@ -54,6 +54,6 @@ jump_statement: BREAK ';'		#breakStatement
 
 label: CASE? (identifier | number | CHAR ) ':' ;
 
-expr_statement: expr? ';';
+expr_statement: expr ';' | null_expression;
 
 condition: expr;

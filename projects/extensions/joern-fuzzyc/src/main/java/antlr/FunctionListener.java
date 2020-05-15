@@ -1314,6 +1314,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPrimary_expression(FunctionParser.Primary_expressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#null_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNull_expression(FunctionParser.Null_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#null_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNull_expression(FunctionParser.Null_expressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#comment}.
 	 * @param ctx the parse tree
 	 */

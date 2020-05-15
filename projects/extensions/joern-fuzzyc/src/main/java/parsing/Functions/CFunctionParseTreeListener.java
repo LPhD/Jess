@@ -784,6 +784,18 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitPrimary(ctx);
 	}
+	
+	@Override
+	public void enterNull_expression(FunctionParser.Null_expressionContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterNullExpression(ctx);
+	}
+
+	@Override
+	public void exitNull_expression(FunctionParser.Null_expressionContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitNullExpression(ctx);
+	}
 
 	@Override
 	public void enterUnary_expression(FunctionParser.Unary_expressionContext ctx) {

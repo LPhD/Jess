@@ -15,7 +15,9 @@ import ast.expressions.AssignmentExpression;
 import ast.expressions.BinaryExpression;
 import ast.expressions.Expression;
 import ast.expressions.Identifier;
+import ast.expressions.NullExpression;
 import ast.logical.statements.Statement;
+import ast.statements.ExpressionStatement;
 
 public class ASTNodeFactory {
 	public static void initializeFromContext(ASTNode node, ParserRuleContext ctx) {
@@ -50,8 +52,10 @@ public class ASTNodeFactory {
 
 	public static void initializeFromContext(Expression node, ParserRuleContext ctx) {
 		initializeFromContext((ASTNode) node, ctx);
-		if (node instanceof BinaryExpression && ctx.getChildCount() == 3)
+		
+		if (node instanceof BinaryExpression && ctx.getChildCount() == 3) {
 			node.setOperator(ctx.getChild(1).getText());
+		}
 	}
 
 	public static ASTNode create(StatementContext ctx) {

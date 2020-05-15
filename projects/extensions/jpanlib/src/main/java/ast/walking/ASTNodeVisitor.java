@@ -11,6 +11,7 @@ import ast.expressions.AssignmentExpression;
 import ast.expressions.CallExpressionBase;
 import ast.expressions.Identifier;
 import ast.expressions.MemberAccess;
+import ast.expressions.NullExpression;
 import ast.expressions.PrimaryExpression;
 import ast.expressions.UnaryExpression;
 import ast.functionDef.FunctionDefBase;
@@ -108,6 +109,10 @@ public abstract class ASTNodeVisitor {
 	}
 
 	public void visit(PrimaryExpression expression) {
+		defaultHandler(expression);
+	}
+	
+	public void visit(NullExpression expression) {
 		defaultHandler(expression);
 	}
 

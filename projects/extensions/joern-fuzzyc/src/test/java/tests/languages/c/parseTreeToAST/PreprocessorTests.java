@@ -78,11 +78,11 @@ public class PreprocessorTests {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		//#if
 		PreBlockstarter bs = (PreBlockstarter) contentItem.getStatement(0);
-		assertEquals("bar ( );", bs.getVariableStatement(0).getEscapedCodeStr());
+		assertEquals("bar ( ) ;", bs.getVariableStatement(0).getEscapedCodeStr());
 		//#else
 		bs = (PreBlockstarter) bs.getChild(1);
 		assertEquals("int i ;", bs.getVariableStatement(0).getEscapedCodeStr());
-		assertEquals("i ++;", bs.getVariableStatement(1).getEscapedCodeStr());
+		assertEquals("i ++ ;", bs.getVariableStatement(1).getEscapedCodeStr());
 	}
 
 	@Test

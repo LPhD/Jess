@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import ast.Comment;
 import ast.c.expressions.CallExpression;
+import ast.c.statements.blockstarters.IfStatement;
 import ast.declarations.IdentifierDecl;
 import ast.expressions.AdditiveExpression;
 import ast.expressions.AndExpression;
@@ -164,7 +165,7 @@ public class ExpressionParsingTest {
 
 	@Test
 	public void testBitAndExpr() {
-		String input = "if(x & y){};";
+		String input = "if(x & y){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		BitAndExpression expr = (BitAndExpression) ((Condition) starter.getCondition()).getExpression();
@@ -173,7 +174,7 @@ public class ExpressionParsingTest {
 
 	@Test
 	public void EqualityExpr() {
-		String input = "if(x == y){};";
+		String input = "if(x == y){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		EqualityExpression expr = (EqualityExpression) ((Condition) starter.getCondition()).getExpression();
@@ -182,7 +183,7 @@ public class ExpressionParsingTest {
 
 	@Test
 	public void RelationalExpr() {
-		String input = "if(x < y){};";
+		String input = "if(x < y){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		RelationalExpression expr = (RelationalExpression) ((Condition) starter.getCondition()).getExpression();
@@ -191,7 +192,7 @@ public class ExpressionParsingTest {
 
 	@Test
 	public void ShiftExpr() {
-		String input = "if(x >> y){};";
+		String input = "if(x >> y){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		ShiftExpression expr = (ShiftExpression) ((Condition) starter.getCondition()).getExpression();
@@ -200,7 +201,7 @@ public class ExpressionParsingTest {
 
 	@Test
 	public void AdditiveExpr() {
-		String input = "if(x + y){};";
+		String input = "if(x + y){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		AdditiveExpression expr = (AdditiveExpression) ((Condition) starter.getCondition()).getExpression();
@@ -209,7 +210,7 @@ public class ExpressionParsingTest {
 
 	@Test
 	public void MultiplicativeExpr() {
-		String input = "if(x * y){};";
+		String input = "if(x * y){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		MultiplicativeExpression expr = (MultiplicativeExpression) ((Condition) starter.getCondition()).getExpression();
@@ -218,7 +219,7 @@ public class ExpressionParsingTest {
 
 	@Test
 	public void CastExpr() {
-		String input = "if((some_type) y){};";
+		String input = "if((some_type) y){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		CastExpression expr = (CastExpression) ((Condition) starter.getCondition()).getExpression();
@@ -239,7 +240,7 @@ public class ExpressionParsingTest {
 		String input = "++*p;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement expr = (ExpressionStatement) contentItem.getStatements().get(0);
-		assertEquals("++ * p;", expr.getEscapedCodeStr());
+		assertEquals("++ * p ;", expr.getEscapedCodeStr());
 	}
 	
 	@Test
@@ -252,7 +253,7 @@ public class ExpressionParsingTest {
 
 	@Test
 	public void funCall() {
-		String input = "if(foo()){};";
+		String input = "if(foo()){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		Callee expr = (Callee) ((Condition) starter.getCondition()).getExpression().getChild(0);
@@ -264,14 +265,14 @@ public class ExpressionParsingTest {
 		String input = "foo();";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement expr = (ExpressionStatement) contentItem.getStatements().get(0);
-		assertEquals("foo ( );", expr.getEscapedCodeStr());
+		assertEquals("foo ( ) ;", expr.getEscapedCodeStr());
 		CallExpression callEx = (CallExpression) expr.getChild(0);
 		assertEquals("foo", callEx.getTargetFunc().getEscapedCodeStr());
 	}
 	
 	@Test
 	public void funCallWithLinebreak() {
-		String input = "if(foo(x,\n y)){};";
+		String input = "if(foo(x,\n y)){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) ((Condition) starter.getCondition()).getExpression();
@@ -343,7 +344,7 @@ public class ExpressionParsingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
 		Comment comment = (Comment) contentItem.getStatements().get(1);
-		assertEquals("x = 5;", statementItem.getEscapedCodeStr());
+		assertEquals("x = 5 ;", statementItem.getEscapedCodeStr());
 		assertEquals("/*x is set to 5*/", comment.getEscapedCodeStr());
 		assertEquals("ExpressionStatement", comment.getCommentee().getTypeAsString());
 	}
@@ -431,6 +432,14 @@ public class ExpressionParsingTest {
 				" XML_ERROR_PARTIAL_CHAR } , \n" + 
 				" { NULL , NULL , NULL , XML_ERROR_NONE } } ;", statementItem.getEscapedCodeStr());
 		//TODO Handle comment in parsers, when they appear within a statement
+	}
+	
+	@Test
+	public void nullExpression() {
+		String input = ";";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		assertEquals(";", statementItem.getEscapedCodeStr());
 	}
 
 }

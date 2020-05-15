@@ -92,3 +92,5 @@ argument: assign_expr
 
 primary_expression: identifier | constant | '(' expr ')';
 
+null_expression: ';' ;  //Empty expression aka null expression
+

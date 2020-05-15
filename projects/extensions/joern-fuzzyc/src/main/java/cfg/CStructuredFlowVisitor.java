@@ -1,9 +1,7 @@
 package cfg;
 
-import ast.Comment;
 import ast.functionDef.ParameterBase;
 import ast.functionDef.ParameterList;
-import ast.logical.statements.BlockCloser;
 import ast.logical.statements.Label;
 import ast.statements.blockstarters.DoStatement;
 import ast.statements.blockstarters.ForStatement;
@@ -16,7 +14,6 @@ import ast.statements.jump.ContinueStatement;
 import ast.statements.jump.GotoStatement;
 import ast.statements.jump.ReturnStatement;
 import ast.statements.jump.ThrowStatement;
-import cfg.StructuredFlowVisitor;
 import cfg.nodes.ASTNodeContainer;
 import cfg.nodes.CFGNode;
 

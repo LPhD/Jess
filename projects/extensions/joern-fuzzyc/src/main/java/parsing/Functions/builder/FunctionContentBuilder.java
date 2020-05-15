@@ -52,6 +52,7 @@ import antlr.FunctionParser.MacroCallContext;
 import antlr.FunctionParser.MemberAccessContext;
 import antlr.FunctionParser.Multiplicative_expressionContext;
 import antlr.FunctionParser.NewlineContext;
+import antlr.FunctionParser.Null_expressionContext;
 import antlr.FunctionParser.Opening_curlyContext;
 import antlr.FunctionParser.Or_expressionContext;
 import antlr.FunctionParser.Pre_defineContext;
@@ -143,6 +144,7 @@ import ast.expressions.IncDec;
 import ast.expressions.InclusiveOrExpression;
 import ast.expressions.MemberAccess;
 import ast.expressions.MultiplicativeExpression;
+import ast.expressions.NullExpression;
 import ast.expressions.OrExpression;
 import ast.expressions.PostIncDecOperationExpression;
 import ast.expressions.PreIncDecOperationExpression;
@@ -1259,6 +1261,16 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	public void exitPrimary(Primary_expressionContext ctx) {
+		nesting.consolidateSubExpression(ctx);
+	}
+	
+	public void enterNullExpression(Null_expressionContext ctx) {
+		NullExpression expr = new NullExpression();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);
+	}
+
+	public void exitNullExpression(Null_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 

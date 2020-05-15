@@ -119,8 +119,8 @@ public class OtherTests extends CCFGCreatorTest {
 		String input = "if(!x) return 1; y = x;";
 		CFG cfg = getCFGForCode(input);
 
-		assertTrue(isConnected(cfg, "y = x;", "EXIT"));
-		assertEquals(1, cfg.outDegree(getNodeByCode(cfg, "y = x;")));
+		assertTrue(isConnected(cfg, "y = x ;", "EXIT"));
+		assertEquals(1, cfg.outDegree(getNodeByCode(cfg, "y = x ;")));
 	}
 
 	@Test

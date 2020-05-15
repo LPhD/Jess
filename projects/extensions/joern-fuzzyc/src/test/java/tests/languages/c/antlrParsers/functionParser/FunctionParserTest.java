@@ -6,7 +6,11 @@ import static org.junit.Assert.assertTrue;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 
+import ast.c.statements.blockstarters.IfStatement;
+import ast.logical.statements.CompoundStatement;
+import ast.statements.ExpressionStatement;
 import parsing.FunctionParser;
+import tests.languages.c.parseTreeToAST.FunctionContentTestUtil;
 
 public class FunctionParserTest extends FunctionParserTestBase {
 
@@ -66,6 +70,15 @@ public class FunctionParserTest extends FunctionParserTestBase {
 		ParseTree tree = functionParser.parseString(input);
 		String output = tree.toStringTree(functionParser.getAntlrParser());
 		assertTrue(output.contains("selection_or_iteration while"));
+	}
+	
+	@Test
+	public void nullExpressionWithComment() {
+		String input = "; // symbol off\n";
+		FunctionParser functionParser = createFunctionParser();
+		ParseTree tree = functionParser.parseString(input);
+		String output = tree.toStringTree(functionParser.getAntlrParser());
+		assertEquals("(statements (statement (expr_statement (null_expression ;))) (statement (comment // symbol off\\n)))", output);
 	}
 
 }

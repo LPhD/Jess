@@ -1098,6 +1098,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPrimary_expression(ModuleParser.Primary_expressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#null_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNull_expression(ModuleParser.Null_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#null_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNull_expression(ModuleParser.Null_expressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#comment}.
 	 * @param ctx the parse tree
 	 */

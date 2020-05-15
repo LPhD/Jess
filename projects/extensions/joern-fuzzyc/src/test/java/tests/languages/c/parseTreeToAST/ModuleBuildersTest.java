@@ -177,9 +177,9 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase funcItem  = (FunctionDefBase) codeItems.get(0);
 		PreIfStatement preIf = (PreIfStatement) funcItem.getContent().getChild(0);
-		assertEquals("puts ( \"One\" );",preIf.getVariableStatement(0).getEscapedCodeStr());
+		assertEquals("puts ( \"One\" ) ;",preIf.getVariableStatement(0).getEscapedCodeStr());
 		PreElseStatement preElse = (PreElseStatement) preIf.getChild(1);
-		assertEquals("puts ( \"Two\" );",preElse.getVariableStatement(0).getEscapedCodeStr());
+		assertEquals("puts ( \"Two\" ) ;",preElse.getVariableStatement(0).getEscapedCodeStr());
 	}
 
 	@Test
