@@ -23,7 +23,8 @@ evaluation = False
 #projectName = 'expat'
 #projectName = 'sample'
 #projectName = 'Collection'
-projectName = 'PV_Current.tar.gz'
+projectName = 'DonorProject'
+#projectName = 'PV_Current.tar.gz'
 db = DBInterface()
 
 ####################################### Plotting ###############################################   
