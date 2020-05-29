@@ -288,7 +288,7 @@ def getDiffs():
                             
                             #Look for for non-function-like macros (identifier does not contain an opening bracket)
                             if re.match("^\s*\#define [^(]+ ", line):
-                                print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+fileName)
+                                print(" * * * Caution: SU contains a #define that may affect the Target -> "+line+" in file: "+filename)
                                 listOfDefines.append(line)
 #TODO Scan for occurences of identifier? Locally and in the whole project? This has to be done after SU and Target were merged! 
                                        
