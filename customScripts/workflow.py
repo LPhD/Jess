@@ -10,6 +10,7 @@ import codecs
 import pathlib
 import glob
 import time
+import datetime
 
 
 #Timer
@@ -56,7 +57,19 @@ def workflow():
     print(" ### Prerequisite 2: Jess server is (re-)started before running the script ### ")
     print(" ### Prerequisite 3: The top level folder for source files is called 'src' ### ")
     print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
-
+    
+    # Collect useful statistics
+    if EVALUATION:
+        if not os.path.exists("EvaluationStatistics"):
+            os.makedirs("EvaluationStatistics")
+        with open("EvaluationStatistics/timings.txt", "a") as file:
+            file.write("\n----------------------------------------------------------------")
+            file.write("\nBegin new run at: "+str(datetime.datetime.now()))
+        with open("EvaluationStatistics/sizes.txt", "a") as file:
+            file.write("\n----------------------------------------------------------------")
+            file.write("\nBegin new run at: "+str(datetime.datetime.now()))
+            
+            
     #Import new branches or reuse old ones?
     reuse = input("Would you like to work with a new project (1) or keep the last one (2) ?\n")
 
@@ -123,6 +136,10 @@ def workflow():
 
 # Creates all needed repositories
 def createRepos():
+    # Measure timings
+    if EVALUATION:
+        start_checkout = time.time()
+    
     #repoURL = input("Please type in the url to your Git repository \n") 
     repoURL = "https://github.com/ggreer/the_silver_searcher.git"
     print("Set donor repo to: "+repoURL+".")
@@ -139,23 +156,9 @@ def createRepos():
     os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
     os.chdir(resultFoldername+"/DonorProjectCode")    
     os.system("git checkout "+donorCommit)  
-    
-    #Contains additional actions required for evaluation (installation, run tests, etc.)
-    if EVALUATION:
-        print("* * * Evaluation mode is on * * *")
-        evaluation_time_start = time.time()
-        #Do not count time of these steps?
-        #Count words
-        #Install
-        #Run tests
-        evaluation_time = time.time() - evaluation_time_start
-        print("Evaluation took "+str(evaluation_time)+" seconds to run")
-    
     #Get back to top level folder
     os.chdir(topLvlDir)
     
-    
-
     # Get target    
     #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")   
     targetBranch = "master"    
@@ -169,6 +172,31 @@ def createRepos():
     os.chdir(resultFoldername+"/TargetProjectCode")    
     os.system("git checkout "+targetCommit)  
     os.chdir(topLvlDir)
+ 
+ 
+    # Measure timings and perform additional actions required for evaluation (installation, run tests, etc.)
+    if EVALUATION:
+        setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkout)
+
+
+# Measures timings, installs projects, runs their tests and measures results 
+def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkout):
+    print("* * * Evaluation mode is on * * *")
+    installAndTest_start = time.time()
+    #Do not count time of these steps?
+    #Count words
+    #Install
+    #Run tests
+    
+    # Get timings
+    installAndTest_duration = time.time() - installAndTest_start
+    checkout_duration = time.time() - start_checkout
+    print("Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")
+    print("The whole checkout process took "+ str(checkout_duration) +" seconds")
+    with open("EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": Project url is: "+repoURL+" and commit ids are: "+str(donorCommit)+" (Donor) and "+str(targetCommit)+" (Target)") 
+        file.write("\n"+str(datetime.datetime.now())+": Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run") 
+        file.write("\n"+str(datetime.datetime.now())+": The whole checkout process took "+ str(checkout_duration) +" seconds") 
  
  
  
