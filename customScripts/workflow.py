@@ -19,6 +19,8 @@ start_time = time.time()
 #### Configuration ####
 # Enable debug output
 DEBUG = False
+# Enable evaluation mode for validating workflow. Includes installation and running tests of the selected project. Therefore: Much slower.
+EVALUATION = True
 # Name of the configuration option to de/endable the SU
 SUName = "SU"
 
@@ -121,18 +123,52 @@ def workflow():
 
 # Creates all needed repositories
 def createRepos():
-    repoURL = input("Please type in the url to your Git repository \n") 
+    #repoURL = input("Please type in the url to your Git repository \n") 
+    repoURL = "https://github.com/ggreer/the_silver_searcher.git"
     print("Set donor repo to: "+repoURL+".")
 
     # Get donor
-    donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
+    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
+    donorBranch = "master"  
     print("Set donor branch to: "+donorBranch+".")
-    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/DonorProjectCode")  
+    
+    #donorCommit = input("Please type in the commit id of the version of the software that contains the desired functionality \n")   
+    donorCommit = "33d9d711766cbf3c5d9b52aa471722522b231d94"  
+    print("Set commit id to: "+donorCommit+".")
+    
+    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
+    os.chdir(resultFoldername+"/DonorProjectCode")    
+    os.system("git checkout "+donorCommit)  
+    
+    #Contains additional actions required for evaluation (installation, run tests, etc.)
+    if EVALUATION:
+        print("* * * Evaluation mode is on * * *")
+        evaluation_time_start = time.time()
+        #Do not count time of these steps?
+        #Count words
+        #Install
+        #Run tests
+        evaluation_time = time.time() - evaluation_time_start
+        print("Evaluation took "+str(evaluation_time)+" seconds to run")
+    
+    #Get back to top level folder
+    os.chdir(topLvlDir)
+    
+    
 
-    # Get target
-    targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")    
+    # Get target    
+    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")   
+    targetBranch = "master"    
     print("Set target branch to: "+targetBranch+".")
+    
+    #targetCommit = input("Please type in the commit id of the version of the software that you would like to merge into \n")   
+    targetCommit = "abd982483eabb91b7ccf9eed2a918f638c149a7d" 
+    print("Set commit id to: "+targetCommit+".")
+    
     os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
+    os.chdir(resultFoldername+"/TargetProjectCode")    
+    os.system("git checkout "+targetCommit)  
+    os.chdir(topLvlDir)
  
  
  
