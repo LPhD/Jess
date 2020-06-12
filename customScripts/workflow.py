@@ -69,6 +69,9 @@ def workflow():
         with open("EvaluationStatistics/sizes.txt", "a") as file:
             file.write("\n----------------------------------------------------------------")
             file.write("\nBegin new run at: "+str(datetime.datetime.now()))
+        with open("EvaluationStatistics/testResults.txt", "a") as file:
+            file.write("\n----------------------------------------------------------------")
+            file.write("\nBegin new run at: "+str(datetime.datetime.now()))            
             
             
     #Import new branches or reuse old ones?
@@ -204,32 +207,14 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
     # Measure timings of installation and test processes separately
     installAndTest_start = time.time()
     
-################################# silver_searcher #########################################################################
-    # Install dependencies
+    # Install dependencies for all projects
     os.system("sudo apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
-    # Install Target
-    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
-    os.system("./build.sh")
-    os.system("sudo make install")
-    # Run Target's tests
-    os.chdir("tests/")
-    #Does not work yet, keeps terminal input open
-    tTests = os.popen("cram -v ./").read()
-    print(tTests)
-    # Store test results
     
-    # Install Donor
-    os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
-    os.system("./build.sh")
-    os.system("sudo make install")
-    # Run Donor's tests
-    # Store test results
-    
-    os.chdir(topLvlDir)
+################################# silver_searcher #########################################################################
+    installSilverSearcher()    
 ################################# silver_searcher end #########################################################################
     
-    # Get timings
-    
+    # Get timings    
     installAndTest_duration = time.time() - installAndTest_start
     checkout_duration = time.time() - start_checkout
     print("Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")
@@ -238,8 +223,40 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
         file.write("\n"+str(datetime.datetime.now())+": Project url is: "+repoURL+" and commit ids are: "+str(donorCommit)+" (Donor) and "+str(targetCommit)+" (Target)") 
         file.write("\n"+str(datetime.datetime.now())+": Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run") 
         file.write("\n"+str(datetime.datetime.now())+": The whole checkout process took "+ str(checkout_duration) +" seconds") 
+
+
+
+# Installation and test process for the_silver_searcher
+def installSilverSearcher():
+#ToDo install cram?
+    # Install Target
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+    os.system("./build.sh")
+    os.system("sudo make install")
+    # Run Target's tests
+    os.chdir("tests/")
+    print("Running Target's tests. This make take a while...")
+    tTests = os.popen("cram -v ./").read()
+    # Store test results
+    os.chdir(topLvlDir)
+    with open("EvaluationStatistics/testResults.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Results for Target: "+tTests) 
+    
+    
+    # Install Donor
+    os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
+    os.system("./build.sh")
+    os.system("sudo make install")
+    # Run Donor's tests
+    os.chdir("tests/")
+    print("Running Donors's tests. This make take a while...")
+    dTests = os.popen("cram -v ./").read()
+    # Store test results
+    os.chdir(topLvlDir)
+    with open("EvaluationStatistics/testResults.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Results for Donor: "+dTests)  
  
- 
+
  
 # Imports the "projectname" as Code Property Graph 
 def importProjectasCPG(projectname, internalPath):
