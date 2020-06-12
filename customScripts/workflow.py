@@ -60,6 +60,7 @@ def workflow():
     
     # Collect useful statistics
     if EVALUATION:
+        print("* * * Evaluation mode is on * * *")
         if not os.path.exists("EvaluationStatistics"):
             os.makedirs("EvaluationStatistics")
         with open("EvaluationStatistics/timings.txt", "a") as file:
@@ -139,6 +140,9 @@ def createRepos():
     # Measure timings
     if EVALUATION:
         start_checkout = time.time()
+        with open("EvaluationStatistics/timings.txt", "a") as file:
+            file.write("\n"+str(datetime.datetime.now())+": Starting with checkout...") 
+    
     
     #repoURL = input("Please type in the url to your Git repository \n") 
     repoURL = "https://github.com/ggreer/the_silver_searcher.git"
@@ -181,14 +185,51 @@ def createRepos():
 
 # Measures timings, installs projects, runs their tests and measures results 
 def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkout):
-    print("* * * Evaluation mode is on * * *")
+    #Count lines and words in all *.c and *.h files in Target
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+    tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
+    tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
+
+    #Count lines and words in all *.c and *.h files in Donor
+    os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
+    dLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
+    dWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
+    os.chdir(topLvlDir)
+    
+    # Write counted results to file
+    with open("EvaluationStatistics/sizes.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": Target size is lines: "+tLines+" and words: "+tWords) 
+        file.write(str(datetime.datetime.now())+": Donor size is lines: "+dLines+" and words: "+dWords) 
+
+    # Measure timings of installation and test processes separately
     installAndTest_start = time.time()
-    #Do not count time of these steps?
-    #Count words
-    #Install
-    #Run tests
+    
+################################# silver_searcher #########################################################################
+    # Install dependencies
+    os.system("sudo apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
+    # Install Target
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+    os.system("./build.sh")
+    os.system("sudo make install")
+    # Run Target's tests
+    os.chdir("tests/")
+    #Does not work yet, keeps terminal input open
+    tTests = os.popen("cram -v ./").read()
+    print(tTests)
+    # Store test results
+    
+    # Install Donor
+    os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
+    os.system("./build.sh")
+    os.system("sudo make install")
+    # Run Donor's tests
+    # Store test results
+    
+    os.chdir(topLvlDir)
+################################# silver_searcher end #########################################################################
     
     # Get timings
+    
     installAndTest_duration = time.time() - installAndTest_start
     checkout_duration = time.time() - start_checkout
     print("Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")
