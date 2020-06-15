@@ -15,7 +15,8 @@ import random
 #projectName = 'expat'
 #projectName = 'sample'
 #projectName = 'PV_Current.tar.gz'
-projectName = 'DonorProject'
+#projectName = 'DonorProject'
+projectName = 'Ag'
 #Connect do database of project
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -179,8 +180,45 @@ query = "g.V().has('code', textContains('sccb_mgr_info'))"
 query = "g.V().has('type', 'structUnionEnum')"
 
 
-   
-      
+# Second: Go to parent file of the current node (Callee)
+# Branch 1: Look in its AST children for a functionDef with the given name
+# Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
+# Branch 2.1: Emit the id of the external function def
+# Branch 2.2: Go to the parent file of the external function def
+# Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
+# Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
+query = """g.V(%s).until(has('type', 'File'))
+    .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode')
+    .union(
+        until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+        .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+        ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
+        .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
+            .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
+            .union(
+                id().as('idOfExternalDeclaration'),
+                select('externalHeaderFileResult').until(has('type', 'File'))
+                    .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
+                    .union(
+                    __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').id().as('idOfIncludeStatement'),
+                    __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                        .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).id().as('sameFileResult')
+                    )
+            )
+    )""" % (1, "functionName[0]", "functionName[0]", "functionName[0]")     
+
+
+
+# Go to parent file
+# Follow IS_HEADER_OF to C file
+# 1. Look in AST children for functionDef with same functionName  
+# 2. Get the include statement for the header file 
+query = """g.V(%s).in('IS_FILE_OF').out('IS_HEADER_OF').union(
+    __.out('IS_FILE_OF').has('type', 'Function').has('code', textContains('%s')).out('IS_FUNCTION_OF_AST'),
+    __.out('IS_FILE_OF').has('type', 'PreInclude').has('code', textContains('%s'))
+    ).id()""" % (184448, "bubblesort", "C.h") 
+    
+query = """g.V().has('type', 'MacroCall') """  
 
 
 # Execute equery
