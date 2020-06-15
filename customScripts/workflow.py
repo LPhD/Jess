@@ -98,31 +98,15 @@ def workflow():
         os.system("git reset --hard")
         os.system("git clean -fd")
 
-
-    os.chdir(topLvlDir)    
-    #Measure Timings
-    if EVALUATION:
-        with open("EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Beginn with Semantic Unit identification.") 
-                       
     # Identify SU
     print(" ### Start of Semantic Unit identification process ### ")
-    print(" ### Please select 'DonorProject' as input project ### ")        
+    print(" ### Please select 'DonorProject' as input project ### ")
+    os.chdir(topLvlDir)
     import SUI  
-    
-    #Measure Timings
-    if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:   
-            file.write("\n"+str(datetime.datetime.now())+": Identification finished. Begin with code export.")     
     
     # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
     print(" ### Convert SU back to source code ### ")    
-    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")   
-
-    #Measure Timings
-    if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")     
+    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")     
 
     ## Initalize analyses 
     print("Initializing...")  
@@ -134,11 +118,6 @@ def workflow():
     #Diff SU and Target (both with semantically enhanced code). Saves the different changes into their respective dictionary.
     getDiffs()            
 
-    #Measure Timings
-    if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Analysis finished. Begin with merging.")  
-
     # Creates all files from the SU in Target, that did not exist there before. 
     print("Create completely new files in Target...")
     createCompletelyNewFiles(newFiles)    
@@ -147,18 +126,11 @@ def workflow():
     print("Create merged files in Target...")
     for fileName in mergeResult.keys():
         assembleFiles(fileName) 
-
-    #Measure Timings
-    if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Merge finished.")  
-            file.write("\n"+str(datetime.datetime.now())+"The whole workflow took", time.time() - start_time, "seconds to run.") 
-            file.write("\n"+str(datetime.datetime.now())+"T < Insert useful statistics about time distributions here? >") 
         
     #Finish workflow
     print(" ### Code transplantation finished sucessfull! ### ")
     print(" ### Please compile the code to check for duplicate identifiers ### ")               
-    print ("The whole workflow took", time.time() - start_time, "seconds to run")  
+    print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
         
 #TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
 #TODO Syntax check?
@@ -236,7 +208,7 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
     installAndTest_start = time.time()
     
     # Install dependencies for all projects
-    os.system("apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
+    os.system("sudo apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
     
 ################################# silver_searcher #########################################################################
     installSilverSearcher()    
@@ -269,7 +241,8 @@ def installSilverSearcher():
     os.chdir(topLvlDir)
     with open("EvaluationStatistics/testResults.txt", "a") as file:    
         file.write("\n"+str(datetime.datetime.now())+": Results for Target: "+tTests) 
-       
+    
+    
     # Install Donor
     os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
     os.system("./build.sh")
@@ -298,28 +271,16 @@ def importProjectasCPG(projectname, internalPath):
             print(" # # # Automated transplantation finished sucessfull # # # ")
         # Exit as we are finished
         exit()
-        
-    if EVALUATION:
-        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Start importing "+projectname+" as CPG")         
 
     print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ") 
     os.system("tar -cvzf "+projectname+" "+projectname+"Code") 
     os.system("jess-import "+projectname+"") 
-    
-    if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Import finished. Starting evaluation of CPG.")     
     
     # Validate CPG (this includes creating the ID list that is used by the codeConverter)
 #TODO we could skip this step for performance. But then we need to tell the codeConverter the right projectname and ids
     print(" ### Validating CPG of "+projectname+" ### ") 
     # Project name, working directory, internal structure of the project
     evaluateProject(projectname, topLvlDir+"/"+resultFoldername , internalPath) 
-    
-    if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Evaluation finished.") 
 
 
 
