@@ -152,7 +152,7 @@ def workflow():
     if EVALUATION:
          with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Merge finished.")  
-            file.write("\n"+str(datetime.datetime.now())+"The whole workflow took", time.time() - start_time, "seconds to run.") 
+            file.write("\n"+str(datetime.datetime.now())+"The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
             file.write("\n"+str(datetime.datetime.now())+"T < Insert useful statistics about time distributions here? >") 
         
     #Finish workflow
