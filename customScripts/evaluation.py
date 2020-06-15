@@ -89,6 +89,6 @@ def evaluateProject (projectName, workingdir, projectPath):
 
 
 # When called via console, fill these out and add your project path to getProjectPath function
-projectName = "Ag"
+#projectName = "Ag"
 #projectName = input("Please type in the name of the project")
-evaluateProject(projectName, os.getcwd(), getProjectPath(projectName))
+#evaluateProject(projectName, os.getcwd(), getProjectPath(projectName))
