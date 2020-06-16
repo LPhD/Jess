@@ -77,7 +77,7 @@ def workflow():
     #Import new branches or reuse old ones?
     reuse = input("Would you like to work with a new project (1) or keep the last one (2) ?\n")
 
-    # Make a new CPG or reuse the previous one
+    #### Make a new CPG or reuse the previous one ####
     if (reuse == "1"):   
         # Delete old results
         if os.path.exists(resultFoldername):
@@ -97,76 +97,90 @@ def workflow():
         os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
         os.system("git reset --hard")
         os.system("git clean -fd")
-
-
-    os.chdir(topLvlDir)    
+       
     #Measure Timings
     if EVALUATION:
-        with open("EvaluationStatistics/timings.txt", "a") as file:    
+        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Beginn with Semantic Unit identification.") 
                        
-    # Identify SU
+    #### Identify SU ####
     print(" ### Start of Semantic Unit identification process ### ")
-    print(" ### Please select 'DonorProject' as input project ### ")        
+    print(" ### Please select 'DonorProject' as input project ### ")    
+    os.chdir(topLvlDir)    
     import SUI  
     
     #Measure Timings
     if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:   
+        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:   
             file.write("\n"+str(datetime.datetime.now())+": Identification finished. Begin with code export.")     
     
-    # SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information)
+    #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
     convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")   
 
     #Measure Timings and SU's size
     if EVALUATION:
         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")   
-            
-        #Count lines and words in all *.c and *.h files in Donor
+            file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")              
+        #Count lines and words in all *.c and *.h files in SU
         os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
         suLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
         suWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
-        os.chdir(topLvlDir)
-        
+        os.chdir(topLvlDir)        
         # Write counted results to file
         with open(topLvlDir+"/EvaluationStatistics/sizes.txt", "a") as file:
             file.write("\n"+str(datetime.datetime.now())+": SU's size is lines: "+suLines+" and words (containing additional semantic enhancement): "+suWords) 
            
-
-    ## Initalize analyses 
+    #### Initalize analyses ####
     print("Initializing...")  
     # Set list of changed targetFiles 
     initializeAnalysis()     
       
-    ## Diff SU vs Target 
+    #### Diff SU vs Target ####
     print(" ### Diff SU vs Target  ### ")
     #Diff SU and Target (both with semantically enhanced code). Saves the different changes into their respective dictionary.
     getDiffs()            
 
     #Measure Timings
     if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Analysis finished. Begin with merging.")  
 
-    # Creates all files from the SU in Target, that did not exist there before. 
+    #### Creates all files from the SU in Target, that did not exist there before ####
     print("Create completely new files in Target...")
     createCompletelyNewFiles(newFiles)    
 
-    # Create the final files 
+    #### Create the final files ####
     print("Create merged files in Target...")
     for fileName in mergeResult.keys():
         assembleFiles(fileName) 
 
-    #Measure Timings
+    # Measure timings and size. Install and run tests.
     if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Merge finished.")  
+        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+            file.write("\n"+str(datetime.datetime.now())+": Merge finished. Begin with installation and test of merged Target.")  
+        # Count lines and words in all *.c and *.h files in merged Target
+        os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+        tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
+        tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
+        os.chdir(topLvlDir)        
+        # Write counted results to file
+        with open(topLvlDir+"/EvaluationStatistics/sizes.txt", "a") as file:
+            file.write("\n"+str(datetime.datetime.now())+": Final merged Target's size is lines: "+tLines+" and words: "+tWords)             
+
+            
+        # Install Target and run and document tests  
+################################# silver_searcher #############################################################################        
+        installSilverSearcher("Target")
+################################# silver_searcher end #########################################################################
+
+        
+        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+            file.write("\n"+str(datetime.datetime.now())+": Final installation and test finished.")         
             file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
             file.write("\n"+str(datetime.datetime.now())+": < Insert useful statistics about time distributions here? >") 
         
-    #Finish workflow
+    #### Finish workflow ####
     print(" ### Code transplantation finished sucessfull! ### ")
     print(" ### Please compile the code to check for duplicate identifiers ### ")               
     print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
@@ -250,8 +264,9 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
     print("* * * Installing dependencies for project * * *")
     os.system("sudo apt-get install -y automake python-cram pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
     
-################################# silver_searcher #########################################################################
-#    installSilverSearcher()    
+################################# silver_searcher #############################################################################   
+    installSilverSearcher("Donor")
+    installSilverSearcher("Target")
 ################################# silver_searcher end #########################################################################
     
     # Get timings    
@@ -267,34 +282,20 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
 
 
 # Installation and test process for the_silver_searcher
-def installSilverSearcher():
-    # Install Target
-    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+def installSilverSearcher(DonorOrTarget):
+    # Install DonorOrTarget
+    os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
     os.system("./build.sh")
     os.system("sudo make install")
-    # Run Target's tests
+    # Run DonorOrTarget's tests
     os.chdir("tests/")
-    print("* * * Running Target's tests. This may take a while... * * * ")
-    tTests = os.popen("cram -v ./").read()
+    print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
+    tests = os.popen("cram -v ./").read()
     # Store test results
     os.chdir(topLvlDir)
     with open("EvaluationStatistics/testResults.txt", "a") as file:    
-        file.write("\n"+str(datetime.datetime.now())+": Results for Target: "+tTests) 
-       
-    # Install Donor
-    os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
-    os.system("./build.sh")
-    os.system("sudo make install")
-    # Run Donor's tests
-    os.chdir("tests/")
-    print("* * * Running Donors's tests. This may take a while... * * * ")
-    dTests = os.popen("cram -v ./").read()
-    # Store test results
-    os.chdir(topLvlDir)
-    with open("EvaluationStatistics/testResults.txt", "a") as file:    
-        file.write("\n"+str(datetime.datetime.now())+": Results for Donor: "+dTests)  
+        file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
  
-
  
 # Imports the "projectname" as Code Property Graph 
 def importProjectasCPG(projectname, internalPath):
