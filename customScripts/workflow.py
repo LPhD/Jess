@@ -20,7 +20,7 @@ start_time = time.time()
 #### Configuration ####
 # Enable debug output
 DEBUG = False
-# Enable evaluation mode for validating workflow. Includes installation and running tests of the selected project. Therefore: Much slower.
+# Enable evaluation mode for validating workflow. Includes installation and running tests of the selected projects. Therefore: Much slower.
 EVALUATION = True
 # Name of the configuration option to de/endable the SU
 SUName = "SU"
@@ -119,10 +119,21 @@ def workflow():
     print(" ### Convert SU back to source code ### ")    
     convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")   
 
-    #Measure Timings
+    #Measure Timings and SU's size
     if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")     
+        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+            file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")   
+            
+        #Count lines and words in all *.c and *.h files in Donor
+        os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
+        suLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
+        suWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
+        os.chdir(topLvlDir)
+        
+        # Write counted results to file
+        with open(topLvlDir+"/EvaluationStatistics/sizes.txt", "a") as file:
+            file.write("\n"+str(datetime.datetime.now())+": SU's size is lines: "+suLines+" and words (containing additional semantic enhancement): "+suWords) 
+           
 
     ## Initalize analyses 
     print("Initializing...")  
@@ -152,8 +163,8 @@ def workflow():
     if EVALUATION:
          with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Merge finished.")  
-            file.write("\n"+str(datetime.datetime.now())+"The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
-            file.write("\n"+str(datetime.datetime.now())+"T < Insert useful statistics about time distributions here? >") 
+            file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
+            file.write("\n"+str(datetime.datetime.now())+": < Insert useful statistics about time distributions here? >") 
         
     #Finish workflow
     print(" ### Code transplantation finished sucessfull! ### ")
@@ -236,10 +247,11 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
     installAndTest_start = time.time()
     
     # Install dependencies for all projects
-    os.system("apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
+    print("* * * Installing dependencies for project * * *")
+    os.system("sudo apt-get install -y automake python-cram pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
     
 ################################# silver_searcher #########################################################################
-    installSilverSearcher()    
+#    installSilverSearcher()    
 ################################# silver_searcher end #########################################################################
     
     # Get timings    
@@ -256,14 +268,13 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
 
 # Installation and test process for the_silver_searcher
 def installSilverSearcher():
-#ToDo install cram?
     # Install Target
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
     os.system("./build.sh")
     os.system("sudo make install")
     # Run Target's tests
     os.chdir("tests/")
-    print("Running Target's tests. This make take a while...")
+    print("* * * Running Target's tests. This may take a while... * * * ")
     tTests = os.popen("cram -v ./").read()
     # Store test results
     os.chdir(topLvlDir)
@@ -276,7 +287,7 @@ def installSilverSearcher():
     os.system("sudo make install")
     # Run Donor's tests
     os.chdir("tests/")
-    print("Running Donors's tests. This make take a while...")
+    print("* * * Running Donors's tests. This may take a while... * * * ")
     dTests = os.popen("cram -v ./").read()
     # Store test results
     os.chdir(topLvlDir)
