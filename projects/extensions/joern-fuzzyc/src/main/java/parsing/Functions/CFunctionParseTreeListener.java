@@ -194,20 +194,6 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 
 	// Preprocessor handling
 	@Override
-	public void enterPre_include_system_header(FunctionParser.Pre_include_system_headerContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterPreIncludeSystemHeader(ctx);
-	}
-
-	// Preprocessor handling
-	@Override
-	public void exitPre_include_system_header(FunctionParser.Pre_include_system_headerContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.exitPreIncludeSystemHeader(ctx);
-	}
-
-	// Preprocessor handling
-	@Override
 	public void enterPre_include_local_file(FunctionParser.Pre_include_local_fileContext ctx) {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterPreIncludeLocalFile(ctx);

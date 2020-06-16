@@ -15,9 +15,7 @@ import ast.expressions.AssignmentExpression;
 import ast.expressions.BinaryExpression;
 import ast.expressions.Expression;
 import ast.expressions.Identifier;
-import ast.expressions.NullExpression;
 import ast.logical.statements.Statement;
-import ast.statements.ExpressionStatement;
 
 public class ASTNodeFactory {
 	public static void initializeFromContext(ASTNode node, ParserRuleContext ctx) {

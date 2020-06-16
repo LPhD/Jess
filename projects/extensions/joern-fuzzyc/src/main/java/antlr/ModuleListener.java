@@ -254,16 +254,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPre_include_next(ModuleParser.Pre_include_nextContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#pre_include_system_header}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_include_system_header(ModuleParser.Pre_include_system_headerContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#pre_include_system_header}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_include_system_header(ModuleParser.Pre_include_system_headerContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_include_local_file}.
 	 * @param ctx the parse tree
 	 */

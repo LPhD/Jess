@@ -77,7 +77,7 @@ import ModuleLex;
        // this should go into FunctionGrammar but ANTLR fails
        // to join the parser::members-section on inclusion
        
-       //Find the closing #endif to the opening #if (and then return true), skip everything that is in between
+       //Find the closing #endif to the opening #if (and then return true), consume everything that is in between
        public boolean preProcSkipToEnd()  {
        		//Stack for collecting #ifs
             Stack<Object> PreprocessorStack = new Stack<Object>();
@@ -103,6 +103,7 @@ import ModuleLex;
  					consume();
                 return true;
        }
+             
        
       //Find the end of a preprocessor macro
      public boolean preProcFindMacroEnd()  {

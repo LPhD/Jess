@@ -185,16 +185,18 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreIncludeStatementWithBrackets() {
-		String input = "#include <file.h> ";
+		String input = "#include <file.h>";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("#include <file.h>", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testPreIncludeStatementWithQuotes() {
-		String input = "#include \"something\"";
+		String input = "#include \"something.h\"";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreInclude", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("#include \"something.h\"", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 	
 	@Test

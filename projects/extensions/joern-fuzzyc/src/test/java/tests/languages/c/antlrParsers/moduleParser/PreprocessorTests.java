@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import antlr.ModuleParser;
+import ast.logical.statements.CompoundStatement;
+import tests.languages.c.parseTreeToAST.FunctionContentTestUtil;
 
 public class PreprocessorTests extends FunctionDefinitionTests {
 
@@ -116,6 +118,24 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 				+ "|| (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (defined_expression defined ("
 				+ " (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier TRACE_HEADER_MULTI_READ)))))))))))))))))) )))))))))))))))))))) \\n))) "
 				+ "(pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
+		assertEquals(outputExpected, output);
+	}
+	
+	@Test
+	public void testPreIncludeStatementWithBrackets() {
+		String input = "#include <file.h>";
+		ModuleParser parser = createParser(input);
+		String output = parser.code().toStringTree(parser);
+		String outputExpected = "(code (pre_statement (pre_command (pre_include #include <file.h>))))";
+		assertEquals(outputExpected, output);
+	}
+	
+	@Test
+	public void testPreIncludeStatementWithQuotes() {
+		String input = "#include \"something.h\"";
+		ModuleParser parser = createParser(input);
+		String output = parser.code().toStringTree(parser);
+		String outputExpected = "(code (pre_statement (pre_command (pre_include #include (pre_include_local_file (pre_include_filename \"something.h\"))))))";
 		assertEquals(outputExpected, output);
 	}
 	

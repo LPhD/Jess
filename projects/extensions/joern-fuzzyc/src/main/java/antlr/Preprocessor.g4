@@ -72,19 +72,17 @@ attribute: pre_macro_identifier //Identifier or keyword
             | pre_macro_identifier '(' expr? (',' expr)* ')'
             ;        
 
-pre_include: PRE_INCLUDE pre_include_system_header
+pre_include: PRE_INCLUDE pre_include_local_file
             | PRE_INCLUDE pre_macro_identifier
-            | PRE_INCLUDE pre_include_local_file;
+            | PRE_INCLUDE;
 
-pre_include_next: PRE_INCLUDE_NEXT pre_include_system_header
+pre_include_next: PRE_INCLUDE_NEXT pre_include_local_file
             | PRE_INCLUDE_NEXT  pre_macro_identifier
-            | PRE_INCLUDE_NEXT pre_include_local_file;
-            
-pre_include_system_header: '<' pre_include_filename '>';            
+            | PRE_INCLUDE_NEXT;                   
 
 pre_include_local_file: pre_include_filename;
 
-pre_include_filename: (STRING | ('.' | '-' | '/' | ALPHA_NUMERIC)+);
+pre_include_filename: STRING;
 
 pre_line: PRE_LINE DECIMAL_LITERAL STRING
         | PRE_LINE DECIMAL_LITERAL pre_macro_identifier

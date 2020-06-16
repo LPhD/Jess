@@ -56,8 +56,8 @@ PRE_DEFINE: '#' [ \t\u000C]* 'define';
 PRE_UNDEF:  '#' [ \t\u000C]* 'undef';
 PRE_DIAGNOSTIC:  '#' [ \t\u000C]* ('error' | 'warning');
 PRE_OTHER:  '#' [ \t\u000C]* ('ident' |  'sccs' | 'null');
-PRE_INCLUDE:  '#' [ \t\u000C]* ('import' | 'include');
-PRE_INCLUDE_NEXT:  '#' [ \t\u000C]* 'include_next';
+PRE_INCLUDE:  '#' [ \t\u000C]* ('import' | 'include') ([ \t\u000C]* '<' ( EscapeSequence | ~('>'|'<') )* '>')?;
+PRE_INCLUDE_NEXT:  '#' [ \t\u000C]* 'include_next' ([ \t\u000C]* '<' ( EscapeSequence | ~('>'|'<') )* '>')?;
 PRE_LINE: '#' [ \t\u000C]* 'line';
 PRE_PRAGMA: '#' [ \t\u000C]* 'pragma';
 PRE_GCC: 'GCC';
@@ -91,13 +91,10 @@ COMMENT: '/*' ( ~('*') | ('*' ~('/')) )*  '*/'
     | '//'  ~('\n'|'\r')* '\r'? '\n'
  ;
  
-CHAR
-    :   '\'' ( EscapeSequence | ~('\''|'\\') ) '\''
-    ;
+CHAR:   '\'' ( EscapeSequence | ~('\''|'\\') ) '\'';
 
-STRING
-    :  '"' ( EscapeSequence | ~('\\'|'"') )* '"'
-    ;
+STRING:  '"' ( EscapeSequence | ~('\\'|'"') )* '"';
+
 
 
 fragment
