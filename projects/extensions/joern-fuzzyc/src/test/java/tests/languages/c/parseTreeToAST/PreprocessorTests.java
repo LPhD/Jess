@@ -304,6 +304,23 @@ public class PreprocessorTests {
 	}
 	
 	@Test
+	public void testPreDefineWithBracketsAfterIdentifier() {
+		String input = "#define size (5 + 3)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("#define size ( 5 + 3 )", contentItem.getStatement(0).getEscapedCodeStr());
+
+	}
+	
+	@Test
+	public void testPreDefineMacro() {
+		String input = "#define size(a) a + 3";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("#define size( a ) a + 3", contentItem.getStatement(0).getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testMacroCall() {
 		String input = "CHECK_AND_RETURN(ptr)";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);

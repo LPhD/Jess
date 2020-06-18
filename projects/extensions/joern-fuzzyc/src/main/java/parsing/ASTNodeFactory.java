@@ -38,8 +38,11 @@ public class ASTNodeFactory {
 			code  = code.replace(" # ", "#");
 			//Remove whitespaces before linebreaks
 			code  = code.replace("\\ \n", "\\\n");
-			//Remove whitespaces before opening brackets
-			code = code.replace(" (", "(");
+			//Remove whitespaces before opening brackets. 
+			//Only exception: The define content starts with a bracket, then we cannot remove the space, as it works as a separator for identifier and content
+			if (node.getChild(1) != null && !(node.getChild(1).getEscapedCodeStr().startsWith("("))) {
+				code = code.replace(" (", "(");
+			}
 
 			node.setCodeStr(code);
 		}

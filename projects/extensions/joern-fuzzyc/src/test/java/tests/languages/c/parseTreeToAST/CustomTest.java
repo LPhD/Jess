@@ -59,7 +59,7 @@ public class CustomTest {
 				"    _check_set_test_info(__func__, __FILE__, __LINE__);    \\\n" + 
 				"    {";
 		List<ASTNode> codeItems = parseInput(input);
-		PreDefine codeItem = (PreDefine) codeItems.get(0);		
+		PreDefine codeItem = (PreDefine) codeItems.get(0);			
 		assertEquals("#define START_TEST( testname ) \\\n" + 
 				" static void testname( void ) { \\\n" + 
 				" _check_set_test_info( __func__ , __FILE__ , __LINE__ ) ; \\\n" + 
