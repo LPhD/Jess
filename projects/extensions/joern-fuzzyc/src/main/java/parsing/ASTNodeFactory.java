@@ -37,7 +37,9 @@ public class ASTNodeFactory {
 			code  = code.replace(" ## ", "##");
 			code  = code.replace(" # ", "#");
 			//Remove whitespaces before linebreaks
-			code  = code.replace("\\ \n", "\\\n");			
+			code  = code.replace("\\ \n", "\\\n");
+			//Remove whitespaces before opening brackets
+			code = code.replace(" (", "(");
 
 			node.setCodeStr(code);
 		}

@@ -5,8 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import antlr.ModuleParser;
-import ast.logical.statements.CompoundStatement;
-import tests.languages.c.parseTreeToAST.FunctionContentTestUtil;
 
 public class PreprocessorTests extends FunctionDefinitionTests {
 

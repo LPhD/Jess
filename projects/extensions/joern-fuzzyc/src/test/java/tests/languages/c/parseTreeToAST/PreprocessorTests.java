@@ -290,8 +290,8 @@ public class PreprocessorTests {
 				"	(config_enabled(option) || config_enabled(option##_MODULE))";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
-		assertEquals("#define IS_ENABLED ( option ) \\\n" + 
-				" ( config_enabled ( option ) || config_enabled ( option##_MODULE ) )", contentItem.getStatement(0).getEscapedCodeStr());
+		assertEquals("#define IS_ENABLED( option ) \\\n" + 
+				"( config_enabled( option ) || config_enabled( option##_MODULE ) )", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 
 	@Test
