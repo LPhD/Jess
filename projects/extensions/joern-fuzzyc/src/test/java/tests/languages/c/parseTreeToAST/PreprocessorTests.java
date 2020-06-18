@@ -286,10 +286,12 @@ public class PreprocessorTests {
 	
 	@Test
 	public void testPreDefineWithComplexValueAndParametersAndLineBreak() {
-		String input = "#define IS_ENABLED(option) \\ \n" + 
+		String input = "#define IS_ENABLED(option) \\\n" + 
 				"	(config_enabled(option) || config_enabled(option##_MODULE))";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("#define IS_ENABLED ( option ) \\\n" + 
+				" ( config_enabled ( option ) || config_enabled ( option##_MODULE ) )", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 
 	@Test

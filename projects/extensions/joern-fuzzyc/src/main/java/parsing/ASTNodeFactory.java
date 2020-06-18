@@ -11,6 +11,7 @@ import ast.ASTNode;
 import ast.Comment;
 import ast.c.functionDef.Parameter;
 import ast.c.functionDef.ParameterType;
+import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.expressions.AssignmentExpression;
 import ast.expressions.BinaryExpression;
 import ast.expressions.Expression;
@@ -21,12 +22,27 @@ public class ASTNodeFactory {
 	public static void initializeFromContext(ASTNode node, ParserRuleContext ctx) {
 		if (ctx == null)
 			return;
-				
-		//We can not set the path here, only the line?
+		
+		//Set line and position in that line
 		node.setLine(ctx.start.getLine());
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
-		node.setCodeStr(ParseTreeUtils.childTokenString(ctx));	
+				
+		if (!(node instanceof PreDefine)) {			
+			node.setCodeStr(ParseTreeUtils.childTokenString(ctx));
+			
+		//Separate function for #defines to remove false whitespaces
+		} else {
+			String code = ParseTreeUtils.childTokenString(ctx);
+			//Remove whitespaces around string concatenations
+			code  = code.replace(" ## ", "##");
+			code  = code.replace(" # ", "#");
+			//Remove whitespaces before linebreaks
+			code  = code.replace("\\ \n", "\\\n");			
+
+			node.setCodeStr(code);
+		}
 	}
+	
 	
 	/**
 	 * Separate function for comments to remove line breaks from the code (they were just needed for detecting the end of the comment)

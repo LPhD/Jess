@@ -60,9 +60,9 @@ public class CustomTest {
 				"    {";
 		List<ASTNode> codeItems = parseInput(input);
 		PreDefine codeItem = (PreDefine) codeItems.get(0);		
-		assertEquals("#define START_TEST ( testname ) \\ \n" + 
-				" static void testname ( void ) { \\ \n" + 
-				" _check_set_test_info ( __func__ , __FILE__ , __LINE__ ) ; \\ \n" + 
+		assertEquals("#define START_TEST ( testname ) \\\n" + 
+				" static void testname ( void ) { \\\n" + 
+				" _check_set_test_info ( __func__ , __FILE__ , __LINE__ ) ; \\\n" + 
 				" {", codeItem.getEscapedCodeStr());
 	}
 	
@@ -73,8 +73,8 @@ public class CustomTest {
 				"  }";
 		List<ASTNode> codeItems = parseInput(input);
 		PreDefine codeItem = (PreDefine) codeItems.get(0);		
-		assertEquals("#define END_TEST \\ \n" + 
-				" } \\ \n" + 
+		assertEquals("#define END_TEST \\\n" + 
+				" } \\\n" + 
 				" }", codeItem.getEscapedCodeStr());
 	}
 	

@@ -117,17 +117,16 @@ import ModuleLex;
             //Look for end of the macro where a newline appears without a previous backslash
             while(t != EOF && !(slashStack.empty() && t == NEWLINE)){
                 
-                   //Count escape and newline characters, but dont parse them                    
+                   //Count escape and newline characters                   
                   if(t == ESCAPE){
                         slashStack.push(o);
-                        t = WHITESPACE; 
                   } else if(t == NEWLINE) {
                         slashStack.pop();
-                        t = WHITESPACE;
-                  }
-                                   
-                  //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
-                  consume();
+                  } 
+                  
+                  //Consume and return the current symbol, the consumed symbol is added to the parse tree 
+                  consume();                   
+                  //Move cursor to next symbol
                   t = _input.LA(1);
              }                                             
    	return true;
