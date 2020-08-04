@@ -14,7 +14,7 @@ SEMANTIC = False
 # Set working directory
 workingdir = ""
 # Lists all types that we need for the block based analysis
-typeList = ['FunctionDef']
+typeList = ['FunctionDef', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement']
 
 def initialize():
     # Get the ids from the SemanticUnit (first line is the projectName)
@@ -81,7 +81,7 @@ def importData(db, idList, SEMANTIC):
     
     return structuredCodeList
 
-# Writes #BlockEnder# after the end of a function
+# Writes #FunctionBlockEnder# after the end of a function
 def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk):
     # Get block enders (FunctionDef etc) for semantic diff
     query = """idListToNodes(%s)
@@ -96,7 +96,7 @@ def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk):
     # Add results to the code list
     for r in result:
         if len(r) > 1:
-            structuredCodeList.append([r['path'][0].rsplit("/src/",1)[1], int(((r['line'])[0])), 0, " ###BlockEnder### ", "BlockEnder"])
+            structuredCodeList.append([r['path'][0].rsplit("/src/",1)[1], int(((r['line'])[0])), 0, " ###FunctionBlockEnder### ", "FunctionBlockEnder"])
     #We do not need to return the list here, as it is a mutable object   
 
 
@@ -145,6 +145,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
     additionalLinesPerFile = 0
     # For semantic diff utility
     inBlock = False
+    blockStarterStack = []
 
     # For each entry in the patch list, build the file content
     # filename (0), linenumber (1), cline(2), code(3) (if exists), type(4) and internal path(5) (structure inside project) 
@@ -217,26 +218,69 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         lineContent = lineContent + statement[3]
         
         # # # Semantic Diff # # #
-        # Turn trigger off, as we leave the block
-        if SEMANTIC and (statement[4] == "BlockEnder"):
-            #Insert the block name to the statement
-            lineContent = lineContent.replace("BlockEnder", "BlockEnder "+blockname)
-            inBlock = False
-            if DEBUG: print("Found block ender line: "+str(statement[1]))
+        if SEMANTIC:
+            # Turn trigger off, as we leave the block
+            if (statement[4] == "FunctionBlockEnder"):
+                #Insert the block name to the statement
+                lineContent = lineContent.replace("FunctionBlockEnder", "FunctionBlockEnder "+blockname)
+                inBlock = False
+                #Clear blockname
+                blockname = ""
+                if DEBUG: print("Found block ender line: "+str(statement[1]))
+                
+                
+            # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
+            # TODO: Systematically add all possible types (array? (not necessary as this is one while statement?) struct? preDefine?)
+            elif (statement[4] in typeList):
+                currentBlockName = ""
             
-        # Add prefix for statements that are inside a block
-        if SEMANTIC and inBlock:
-            lineContent = "###Block "+blockname+"### " + lineContent 
-            if DEBUG: print("Found block: "+statement[3])
+                #Build the block name cumulatively, so that it contains the names of all surrounding blocks    
+                if (statement[4] == 'FunctionDef'):
+                    #Use only the function name for function blocks
+                    currentBlockName = statement[3].rpartition("(")[0]  
+                    #The function block name is always the first, as we handle blocks intraprocedural    
+                    blockname = currentBlockName
+                
+                elif (statement[4] == 'ElseStatement'):
+                    #else blocks get the code of its "if" plus an additional "else" to separate between "if" and "else" content
+                    currentBlockName = "else " + lastIf
+                    blockname += currentBlockName
+                 
+                else:     
+                    #Use the whole blockstarter for other blocks   
+                    currentBlockName = statement[3]
+                    blockname += currentBlockName
+                    #Save the if header separately for possible later else statements 
+                    if (statement[4] == 'IfStatement'):
+                        lastIf = currentBlockName
+                    
+                print("# # # # # # # Statement type: "+statement[4]+" with blockname: "+blockname)  
+                
+                # Collect the block starters individually
+                blockStarterStack.append(currentBlockName)
+                # Add the cumulative block name to the current line content
+                lineContent = "####" + statement[4] +" "+ blockname + "### " + lineContent  
+                
+                print("# # # # # # # Line content: "+lineContent)  
+                
+                inBlock = True
+                if DEBUG: print("Found block starter: "+statement[3])
             
-        # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
-        # TODO: Systematically add all possible types (array? struct? preDefine?)
-        if (SEMANTIC and (statement[4] in typeList)):
-            blockname = statement[3].rpartition("(")[0]            
-            lineContent = "####" + statement[4] +" "+ blockname + "### " + lineContent  
-            inBlock = True
-            if DEBUG: print("Found block starter: "+statement[3])
-               
+            
+            # Add prefix for statements that are inside a block and not a blockstarter or funktionBlockEnder
+            elif inBlock:
+                lineContent = "###Block "+blockname+"### " + lineContent 
+                if DEBUG: print("Found block: "+statement[3])
+                
+                #Look for closing brackets of blocks 
+                if (statement[3] == "}"):
+                    print("Found }")
+                    #Remove the closed blockstarter from the stack
+                    lastBlockstarter = blockStarterStack.pop()
+                    #Remove the last started block from the current line content (which contains names of all surrounding blocks)
+                    blockname = blockname.replace(lastBlockstarter,"")
+            
+                 
         # # # Semantic Diff End # # #
     
     #Finally write the current line (last of the list)
@@ -264,5 +308,6 @@ def convertToCode(SEMANTIC, workingdir, foldername):
         writeOutput(output, SEMANTIC, foldername)
         print("Code creation successfull")
 
-# When called via console, comment this line in to run the script   
-#convertToCode(SEMANTIC, os.getcwd(), "Code/src")    
+# When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
+# Add semantic enhancement, location of result.txt, target output folder   
+convertToCode(True, os.getcwd(), "ConvertedCode/src")    
