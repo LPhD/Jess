@@ -253,28 +253,23 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     #Save the if header separately for possible later else statements 
                     if (statement[4] == 'IfStatement'):
                         lastIf = currentBlockName
-                    
-                print("# # # # # # # Statement type: "+statement[4]+" with blockname: "+blockname)  
-                
+                                    
                 # Collect the block starters individually
                 blockStarterStack.append(currentBlockName)
                 # Add the cumulative block name to the current line content
                 lineContent = "####" + statement[4] +" "+ blockname + "### " + lineContent  
-                
-                print("# # # # # # # Line content: "+lineContent)  
-                
+                             
                 inBlock = True
                 if DEBUG: print("Found block starter: "+statement[3])
             
             
-            # Add prefix for statements that are inside a block and not a blockstarter or funktionBlockEnder
-            elif inBlock:
+            # Add prefix for statements that are inside a block and not a blockstarter or funktionBlockEnder or a single "{" (to prevent duplicate block information)
+            elif inBlock and not (statement[3] == "{"):
                 lineContent = "###Block "+blockname+"### " + lineContent 
                 if DEBUG: print("Found block: "+statement[3])
                 
                 #Look for closing brackets of blocks 
                 if (statement[3] == "}"):
-                    print("Found }")
                     #Remove the closed blockstarter from the stack
                     lastBlockstarter = blockStarterStack.pop()
                     #Remove the last started block from the current line content (which contains names of all surrounding blocks)
