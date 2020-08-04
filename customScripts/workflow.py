@@ -38,7 +38,7 @@ mergeResult = {}
 # List for all files that exist in the SU but not in Target
 newFiles = []
 # Semantic blocks begin and end with ### (the *? activates non-greedy behavior, as the block should end with the first ###)
-functionBlockPattern = re.compile("###.*?###")
+blockPattern = re.compile("###.*?###")
 # Semantic blocks begin and end with ### (the *? activates non-greedy behavior, as the block should end with the first #*#)
 ifdefBlockPattern = re.compile("#\*#.*?#\*#")
 # Combines all semantic block patterns (for removing them all)

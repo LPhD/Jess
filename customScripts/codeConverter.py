@@ -245,10 +245,10 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     #else blocks get the code of its "if" plus an additional "else" to separate between "if" and "else" content
                     currentBlockName = "else " + lastIf
                     blockname += currentBlockName
-                 
+            
                 else:     
-                    #Use the whole blockstarter for other blocks   
-                    currentBlockName = statement[3]
+                    #Use the whole blockstarter for other blocks (and replace any line breaks that could cause problems otherwise)  
+                    currentBlockName = statement[3].replace("\n","")
                     blockname += currentBlockName
                     #Save the if header separately for possible later else statements 
                     if (statement[4] == 'IfStatement'):
@@ -305,4 +305,4 @@ def convertToCode(SEMANTIC, workingdir, foldername):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-convertToCode(True, os.getcwd(), "ConvertedCode/src")    
+#convertToCode(True, os.getcwd(), "ConvertedCode/src")    
