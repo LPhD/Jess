@@ -24,6 +24,8 @@ DEBUG = False
 EVALUATION = True
 # Name of the configuration option to de/endable the SU
 SUName = "SU"
+# Activate to add an "#ifdef $SUName" block around the SU's code in Target
+addIfdefAroundSU = True
 
 
 #### Global variables ####
@@ -72,6 +74,9 @@ def workflow():
         with open("EvaluationStatistics/testResults.txt", "a") as file:
             file.write("\n----------------------------------------------------------------")
             file.write("\nBegin new run at: "+str(datetime.datetime.now()))            
+        with open("EvaluationStatistics/diffs_TargetOldvsNew.txt", "a") as file:
+            file.write("\n----------------------------------------------------------------")
+            file.write("\nBegin new run at: "+str(datetime.datetime.now())) 
             
             
     #Import new branches or reuse old ones?
@@ -163,14 +168,16 @@ def workflow():
         os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
         tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
         tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
+        #Get a diff of old vs new Target
+        os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/EvaluationStatistics/diffs_TargetOldvsNew.txt")
         os.chdir(topLvlDir)        
         # Write counted results to file
         with open(topLvlDir+"/EvaluationStatistics/sizes.txt", "a") as file:
-            file.write("\n"+str(datetime.datetime.now())+": Final merged Target's size is lines: "+tLines+" and words: "+tWords)             
-
+            file.write("\n"+str(datetime.datetime.now())+": Final merged Target's size is lines: "+tLines+" and words: "+tWords)                             
             
-        # Install Target and run and document tests  
-################################# silver_searcher #############################################################################        
+        # Install Target, move (from Donor to Target), run, and document tests  
+################################# silver_searcher #############################################################################   
+        moveSilverSearcherTests("ignore_invert.t")
         installSilverSearcher("Target")
 ################################# silver_searcher end #########################################################################
 
@@ -295,7 +302,12 @@ def installSilverSearcher(DonorOrTarget):
     os.chdir(topLvlDir)
     with open("EvaluationStatistics/testResults.txt", "a") as file:    
         file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
- 
+
+
+#Copy SilverSearcher's test(s) from Donor to Target
+def moveSilverSearcherTests(testname): 
+    os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/"+testname+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests")
+
  
 # Imports the "projectname" as Code Property Graph 
 def importProjectasCPG(projectname, internalPath):
@@ -435,7 +447,7 @@ def getDiffs():
                                 mergeResultCopy_forSearching[index] = ""
                                 
                                 #If the previous line was the last line of a SU exclusive block 
-                                if lastLineIsExclusive:
+                                if lastLineIsExclusive and addIfdefAroundSU:
                                     #Add the #endif after the index of the last SU exclusive line (which ends the block)
                                     mergeResult[filename].insert(anchorIndex+1, "#endif\n")
                                     #Also add an empty line to the copy, to keep the indices consistent
@@ -471,8 +483,8 @@ def getDiffs():
                             #We set the new index of the current line as new anchor
                             anchorIndex = anchorIndex + 1
                                                        
-                            #If this is the first line of a SU exclusive block, insert an #ifdef
-                            if not lastLineIsExclusive:
+                            #If this is the first line of a SU exclusive block (and the option is enabled), insert an #ifdef
+                            if (not lastLineIsExclusive) and addIfdefAroundSU:
                                 mergeResult[filename].insert(anchorIndex, "#ifdef "+SUName+"\n")
                                 #Also add an empty line to the copy, to keep the indices consistent
                                 mergeResultCopy_forSearching.insert(anchorIndex, "")
@@ -506,16 +518,17 @@ def createCompletelyNewFiles(fileList):
         #Copy file from SU to Target
         os.system("cp --parent -v -r "+fileName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
         
-        #Soround the SU code with an ifdef block
+        #Soround the SU code with an ifdef block if this option is enabled
 #TODO We could/should add an include statement for a configuarion file here?        
-        fileContent = ["#ifdef "+SUName+"\n"]
+        if addIfdefAroundSU: fileContent = ["#ifdef "+SUName+"\n"]
+        else: fileContent = []
         
         #Read current file content (with semantic enhancement)
         with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+fileName, 'r') as file:
             fileContent += file.readlines()
         
         #End the ifdef block of the SU
-        fileContent += ["#endif\n"]
+        if addIfdefAroundSU: fileContent += ["#endif\n"]
         
         #Remove semantic enhancement   
         with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+fileName, 'w') as file:    
