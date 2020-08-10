@@ -27,7 +27,7 @@ generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = True
 ###################### Configuration options for entry point input ## ####################
-console = True
+console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 ##########################################################################################
@@ -67,7 +67,8 @@ projectName = 'DonorProject'
 
 # 118808 main function
 # 348272 bubbleReversed call in main
-entryPointIds = {118808}
+#entryPointIds = {1232984}
+entryPointIds = {15802496}
 #entryPointIds = {348272}
 
 entryFeatureNames = set()
@@ -318,6 +319,20 @@ def analyzeNode (currentNode):
          # Print result
         if (DEBUG): print("Result define relation: "+str(result)+"\n")
 
+    # Get the declaration of a used variable (contains also an include statement if the variable is declared in a separate file)
+    if (type[0] in ('Condition', 'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'Argument')):
+        #Get all involved identifiers?
+        #Look for decl in func?
+        #If empty, look in file
+        #If empty, follow includes and look there
+        
+        #TODO
+        
+        #result = set(getParent(currentNode))
+        # Add variable declaration to the Semantic Unit, no further anaysis needed?
+        #semanticUnit.update(result)
+         # Print result
+        if (DEBUG): print("Result define relation: "+str(result)+"\n")
 
 ##################################################################################################################
 ##################################### Data Flow ##################################################################   
@@ -570,39 +585,56 @@ def getASTChildren (verticeId):
     
 # Return the called function id
 def getCalledFunctionDef (verticeId):
-    # First: Get the name of the called function
+    # Get the name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
     functionName = db.runGremlinQuery(query)
 
-    if(len(functionName) > 0):
-        # Second: Go to parent file of the current node (Callee)
-        # Branch 1: Look in its AST children for a functionDef with the given name
-        # Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
-        # Branch 2.1: Emit the id of the external function def
-        # Branch 2.2: Go to the parent file of the external function def
-        # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
-        # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
-        query = """g.V(%s).until(has('type', 'File'))
-            .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('parentFileNode')
-            .union(
-                until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id().as('sameFileResult')
-                ,out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
-                .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
-                    .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
-                    .union(
-                        id().as('idOfExternalDeclaration'),
-                        select('externalHeaderFileResult').until(has('type', 'File'))
-                            .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
-                            .union(
-                            __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').dedup().id().as('idOfIncludeStatement'),
-                            __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-                                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id().as('sameFileResult')
-                            )
-                    )
-            )""" % (verticeId, functionName[0], functionName[0], functionName[0])                  
-                
-        return db.runGremlinQuery(query)
+    if(len(functionName) > 0):                             
+        # Get the parent file of the current node (Callee)
+        query = """g.V(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)  
+
+        parentFileId = str(db.runGremlinQuery(query))
+        
+        #Check if parent file is not empty (which is normally impossible)?
+        
+        # Look in its AST children for a functionDef with the given name
+        query = """g.V(%s)
+            .until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id()""" % (parentFileId, functionName[0])  
+
+        fResult = db.runGremlinQuery(query)
+        
+        # If there is no function definition in the current file
+        if (len(fResult) > 0):
+            #Get ids of all included files?
+            #Look until function def is found, then stop
+            #We need the include statement that includes the correct file. Collect them and then iterate?
+        
+        
+        
+            # Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
+            # Branch 2.1: Emit the id of the external function def
+            # Branch 2.2: Go to the parent file of the external function def
+            # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
+            # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
+            query = """g.V(%s)
+                .out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
+                    .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
+                        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
+                        .union(
+                            id().as('idOfExternalDeclaration'),
+                            select('externalHeaderFileResult').until(has('type', 'File'))
+                                .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
+                                .union(
+                                __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').dedup().id().as('idOfIncludeStatement'),
+                                __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                                    .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id().as('sameFileResult')
+                                )
+                        )""" % (parentFileId, functionName[0], functionName[0])         
+        
+            fResult = db.runGremlinQuery(query)
+        
+        return fResult
     else:
         return ""
     
