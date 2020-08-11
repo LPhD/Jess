@@ -609,35 +609,75 @@ def getCalledFunctionDef (verticeId):
             #Get ids of all included files?
             #Look until function def is found, then stop
             #We need the include statement that includes the correct file. Collect them and then iterate?
-        
-        
-        
-            # Branch 2: Then look for include statements. Follow them to the included files. Look in those files (c or h) until you find a functionDef.
-            # Branch 2.1: Emit the id of the external function def
-            # Branch 2.2: Go to the parent file of the external function def
-            # Branch 2.2.1: Emit the id of the include statement that includes the file with the external function def
-            # Branch 2.2.2: Go to the c file that belongs to the header file and also add its function def (TODO)
-            query = """g.V(%s)
-                .out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').as('inc').out('INCLUDES')
+            
+            # List that contains lists, 
+            # where the first element of the inner list is the file id and all following elements are ids of needed include statements
+            fileList = [[""]]
+            
+            for file in fileList: 
+            
+                # Look for include statements in the current file and add them to the fileList
+                searchIncludesRecursively (file[0], file, fileList)
+                
+                # Look for functiondef in included file
+                query = """g.V(%s)
                     .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
-                        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalHeaderFileResult')
-                        .union(
-                            id().as('idOfExternalDeclaration'),
-                            select('externalHeaderFileResult').until(has('type', 'File'))
-                                .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).as('externalParentFileNode')
-                                .union(
-                                __.in('INCLUDES').has('path', select('inc').path()).in('IS_AST_PARENT').dedup().id().as('idOfIncludeStatement'),
-                                __.out('IS_HEADER_OF').until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-                                    .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id().as('sameFileResult')
-                                )
-                        )""" % (parentFileId, functionName[0], functionName[0])         
+                        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (file[0], functionName[0])   
+                        
+                declResult = db.runGremlinQuery(query)        
+                                
+                if len(declResult) > 0:
+                    print("Found declaration: "+declResult)
+
+                    #add decl to SU
+                    #add all needed includes to SU
+                    # Stopp looking, as we found the desired decl
+                    return ""
+                #else:
+                    #look in next file
         
-            fResult = db.runGremlinQuery(query)
-        
-        return fResult
-    else:
         return ""
+
+# Helper function to find something in a file that is reached via includes and collect the needed include statements
+def searchIncludesRecursively (rootFileID, currentIncludeChain, fileList):
+    # Get the include statements of a file
+    query = """g.V(%s).out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').id()""" % (str(rootFileID))
+    includes = db.runGremlinQuery(query)
     
+    print("Found list of includes: "+str(includes))
+    
+    # Get the included file for each include statement
+    for include in includes:
+        query = """g.V(%s).out('INCLUDES').id()""" % (str(include))
+        str(fileID) = db.runGremlinQuery(query)
+        
+        if len(fileID) > 0:
+            print("Found included file: "+fileID)
+            
+            # Check that we do not add a file twice
+                if fileID not in fileList:
+                    fileListContent = [fileID, str(include)]
+                    
+                    skipfirst = True
+                    
+                    #Add content of currentIncludeChain without first element
+                    for entry in currentIncludeChain:
+                        if skipfirst:
+                            skipfirst = False
+                        else:    
+                            fileListContent.append(entry)
+                            
+                    print("FileContent: "+fileListContent)        
+                        
+                    #Finally, add the new file with its include chain to the file list
+                    fileList.append(fileListContent)
+                
+                else: print("Found duplicate file: "+fileID)    
+                    
+        else:
+            print(" # # # # # # # # # # # # # # # # # # # # # # # # #Error, no file found! # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #")
+
+  
     
 # Return the ids of all callees for this function
 def getCallsToFunction (verticeId):      
