@@ -643,10 +643,12 @@ def getCalledFunctionDef (verticeId):
                 print("Found declaration: "+str(declResult))            
                 # Add decl to SU (here we replace the file id, as we also need the include statements that lead to the declaration)
                 file[0] = declResult[0]
+                print("Added to SU: "+str(file))
                 # Stopp looking, as we found the desired decl
                 return file        
         
         # Collect names of all functions for which we do not find a declaration inside the project, to prevent checking them several times
+        print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId))
         externalFunctionsList.add(functionName[0])
         return ""
 
@@ -655,8 +657,8 @@ def getCalledFunctionDef (verticeId):
 def searchIncludesRecursively (rootFileID, currentIncludeChain, fileList):
     print(str(rootFileID))
 
-    # Get the include statements of a file
-    query = """g.V(%s).out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').id()""" % (str(rootFileID))
+    # Get the include statements of a file that have PreIncludeLocalFile nodes as children
+    query = """g.V(%s).out('IS_FILE_OF').has('type', 'PreInclude').where(out().has('type', 'PreIncludeLocalFile')).id()""" % (str(rootFileID))
     includes = db.runGremlinQuery(query)
     
 
@@ -664,7 +666,7 @@ def searchIncludesRecursively (rootFileID, currentIncludeChain, fileList):
     
     # Get the included file for each include statement
     for include in includes:
-        query = """g.V(%s).out('INCLUDES').id()""" % (str(include))
+        query = """g.V(%s).out().out('INCLUDES').id()""" % (str(include))
         fileID = db.runGremlinQuery(query)
         
         if len(fileID) > 0:
