@@ -146,6 +146,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
     # For semantic diff utility
     inBlock = False
     blockStarterStack = []
+    blockname = ""
+    lastIf = ""
 
     # For each entry in the patch list, build the file content
     # filename (0), linenumber (1), cline(2), code(3) (if exists), type(4) and internal path(5) (structure inside project) 
@@ -267,13 +269,14 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             elif inBlock and not (statement[3] == "{"):
                 lineContent = "###Block "+blockname+"### " + lineContent 
                 if DEBUG: print("Found block: "+statement[3])
-                
-                #Look for closing brackets of blocks 
-                if (statement[3] == "}"):
-                    #Remove the closed blockstarter from the stack
-                    lastBlockstarter = blockStarterStack.pop()
-                    #Remove the last started block from the current line content (which contains names of all surrounding blocks)
-                    blockname = blockname.replace(lastBlockstarter,"")
+                                
+            #Look for closing brackets of blocks 
+            elif inBlock and (statement[3] == "}"):
+            
+                #Remove the closed blockstarter from the stack
+                lastBlockstarter = blockStarterStack.pop()
+                #Remove the last started block from the current line content (which contains names of all surrounding blocks)
+                blockname = blockname.replace(lastBlockstarter,"")
             
                  
         # # # Semantic Diff End # # #
@@ -305,4 +308,4 @@ def convertToCode(SEMANTIC, workingdir, foldername):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-#convertToCode(True, os.getcwd(), "ConvertedCode/src")    
+#convertToCode(False, os.getcwd(), "ConvertedCode/src")    
