@@ -884,6 +884,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitUnary_expression(ModuleParser.Unary_expressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#address_of_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAddress_of_expression(ModuleParser.Address_of_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#address_of_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAddress_of_expression(ModuleParser.Address_of_expressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#new_expression}.
 	 * @param ctx the parse tree
 	 */

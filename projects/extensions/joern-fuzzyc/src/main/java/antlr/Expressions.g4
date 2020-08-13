@@ -41,12 +41,15 @@ cast_target: type_name (NEWLINE* ptr_operator)*;
 
 // currently does not implement delete
 
-unary_expression: unary_op_and_cast_expr
+unary_expression: address_of_expression
+                | unary_op_and_cast_expr
                 | sizeof_expression 
                 | new_expression
                 | postfix_expression
                 | defined_expression
                 ;
+
+address_of_expression: '&' identifier;
  
 new_expression: '::'? NEW NEWLINE* type_name NEWLINE* '[' conditional_expression? ']' 
               | '::'? NEW NEWLINE* type_name NEWLINE* '(' expr? ')'

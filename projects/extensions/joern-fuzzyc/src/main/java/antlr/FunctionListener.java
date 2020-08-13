@@ -1100,6 +1100,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitUnary_expression(FunctionParser.Unary_expressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#address_of_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAddress_of_expression(FunctionParser.Address_of_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#address_of_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAddress_of_expression(FunctionParser.Address_of_expressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#new_expression}.
 	 * @param ctx the parse tree
 	 */
