@@ -110,8 +110,7 @@ def identifySemanticUnits ():
             
         # Remove node after the analysis
         # analysisList.remove(node)          
-    
-    print(semanticUnit)    
+      
      
     if (len(semanticUnit) > 0):
         # Adapt results for syntactical correctness       
@@ -892,7 +891,7 @@ def addExternalIncludes ():
 
     global semanticUnit
     # Go to the parent file nodes of all functionDefs, then get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
-    query = """idListToNodes(%s).has('type', 'FunctionDef').in().in().dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(not(out('IS_AST_PARENT')))""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).has('type', 'FunctionDef').in().in().dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(not(out('IS_AST_PARENT'))).id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
     
