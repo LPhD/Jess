@@ -68,7 +68,7 @@ projectName = 'DonorProject'
 # 118808 main function
 # 348272 bubbleReversed call in main
 #entryPointIds = {1232984}
-entryPointIds = {15802496}
+entryPointIds = {7712856}
 #entryPointIds = {348272}
 
 entryFeatureNames = set()
@@ -129,6 +129,9 @@ def identifySemanticUnits ():
         #Check for includes of (external) libraries
         if(includeExternalLibraryIncludes):
             addExternalIncludes()             
+        
+        #Print names of all functions that need external libraries (or that we failed to find a declaration for)
+        print("The following functions/macros have a declaration outside of the project's code (e.g. in used libraries): "+str(externalFunctionsList))
         
         # Get the #ifndef #def and #endif for header files?
         
@@ -261,28 +264,37 @@ def analyzeNode (currentNode):
         # Get related elements of the called function
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation: "+str(result)+"\n")
+        if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")
+        
+    # Get referenced function or variable if current vertice contains an unary address of operator
+    if (type[0] == "AddressOfExpression"):          
+        print("#############################################Entered AddressOfExpression: "+str(currentNode))
+        #result = set(getCalledFunctionDef(currentNode))                
+        # Get related elements of the referenced function or variable
+        #analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result call relation for an AddressOfExpression: "+str(result)+"\n")        
         
     # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (LookForAllFunctionCalls == True)): 
         result = set(getCallsToFunction(currentNode))
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation: "+str(result)+"\n")
+        if (DEBUG): print("Result call relation for a FunctionDef: "+str(result)+"\n")
     
     # Get macro identifier    
     if (type[0] in ["PreUndef","PreDefine"]):    
         result = set(getMacroIdentifier(currentNode))
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation: "+str(result)+"\n")
+        if (DEBUG): print("Result call relation for a PreDefine: "+str(result)+"\n")
 
     # Get all statements (limited to preprocessor and function-like macro calls) connected to the PreMacroIdentifier     
     if (type[0] == "PreMacroIdentifier"):  
         result = set(getRelationsToMacro(currentNode))
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation: "+str(result)+"\n")
+        if (DEBUG): print("Result call relation for a PreDefine: "+str(result)+"\n")
 
         
 ##################################################################################################################
@@ -599,14 +611,14 @@ def getCalledFunctionDef (verticeId):
         print("Already checked function: "+str(functionName[0])+" Skipping...")
         return ""   
     
-    print("Get decl of function: "+str(functionName))
+    #print("Get decl of function: "+str(functionName))
                             
     # Get the parent file of the current node (Callee)
     query = """g.V(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)  
 
     parentFileId = db.runGremlinQuery(query)
     
-    print("Parent file id: "+str(parentFileId))
+    #print("Parent file id: "+str(parentFileId))
     
     #Check if parent file is not empty (which is normally impossible)?
     
@@ -619,7 +631,7 @@ def getCalledFunctionDef (verticeId):
     
     # Stop here if we already found the definition
     if (len(sameFileDef) > 0):
-        print("Found def in file: "+str(sameFileDef))
+        #print("Found def in file: "+str(sameFileDef))
         return sameFileDef
     # If there is no function definition in the current file
     else:        
@@ -640,10 +652,10 @@ def getCalledFunctionDef (verticeId):
             declResult = db.runGremlinQuery(query)        
                             
             if len(declResult) > 0:
-                print("Found declaration: "+str(declResult))            
+                #print("Found declaration: "+str(declResult))            
                 # Add decl to SU (here we replace the file id, as we also need the include statements that lead to the declaration)
                 file[0] = declResult[0]
-                print("Added to SU: "+str(file))
+                #print("Added to SU: "+str(file))
                 # Stopp looking, as we found the desired decl
                 return file        
         
@@ -655,14 +667,9 @@ def getCalledFunctionDef (verticeId):
 
 # Helper function to find something in a file that is reached via includes and collect the needed include statements
 def searchIncludesRecursively (rootFileID, currentIncludeChain, fileList):
-    print(str(rootFileID))
-
     # Get the include statements of a file that have PreIncludeLocalFile nodes as children
     query = """g.V(%s).out('IS_FILE_OF').has('type', 'PreInclude').where(out().has('type', 'PreIncludeLocalFile')).id()""" % (str(rootFileID))
-    includes = db.runGremlinQuery(query)
-    
-
-    print("Found list of includes: "+str(includes))
+    includes = db.runGremlinQuery(query)    
     
     # Get the included file for each include statement
     for include in includes:
@@ -670,7 +677,7 @@ def searchIncludesRecursively (rootFileID, currentIncludeChain, fileList):
         fileID = db.runGremlinQuery(query)
         
         if len(fileID) > 0:
-            print("Found included file: "+str(fileID))
+            #print("Found included file: "+str(fileID))
             
             # Check that we do not add a file twice
             for entry in fileList:
@@ -688,12 +695,12 @@ def searchIncludesRecursively (rootFileID, currentIncludeChain, fileList):
                 else: 
                     skipfirst = False                
                                        
-            print("FileContent: "+str(fileListContent))        
+            #print("FileContent: "+str(fileListContent))        
                 
             #Finally, add the new file with its include chain to the file list
             fileList.append(fileListContent)
             
-            print("File list: "+str(fileList))
+            #print("File list: "+str(fileList))
 
   
     
@@ -884,9 +891,8 @@ def addExternalIncludes ():
     if (DEBUG) : print("Checking for external includes...")    
 
     global semanticUnit
-    # Go to the parent file nodes, then get all includes that include libraries (nodes who have an AST child of type PreIncludeSystemHeader) and add them to the SU
-    query = """idListToNodes(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
-            .dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(out('IS_AST_PARENT').has('type', 'PreIncludeSystemHeader')).dedup().id()""" % (list(semanticUnit))   
+    # Go to the parent file nodes of all functionDefs, then get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
+    query = """idListToNodes(%s).has('type', 'FunctionDef').in().in().dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(not(out('IS_AST_PARENT')))""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
     
