@@ -685,6 +685,18 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitUnaryOpAndCastExpr(ctx);
 	}
+	
+	@Override
+	public void enterAddress_of_expression(FunctionParser.Address_of_expressionContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterAddress_of_expression(ctx);
+	}
+
+	@Override
+	public void exitAddress_of_expression(FunctionParser.Address_of_expressionContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitAddress_of_expression(ctx);
+	}
 
 	@Override
 	public void enterUnary_operator(FunctionParser.Unary_operatorContext ctx) {

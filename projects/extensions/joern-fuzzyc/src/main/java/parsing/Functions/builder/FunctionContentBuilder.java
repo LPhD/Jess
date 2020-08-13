@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import antlr.FunctionParser.Additive_expressionContext;
+import antlr.FunctionParser.Address_of_expressionContext;
 import antlr.FunctionParser.And_expressionContext;
 import antlr.FunctionParser.ArgumentContext;
 import antlr.FunctionParser.Argument_listContext;
@@ -124,6 +125,7 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.declarations.IdentifierDeclType;
 import ast.expressions.AdditiveExpression;
+import ast.expressions.AddressOfExpression;
 import ast.expressions.AndExpression;
 import ast.expressions.Argument;
 import ast.expressions.ArgumentList;
@@ -1441,6 +1443,17 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	public void exitUnaryOpAndCastExpr(Unary_op_and_cast_exprContext ctx) {
+		nesting.consolidateSubExpression(ctx);
+	}
+	
+	public void enterAddress_of_expression(Address_of_expressionContext ctx) {
+		AddressOfExpression expr = new AddressOfExpression();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);
+		//No variability check here, as there will be a parent expression node
+	}
+
+	public void exitAddress_of_expression(Address_of_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
 
