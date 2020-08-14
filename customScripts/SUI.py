@@ -11,25 +11,27 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 start_time = time.time()
 
 ################# Configuration options for Semantic Unit identification #################
+performanceMode = True #This option automatically disables some finegrained rules to get a faster result. Better for interprocedural slices, worse for intraprocedural ones. To achieve best performance, disable all other options underneath except "includeEnclosedCode".
 includeEnclosedCode = True
+connectIfWithElse = True
 followDataflows = False
-connectIfWithElse = False
 searchDirsRecursively = False
 includeOtherFeatures = False
-LookForAllFunctionCalls = False
+lookForAllFunctionCalls = False
+lookForAllMacroUsages = False
 ############### Further options to refine the Semantic Unit after analysis ###############
 includeVariabilityInformation = True
 includeComments = True
 includeExternalLibraryIncludes = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
-generateOnlyVisibleCode = False
-showOnlyStructuralEdges = False
+generateOnlyVisibleCode = True
+showOnlyStructuralEdges = True
 plotGraph = True
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 ##########################################################################################
 
 
@@ -70,7 +72,7 @@ projectName = 'DonorProject'
 #entryPointIds = {1232984}
 entryPointIds = {7807072}
 #ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
-entryPointIds = {29774032}
+#entryPointIds = {29774032}
 #entryPointIds = {348272}
 
 entryFeatureNames = set()
@@ -211,7 +213,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
         
     # Get enclosed vertices if current vertice is a for-, while- or if-statement
-    if ((type[0] in ["IfStatement","ForStatement","WhileStatement", "SwitchStatement"]) and (includeEnclosedCode == True)):             
+    if (type[0] in ["IfStatement","ForStatement","WhileStatement", "SwitchStatement"]) and (includeEnclosedCode == True) and (performanceMode == False):             
         result = set(getASTChildren(currentNode))
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result) 
@@ -219,7 +221,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
 
     # Get only the Syntax Elements of the selected statement     
-    elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):       
+    elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (performanceMode == False):       
         # Get corresponding else-statement only if the configuration is selected
         if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
             result = set(getElse(currentNode))           
@@ -237,7 +239,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
                    
     # Get the corresponding if, if current vertice is an else-statement
-    if (type[0] == "ElseStatement"):            
+    if (type[0] == "ElseStatement") and (performanceMode == False):            
         result = set(getIfStatement(currentNode))
         if (includeEnclosedCode):
             result.update(set(getASTChildren(currentNode)))
@@ -277,21 +279,21 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result call relation for an AddressOfExpression: "+str(result)+"\n")        
         
     # For a given function name, return all possible callees    
-    if ((type[0] == "FunctionDef") and (LookForAllFunctionCalls == True)): 
+    if ((type[0] == "FunctionDef") and (lookForAllFunctionCalls == True)): 
         result = set(getCallsToFunction(currentNode))
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result call relation for a FunctionDef: "+str(result)+"\n")
     
     # Get macro identifier    
-    if (type[0] in ["PreUndef","PreDefine"]):    
+    if (type[0] in ["PreUndef","PreDefine"]) and (lookForAllMacroUsages == True):    
         result = set(getMacroIdentifier(currentNode))
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result call relation for a PreDefine: "+str(result)+"\n")
 
     # Get all statements (limited to preprocessor and function-like macro calls) connected to the PreMacroIdentifier     
-    if (type[0] == "PreMacroIdentifier"):  
+    if (type[0] == "PreMacroIdentifier") and (lookForAllMacroUsages == True):  
         result = set(getRelationsToMacro(currentNode))
         analysisList.extend(result)
          # Print result
@@ -365,7 +367,7 @@ def analyzeNode (currentNode):
 ##################################### Control Flow ###############################################################       
 
     # Get enclosed vertices if current vertice is a label statement
-    if (type[0] == "Label"): 
+    if (type[0] == "Label") and (performanceMode == False): 
         # Get all goto statements that refer to this label
         result = set(getGotos(currentNode))  
         # Just add, no further analysis (we do not need to look at the gotos again, as they will result in the used labels)
@@ -374,7 +376,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result control flow relation: "+str(result)+"\n")
        
     # Get enclosed vertices if current vertice is a GotoStatement 
-    if (type[0] == "GotoStatement"): 
+    if (type[0] == "GotoStatement") and (performanceMode == False): 
         # Get all labels that were refered by this goto
         result = set(getLabels(currentNode))  
         # Just add, no further analysis (we do not need to look at the labels again, as they will result in the used gotos)
@@ -670,20 +672,15 @@ def searchIncludesRecursively (rootFileID, currentIncludeChain, fileList):
     if DEBUG: print("Found the following includes: "+str(includes))
     
     # Get the included file for each include statement
-    for include in includes:
-        print("Look: "+str(include))
-    
+    for include in includes:   
         query = """g.V(%s).out().out('INCLUDES').id()""" % (str(include))
         fileID = db.runGremlinQuery(query)
-        
-        print("Res: "+str(fileID))
         
         if len(fileID) > 0:
             if DEBUG: print("Found included file: "+str(fileID))
             
-            fileAlreadyChecked = False
-            
             # Check that we do not add a file twice
+            fileAlreadyChecked = False
             for entry in fileList:
                 if entry[0] == fileID[0]:
                     if DEBUG: print("Already checked "+str(fileID[0]))
