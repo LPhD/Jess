@@ -108,7 +108,6 @@ import ast.c.preprocessor.commands.PreInclude;
 import ast.c.preprocessor.commands.PreIncludeFilename;
 import ast.c.preprocessor.commands.PreIncludeLocalFile;
 import ast.c.preprocessor.commands.PreIncludeNext;
-import ast.c.preprocessor.commands.PreIncludeSystemHeader;
 import ast.c.preprocessor.commands.PreLine;
 import ast.c.preprocessor.commands.PreOther;
 import ast.c.preprocessor.commands.PrePragma;
@@ -1456,6 +1455,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void exitAddress_of_expression(Address_of_expressionContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
+	
 
 	public void enterUnaryOperator(Unary_operatorContext ctx) {
 		UnaryOperator expr = new UnaryOperator();

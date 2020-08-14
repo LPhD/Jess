@@ -6,9 +6,9 @@ import org.junit.Test;
 
 import ast.Comment;
 import ast.c.expressions.CallExpression;
-import ast.c.statements.blockstarters.IfStatement;
 import ast.declarations.IdentifierDecl;
 import ast.expressions.AdditiveExpression;
+import ast.expressions.AddressOfExpression;
 import ast.expressions.AndExpression;
 import ast.expressions.AssignmentExpression;
 import ast.expressions.BitAndExpression;
@@ -143,6 +143,15 @@ public class ExpressionParsingTest {
 		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
 		AndExpression expr = (AndExpression) statementItem.getExpression();
 		assertEquals("x",expr.getLeft().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testAddressOfExpr() {
+		String input = "address = &func;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		AddressOfExpression expr = (AddressOfExpression) statementItem.getExpression().getChild(1);
+		assertEquals("func", expr.getEscapedCodeStr());
 	}
 
 	@Test
