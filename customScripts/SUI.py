@@ -12,9 +12,9 @@ start_time = time.time()
 
 ################# Configuration options for Semantic Unit identification #################
 includeEnclosedCode = True
-followDataflows = True
-connectIfWithElse = True
-searchDirsRecursively = True
+followDataflows = False
+connectIfWithElse = False
+searchDirsRecursively = False
 includeOtherFeatures = False
 LookForAllFunctionCalls = False
 ############### Further options to refine the Semantic Unit after analysis ###############
@@ -23,13 +23,13 @@ includeComments = True
 includeExternalLibraryIncludes = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
-generateOnlyVisibleCode = True
-showOnlyStructuralEdges = True
+generateOnlyVisibleCode = False
+showOnlyStructuralEdges = False
 plotGraph = True
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = False
+DEBUG = True
 ##########################################################################################
 
 
@@ -68,7 +68,9 @@ projectName = 'DonorProject'
 # 118808 main function
 # 348272 bubbleReversed call in main
 #entryPointIds = {1232984}
-entryPointIds = {7712856}
+entryPointIds = {7807072}
+#ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
+entryPointIds = {29774032}
 #entryPointIds = {348272}
 
 entryFeatureNames = set()
@@ -610,35 +612,30 @@ def getCalledFunctionDef (verticeId):
         print("Already checked function: "+str(functionName[0])+" Skipping...")
         return ""   
     
-    #print("Get decl of function: "+str(functionName))
+    if DEBUG: print("Get decl of function: "+str(functionName))
                             
     # Get the parent file of the current node (Callee)
     query = """g.V(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)  
-
     parentFileId = db.runGremlinQuery(query)
-    
-    #print("Parent file id: "+str(parentFileId))
-    
+       
     #Check if parent file is not empty (which is normally impossible)?
     
     # Look in its AST children for a functionDef with the given name
     query = """g.V(%s)
         .until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
             .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id()""" % (parentFileId[0], functionName[0])  
-
     sameFileDef = db.runGremlinQuery(query)
     
     # Stop here if we already found the definition
     if (len(sameFileDef) > 0):
-        #print("Found def in file: "+str(sameFileDef))
+        if DEBUG: print("Found def in same file: "+str(sameFileDef))
         return sameFileDef
     # If there is no function definition in the current file
     else:        
         # List that contains lists, 
         # where the first element of the inner list is the file id and all following elements are ids of needed include statements
         fileList = [[parentFileId[0]]]
-        
-        
+                
         for file in fileList:            
             # Look for include statements in the current file and add them to the fileList
             searchIncludesRecursively (file[0], file, fileList)
@@ -651,55 +648,61 @@ def getCalledFunctionDef (verticeId):
             declResult = db.runGremlinQuery(query)        
                             
             if len(declResult) > 0:
-                #print("Found declaration: "+str(declResult))            
+                if DEBUG: print("Found declaration: "+str(declResult))            
                 # Add decl to SU (here we replace the file id, as we also need the include statements that lead to the declaration)
                 file[0] = declResult[0]
-                #print("Added to SU: "+str(file))
                 # Stopp looking, as we found the desired decl
                 return file        
         
         # Collect names of all functions for which we do not find a declaration inside the project, to prevent checking them several times
-        print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId))
+        if DEBUG: print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId)+" inside the project's code")
         externalFunctionsList.add(functionName[0])
         return ""
 
 
 # Helper function to find something in a file that is reached via includes and collect the needed include statements
 def searchIncludesRecursively (rootFileID, currentIncludeChain, fileList):
+    if DEBUG: print("Searching for included files of root file: "+str(rootFileID)) 
     # Get the include statements of a file that have PreIncludeLocalFile nodes as children
     query = """g.V(%s).out('IS_FILE_OF').has('type', 'PreInclude').where(out().has('type', 'PreIncludeLocalFile')).id()""" % (str(rootFileID))
     includes = db.runGremlinQuery(query)    
     
+    if DEBUG: print("Found the following includes: "+str(includes))
+    
     # Get the included file for each include statement
     for include in includes:
+        print("Look: "+str(include))
+    
         query = """g.V(%s).out().out('INCLUDES').id()""" % (str(include))
         fileID = db.runGremlinQuery(query)
         
+        print("Res: "+str(fileID))
+        
         if len(fileID) > 0:
-            #print("Found included file: "+str(fileID))
+            if DEBUG: print("Found included file: "+str(fileID))
+            
+            fileAlreadyChecked = False
             
             # Check that we do not add a file twice
             for entry in fileList:
                 if entry[0] == fileID[0]:
-                    return
+                    if DEBUG: print("Already checked "+str(fileID[0]))
+                    fileAlreadyChecked = True
  
-            # Build the content of the fileList entry by adding the file id first and then the include statement, that includes this file
-            fileListContent = [fileID[0], include]           
-            
-            # Then add content of currentIncludeChain (all includes up to the rootFile) without root file itself
-            skipfirst = True
-            for entry in currentIncludeChain:
-                if not skipfirst:
-                    fileListContent.append(entry)
-                else: 
-                    skipfirst = False                
-                                       
-            #print("FileContent: "+str(fileListContent))        
+            if not fileAlreadyChecked:
+                # Build the content of the fileList entry by adding the file id first and then the include statement, that includes this file
+                fileListContent = [fileID[0], include]           
                 
-            #Finally, add the new file with its include chain to the file list
-            fileList.append(fileListContent)
-            
-            #print("File list: "+str(fileList))
+                # Then add content of currentIncludeChain (all includes up to the rootFile) without root file itself
+                skipfirst = True
+                for entry in currentIncludeChain:
+                    if not skipfirst:
+                        fileListContent.append(entry)
+                    else: 
+                        skipfirst = False                
+                                                                 
+                #Finally, add the new file with its include chain to the file list
+                fileList.append(fileListContent)
 
   
     
