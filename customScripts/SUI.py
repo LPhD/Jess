@@ -263,11 +263,12 @@ def analyzeNode (currentNode):
     if (type[0] == "Callee"): 
         # Do not look at CallExpression, one query is enough. We will always have both the Callee and 
         #the CallExpression in the analysis set, see handling of ExpressionStatement above.                   
-        result = set(getCalledFunctionDef(currentNode))                
+        result = set(getCalledFunctionDef(currentNode, type[0]))                
         # Get related elements of the called function
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")      
+        print("Result call relation for a Callee: "+str(result)+"\n")  
         
     # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (lookForAllFunctionCalls == True)): 
@@ -326,47 +327,16 @@ def analyzeNode (currentNode):
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result define relation: "+str(result)+"\n")
-        
-        
-# We get Argument via AST children of expression nodes and Condition via AST children of For/While/If
-# Return: Check if identifier has decl? But not if its a call
-# IdentifierDeclStatement: Only inside functions, only check right side?
-# Argument: Get identifiers, but not if they are fct calls?
-# Condition: Get identifiers, but not if they are fct calls?
-# DeclByClass, DeclByType: Check right side for used identifiers? 
-# 'DeclStmt' ?
-# StructUnionEnum Check for used variables?
-# PreDefine macro content check? But thats complicated, as we need to look from where the macro is used, not its definition
-#'ReturnStatement', 'IdentifierDeclStatement', 'DeclByClass', 'DeclByType',  'DeclStmt', 'StructUnionEnum', 'Argument', 'Condition',         
-#'Condition', 'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'Argument'
-
-    # Get the declaration of a used variable (contains also an include statement if the variable is declared in a separate file)
-    if (type[0] in ('Condition')):
-        print ("Type: "+type[0])
-        #Get all involved identifiers?
-        #Look for decl in func?
-        #If empty, look in file
-        #If empty, follow includes and look there
-        
-        #TODO
-        getCalledVariableDecl(currentNode)
-        #result = set(getCalledVariableDecl(currentNode))  
-        # Add variable declaration to the Semantic Unit, no further anaysis needed?
-        #semanticUnit.update(result)
-         # Print result
-        if (DEBUG): print("Result define relation: "+str(result)+"\n")
-        print("Result define relation: "+str(result)+"\n")
-
-        
+                
     # Get referenced function or variable if current vertice contains an unary address of operator
+    # ToDo Reuse getCalledFunctionDef, but refine the double check prevention (as variable names can occur multiple times). 
+    # However, do we really need that? We just aim at getting refences to functions and not global variables (this is done later).
     if (type[0] == "AddressOfExpression"):          
-        #print("#############################################Entered AddressOfExpression: "+str(currentNode))
-        #We need a separate query, as this could be a function reference (which we can get via getCalledFunctionDef) or a variable (which we can get via getCalledVariableDecl)
-        #result = set(getCalledFunctionDef(currentNode))                
+        result = set(getCalledFunctionDef(currentNode, type[0]))                
         # Get related elements of the referenced function or variable
-        #analysisList.extend(result)
+        analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation for an AddressOfExpression: "+str(result)+"\n")  
+        if (DEBUG): print("Result call relation for an AddressOfExpression: "+str(result)+"\n")   
         
 ##################################################################################################################
 ##################################### Data Flow ##################################################################   
@@ -611,29 +581,16 @@ def getLabels (verticeId):
         .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).dedup().id()
     """ % (verticeId, name[0]) 
     return db.runGremlinQuery(query)
-    
+ 
+ 
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
     query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT')).unfold().dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)   
 
-
-# Return the id of the declaration of the called variable, including needed include statements
-def getCalledVariableDecl (verticeId):    
-    # Get the name of the called variable
-    #query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
-    query = """g.V(%s).values('code', 'type')""" % (verticeId)
-    functionName = db.runGremlinQuery(query)
-    
-    if(len(functionName) == 0): 
-        print("Warning: Cannot get name of function: "+str(verticeId))
-        return ""
-        
-    print("Code + type: "+str(functionName))    
-
     
 # Return the id of the declaration of the called function, including needed include statements
-def getCalledFunctionDef (verticeId):
+def getCalledFunctionDef (verticeId, type):
     # Get the name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
     functionName = db.runGremlinQuery(query)
@@ -647,6 +604,7 @@ def getCalledFunctionDef (verticeId):
         return ""   
     
     if DEBUG: print("Get decl of function: "+str(functionName))
+    print("Get decl of function: "+str(functionName))
                             
     # Get the parent file of the current node (Callee)
     query = """g.V(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)  
@@ -654,15 +612,32 @@ def getCalledFunctionDef (verticeId):
        
     #Check if parent file is not empty (which is normally impossible)?
     
-    # Look in its AST children for a functionDef with the given name
-    query = """g.V(%s)
-        .until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
-            .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id()""" % (parentFileId[0], functionName[0])  
+    # For real function calls
+    if type == 'Callee':
+        # Look in its AST children for a functionDef or macro with the given name (take care that the result is a visible statement)
+        query = """g.V(%s).union(
+            __.out().has('type', 'Function').has('code', '%s').out(),
+            __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').has('code', '%s').in(),  
+            __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').has('code', '%s').in()            
+        ).dedup().id()""" % (parentFileId[0], functionName[0], functionName[0], functionName[0])
+             
+    # For addressOf references
+    else:     
+        # Look in its AST children for a functionDef or global variable declaration with the given name (take care that the result is a visible statement)
+        query = """g.V(%s).union(
+            __.out().has('type', 'Function').has('code', '%s').out(),
+            __.out().has('type', 'DeclStmt').out().has('code', textContains('%s')).in(),  
+            __.out().has('type', 'StructUnionEnum').out().has('type', 'Identifier').has('code', '%s').in()            
+        ).dedup().id()""" % (parentFileId[0], functionName[0], functionName[0], functionName[0])
+                            
+    
+    # Run the query         
     sameFileDef = db.runGremlinQuery(query)
     
     # Stop here if we already found the definition
     if (len(sameFileDef) > 0):
         if DEBUG: print("Found def in same file: "+str(sameFileDef))
+        print("Found def in same file: "+str(sameFileDef))
         return sameFileDef
     # If there is no function definition in the current file
     else:        
@@ -670,19 +645,36 @@ def getCalledFunctionDef (verticeId):
         # where the first element of the inner list is the file id and all following elements are ids of needed include statements
         fileList = [[parentFileId[0]]]
                 
-        for file in fileList:            
+        for file in fileList:   
+            if DEBUG: print("File: "+str(file))
+            print("File: "+str(file))
             # Look for include statements in the current file and add them to the fileList
             searchIncludesRecursively (file[0], file, fileList)
             
-            # Look for functiondef in included file
-            query = """g.V(%s)
-                .until(has('type', within('FunctionDef', 'PreDefine')).has('code', textContains('%s')))
-                    .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (file[0], functionName[0])   
-                    
+            # For real function calls
+            if type == 'Callee':
+                # Look for functiondef/decl/macro in included file
+                query = """g.V(%s).union(
+                    __.out().has('type', 'DeclStmt').out().has('code', textContains('%s')).in(),
+                    __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').has('code', '%s').in(),  
+                    __.out().has('type', 'Function').has('code', '%s').out(),
+                    __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').has('code', '%s').in()            
+                ).dedup().id()""" % (file[0], functionName[0], functionName[0], functionName[0], functionName[0]) 
+            # For addressOf references
+            else:            
+                # Look for a functionDef or variable declaration in included file                    
+                query = """g.V(%s).union(
+                    __.out().has('type', 'Function').has('code', '%s').out(),
+                    __.out().has('type', 'DeclStmt').out().has('code', textContains('%s')).in(),  
+                    __.out().has('type', 'StructUnionEnum').out().has('type', 'Identifier').has('code', '%s').in()            
+                ).dedup().id()""" % (file[0], functionName[0], functionName[0], functionName[0])
+
+            # Run the query            
             declResult = db.runGremlinQuery(query)        
                             
             if len(declResult) > 0:
-                if DEBUG: print("Found declaration: "+str(declResult))            
+                if DEBUG: print("Found declaration: "+str(declResult))      
+                print("Found declaration: "+str(declResult))                 
                 # Add decl to SU (here we replace the file id, as we also need the include statements that lead to the declaration)
                 file[0] = declResult[0]
                 # Stopp looking, as we found the desired decl
@@ -690,6 +682,7 @@ def getCalledFunctionDef (verticeId):
         
         # Collect names of all functions for which we do not find a declaration inside the project, to prevent checking them several times
         if DEBUG: print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId)+" inside the project's code")
+        print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId)+" inside the project's code")
         externalFunctionsList.add(functionName[0])
         return ""
 
