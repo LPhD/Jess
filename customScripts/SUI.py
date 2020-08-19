@@ -28,7 +28,7 @@ generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = True
 ###################### Configuration options for entry point input ## ####################
-console = True
+console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 ##########################################################################################
@@ -88,8 +88,6 @@ externalFunctionsList = set()
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
 
-# We get Argument via AST children of expression nodes and Condition via AST children of For/While/If
-'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'Argument', 'Condition' 
 
 # Main function 
 def identifySemanticUnits ():
@@ -223,7 +221,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
 
     # Get only the Syntax Elements of the selected statement     
-    elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]) and:       
+    elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]):       
         # Get corresponding else-statement only if the configuration is selected
         if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
             result = set(getElse(currentNode))           
@@ -328,26 +326,41 @@ def analyzeNode (currentNode):
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result define relation: "+str(result)+"\n")
+        
+        
+# We get Argument via AST children of expression nodes and Condition via AST children of For/While/If
+# Return: Check if identifier has decl? But not if its a call
+# IdentifierDeclStatement: Only inside functions, only check right side?
+# Argument: Get identifiers, but not if they are fct calls?
+# Condition: Get identifiers, but not if they are fct calls?
+# DeclByClass, DeclByType: Check right side for used identifiers? 
+# 'DeclStmt' ?
+# StructUnionEnum Check for used variables?
+# PreDefine macro content check? But thats complicated, as we need to look from where the macro is used, not its definition
+#'ReturnStatement', 'IdentifierDeclStatement', 'DeclByClass', 'DeclByType',  'DeclStmt', 'StructUnionEnum', 'Argument', 'Condition',         
+#'Condition', 'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'Argument'
 
     # Get the declaration of a used variable (contains also an include statement if the variable is declared in a separate file)
-    if (type[0] in ('Condition', 'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'Argument')):
+    if (type[0] in ('Condition')):
+        print ("Type: "+type[0])
         #Get all involved identifiers?
         #Look for decl in func?
         #If empty, look in file
         #If empty, follow includes and look there
         
         #TODO
-        
-        #result = set(getParent(currentNode))
+        getCalledVariableDecl(currentNode)
+        #result = set(getCalledVariableDecl(currentNode))  
         # Add variable declaration to the Semantic Unit, no further anaysis needed?
         #semanticUnit.update(result)
          # Print result
         if (DEBUG): print("Result define relation: "+str(result)+"\n")
+        print("Result define relation: "+str(result)+"\n")
 
         
     # Get referenced function or variable if current vertice contains an unary address of operator
     if (type[0] == "AddressOfExpression"):          
-        print("#############################################Entered AddressOfExpression: "+str(currentNode))
+        #print("#############################################Entered AddressOfExpression: "+str(currentNode))
         #We need a separate query, as this could be a function reference (which we can get via getCalledFunctionDef) or a variable (which we can get via getCalledVariableDecl)
         #result = set(getCalledFunctionDef(currentNode))                
         # Get related elements of the referenced function or variable
@@ -602,9 +615,24 @@ def getLabels (verticeId):
 # Return all AST children vertice ids of the given vertice
 def getASTChildren (verticeId):
     query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT')).unfold().dedup().id()""" % (verticeId)
-    return db.runGremlinQuery(query)    
+    return db.runGremlinQuery(query)   
+
+
+# Return the id of the declaration of the called variable, including needed include statements
+def getCalledVariableDecl (verticeId):    
+    # Get the name of the called variable
+    #query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
+    query = """g.V(%s).values('code', 'type')""" % (verticeId)
+    functionName = db.runGremlinQuery(query)
     
-# Return the called function id
+    if(len(functionName) == 0): 
+        print("Warning: Cannot get name of function: "+str(verticeId))
+        return ""
+        
+    print("Code + type: "+str(functionName))    
+
+    
+# Return the id of the declaration of the called function, including needed include statements
 def getCalledFunctionDef (verticeId):
     # Get the name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)

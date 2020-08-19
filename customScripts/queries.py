@@ -16,7 +16,7 @@ import random
 #projectName = 'sample'
 #projectName = 'PV_Current.tar.gz'
 #projectName = 'DonorProject'
-projectName = 'Ag'
+projectName = 'DonorProject'
 #Connect do database of project
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -218,10 +218,58 @@ query = """g.V(%s).in('IS_FILE_OF').out('IS_HEADER_OF').union(
     __.out('IS_FILE_OF').has('type', 'PreInclude').has('code', textContains('%s'))
     ).id()""" % (184448, "bubblesort", "C.h") 
     
-query = """g.V().has('type', 'MacroCall') """  
+query = """g.V().has('type', 'IfStatement').has('code', textContains('print_context.lines_since_last_match != 0 ')).values('code')  """  
 
 
-# Execute equery
+query = """g.V(6434904).out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').id()""" 
+
+query = """g.V(%s).out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').id()""" % (str(6434904))
+
+query = """g.V(6434904)
+            .until(has('type', within('FunctionDef', 'PreDefine')).out().has('type', within('Identifier', 'PreMacroIdentifier')).has('code', '%s'))
+                .repeat(outE('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST').inV()).dedup().id()""" % ("check_symloop_leave")
+
+
+query = "g.V(8032440)"
+
+query = """g.V(8032440).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+            .dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(out('IS_AST_PARENT').has('type', 'PreIncludeSystemHeader')).dedup().id()"""
+
+
+query = """g.V(5435456).union(
+        has('type', 'FunctionDef').in(),
+        has('type', 'DeclStmt')
+        ).in().dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(not(out('IS_AST_PARENT'))).id()"""
+
+query = "g.V().has('code', textContains('vplog')).values('type', 'code', 'path')"
+
+
+#Check current node: 9548008 with type: ['Identifier']
+#Check current node: 29778128 with type: ['Callee']
+#Get decl of function: ['vplog']
+#Searching for included files of root file: 8597632
+#Includes: [8151040, 8225000]
+#Found included file: [31191248]
+#Found included file: [10346592]
+#Searching for included files of root file: 31191248
+#Includes: []
+#Searching for included files of root file: 10346592
+#Includes: [10248304, 30978256, 30982352]
+#Found included file: [31191248]
+#Could not find decl of: vplog with id: 29778128 inside the project's code
+
+# 1093848 368800 131160 254112 110616 352344 389288
+#4857944
+query = "g.V(1093848)"
+
+query = "g.V().has('type', 'Identifier').count()"
+
+query = "g.V().has('type', within('DeclStmt', 'StructUnionEnum')).count()"
+
+query = "g.V().has('type', 'File').out().values('type').dedup()"
+query = "g.V().has('type', 'IdentifierDeclStatement').in().values('type').dedup()"
+
+# Execute query
 result = db.runGremlinQuery(query)
 
 
