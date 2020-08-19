@@ -11,7 +11,6 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 start_time = time.time()
 
 ################# Configuration options for Semantic Unit identification #################
-performanceMode = True #This option automatically disables some finegrained rules to get a faster result. Better for interprocedural slices, worse for intraprocedural ones. To achieve best performance, disable all other options underneath except "includeEnclosedCode".
 includeEnclosedCode = True
 connectIfWithElse = True
 followDataflows = False
@@ -29,7 +28,7 @@ generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = True
 ###################### Configuration options for entry point input ## ####################
-console = False
+console = True
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 ##########################################################################################
@@ -70,7 +69,8 @@ projectName = 'DonorProject'
 # 118808 main function
 # 348272 bubbleReversed call in main
 #entryPointIds = {1232984}
-entryPointIds = {7807072}
+#search.c 481
+entryPointIds = {15823008}
 #ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
 #entryPointIds = {29774032}
 #entryPointIds = {348272}
@@ -88,6 +88,8 @@ externalFunctionsList = set()
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
 
+# We get Argument via AST children of expression nodes and Condition via AST children of For/While/If
+'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'Argument', 'Condition' 
 
 # Main function 
 def identifySemanticUnits ():
@@ -213,7 +215,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
         
     # Get enclosed vertices if current vertice is a for-, while- or if-statement
-    if (type[0] in ["IfStatement","ForStatement","WhileStatement", "SwitchStatement"]) and (includeEnclosedCode == True) and (performanceMode == False):             
+    if (type[0] in ["IfStatement","ForStatement","WhileStatement", "SwitchStatement"]) and (includeEnclosedCode == True):             
         result = set(getASTChildren(currentNode))
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result) 
@@ -221,7 +223,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
 
     # Get only the Syntax Elements of the selected statement     
-    elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]) and (performanceMode == False):       
+    elif (type[0] in ["IfStatement","ForStatement","WhileStatement"]) and:       
         # Get corresponding else-statement only if the configuration is selected
         if ((type[0] == "IfStatement") and (connectIfWithElse == True)):
             result = set(getElse(currentNode))           
@@ -239,7 +241,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
                    
     # Get the corresponding if, if current vertice is an else-statement
-    if (type[0] == "ElseStatement") and (performanceMode == False):            
+    if (type[0] == "ElseStatement"):            
         result = set(getIfStatement(currentNode))
         if (includeEnclosedCode):
             result.update(set(getASTChildren(currentNode)))
@@ -267,16 +269,7 @@ def analyzeNode (currentNode):
         # Get related elements of the called function
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")
-        
-    # Get referenced function or variable if current vertice contains an unary address of operator
-    if (type[0] == "AddressOfExpression"):          
-        print("#############################################Entered AddressOfExpression: "+str(currentNode))
-        #result = set(getCalledFunctionDef(currentNode))                
-        # Get related elements of the referenced function or variable
-        #analysisList.extend(result)
-         # Print result
-        if (DEBUG): print("Result call relation for an AddressOfExpression: "+str(result)+"\n")        
+        if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")      
         
     # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (lookForAllFunctionCalls == True)): 
@@ -351,6 +344,17 @@ def analyzeNode (currentNode):
          # Print result
         if (DEBUG): print("Result define relation: "+str(result)+"\n")
 
+        
+    # Get referenced function or variable if current vertice contains an unary address of operator
+    if (type[0] == "AddressOfExpression"):          
+        print("#############################################Entered AddressOfExpression: "+str(currentNode))
+        #We need a separate query, as this could be a function reference (which we can get via getCalledFunctionDef) or a variable (which we can get via getCalledVariableDecl)
+        #result = set(getCalledFunctionDef(currentNode))                
+        # Get related elements of the referenced function or variable
+        #analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result call relation for an AddressOfExpression: "+str(result)+"\n")  
+        
 ##################################################################################################################
 ##################################### Data Flow ##################################################################   
 
@@ -367,7 +371,7 @@ def analyzeNode (currentNode):
 ##################################### Control Flow ###############################################################       
 
     # Get enclosed vertices if current vertice is a label statement
-    if (type[0] == "Label") and (performanceMode == False): 
+    if (type[0] == "Label"): 
         # Get all goto statements that refer to this label
         result = set(getGotos(currentNode))  
         # Just add, no further analysis (we do not need to look at the gotos again, as they will result in the used labels)
@@ -376,7 +380,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result control flow relation: "+str(result)+"\n")
        
     # Get enclosed vertices if current vertice is a GotoStatement 
-    if (type[0] == "GotoStatement") and (performanceMode == False): 
+    if (type[0] == "GotoStatement"): 
         # Get all labels that were refered by this goto
         result = set(getLabels(currentNode))  
         # Just add, no further analysis (we do not need to look at the labels again, as they will result in the used gotos)
@@ -644,7 +648,7 @@ def getCalledFunctionDef (verticeId):
             
             # Look for functiondef in included file
             query = """g.V(%s)
-                .until(has('type', within('FunctionDef', 'PreDefine', 'DeclStmt')).has('code', textContains('%s')))
+                .until(has('type', within('FunctionDef', 'PreDefine')).has('code', textContains('%s')))
                     .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (file[0], functionName[0])   
                     
             declResult = db.runGremlinQuery(query)        
