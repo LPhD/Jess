@@ -26,7 +26,7 @@ includeExternalLibraryIncludes = True
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
-plotGraph = True
+plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
@@ -83,7 +83,9 @@ checkedVertices = set()
 # Initialize empty set of vertices that will be checked
 analysisList = list()
 # Collect all external functions, as we do not need to look for their declaration more than once
-externalFunctionsList = set()
+externalFunctionsSet = set()
+# Collect all identifiers (value as list) for a file (key), as we do not need to look for file-identifier pair declaration more than once 
+alreadyCheckedIdentifierDict = dict()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
@@ -134,7 +136,7 @@ def identifySemanticUnits ():
             addComments()       
  
         #Print names of all functions that need external libraries (or that we failed to find a declaration for)
-        print("The following functions/macros have a declaration outside of the project's code (e.g. in used libraries): "+str(externalFunctionsList))
+        print("The following functions/macros have a declaration outside of the project's code (e.g. in used libraries): "+str(externalFunctionsSet))
         
         # Get the #ifndef #def and #endif for header files?
         
@@ -592,16 +594,36 @@ def getASTChildren (verticeId):
 # Return the id of the declaration of the called function, including needed include statements
 def getCalledFunctionDef (verticeId, type):
     # Get the name of the called function
-    query = """g.V(%s).out().has('type', 'Identifier').values('code')""" % (verticeId)
+    query = """g.V(%s).out().has('type', 'Identifier').values('code', 'path')""" % (verticeId)
     functionName = db.runGremlinQuery(query)
     
-    if(len(functionName) == 0): 
-        print("Warning: Cannot get name of function: "+str(verticeId))
+    if(len(functionName) < 2): 
+        print("Warning: Cannot get name or path of function: "+str(verticeId))
         return ""
     
-    if functionName[0] in externalFunctionsList:
-        print("Already checked function: "+str(functionName[0])+" Skipping...")
-        return ""   
+    if functionName[0] in externalFunctionsSet:
+        print("Already checked function and found no declaration: "+str(functionName[0])+" Skipping...")
+        return ""
+    
+    # Check if we encounter this file for the first time    
+    if str(functionName[1]) in alreadyCheckedIdentifierDict:
+        # If we already visited this file, check if we also already have checked this identifier
+        if str(functionName[0]) in alreadyCheckedIdentifierDict[str(functionName[1])]:
+            # Skip the rest of the function, as we do not need to seach for a declaration multiple times
+            print("Already checked function and found its declaration: "+str(functionName[0])+" Skipping...")
+            return "" 
+        # If we haven't check this identifier yet    
+        else:
+            # Add the identifier as additional value to the dict at the corresponding key and continue with the function
+            alreadyCheckedIdentifierDict[str(functionName[1])].add(str(functionName[0]))
+            print("Checking new function in known file: "+str(functionName[0]))
+        
+    # If it's a new file, add the path as new key to our dict    
+    else:
+        # Add the path as new key and the name as new value (as part of a set)
+        alreadyCheckedIdentifierDict[str(functionName[1])] = {str(functionName[0])}
+        print("Checking new function in new file: "+str(functionName[0]))
+
     
     if DEBUG: print("Get decl of function: "+str(functionName))
     print("Get decl of function: "+str(functionName))
@@ -639,7 +661,7 @@ def getCalledFunctionDef (verticeId, type):
         if DEBUG: print("Found def in same file: "+str(sameFileDef))
         print("Found def in same file: "+str(sameFileDef))
         return sameFileDef
-    # If there is no function definition in the current file
+    # If there is no function definition in the current file, check included files
     else:        
         # List that contains lists, 
         # where the first element of the inner list is the file id and all following elements are ids of needed include statements
@@ -671,7 +693,8 @@ def getCalledFunctionDef (verticeId, type):
 
             # Run the query            
             declResult = db.runGremlinQuery(query)        
-                            
+             
+            # If we found a declaration/definition    
             if len(declResult) > 0:
                 if DEBUG: print("Found declaration: "+str(declResult))      
                 print("Found declaration: "+str(declResult))                 
@@ -683,7 +706,7 @@ def getCalledFunctionDef (verticeId, type):
         # Collect names of all functions for which we do not find a declaration inside the project, to prevent checking them several times
         if DEBUG: print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId)+" inside the project's code")
         print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId)+" inside the project's code")
-        externalFunctionsList.add(functionName[0])
+        externalFunctionsSet.add(functionName[0])
         return ""
 
 
