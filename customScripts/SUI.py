@@ -31,6 +31,7 @@ plotGraph = False
 console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
+showStatistics = True
 ##########################################################################################
 
 
@@ -143,6 +144,10 @@ def identifySemanticUnits ():
         print("Analysis finished, making graph...")
         print ("Analysis took", time.time() - start_time, "seconds to run")
         print("--------------------------------------------------------------------------------- \n")
+        
+        if (showStatistics):
+            #Count number of nodes
+            countNodes()
 
         if (plotGraph):
             # Plot resulting graph
@@ -602,7 +607,7 @@ def getCalledFunctionDef (verticeId, type):
         return ""
     
     if functionName[0] in externalFunctionsSet:
-        print("Already checked function and found no declaration: "+str(functionName[0])+" Skipping...")
+        print("Already checked function and found no declaration: "+str(functionName[0])+" - Skipping...")
         return ""
     
     # Check if we encounter this file for the first time    
@@ -610,7 +615,7 @@ def getCalledFunctionDef (verticeId, type):
         # If we already visited this file, check if we also already have checked this identifier
         if str(functionName[0]) in alreadyCheckedIdentifierDict[str(functionName[1])]:
             # Skip the rest of the function, as we do not need to seach for a declaration multiple times
-            print("Already checked function and found its declaration: "+str(functionName[0])+" Skipping...")
+            print("Already checked function and found its declaration: "+str(functionName[0])+" - Skipping...")
             return "" 
         # If we haven't check this identifier yet    
         else:
@@ -950,6 +955,30 @@ def addExternalIncludes ():
     
     semanticUnit.update(result)
     
+###################################### Statistics ############################################################### 
+
+def countNodes():
+    # Count nodes of whole project
+    query = "g.V().count()"
+    statResult = db.runGremlinQuery(query) 
+    print("The whole project has "+str(statResult[0])+" nodes.")
+    # Count nodes of whole project that are visible (query is a little more complex because some nodes have visible types but are contained in other visible parent nodes)
+    query = """g.V().has('type', within(%s))
+    .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
+    .dedup().count()""" % (visibleStatementTypes) 
+    statResult = db.runGremlinQuery(query) 
+    print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
+    # Count nodes of SU
+    print("The SU has "+str(len(semanticUnit))+" nodes.")
+    # Count nodes of SU that are visible
+    query = """idListToNodes(%s).has('type', within(%s))
+    .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
+    .dedup().count()""" % (list(semanticUnit), visibleStatementTypes) 
+    statResult = db.runGremlinQuery(query) 
+    print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
+    print("--------------------------------------------------------------------------------- \n")
+
+   
 ###################################### Input ###############################################################    
 
 # Let the user interactively set the project and entry points via console inputs
