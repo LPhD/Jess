@@ -653,7 +653,7 @@ def getCalledFunctionDef (verticeId, type):
         # Look in its AST children for a functionDef or global variable declaration with the given name (take care that the result is a visible statement)
         query = """g.V(%s).union(
             __.out().has('type', 'Function').has('code', '%s').out(),
-            __.out().has('type', 'DeclStmt').out().has('code', textContains('%s')).in(),  
+            __.out().has('type', 'DeclStmt').out().has('identifier', '%s').in(),  
             __.out().has('type', 'StructUnionEnum').out().has('type', 'Identifier').has('code', '%s').in()            
         ).dedup().id()""" % (parentFileId[0], functionName[0], functionName[0], functionName[0])
                             
@@ -682,7 +682,7 @@ def getCalledFunctionDef (verticeId, type):
             if type == 'Callee':
                 # Look for functiondef/decl/macro in included file
                 query = """g.V(%s).union(
-                    __.out().has('type', 'DeclStmt').out().has('code', textContains('%s')).in(),
+                    __.out().has('type', 'DeclStmt').out().has('identifier', '%s').in(),
                     __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').has('code', '%s').in(),  
                     __.out().has('type', 'Function').has('code', '%s').out(),
                     __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').has('code', '%s').in()            
@@ -692,7 +692,7 @@ def getCalledFunctionDef (verticeId, type):
                 # Look for a functionDef or variable declaration in included file                    
                 query = """g.V(%s).union(
                     __.out().has('type', 'Function').has('code', '%s').out(),
-                    __.out().has('type', 'DeclStmt').out().has('code', textContains('%s')).in(),  
+                    __.out().has('type', 'DeclStmt').out().has('identifier', '%s').in(),  
                     __.out().has('type', 'StructUnionEnum').out().has('type', 'Identifier').has('code', '%s').in()            
                 ).dedup().id()""" % (file[0], functionName[0], functionName[0], functionName[0])
 
