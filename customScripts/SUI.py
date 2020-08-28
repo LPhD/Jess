@@ -22,6 +22,8 @@ lookForAllMacroUsages = False
 includeVariabilityInformation = True
 includeComments = True
 includeExternalLibraryIncludes = True
+includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True
+includeAllGoblaDelcarationsOfVariables = True #Has no effect if the option above is true       
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
@@ -85,6 +87,8 @@ checkedVertices = set()
 analysisList = list()
 # Collect all external functions, as we do not need to look for their declaration more than once
 externalFunctionsSet = set()
+# Collect all files that are part of the SU, so we can reuse this information instead of querying multiple times
+SUFilesSet = set()
 # Collect all identifiers (value as list) for a file (key), as we do not need to look for file-identifier pair declaration more than once 
 alreadyCheckedIdentifierDict = dict()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
@@ -127,7 +131,14 @@ def identifySemanticUnits ():
         #Check for includes of (external) libraries
         if(includeExternalLibraryIncludes):
             addExternalIncludes() 
-
+                   
+        # Include only those declarations, for which there is an identifier in the SU (indicates usage, but no guarantee, as we do not analyze the scope) 
+        if(includeOnlyProbablyUsedGlobalDeclarationsOfVariables):
+            addUsedGlobalDeclares()             
+        # Include all global declarations of variables   
+        else if (includeAllGoblaDelcarationsOfVariables):        
+            addGlobalDeclares() 
+                        
         #Check for variability information
         if(includeVariabilityInformation):
             addVariability()
@@ -139,7 +150,7 @@ def identifySemanticUnits ():
         #Print names of all functions that need external libraries (or that we failed to find a declaration for)
         print("The following functions/macros have a declaration outside of the project's code (e.g. in used libraries): "+str(externalFunctionsSet))
         
-        # Get the #ifndef #def and #endif for header files?
+        # Get the #ifndef #def and #endif for header files? Currently, we get that when addVariability is true
         
         print("Analysis finished, making graph...")
         print ("Analysis took", time.time() - start_time, "seconds to run")
@@ -275,7 +286,7 @@ def analyzeNode (currentNode):
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")      
-        print("Result call relation for a Callee: "+str(result)+"\n")  
+  
         
     # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (lookForAllFunctionCalls == True)): 
@@ -607,7 +618,7 @@ def getCalledFunctionDef (verticeId, type):
         return ""
     
     if functionName[0] in externalFunctionsSet:
-        print("Already checked function and found no declaration: "+str(functionName[0])+" - Skipping...")
+        if DEBUG: print("Already checked function and found no declaration: "+str(functionName[0])+" - Skipping...")
         return ""
     
     # Check if we encounter this file for the first time    
@@ -615,23 +626,20 @@ def getCalledFunctionDef (verticeId, type):
         # If we already visited this file, check if we also already have checked this identifier
         if str(functionName[0]) in alreadyCheckedIdentifierDict[str(functionName[1])]:
             # Skip the rest of the function, as we do not need to seach for a declaration multiple times
-            print("Already checked function and found its declaration: "+str(functionName[0])+" - Skipping...")
+            if DEBUG: print("Already checked function and found its declaration: "+str(functionName[0])+" - Skipping...")
             return "" 
         # If we haven't check this identifier yet    
         else:
             # Add the identifier as additional value to the dict at the corresponding key and continue with the function
             alreadyCheckedIdentifierDict[str(functionName[1])].add(str(functionName[0]))
-            print("Checking new function in known file: "+str(functionName[0]))
+            if DEBUG: print("Checking new function in known file: "+str(functionName[0]))
         
     # If it's a new file, add the path as new key to our dict    
     else:
         # Add the path as new key and the name as new value (as part of a set)
         alreadyCheckedIdentifierDict[str(functionName[1])] = {str(functionName[0])}
-        print("Checking new function in new file: "+str(functionName[0]))
+        if DEBUG: print("Checking new function in new file: "+str(functionName[0]))
 
-    
-    if DEBUG: print("Get decl of function: "+str(functionName))
-    print("Get decl of function: "+str(functionName))
                             
     # Get the parent file of the current node (Callee)
     query = """g.V(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)  
@@ -664,7 +672,6 @@ def getCalledFunctionDef (verticeId, type):
     # Stop here if we already found the definition
     if (len(sameFileDef) > 0):
         if DEBUG: print("Found def in same file: "+str(sameFileDef))
-        print("Found def in same file: "+str(sameFileDef))
         return sameFileDef
     # If there is no function definition in the current file, check included files
     else:        
@@ -674,7 +681,6 @@ def getCalledFunctionDef (verticeId, type):
                 
         for file in fileList:   
             if DEBUG: print("File: "+str(file))
-            print("File: "+str(file))
             # Look for include statements in the current file and add them to the fileList
             searchIncludesRecursively (file[0], file, fileList)
             
@@ -701,8 +707,7 @@ def getCalledFunctionDef (verticeId, type):
              
             # If we found a declaration/definition    
             if len(declResult) > 0:
-                if DEBUG: print("Found declaration: "+str(declResult))      
-                print("Found declaration: "+str(declResult))                 
+                if DEBUG: print("Found declaration: "+str(declResult))                      
                 # Add decl to SU (here we replace the file id, as we also need the include statements that lead to the declaration)
                 file[0] = declResult[0]
                 # Stopp looking, as we found the desired decl
@@ -710,7 +715,6 @@ def getCalledFunctionDef (verticeId, type):
         
         # Collect names of all functions for which we do not find a declaration inside the project, to prevent checking them several times
         if DEBUG: print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId)+" inside the project's code")
-        print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId)+" inside the project's code")
         externalFunctionsSet.add(functionName[0])
         return ""
 
@@ -938,22 +942,73 @@ def addComments ():
 
 ######################################### External Libraries Checking #################################################################
 
+# Saves the ids of all file nodes that have children who are part of the SU (as the filenodes itself are normally not part of the SU)
+def getSUsFileNodes ():
+    if (DEBUG) : print("Checking for SU's files...")    
+
+    global semanticUnit, SUFilesSet
+    # Go to the parent file nodes of all functionDefs or declares
+    query = """idListToNodes(%s).union(
+        has('type', 'FunctionDef').in(),
+        has('type', 'DeclStmt')
+        ).in().dedup().id()""" % (list(semanticUnit))   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found files of SU: "+str(result)+"\n")
+    print("Found files of SU: "+str(result)+"\n")
+    
+    SUFilesSet.update(result)
+
+
 # Return all include statements for each file of the SU that includes external libraries
 def addExternalIncludes ():
     if (DEBUG) : print("Checking for external includes...")    
 
-    global semanticUnit
+    global semanticUnit, SUFilesSet
     # Go to the parent file nodes of all functionDefs, then get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
-    query = """idListToNodes(%s).union(
-        has('type', 'FunctionDef').in(),
-        has('type', 'DeclStmt')
-        ).in().dedup().out('IS_FILE_OF').has('type', 'PreInclude').where(not(out('IS_AST_PARENT'))).id()""" % (list(semanticUnit))   
+    query = """idListToNodes(%s).out('IS_FILE_OF').has('type', 'PreInclude').where(not(out('IS_AST_PARENT'))).id()""" % (list(SUFilesSet))   
    
     result = db.runGremlinQuery(query)       
     
     if (DEBUG) : print("Found additional includes of libraries: "+str(result)+"\n")
     
     semanticUnit.update(result)
+
+######################################### Global Variable Declarations Checking #################################################################  
+
+# Add global declarations of variables that are declared in files that are part of the SU and used and least only once inside the SU (probably)   
+def addUsedGlobalDeclares():           
+#Check if we need additional declarations, when a variable reuses another?  
+  
+# Add all global declarations of variables that are declared in files that are part of the SU        
+def addGlobalDeclares(): 
+    if (DEBUG) : print("Checking for global variable declarations...")    
+    print("Checking for global variable declarations...") 
+
+    global semanticUnit, SUFilesSet
+    # For all files that are part of the SU, get declarations of global variables
+    
+    # First all StructUnionEnum, as they are easy to get
+    query = """idListToNodes(%s).out().has('type', 'StructUnionEnum').id()""" % (list(SUFilesSet))  
+    aResult = db.runGremlinQuery(query)   
+    semanticUnit.update(aResult) 
+    
+    if (DEBUG) : print("Found additional global variable declarations: "+str(aResult)+"\n")
+    print("Found additional global variable declarations: "+str(aResult)+"\n")
+    
+    # Then we look for all other variable declarations. As the text filters do not really work, we first get all other declStmts
+    query = """idListToNodes(%s).out().has('type', 'DeclStmt').as('V').id().as('id').select('V').out().values('completeType').as('ct').select('id','ct')""" % (list(SUFilesSet))  
+    bResult = db.runGremlinQuery(query)
+    # Here we filter out all nodes whose completeType contains a bracket (or should we filter out nodes that end with a closing bracket?)  
+    for line in bResult: 
+        if not "(" in line['ct']:
+            semanticUnit.update(line['id'])
+  
+            if (DEBUG) : print("Found additional global variable declarations: "+str(line['id'])+"\n")
+            print("Found additional global variable declarations: "+str(line['id'])+"\n")
+    
+
     
 ###################################### Statistics ############################################################### 
 
