@@ -22,7 +22,7 @@ lookForAllMacroUsages = False
 includeVariabilityInformation = True
 includeComments = True
 includeExternalLibraryIncludes = True
-includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True
+includeOnlyProbablyUsedGlobalDeclarationsOfVariables = False
 includeAllGoblaDelcarationsOfVariables = True #Has no effect if the option above is true       
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
@@ -123,10 +123,12 @@ def identifySemanticUnits ():
         # analysisList.remove(node)          
       
      
-    if (len(semanticUnit) > 0):
+    if (len(semanticUnit) > 1):
         # Adapt results for syntactical correctness       
         # Add the function definition 
         addParentFunctions()  
+        #Collect the file nodes of the SU
+        getSUsFileNodes()
         
         #Check for includes of (external) libraries
         if(includeExternalLibraryIncludes):
@@ -136,7 +138,7 @@ def identifySemanticUnits ():
         if(includeOnlyProbablyUsedGlobalDeclarationsOfVariables):
             addUsedGlobalDeclares()             
         # Include all global declarations of variables   
-        else if (includeAllGoblaDelcarationsOfVariables):        
+        elif (includeAllGoblaDelcarationsOfVariables):        
             addGlobalDeclares() 
                         
         #Check for variability information
@@ -951,7 +953,7 @@ def getSUsFileNodes ():
     query = """idListToNodes(%s).union(
         has('type', 'FunctionDef').in(),
         has('type', 'DeclStmt')
-        ).in().dedup().id()""" % (list(semanticUnit))   
+        ).in().has('type', 'File').dedup().id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
     
@@ -978,7 +980,8 @@ def addExternalIncludes ():
 ######################################### Global Variable Declarations Checking #################################################################  
 
 # Add global declarations of variables that are declared in files that are part of the SU and used and least only once inside the SU (probably)   
-def addUsedGlobalDeclares():           
+def addUsedGlobalDeclares():    
+    print("Currently nothing happens here...")
 #Check if we need additional declarations, when a variable reuses another?  
   
 # Add all global declarations of variables that are declared in files that are part of the SU        
@@ -1003,7 +1006,7 @@ def addGlobalDeclares():
     # Here we filter out all nodes whose completeType contains a bracket (or should we filter out nodes that end with a closing bracket?)  
     for line in bResult: 
         if not "(" in line['ct']:
-            semanticUnit.update(line['id'])
+            semanticUnit.update(str(line['id']))
   
             if (DEBUG) : print("Found additional global variable declarations: "+str(line['id'])+"\n")
             print("Found additional global variable declarations: "+str(line['id'])+"\n")
