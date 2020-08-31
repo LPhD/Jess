@@ -32,7 +32,7 @@ plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 showStatistics = True
 ##########################################################################################
 
@@ -74,7 +74,7 @@ projectName = 'DonorProject'
 #entryPointIds = {1232984}
 #search.c 481
 #7684120
-entryPointIds = {7684120}
+entryPointIds = {6967384}
 #ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
 #entryPointIds = {29774032}
 #entryPointIds = {348272}
@@ -953,7 +953,12 @@ def getSUsFileNodes ():
     # Go to the parent file nodes of all functionDefs or declares
     query = """idListToNodes(%s).union(
         has('type', 'FunctionDef').in(),
-        has('type', 'DeclStmt')
+        has('type', 'StructUnionEnum'),
+        has('type', 'DeclStmt'),
+        has('type', 'PreDefine'),
+        has('type', 'PreUndef'),
+        has('type', 'PreIfStatement'),
+        has('type', 'PreInclude')
         ).in().has('type', 'File').dedup().id()""" % (list(semanticUnit))   
    
     result = db.runGremlinQuery(query)       
