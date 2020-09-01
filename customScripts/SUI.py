@@ -73,7 +73,7 @@ projectName = 'DonorProject'
 # 348272 bubbleReversed call in main
 #entryPointIds = {1232984}
 #search.c 481
-#7684120
+#7684120 #HASH_ADD
 #15823008 #search_dir
 entryPointIds = {7684120}
 #ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
@@ -656,8 +656,8 @@ def getCalledFunctionDef (verticeId, type):
         # Look in its AST children for a functionDef or macro with the given name (take care that the result is a visible statement)
         query = """g.V(%s).union(
             __.out().has('type', 'Function').has('code', '%s').out(),
-            __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in(),  
-            __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in()            
+            __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in(),  
+            __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in()            
         ).dedup().id()""" % (parentFileId[0], functionName[0], functionName[0], functionName[0])
              
     # For addressOf references
@@ -693,9 +693,9 @@ def getCalledFunctionDef (verticeId, type):
                 # Look for functiondef/decl/macro in included file
                 query = """g.V(%s).union(
                     __.out().has('type', 'DeclStmt').out().has('identifier', '%s').in(),
-                    __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in(),  
+                    __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in(),  
                     __.out().has('type', 'Function').has('code', '%s').out(),
-                    __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in()            
+                    __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in()            
                 ).dedup().id()""" % (file[0], functionName[0], functionName[0], functionName[0], functionName[0]) 
             # For addressOf references
             else:            
