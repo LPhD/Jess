@@ -23,7 +23,9 @@ includeVariabilityInformation = True
 includeComments = True
 includeExternalLibraryIncludes = True
 includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True
-includeAllGoblaDelcarationsOfVariables = True #Has no effect if the option above is true       
+includeAllGoblaDelcarationsOfVariables = True #Has no effect if the option above is true      
+inclundeOnlyProbablyUsedNonFunctionLikeDefines = False #ToDo: Include all #define statements from files that are part of the SU and whose identifier also appears somwhere in the SU
+inclundeNonFunctionLikeDefines = False #ToDo: Include all #define statements from files that are part of the SU 
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
@@ -965,7 +967,6 @@ def getSUsFileNodes ():
     result = db.runGremlinQuery(query)       
     
     if (DEBUG) : print("Found files of SU: "+str(result)+"\n")
-    print("Found files of SU: "+str(result)+"\n")
     
     SUFilesSet.update(result)
 
@@ -988,42 +989,65 @@ def addExternalIncludes ():
 
 # Add global declarations of variables that are declared in files that are part of the SU and used and least only once inside the SU (probably)   
 # This is not exact. The result may contain more declarations than necessary, as we only look for any identifier match inside the SU (regardless of scope)
+# Furthermore, newly added declarations are not checked again. This could result in missing dependencies, e.g. when a declaration makes use of a typedef that is never used elsewhere.
 def addUsedGlobalDeclares():  
-    if (DEBUG) : print("Checking for used global variable declarations...")   
-    print("Currently nothing happens here...")
+    if (DEBUG): print("Checking for potentially used global variable declarations...")   
     
-    # Collect ids of declarations
-    declIdList = set()
+    # Collect ids of declarations and their declared identifier 
+    declIdAndNameList = dict()
+    # Collect names of identifiers from the SU
+    identifierCodeList = set()
 
     global semanticUnit, SUFilesSet
     # For all files that are part of the SU, get declarations of global variables
     
     # First all StructUnionEnum, as they are easy to get
-    query = """idListToNodes(%s).out().has('type', 'StructUnionEnum').id()""" % (list(SUFilesSet))  
+    query = """idListToNodes(%s).out().has('type', 'StructUnionEnum').as('V')
+    .id().as('id')
+    .select('V').out().has('type', 'Identifier').values('code').as('name')
+    .select('id','name')""" % (list(SUFilesSet))  
     aResult = db.runGremlinQuery(query)  
-    # Collect their ids    
-    declIdList.update(aResult) 
+    # Add the results to the declIdAndNameList 
+    for line in aResult: 
+        declIdAndNameList[line['id']] = line['name'] 
     
-    print("A: "+str(declIdList))
-    
+   
     # Then we look for all other variable declarations. As the text filters do not really work, we first get all other declStmts
-    query = """idListToNodes(%s).out().has('type', 'DeclStmt').as('V').id().as('id').select('V').out().values('completeType').as('ct').select('id','ct')""" % (list(SUFilesSet))  
+    query = """idListToNodes(%s).out().has('type', 'DeclStmt').as('V')
+    .id().as('id')
+    .select('V').out().values('completeType').as('ct')
+    .select('V').out().values('identifier').as('name')
+    .select('id','ct', 'name')""" % (list(SUFilesSet))  
     bResult = db.runGremlinQuery(query)
     # Here we filter out all nodes whose completeType contains a bracket (or should we filter out nodes that end with a closing bracket?)  
-    for line in bResult: 
+    for line in bResult:            
         if not "(" in line['ct']:
-            # Add the whole id, not the digits one by one
-            declIdList.update([line['id']])             
-            
-    print("Found global variable declarations: "+str(declIdList))
+            # Add the id and name of the declaration
+            declIdAndNameList[line['id']] = line['name'] 
+   
+    # We look for uses of the declared variables in the selected visible statements. These exclude no real uses, e.g. by comments
+    checkedStatementTypes = ['CustomNode', 'FunctionDef', 'DeclStmt', 'StructUnionEnum', 'IfStatement', 'SwitchStatement', 'ForStatement', 'WhileStatement',  'GotoStatement', 'Label', 'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreDefine', 'MacroCall', 'UsingDirective']
 
+    #Get the code of all identifier nodes of the SU
+    query = """idListToNodes(%s).has('type', within(%s)).values('code').dedup()""" % (list(semanticUnit), checkedStatementTypes)  
+    cResult = db.runGremlinQuery(query)    
+    identifierCodeList.update(cResult)    
     
-    #Get id and name of all declares
-    #Check for each declare if its contained in the SU? 
-        #Where should we look at? To get a precise result, we must exactly match identifiers. Are they even part of the SU?
-    
-    
-#Check if we need additional declarations, when a variable reuses another?  
+  
+    # Compare the identifier of each declStmt with the code of each relevant statement that is part of the SU
+    for key in declIdAndNameList:
+        for code in identifierCodeList:
+            #print("Name: "+str(declIdAndNameList[key]))
+            #print("Code: "+str(code))
+            # If the current identifier appears in the code (a hint that we may have a usage here)
+            if declIdAndNameList[key] in code:
+                if (DEBUG): print("Found usage of variable: "+str(declIdAndNameList[key]))
+                # Add key to SU
+                semanticUnit.update(declIdAndNameList[key])                
+                # Go on with next key
+                break
+
+ 
   
 # Add all global declarations of variables that are declared in files that are part of the SU        
 def addGlobalDeclares(): 
@@ -1037,7 +1061,7 @@ def addGlobalDeclares():
     aResult = db.runGremlinQuery(query)   
     semanticUnit.update(aResult) 
     
-    if (DEBUG) : print("Found additional global variable declarations: "+str(aResult))
+    if (DEBUG) : print("Found additional global StructUnionEnum declarations: "+str(aResult))
     
     # Then we look for all other variable declarations. As the text filters do not really work, we first get all other declStmts
     query = """idListToNodes(%s).out().has('type', 'DeclStmt').as('V').id().as('id').select('V').out().values('completeType').as('ct').select('id','ct')""" % (list(SUFilesSet))  
@@ -1047,7 +1071,7 @@ def addGlobalDeclares():
         if not "(" in line['ct']:
             # Add the whole id, not the digits one by one
             semanticUnit.update([line['id']]) 
-            if (DEBUG) : print("Found additional global variable declarations: "+str(line['id'])+"\n")
+            if (DEBUG) : print("Found additional global variable declaration: "+str(line['id']))
    
     
 ###################################### Statistics ############################################################### 
@@ -1120,7 +1144,7 @@ def consoleInput ():
             print("You selected \""+feature+"\" as entry point \n")
             entryFeatureNames = {feature}
             entryPointIds = set()
-            break;
+            break
             
         # Statement input loop
         elif (selection == "2" or selection == "(12)" or selection == "code" or selection == "statement" or selection == "code statement"):
@@ -1168,7 +1192,7 @@ def consoleInput ():
                     print(" ### No results found. Please try again ### \n")
 
             # Break for the first while (feature or statement)   
-            break;
+            break
             
         # Wrong entry
         else:
