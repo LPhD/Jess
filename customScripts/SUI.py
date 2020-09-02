@@ -77,7 +77,8 @@ projectName = 'DonorProject'
 #search.c 481
 #7684120 #HASH_ADD
 #15823008 #search_dir
-entryPointIds = {7684120}
+#520408 #init_ignores
+entryPointIds = {520408}
 #ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
 #entryPointIds = {29774032}
 #entryPointIds = {348272}
@@ -325,7 +326,7 @@ def analyzeNode (currentNode):
         # Add FunctionDef to the Semantic Unit and get related elements
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result define relation: "+str(result)+"\n")
+        if (DEBUG): print("Result define relation Function: "+str(result)+"\n")
         
     # Get the declaration of the function in its header file (if existing)
     if (type[0] == "FunctionDef"):
@@ -333,7 +334,7 @@ def analyzeNode (currentNode):
         # Just add, no further analysis (we do not need to look at the decl again, this is done for Decl and CallExpression)
         semanticUnit.update(result) 
          # Print result
-        if (DEBUG): print("Result define relation: "+str(result)+"\n")
+        if (DEBUG): print("Result define relation FunctionDef: "+str(result)+"\n")
         
     # Get the definition of the function in its c file (if existing) and the include statement
     if (type[0] == "DeclStmt"):
@@ -341,7 +342,7 @@ def analyzeNode (currentNode):
         # Add FunctionDef to the Semantic Unit and get related elements
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result define relation: "+str(result)+"\n")        
+        if (DEBUG): print("Result define relation DeclStmt: "+str(result)+"\n")        
     
     # Get definition of the element that contains the condition or parameter
     # We need this for identification of statements that are connected to a #define       
@@ -350,7 +351,7 @@ def analyzeNode (currentNode):
         # Add FunctionDef to the Semantic Unit and get related elements
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result define relation: "+str(result)+"\n")
+        if (DEBUG): print("Result define relation Condition or Parameter: "+str(result)+"\n")
                 
     # Get referenced function or variable if current vertice contains an unary address of operator
     # ToDo Reuse getCalledFunctionDef, but refine the double check prevention (as variable names can occur multiple times). 
@@ -564,9 +565,10 @@ def getFunctionDefinCFile (verticeId):
                 __.out('IS_FILE_OF').has('type', 'PreInclude').has('code', textContains('%s'))
             ).dedup().id()""" % (verticeId, fName, names[1])        
             
-        return db.runGremlinQuery(query)
-    else:
-        return ""
+            return db.runGremlinQuery(query)
+
+    # Return nothing if we do not get the desired result
+    return ""
 
 
 # Return AST parent of a given node (can be empty)
@@ -1036,16 +1038,18 @@ def addUsedGlobalDeclares():
   
     # Compare the identifier of each declStmt with the code of each relevant statement that is part of the SU
     for key in declIdAndNameList:
+        print("Look at: "+str(key))
         for code in identifierCodeList:
-            #print("Name: "+str(declIdAndNameList[key]))
-            #print("Code: "+str(code))
             # If the current identifier appears in the code (a hint that we may have a usage here)
             if declIdAndNameList[key] in code:
-                if (DEBUG): print("Found usage of variable: "+str(declIdAndNameList[key]))
+                if (DEBUG): print("Found usage of variable: "+str(declIdAndNameList[key])+" with id: "+str(key))
+                print("Found usage of variable: "+str(declIdAndNameList[key])+" with id: "+str(key))
                 # Add key to SU
                 semanticUnit.update(declIdAndNameList[key])                
                 # Go on with next key
                 break
+            #else:
+                #print("Not found Name: "+str(declIdAndNameList[key])+"Code: "+str(code))
 
  
   
