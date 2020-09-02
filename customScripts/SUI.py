@@ -22,8 +22,9 @@ lookForAllMacroUsages = False
 includeVariabilityInformation = True
 includeComments = True
 includeExternalLibraryIncludes = True
-includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True
-includeAllGoblaDelcarationsOfVariables = True #Has no effect if the option above is true      
+includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True # Works good for simple declares, but misses content of e.g. structs or enums
+checkGlobalStructUnionEnums = False # Should currently be false due to the problem mentioned above
+includeAllGoblaDelcarationsOfVariables = True #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true      
 inclundeOnlyProbablyUsedNonFunctionLikeDefines = False #ToDo: Include all #define statements from files that are part of the SU and whose identifier also appears somwhere in the SU
 inclundeNonFunctionLikeDefines = False #ToDo: Include all #define statements from files that are part of the SU 
 ######################### Configuration options for graph output #########################
@@ -34,7 +35,7 @@ plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 showStatistics = True
 ##########################################################################################
 
@@ -1003,15 +1004,22 @@ def addUsedGlobalDeclares():
     global semanticUnit, SUFilesSet
     # For all files that are part of the SU, get declarations of global variables
     
-    # First all StructUnionEnum, as they are easy to get
+    # First all StructUnionEnum, as they are easy to get.  
     query = """idListToNodes(%s).out().has('type', 'StructUnionEnum').as('V')
     .id().as('id')
     .select('V').out().has('type', 'Identifier').values('code').as('name')
     .select('id','name')""" % (list(SUFilesSet))  
     aResult = db.runGremlinQuery(query)  
-    # Add the results to the declIdAndNameList 
-    for line in aResult: 
-        declIdAndNameList[line['id']] = line['name'] 
+    
+    # Currently, this should be fals
+    if (checkGlobalStructUnionEnums):
+        # Add the results to the declIdAndNameList 
+        for line in aResult: 
+            declIdAndNameList[line['id']] = line['name'] 
+    else:
+        # Add the results directly to the SU (without checking for their usage, as this does not reliably work) 
+        for line in aResult: 
+            semanticUnit.update([line['id']])
     
    
     # Then we look for all other variable declarations. As the text filters do not really work, we first get all other declStmts
@@ -1038,18 +1046,14 @@ def addUsedGlobalDeclares():
   
     # Compare the identifier of each declStmt with the code of each relevant statement that is part of the SU
     for key in declIdAndNameList:
-        print("Look at: "+str(key))
         for code in identifierCodeList:
             # If the current identifier appears in the code (a hint that we may have a usage here)
             if declIdAndNameList[key] in code:
                 if (DEBUG): print("Found usage of variable: "+str(declIdAndNameList[key])+" with id: "+str(key))
-                print("Found usage of variable: "+str(declIdAndNameList[key])+" with id: "+str(key))
                 # Add key to SU
                 semanticUnit.update(declIdAndNameList[key])                
                 # Go on with next key
                 break
-            #else:
-                #print("Not found Name: "+str(declIdAndNameList[key])+"Code: "+str(code))
 
  
   
