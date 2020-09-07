@@ -291,7 +291,7 @@ public class PreprocessorTests {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("#define IS_ENABLED( option ) \\\n" + 
-				"( config_enabled( option ) || config_enabled( option##_MODULE ) )", contentItem.getStatement(0).getEscapedCodeStr());
+				" ( config_enabled ( option ) || config_enabled ( option##_MODULE ) )", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 
 	@Test
@@ -311,6 +311,15 @@ public class PreprocessorTests {
 		assertEquals("#define size ( 5 + 3 )", contentItem.getStatement(0).getEscapedCodeStr());
 
 	}
+	
+	@Test
+	public void testPreDefineMacroWithBracketsAfterIdentifier() {
+		String input = "#define fnmatch(x, y, z) ( !PathMatchSpec(y, x) )";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("#define fnmatch( x , y , z ) ( ! PathMatchSpec ( y , x ) )", contentItem.getStatement(0).getEscapedCodeStr());
+	}
+		
 	
 	@Test
 	public void testPreDefineMacro() {
