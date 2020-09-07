@@ -444,6 +444,19 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void strangeComment() {
+		String input = "/* skip remaining characters if truncation width exceeded, needs to be done\n" + 
+				" * before highlight opening */\n" + 
+				"i++;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		Comment comment = (Comment) contentItem.getStatements().get(1);
+		assertEquals("i ++ ;", statementItem.getEscapedCodeStr());
+		assertEquals("/* skip remaining characters if truncation width exceeded, needs to be done\n" + 
+				" * before highlight opening */", comment.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void nullExpression() {
 		String input = ";";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
