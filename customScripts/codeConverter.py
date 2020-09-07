@@ -145,8 +145,6 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
     additionalLinesPerFile = 0
     # For semantic diff utility
     inBlock = False
-    blockStarterStack = []
-    blockname = ""
     lastIf = ""
 
     # For each entry in the patch list, build the file content
@@ -221,74 +219,60 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         
         # # # Semantic Diff # # #
         if SEMANTIC:
-            # Turn trigger off, as we leave the block
-            if (statement[4] == "FunctionBlockEnder"):
-                #Insert the block name to the statement
-                lineContent = lineContent.replace("FunctionBlockEnder", "FunctionBlockEnder "+blockname)
-                inBlock = False
-                #Clear blockname
-                blockname = ""
-                if DEBUG: print("Found block ender line: "+str(statement[1]))
-                print("Found block ender line: "+str(statement[1]))
-                
+            
             # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
             # TODO: Systematically add all possible types (array? (not necessary as this is one while statement?) struct? preDefine?)
-            elif (statement[4] in typeList):
-                currentBlockName = ""
+            if (statement[4] in typeList):
+                if DEBUG: print("Found block starter: "+statement[3])
+                # As we found a blockStarter, we are currently inBlock             
+                inBlock = True
             
                 #Build the block name cumulatively, so that it contains the names of all surrounding blocks    
                 if (statement[4] == 'FunctionDef'):
                     #Use only the function name for function blocks
                     currentBlockName = statement[3].rpartition("(")[0]  
-                    #The function block name is always the first, as we handle blocks intraprocedural    
-                    blockname = currentBlockName
-                
-                elif (statement[4] == 'ElseStatement'):
-                    #else blocks get the code of its "if" plus an additional "else" to separate between "if" and "else" content
+                    #Clear blockname (as a FunctionDef always starts a new block and currently there are no blocks outside of functions)
+                    blockStarterStack = [] 
+                    
+                #else blocks get the code of its "if" plus an additional "else" to separate between "if" and "else" content
+                elif (statement[4] == 'ElseStatement'):                    
                     currentBlockName = "else " + lastIf
-                    blockname += currentBlockName
-                
+
+                # Collect the block starter names individually, but only if they really start a block (indicated through the opening bracket)
                 elif (statement[4] == 'CompoundStatement'):    
-                    print("CompoundStatement: "+statement[3])
-                    # Collect the block starters individually, but only if they really start a block (indicated through the opening bracket)
+                    if DEBUG: print("Collected blockstarter: "+currentBlockName)                    
                     blockStarterStack.append(currentBlockName)
-                 
-                else:     
-                    #Use the whole blockstarter for other blocks (and replace any line breaks that could cause problems otherwise)  
+                    
+                #Use the whole blockstarter for other blocks (and replace any line breaks that could cause problems otherwise) 
+                else:                           
                     currentBlockName = statement[3].replace("\n","")
-                    blockname += currentBlockName
                     #Save the if header separately for possible later else statements 
                     if (statement[4] == 'IfStatement'):
                         lastIf = currentBlockName
-                    print("Other: "+blockname)    
-                    
-                #if "{" not in statement[3]:
-                    #print("Warning: No opening bracket: "+statement[3])
-                                    
-
-                # Add the cumulative block name to the current line content
-                lineContent = "####" + statement[4] +" "+ blockname + "### " + lineContent  
-                #print("lineContent: "+lineContent) 
-                             
-                inBlock = True
-                if DEBUG: print("Found block starter: "+statement[3])
-            
-            
-            # Add prefix for statements that are inside a block and not a blockstarter or funktionBlockEnder or a single "{" (to prevent duplicate block information)
-            elif inBlock and not (statement[3] == "}"):
-                if DEBUG: print("Found block: "+statement[3])
-                lineContent = "###Block "+blockname+"### " + lineContent                 
-                                
-            #Look for closing brackets of blocks 
-            elif inBlock and (statement[3] == "}"):     
-                if DEBUG: print("Found blockEnder of non-function block: "+statement[3])                  
-                lineContent = "###Block "+blockname+"### " + lineContent             
+                                                        
+                                                                   
+            #Look for closing brackets of blocks but not functionBlocks
+            elif inBlock and (statement[3] == "}") and not (statement[4] == "FunctionBlockEnder"):     
+                if DEBUG: print("Found blockEnder of non-function block: "+statement[3])   
+                # Build the line content with the name of the current block before removing it
+                lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
+                #print("lineContent3: "+lineContent)                 
                 #Remove the closed blockstarter from the stack
                 lastBlockstarter = blockStarterStack.pop()
-                #Remove the last started block from the current line content (which contains names of all surrounding blocks)
-                blockname = blockname.replace(lastBlockstarter,"")
+                
+            # Here we finally handly FunctionBlockEnders and reset the inBlock trigger
+            elif (statement[4] == "FunctionBlockEnder"):
+                #Insert the block name to the statement (we do this here, as we set inBlock to false before we reach the next if)
+                lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
+                #print("lineContent2: "+lineContent) 
+                inBlock = False
+                if DEBUG: print("Found block ender line: "+str(statement[1]))   
+        
+        # Build the line content for relevant inBlock lines (no Compounds or normal blockEnders, as they need a slightly different handling)
+        if inBlock and not(statement[4] == 'CompoundStatement') and not (statement[3] == "}"):
+            # Add prefix for statements that are inside a block (to prevent duplicate block information)
+            lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
 
-            
                  
         # # # Semantic Diff End # # #
     
@@ -319,4 +303,4 @@ def convertToCode(SEMANTIC, workingdir, foldername):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-convertToCode(True, os.getcwd(), "ConvertedCode/src")    
+#convertToCode(True, os.getcwd(), "ConvertedCode/src")    
