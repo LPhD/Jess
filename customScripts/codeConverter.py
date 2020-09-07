@@ -14,7 +14,7 @@ SEMANTIC = False
 # Set working directory
 workingdir = ""
 # Lists all types that we need for the block based analysis
-typeList = ['FunctionDef', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement']
+typeList = ['FunctionDef', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'CompoundStatement']
 
 def initialize():
     # Get the ids from the SemanticUnit (first line is the projectName)
@@ -229,7 +229,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 #Clear blockname
                 blockname = ""
                 if DEBUG: print("Found block ender line: "+str(statement[1]))
-                
+                print("Found block ender line: "+str(statement[1]))
                 
             # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
             # TODO: Systematically add all possible types (array? (not necessary as this is one while statement?) struct? preDefine?)
@@ -247,7 +247,12 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     #else blocks get the code of its "if" plus an additional "else" to separate between "if" and "else" content
                     currentBlockName = "else " + lastIf
                     blockname += currentBlockName
-            
+                
+                elif (statement[4] == 'CompoundStatement'):    
+                    print("CompoundStatement: "+statement[3])
+                    # Collect the block starters individually, but only if they really start a block (indicated through the opening bracket)
+                    blockStarterStack.append(currentBlockName)
+                 
                 else:     
                     #Use the whole blockstarter for other blocks (and replace any line breaks that could cause problems otherwise)  
                     currentBlockName = statement[3].replace("\n","")
@@ -255,28 +260,34 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     #Save the if header separately for possible later else statements 
                     if (statement[4] == 'IfStatement'):
                         lastIf = currentBlockName
+                    print("Other: "+blockname)    
+                    
+                #if "{" not in statement[3]:
+                    #print("Warning: No opening bracket: "+statement[3])
                                     
-                # Collect the block starters individually
-                blockStarterStack.append(currentBlockName)
+
                 # Add the cumulative block name to the current line content
                 lineContent = "####" + statement[4] +" "+ blockname + "### " + lineContent  
+                #print("lineContent: "+lineContent) 
                              
                 inBlock = True
                 if DEBUG: print("Found block starter: "+statement[3])
             
             
             # Add prefix for statements that are inside a block and not a blockstarter or funktionBlockEnder or a single "{" (to prevent duplicate block information)
-            elif inBlock and not (statement[3] == "{"):
-                lineContent = "###Block "+blockname+"### " + lineContent 
+            elif inBlock and not (statement[3] == "}"):
                 if DEBUG: print("Found block: "+statement[3])
+                lineContent = "###Block "+blockname+"### " + lineContent                 
                                 
             #Look for closing brackets of blocks 
-            elif inBlock and (statement[3] == "}"):
-            
+            elif inBlock and (statement[3] == "}"):     
+                if DEBUG: print("Found blockEnder of non-function block: "+statement[3])                  
+                lineContent = "###Block "+blockname+"### " + lineContent             
                 #Remove the closed blockstarter from the stack
                 lastBlockstarter = blockStarterStack.pop()
                 #Remove the last started block from the current line content (which contains names of all surrounding blocks)
                 blockname = blockname.replace(lastBlockstarter,"")
+
             
                  
         # # # Semantic Diff End # # #
@@ -308,4 +319,4 @@ def convertToCode(SEMANTIC, workingdir, foldername):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-#convertToCode(False, os.getcwd(), "ConvertedCode/src")    
+convertToCode(True, os.getcwd(), "ConvertedCode/src")    
