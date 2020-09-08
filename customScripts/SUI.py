@@ -74,12 +74,12 @@ projectName = 'DonorProject'
 
 # 118808 main function
 # 348272 bubbleReversed call in main
-#entryPointIds = {1232984}
 #search.c 481
-#7684120 #HASH_ADD
-#15823008 #search_dir
-#520408 #init_ignores
-entryPointIds = {520408}
+#  #HASH_ADD
+#7733312 #search_dir
+#  #init_ignores
+#884800 #add_ignore_pattern
+entryPointIds = {884800}
 #ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
 #entryPointIds = {29774032}
 #entryPointIds = {348272}

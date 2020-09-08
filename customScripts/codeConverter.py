@@ -3,6 +3,7 @@ import ntpath
 import os
 import shutil
 import pathlib
+import re
 
 from operator import itemgetter
 from octopus.server.DBInterface import DBInterface
@@ -235,8 +236,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     blockStarterStack = [] 
                     
                 #else blocks get the code of its "if" plus an additional "else" to separate between "if" and "else" content
-                elif (statement[4] == 'ElseStatement'):                    
-                    currentBlockName = "else " + lastIf
+                #elif (statement[4] == 'ElseStatement'):                    
+                    #currentBlockName = "else " + lastIf
 
                 # Collect the block starter names individually, but only if they really start a block (indicated through the opening bracket)
                 elif (statement[4] == 'CompoundStatement'):    
@@ -247,8 +248,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 else:                           
                     currentBlockName = statement[3].replace("\n","")
                     #Save the if header separately for possible later else statements 
-                    if (statement[4] == 'IfStatement'):
-                        lastIf = currentBlockName
+                    #if (statement[4] == 'IfStatement'):
+                        #lastIf = currentBlockName
                                                         
                                                                    
             #Look for closing brackets of blocks but not functionBlocks
@@ -256,7 +257,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 if DEBUG: print("Found blockEnder of non-function block: "+statement[3])   
                 # Build the line content with the name of the current block before removing it
                 lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
-                #print("lineContent3: "+lineContent)                 
+                print("lineContent3: "+lineContent)                 
                 #Remove the closed blockstarter from the stack
                 lastBlockstarter = blockStarterStack.pop()
                 
@@ -264,15 +265,17 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             elif (statement[4] == "FunctionBlockEnder"):
                 #Insert the block name to the statement (we do this here, as we set inBlock to false before we reach the next if)
                 lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
-                #print("lineContent2: "+lineContent) 
+                print("lineContent2: "+lineContent) 
                 inBlock = False
                 if DEBUG: print("Found block ender line: "+str(statement[1]))   
         
         # Build the line content for relevant inBlock lines (no Compounds or normal blockEnders, as they need a slightly different handling)
-        if inBlock and not(statement[4] == 'CompoundStatement') and not (statement[3] == "}"):
-            # Add prefix for statements that are inside a block (to prevent duplicate block information)
-            lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
-
+        if inBlock and not(statement[4] == 'CompoundStatement') and not (statement[3] == "}") and not (statement[4] == "FunctionBlockEnder"):
+            # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
+            lineContent = re.sub("###.*?###", '', lineContent) 
+            # Then add prefix for statements that are inside a block 
+            lineContent = "###Block " +str(blockStarterStack)+ "### " +  lineContent
+            print("lineContent1: "+lineContent) 
                  
         # # # Semantic Diff End # # #
     

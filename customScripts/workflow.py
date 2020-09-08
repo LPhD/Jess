@@ -25,7 +25,7 @@ EVALUATION = True
 # Name of the configuration option to de/endable the SU
 SUName = "SU"
 # Activate to add an "#ifdef $SUName" block around the SU's code in Target
-addIfdefAroundSU = True
+addIfdefAroundSU = False
 
 
 #### Global variables ####
