@@ -31,9 +31,9 @@ inclundeOnlyProbablyUsedNonFunctionLikeDefines = True #Has no effect if inclunde
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
-plotGraph = False
+plotGraph = True
 ###################### Configuration options for entry point input ## ####################
-console = True
+console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = True
 showStatistics = True
@@ -79,7 +79,8 @@ projectName = 'DonorProject'
 #7733312 #search_dir
 #  #init_ignores
 #884800 #add_ignore_pattern
-entryPointIds = {7733312}
+# 8913040 malloc function util.c (very small with macro call)
+entryPointIds = {8913040}
 #ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
 #entryPointIds = {29774032}
 #entryPointIds = {348272}
@@ -93,10 +94,14 @@ checkedVertices = set()
 analysisList = list()
 # Collect all external functions, as we do not need to look for their declaration more than once
 externalFunctionsSet = set()
+# Collect all external macros, as we do not need to look for their declaration more than once
+externalMacrosSet = set()
 # Collect all files that are part of the SU, so we can reuse this information instead of querying multiple times
 SUFilesSet = set()
 # Collect all identifiers (value as list) for a file (key), as we do not need to look for file-identifier pair declaration more than once 
 alreadyCheckedIdentifierDict = dict()
+# Same list as above, but for macroCalls 
+alreadyCheckedMacroIdentifierDict = dict()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
@@ -186,7 +191,7 @@ def identifySemanticUnits ():
         #for x in semanticUnit: print(x)
 
         # Print code results
-        #codeOutput()
+        codeOutput()
 
         # Print node results
         #nodeOutput()
@@ -301,7 +306,14 @@ def analyzeNode (currentNode):
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")      
-  
+
+    # Get "called" function-like macro if current vertice is a macroCall
+    if (type[0] == "MacroCall"):                 
+        result = set(getCalledMacroDef(currentNode, type[0]))                
+        # Get related elements of the called function
+        analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result call relation for a macroCall: "+str(result)+"\n")   
         
     # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (lookForAllFunctionCalls == True)): 
@@ -362,8 +374,6 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result define relation Condition or Parameter: "+str(result)+"\n")
                 
     # Get referenced function or variable if current vertice contains an unary address of operator
-    # ToDo Reuse getCalledFunctionDef, but refine the double check prevention (as variable names can occur multiple times). 
-    # However, do we really need that? We just aim at getting refences to functions and not global variables (this is done later).
     if (type[0] == "AddressOfExpression"):          
         result = set(getCalledFunctionDef(currentNode, type[0]))                
         # Get related elements of the referenced function or variable
@@ -622,6 +632,89 @@ def getASTChildren (verticeId):
     query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT')).unfold().dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)   
 
+
+
+# Return the id of the declaration of the called macro, including needed include statements
+def getCalledMacroDef (verticeId, type):
+    # Get the name of the called macro. Note: Here the PreMacroIdentifier only contains the identifier and no brackets. This is due to the macroCall rule
+    query = """g.V(%s).out().has('type', 'PreMacroIdentifier').values('code', 'path')""" % (verticeId)
+    macroName = db.runGremlinQuery(query)
+    
+    if(len(macroName) < 2): 
+        print("Warning: Cannot get name or path of macro: "+str(verticeId))
+        return ""
+    
+    if macroName[0] in externalMacrosSet:
+        if DEBUG: print("Already checked macro and found no declaration: "+str(macroName[0])+" - Skipping...")
+        return ""
+    
+    # Check if we encounter this file for the first time    
+    if str(macroName[1]) in alreadyCheckedMacroIdentifierDict:
+        # If we already visited this file, check if we also already have checked this identifier
+        if str(macroName[0]) in alreadyCheckedMacroIdentifierDict[str(macroName[1])]:
+            # Skip the rest of the function, as we do not need to seach for a declaration multiple times
+            if DEBUG: print("Already checked macro and found its declaration: "+str(macroName[0])+" - Skipping...")
+            return "" 
+        # If we haven't check this identifier yet    
+        else:
+            # Add the identifier as additional value to the dict at the corresponding key and continue with the function
+            alreadyCheckedMacroIdentifierDict[str(macroName[1])].add(str(macroName[0]))
+            if DEBUG: print("Checking new macro in known file: "+str(macroName[0]))
+        
+    # If it's a new file, add the path as new key to our dict    
+    else:
+        # Add the path as new key and the name as new value (as part of a set)
+        alreadyCheckedMacroIdentifierDict[str(macroName[1])] = {str(macroName[0])}
+        if DEBUG: print("Checking new macro in new file: "+str(macroName[0]))
+
+                            
+    # Get the parent file of the current node (MacroCall)
+    query = """g.V(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)  
+    parentFileId = db.runGremlinQuery(query)       
+    
+    # Look in its AST children for a macro with the given name (take care that the result is a visible statement)
+    query = """g.V(%s).out().has('type', 'PreDefine').where(out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s')).id()""" % (parentFileId[0], macroName[0])    
+    # Run the query         
+    sameFileDef = db.runGremlinQuery(query)
+    
+#TODO: Do not stop if declaration is variable!
+    
+    # Stop here if we already found the definition
+    if (len(sameFileDef) > 0):
+        if DEBUG: print("Found def in same file: "+str(sameFileDef))
+        return sameFileDef
+    # If there is no macro definition in the current file, check included files
+    else:        
+        # List that contains lists, 
+        # where the first element of the inner list is the file id and all following elements are ids of needed include statements
+        fileList = [[parentFileId[0]]]
+                
+        for file in fileList:   
+            if DEBUG: print("File: "+str(file))           
+            # Look for functiondef/decl/macro in included file
+            query = """g.V(%s).out().has('type', 'PreDefine').where(out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s')).id()""" % (file[0], macroName[0])  
+            # Run the query            
+            declResult = db.runGremlinQuery(query)   
+
+#TODO: Do not stop if declaration is variable!            
+             
+            # If we found a declaration/definition    
+            if len(declResult) > 0:
+                if DEBUG: print("Found declaration: "+str(declResult))                      
+                # Add decl to SU (here we replace the file id, as we also need the include statements that lead to the declaration)
+                file[0] = declResult[0]
+                # Stopp looking, as we found the desired decl
+                return file  
+
+            # Look for include statements in the current file and add them to the fileList
+            searchIncludesRecursively (file[0], file, fileList)                
+        
+        # Collect names of all macros for which we do not find a declaration inside the project, to prevent checking them several times
+        if DEBUG: print("Could not find decl of: "+macroName[0]+" with id: "+str(verticeId)+" inside the project's code")
+        externalMacrosSet.add(macroName[0])
+        return ""
+
+
     
 # Return the id of the declaration of the called function, including needed include statements
 def getCalledFunctionDef (verticeId, type):
@@ -686,6 +779,10 @@ def getCalledFunctionDef (verticeId, type):
     # Run the query         
     sameFileDef = db.runGremlinQuery(query)
     
+    
+    #TODO: Do not stop if declaration is variable!
+    
+    
     # Stop here if we already found the definition
     if (len(sameFileDef) > 0):
         if DEBUG: print("Found def in same file: "+str(sameFileDef))
@@ -698,8 +795,6 @@ def getCalledFunctionDef (verticeId, type):
                 
         for file in fileList:   
             if DEBUG: print("File: "+str(file))
-            # Look for include statements in the current file and add them to the fileList
-            searchIncludesRecursively (file[0], file, fileList)
             
             # For real function calls
             if type == 'Callee':
@@ -722,7 +817,9 @@ def getCalledFunctionDef (verticeId, type):
 
             # Run the query            
             declResult = db.runGremlinQuery(query)        
-             
+ 
+    #TODO: Do not stop if declaration is variable!
+ 
             # If we found a declaration/definition    
             if len(declResult) > 0:
                 if DEBUG: print("Found declaration: "+str(declResult))                      
@@ -730,6 +827,11 @@ def getCalledFunctionDef (verticeId, type):
                 file[0] = declResult[0]
                 # Stopp looking, as we found the desired decl
                 return file        
+        
+        
+            # Look for include statements in the current file and add them to the fileList
+            searchIncludesRecursively (file[0], file, fileList)
+            
         
         # Collect names of all functions for which we do not find a declaration inside the project, to prevent checking them several times
         if DEBUG: print("Could not find decl of: "+functionName[0]+" with id: "+str(verticeId)+" inside the project's code")
