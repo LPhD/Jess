@@ -26,7 +26,7 @@ includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True # Works good for sim
 checkGlobalStructUnionEnums = False # Should currently be false due to the problem mentioned above
 includeAllGoblaDelcarationsOfVariables = True #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true      
 inclundeOnlyProbablyUsedNonFunctionLikeDefines = False #ToDo: Include all #define statements from files that are part of the SU and whose identifier also appears somwhere in the SU
-inclundeNonFunctionLikeDefines = False #ToDo: Include all #define statements from files that are part of the SU 
+inclundeNonFunctionLikeDefines = True #ToDo: Include all #define statements from files that are part of the SU 
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
@@ -146,7 +146,11 @@ def identifySemanticUnits ():
         # Include all global declarations of variables   
         elif (includeAllGoblaDelcarationsOfVariables):        
             addGlobalDeclares() 
-                        
+            
+        #Check for includes of non-function-like #defines
+        if(inclundeNonFunctionLikeDefines):
+            addDefines() 
+                               
         #Check for variability information
         if(includeVariabilityInformation):
             addVariability()
@@ -659,11 +663,12 @@ def getCalledFunctionDef (verticeId, type):
     # For real function calls
     if type == 'Callee':
         # Look in its AST children for a functionDef or macro with the given name (take care that the result is a visible statement)
+        # TODO: Check if we really need the next part
+        # ,__.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in()    functionName[0],
         query = """g.V(%s).union(
             __.out().has('type', 'Function').has('code', '%s').out(),
-            __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in(),  
-            __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in()            
-        ).dedup().id()""" % (parentFileId[0], functionName[0], functionName[0], functionName[0])
+            __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in()            
+        ).dedup().id()""" % (parentFileId[0], functionName[0], functionName[0])
              
     # For addressOf references
     else:     
@@ -696,12 +701,13 @@ def getCalledFunctionDef (verticeId, type):
             # For real function calls
             if type == 'Callee':
                 # Look for functiondef/decl/macro in included file
+                # __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in()  functionName[0],
+                # TODO: See above query
                 query = """g.V(%s).union(
                     __.out().has('type', 'DeclStmt').out().has('identifier', '%s').in(),
                     __.out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in(),  
-                    __.out().has('type', 'Function').has('code', '%s').out(),
-                    __.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in()            
-                ).dedup().id()""" % (file[0], functionName[0], functionName[0], functionName[0], functionName[0]) 
+                    __.out().has('type', 'Function').has('code', '%s').out()                                
+                ).dedup().id()""" % (file[0], functionName[0], functionName[0], functionName[0]) 
             # For addressOf references
             else:            
                 # Look for a functionDef or variable declaration in included file                    
@@ -1011,7 +1017,7 @@ def addUsedGlobalDeclares():
     .select('id','name')""" % (list(SUFilesSet))  
     aResult = db.runGremlinQuery(query)  
     
-    # Currently, this should be fals
+    # Currently, this should be false, as we cannot check the content of StructUnionEnums reliably
     if (checkGlobalStructUnionEnums):
         # Add the results to the declIdAndNameList 
         for line in aResult: 
@@ -1042,7 +1048,7 @@ def addUsedGlobalDeclares():
     query = """idListToNodes(%s).has('type', within(%s)).values('code').dedup()""" % (list(semanticUnit), checkedStatementTypes)  
     cResult = db.runGremlinQuery(query)    
     identifierCodeList.update(cResult)    
-    
+       
   
     # Compare the identifier of each declStmt with the code of each relevant statement that is part of the SU
     for key in declIdAndNameList:
@@ -1051,7 +1057,10 @@ def addUsedGlobalDeclares():
             if declIdAndNameList[key] in code:
                 if (DEBUG): print("Found usage of variable: "+str(declIdAndNameList[key])+" with id: "+str(key))
                 # Add key to SU
-                semanticUnit.update(declIdAndNameList[key])                
+                semanticUnit.update(declIdAndNameList[key])       
+
+                #ToDo we should also check if the declaration uses another declaration. Is this possible for simple datastructures? 
+                
                 # Go on with next key
                 break
 
@@ -1080,6 +1089,26 @@ def addGlobalDeclares():
             # Add the whole id, not the digits one by one
             semanticUnit.update([line['id']]) 
             if (DEBUG) : print("Found additional global variable declaration: "+str(line['id']))
+
+
+###################################### Non-function-like #defines (they are always global) ############################################################### 
+
+# Add all declarations of #defines that are declared in files that are part of the SU        
+def addDefines(): 
+    if (DEBUG) : print("Checking for non-function-like #defines...")    
+    print("Checking for non-function-like #defines...") 
+    global semanticUnit, SUFilesSet
+
+    # We look for all #defines that do not have brackets in their identifier (precisely: do not end with a bracket), known as non-function-like #defines
+    query = """idListToNodes(%s).out().has('type', 'PreDefine').as('v').id().as('id').select('v').out().has('type', 'PreMacroIdentifier').values('code').as('name').select('id', 'name')""" % (list(SUFilesSet))  
+    result = db.runGremlinQuery(query)
+    # Here we filter out all nodes whose identifier ends with a bracket, indicating a function-like macro 
+    for line in result: 
+        if not line['name'].endswith(")"):
+            # Add the whole id, not the digits one by one
+            semanticUnit.update([line['id']]) 
+            if (DEBUG) : print("Found additional non-function-like #defines: "+str(line['id']))
+            print("Found additional non-function-like #defines: "+str(line['id']))
    
     
 ###################################### Statistics ############################################################### 
