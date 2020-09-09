@@ -25,17 +25,17 @@ includeExternalLibraryIncludes = True
 includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True # Works good for simple declares, but misses content of e.g. structs or enums
 checkGlobalStructUnionEnums = False # Should currently be false due to the problem mentioned above
 includeAllGoblaDelcarationsOfVariables = True #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true      
-inclundeOnlyProbablyUsedNonFunctionLikeDefines = False #ToDo: Include all #define statements from files that are part of the SU and whose identifier also appears somwhere in the SU
-inclundeNonFunctionLikeDefines = True #ToDo: Include all #define statements from files that are part of the SU 
+inclundeNonFunctionLikeDefines = False   
+inclundeOnlyProbablyUsedNonFunctionLikeDefines = True #Has no effect if inclundeNonFunctionLikeDefines is true
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = False
 ###################### Configuration options for entry point input ## ####################
-console = False
+console = True
 #################### Configuration options for debug output (console) ####################
-DEBUG = False
+DEBUG = True
 showStatistics = True
 ##########################################################################################
 
@@ -79,7 +79,7 @@ projectName = 'DonorProject'
 #7733312 #search_dir
 #  #init_ignores
 #884800 #add_ignore_pattern
-entryPointIds = {884800}
+entryPointIds = {7733312}
 #ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
 #entryPointIds = {29774032}
 #entryPointIds = {348272}
@@ -147,9 +147,12 @@ def identifySemanticUnits ():
         elif (includeAllGoblaDelcarationsOfVariables):        
             addGlobalDeclares() 
             
-        #Check for includes of non-function-like #defines
+        # Check for includes of non-function-like #defines
         if(inclundeNonFunctionLikeDefines):
             addDefines() 
+        # Check for includes of non-function-like #defines whose identifer appears inside the SU (indicates a "usage")  
+        elif(inclundeOnlyProbablyUsedNonFunctionLikeDefines):
+            addProbablyUsedDefines()
                                
         #Check for variability information
         if(includeVariabilityInformation):
@@ -1064,7 +1067,6 @@ def addUsedGlobalDeclares():
                 # Go on with next key
                 break
 
- 
   
 # Add all global declarations of variables that are declared in files that are part of the SU        
 def addGlobalDeclares(): 
@@ -1096,7 +1098,7 @@ def addGlobalDeclares():
 # Add all declarations of #defines that are declared in files that are part of the SU        
 def addDefines(): 
     if (DEBUG) : print("Checking for non-function-like #defines...")    
-    print("Checking for non-function-like #defines...") 
+
     global semanticUnit, SUFilesSet
 
     # We look for all #defines that do not have brackets in their identifier (precisely: do not end with a bracket), known as non-function-like #defines
@@ -1107,9 +1109,33 @@ def addDefines():
         if not line['name'].endswith(")"):
             # Add the whole id, not the digits one by one
             semanticUnit.update([line['id']]) 
-            if (DEBUG) : print("Found additional non-function-like #defines: "+str(line['id']))
-            print("Found additional non-function-like #defines: "+str(line['id']))
-   
+            if (DEBUG) : print("Found additional non-function-like #define: "+str(line['name']))
+
+
+# Add all declarations of #defines that are declared in files that are part of the SU and are probably "used" at least once      
+# This may contain #defines that are not used, as we do not check for the order of the statements (=it may contain more #defines than necessary)  
+def addProbablyUsedDefines(): 
+    if (DEBUG) : print("Checking for probably used non-function-like #defines...")        
+
+    global semanticUnit, SUFilesSet
+
+    # We look for all #defines that do not have brackets in their identifier (precisely: do not end with a bracket), known as non-function-like #defines
+    query = """idListToNodes(%s).out().has('type', 'PreDefine').as('v').id().as('id').select('v').out().has('type', 'PreMacroIdentifier').values('code').as('name').select('id', 'name')""" % (list(SUFilesSet))  
+    result = db.runGremlinQuery(query)
+    # Here we filter out all nodes whose identifier ends with a bracket, indicating a function-like macro 
+    for line in result: 
+        if not line['name'].endswith(")"):
+            # Check if identifer appears somewhere in the visible statements of the SU
+            query = """idListToNodes(%s).has('type', within('%s')).has('code', textContains('%s'))""" % (list(semanticUnit), visibleStatementTypes, line['name'])  
+            result = db.runGremlinQuery(query)
+            # If so, add it to the su
+            if (len(result) > 0):
+                # Add the whole id, not the digits one by one
+                semanticUnit.update([line['id']]) 
+                if (DEBUG) : print("Found additional probably used non-function-like #define: "+str(line['name'])) 
+                print("Found additional non-function-like #defines: "+str(line['name']))
+
+              
     
 ###################################### Statistics ############################################################### 
 
