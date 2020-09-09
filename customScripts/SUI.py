@@ -176,6 +176,8 @@ def identifySemanticUnits ():
         print ("Analysis took", time.time() - start_time, "seconds to run")
         print("--------------------------------------------------------------------------------- \n")
         
+        if DEBUG: print(str(semanticUnit))
+        
         if (showStatistics):
             #Count number of nodes
             countNodes()
@@ -1163,7 +1165,7 @@ def addUsedGlobalDeclares():
             if declIdAndNameList[key] in code:
                 if (DEBUG): print("Found usage of variable: "+str(declIdAndNameList[key])+" with id: "+str(key))
                 # Add key to SU
-                semanticUnit.update(declIdAndNameList[key])       
+                semanticUnit.update([key])       
 
                 #ToDo we should also check if the declaration uses another declaration. Is this possible for simple datastructures? 
                 
