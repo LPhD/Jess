@@ -3,15 +3,20 @@ import ModuleLex, Expressions, Preprocessor;
 
 simple_decl : var_decl;
 
-var_decl : (TYPEDEF? template_decl_start?) class_def  NEWLINE? init_declarator_list? pre_other? #declByClass
-         | (TYPEDEF? template_decl_start?) type_name  NEWLINE? init_declarator_list #declByType
+var_decl : template_decl_start? class_def  NEWLINE? init_declarator_list? pre_other? #declByClass
+         | template_decl_start? type_name  NEWLINE? init_declarator_list #declByType
+         | TYPEDEF? type_name NEWLINE? '(' callingConvention? ptr_operator identifier ')' param_type_list ';' #FunctionPointerDeclare
          | CV_QUALIFIER? TYPEDEF? special_datatype  NEWLINE? init_declarator_list? pre_other? ';'? #StructUnionEnum
          ;
+
+//Can be done by a macro or directly (something like __cdecl)
+callingConvention: ALPHA_NUMERIC+;   
          
-special_datatype:SPECIAL_DATA pre_other? identifier? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
+special_datatype: SPECIAL_DATA pre_other? identifier? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
         | SPECIAL_DATA pre_other? identifier ptrs? identifier ptrs? '=' {skipToEndOfObject(); }         //Designated initializer
         | SPECIAL_DATA pre_other? identifier  //Short declaration
         ;
+
 
         
 init_declarator_list: init_declarator (','  NEWLINE* init_declarator)* pre_other? ';';

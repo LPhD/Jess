@@ -528,6 +528,18 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitDeclByType(ModuleParser.DeclByTypeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code FunctionPointerDeclare}
+	 * labeled alternative in {@link ModuleParser#var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionPointerDeclare(ModuleParser.FunctionPointerDeclareContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunctionPointerDeclare}
+	 * labeled alternative in {@link ModuleParser#var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionPointerDeclare(ModuleParser.FunctionPointerDeclareContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code StructUnionEnum}
 	 * labeled alternative in {@link ModuleParser#var_decl}.
 	 * @param ctx the parse tree
@@ -539,6 +551,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ModuleParser#callingConvention}.
+	 * @param ctx the parse tree
+	 */
+	void enterCallingConvention(ModuleParser.CallingConventionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#callingConvention}.
+	 * @param ctx the parse tree
+	 */
+	void exitCallingConvention(ModuleParser.CallingConventionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#special_datatype}.
 	 * @param ctx the parse tree
@@ -1367,16 +1389,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDeclarator(ModuleParser.DeclaratorContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#callingConvetion}.
-	 * @param ctx the parse tree
-	 */
-	void enterCallingConvetion(ModuleParser.CallingConvetionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#callingConvetion}.
-	 * @param ctx the parse tree
-	 */
-	void exitCallingConvetion(ModuleParser.CallingConvetionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#type_suffix}.
 	 * @param ctx the parse tree

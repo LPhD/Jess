@@ -21,6 +21,7 @@ import ast.functionDef.ParameterBase;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
+import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import parsing.TokenSubStream;
@@ -195,30 +196,27 @@ public class ModuleBuildersTest {
 	public void testFunctionPointerDecl() {
 		String input = "int (*functionPtr) (int,int);";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		FunctionPointerDeclare codeItem = (FunctionPointerDeclare) codeItems.get(0);
 		assertEquals("int ( * functionPtr ) ( int , int ) ;", codeItem.getEscapedCodeStr());
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
-		assertEquals("functionPtr", decl.getName().getEscapedCodeStr());
+		assertEquals("functionPtr", codeItem.getChild(0).getEscapedCodeStr());
 	}
 		
 	@Test
 	public void testVoidFunctionPointerDecl() {
 		String input = "void (*functionPtr) (void);";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		FunctionPointerDeclare codeItem = (FunctionPointerDeclare) codeItems.get(0);
 		assertEquals("void ( * functionPtr ) ( void ) ;", codeItem.getEscapedCodeStr());
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
-		assertEquals("functionPtr", decl.getName().getEscapedCodeStr());
+		assertEquals("functionPtr", codeItem.getChild(0).getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testFunctionPointerDeclWithTypedef() {
 		String input = "typedef int (*myFuncDef)(int, int);";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		FunctionPointerDeclare codeItem = (FunctionPointerDeclare) codeItems.get(0);
 		assertEquals("typedef int ( * myFuncDef ) ( int , int ) ;", codeItem.getEscapedCodeStr());
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
-		assertEquals("myFuncDef", decl.getName().getEscapedCodeStr());
+		assertEquals("myFuncDef", codeItem.getChild(0).getEscapedCodeStr());
 	}
 
 	@Test
@@ -227,12 +225,11 @@ public class ModuleBuildersTest {
 				+ "\n void *userData, const XML_Char *elname, const XML_Char *attname,"
 				+ "\n const XML_Char *att_type, const XML_Char *dflt, int isrequired);";
 		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		FunctionPointerDeclare codeItem = (FunctionPointerDeclare) codeItems.get(0);
 		assertEquals("typedef void ( XMLCALL * XML_AttlistDeclHandler ) ( "
 				+ "\n void * userData , const XML_Char * elname , const XML_Char * attname , "
 				+ "\n const XML_Char * att_type , const XML_Char * dflt , int isrequired ) ;", codeItem.getEscapedCodeStr());
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
-		assertEquals("XML_AttlistDeclHandler", decl.getName().getEscapedCodeStr());
+		assertEquals("XML_AttlistDeclHandler", codeItem.getChild(0).getEscapedCodeStr());
 	}	
 	
 	@Test

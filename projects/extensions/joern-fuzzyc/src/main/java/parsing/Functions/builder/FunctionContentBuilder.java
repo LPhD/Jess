@@ -165,6 +165,7 @@ import ast.logical.statements.Label;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.ExpressionStatement;
+import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.CatchStatement;
@@ -1173,7 +1174,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			typeName = nodeToRuleContext.get(name);
 		} else if (parentItem instanceof StructUnionEnum) {
 			//TODO get type of struct?
-			typeName = nodeToRuleContext.get("SPECIAL_DATA");
+			typeName = nodeToRuleContext.get("StructUnionEnum");
+		} else if (parentItem instanceof FunctionPointerDeclare) {
+			//TODO get type of struct?
+			typeName = nodeToRuleContext.get("FunctionPointerDeclare");
 		} else {
 			throw new RuntimeException("No matching declaration statement/class definiton for init declarator");
 		}
@@ -1391,12 +1395,40 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		checkVariability(struct);
 		checkIfCommented(struct);
 	}
+	
 
 	
 	public void exitStructUnionEnum() {
 		logger.debug("Leave function struct");
 		nesting.consolidate();
 	}
+	
+	public void enterFunctionPointerDeclare(ParserRuleContext ctx) {
+		logger.debug("Enter FunctionPointerDeclare");
+		FunctionPointerDeclare fpdecl = new FunctionPointerDeclare();
+		ASTNodeFactory.initializeFromContext(fpdecl, ctx);
+
+		//Resolve nesting, only replace placeholder statement nodes
+		if (stack.peek().getClass() == Statement.class) {
+			replaceTopOfStack(fpdecl, ctx);
+		} else {
+			nodeToRuleContext.put(fpdecl, ctx);
+			stack.push(fpdecl);
+		}	
+		
+		//TODO check if this works when called from module level
+		//Set previous statement
+		previousStatement = fpdecl;
+		checkVariability(fpdecl);
+		checkIfCommented(fpdecl);
+	}
+	
+
+	
+	public void exitFunctionPointerDeclare() {
+		logger.debug("Leave FunctionPointerDeclare");
+		nesting.consolidate();
+	}	
 
 	protected void replaceTopOfStack(ASTNode item, ParserRuleContext ctx) {
 		ASTNode oldNode = stack.pop();

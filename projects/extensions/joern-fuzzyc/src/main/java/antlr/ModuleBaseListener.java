@@ -634,6 +634,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFunctionPointerDeclare(ModuleParser.FunctionPointerDeclareContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunctionPointerDeclare(ModuleParser.FunctionPointerDeclareContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -641,6 +653,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStructUnionEnum(ModuleParser.StructUnionEnumContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCallingConvention(ModuleParser.CallingConventionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCallingConvention(ModuleParser.CallingConventionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1613,18 +1637,6 @@ public class ModuleBaseListener implements ModuleListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDeclarator(ModuleParser.DeclaratorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCallingConvetion(ModuleParser.CallingConvetionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCallingConvetion(ModuleParser.CallingConvetionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

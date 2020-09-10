@@ -8,6 +8,7 @@ import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
 import ast.preprocessor.PreStatementBase;
+import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import databaseNodes.EdgeTypes;
@@ -44,6 +45,7 @@ public class Neo4JASTNodeVisitor extends OutModASTNodeVisitor {
 		importNode(importer, node);
 	}
 
+
 	// Preprocessor handling
 	@Override
 	public void visit(PreStatementBase node) {
@@ -71,7 +73,14 @@ public class Neo4JASTNodeVisitor extends OutModASTNodeVisitor {
 		ASTNodeExporter importer = new Neo4JStructUnionEnumExporter();
 		importNode(importer, node);
 	}
+
 	
+	//FunctionPointer handling
+	@Override
+	public void visit(FunctionPointerDeclare node) {
+		ASTNodeExporter importer = new Neo4JStructUnionEnumExporter();
+		importNode(importer, node);
+	}
 
 	@Override
 	protected void addEdgeFromClassToFunc(long dstNodeId, Long classId) {

@@ -50,7 +50,7 @@ public class Neo4JStructUnionEnumExporter extends StructUnionEnumExporter {
 	 * Link the given astDatabaseNode (the root node) with its FileDatabaseNode
 	 */
 	@Override
-	protected void addLinkFromFileToStruct(Long nodeId, FileDatabaseNode curFile) {
+	protected void addLinkFromFileToNode(Long nodeId, FileDatabaseNode curFile) {
 		RelationshipType rel = DynamicRelationshipType.withName(EdgeTypes.IS_FILE_OF);
 		long fileId = curFile.getId();
 		Neo4JBatchInserter.addRelationship(fileId, nodeId, rel, null);

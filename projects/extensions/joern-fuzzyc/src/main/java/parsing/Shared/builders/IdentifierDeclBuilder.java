@@ -32,14 +32,9 @@ public class IdentifierDeclBuilder extends ASTNodeBuilder {
 		String completeType = baseType;
 		if (decl_ctx.ptrs() != null)
 			completeType += " " + ParseTreeUtils.childTokenString(decl_ctx.ptrs());
-		if (decl_ctx.func_ptrs() != null)
-			completeType += " ( " + ParseTreeUtils.childTokenString(decl_ctx.func_ptrs()) + " )";
 		if (decl_ctx.type_suffix() != null)
 			completeType += " " + ParseTreeUtils.childTokenString(decl_ctx.type_suffix());
 
-		// baseType = completeType for function pointers
-		if (decl_ctx.func_ptrs() != null)
-			baseType = completeType;
 
 		IdentifierDeclType newType = new IdentifierDeclType();
 		ASTNodeFactory.initializeFromContext(newType, decl_ctx.getWrappedObject());

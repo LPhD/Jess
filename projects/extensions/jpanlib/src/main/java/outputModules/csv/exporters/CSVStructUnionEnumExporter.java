@@ -39,7 +39,7 @@ public class CSVStructUnionEnumExporter extends StructUnionEnumExporter {
 	 * Link the given astDatabaseNode (the root node) with its FileDatabaseNode
 	 */
 	@Override
-	protected void addLinkFromFileToStruct(Long nodeId, FileDatabaseNode curFile) {
+	protected void addLinkFromFileToNode(Long nodeId, FileDatabaseNode curFile) {
 		long fileId = curFile.getId();
 		Writer.addEdge(fileId, nodeId, null, EdgeTypes.IS_FILE_OF);
 	}

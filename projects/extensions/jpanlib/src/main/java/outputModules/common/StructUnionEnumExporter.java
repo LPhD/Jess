@@ -22,14 +22,14 @@ public abstract class StructUnionEnumExporter extends ASTNodeExporter{
 			//Set nodeID in AST node to draw comment edges
 			astNode.setNodeId(structDBNode.getNodeId());
 			//Draw is_file_of edges
-			addLinkFromFileToStruct(astNode.getNodeId(), curFile);
+			addLinkFromFileToNode(astNode.getNodeId(), curFile);
 			
 			//Look for AST children and add them
 			addASTChildren(astNode);
 							
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
-			System.err.println("Error adding StructUnionEnum to database: "+ structDBNode.toString());
+			System.err.println("Error adding StructUnionEnum or FunctionPointerDeclare to database: "+ structDBNode.toString());
 			return;
 		}
 	}
@@ -70,7 +70,7 @@ public abstract class StructUnionEnumExporter extends ASTNodeExporter{
 			
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
-			System.err.println("Error adding StructUnionEnum children to database: "+ astDatabaseNode.toString());
+			System.err.println("Error adding StructUnionEnum or FunctionPointerDeclare children to database: "+ astDatabaseNode.toString());
 			return;
 		}		
 	}
@@ -79,5 +79,5 @@ public abstract class StructUnionEnumExporter extends ASTNodeExporter{
 
 	protected abstract void addASTLink(long parentNodeID, long childNodeID);	
 	protected abstract void addASTNode(ASTDatabaseNode astDatabaseNode);
-	protected abstract void addLinkFromFileToStruct(Long nodeId, FileDatabaseNode curFile);
+	protected abstract void addLinkFromFileToNode(Long nodeId, FileDatabaseNode curFile);
 }

@@ -744,6 +744,18 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitDeclByType(FunctionParser.DeclByTypeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code FunctionPointerDeclare}
+	 * labeled alternative in {@link FunctionParser#var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionPointerDeclare(FunctionParser.FunctionPointerDeclareContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunctionPointerDeclare}
+	 * labeled alternative in {@link FunctionParser#var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionPointerDeclare(FunctionParser.FunctionPointerDeclareContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code StructUnionEnum}
 	 * labeled alternative in {@link FunctionParser#var_decl}.
 	 * @param ctx the parse tree
@@ -755,6 +767,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStructUnionEnum(FunctionParser.StructUnionEnumContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FunctionParser#callingConvention}.
+	 * @param ctx the parse tree
+	 */
+	void enterCallingConvention(FunctionParser.CallingConventionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#callingConvention}.
+	 * @param ctx the parse tree
+	 */
+	void exitCallingConvention(FunctionParser.CallingConventionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#special_datatype}.
 	 * @param ctx the parse tree

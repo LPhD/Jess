@@ -862,6 +862,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFunctionPointerDeclare(FunctionParser.FunctionPointerDeclareContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunctionPointerDeclare(FunctionParser.FunctionPointerDeclareContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStructUnionEnum(FunctionParser.StructUnionEnumContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -869,6 +881,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStructUnionEnum(FunctionParser.StructUnionEnumContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCallingConvention(FunctionParser.CallingConventionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCallingConvention(FunctionParser.CallingConventionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

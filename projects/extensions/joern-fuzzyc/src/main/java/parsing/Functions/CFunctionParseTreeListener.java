@@ -1,7 +1,5 @@
 package parsing.Functions;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-
 import antlr.FunctionBaseListener;
 import antlr.FunctionParser;
 import parsing.ANTLRParserDriver;
@@ -395,6 +393,18 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 	public void exitStructUnionEnum(FunctionParser.StructUnionEnumContext ctx) {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitStructUnionEnum();
+	}
+	
+	@Override
+	public void enterFunctionPointerDeclare(FunctionParser.FunctionPointerDeclareContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterFunctionPointerDeclare(ctx);
+	}
+
+	@Override
+	public void exitFunctionPointerDeclare(FunctionParser.FunctionPointerDeclareContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitFunctionPointerDeclare();
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.functionDef.FunctionDefBase;
 import ast.preprocessor.PreStatementBase;
+import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import databaseNodes.EdgeTypes;
@@ -66,6 +67,13 @@ public class CSVASTNodeVisitor extends OutModASTNodeVisitor {
 	// StructUnionEnum handling
 	@Override
 	public void visit(StructUnionEnum node) {
+		ASTNodeExporter importer = new CSVStructUnionEnumExporter();
+		importNode(importer, node);
+	}
+	
+	// Function pointer handling
+	@Override
+	public void visit(FunctionPointerDeclare node) {
 		ASTNodeExporter importer = new CSVStructUnionEnumExporter();
 		importNode(importer, node);
 	}

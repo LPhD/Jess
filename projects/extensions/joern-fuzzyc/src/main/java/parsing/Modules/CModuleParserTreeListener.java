@@ -24,6 +24,7 @@ import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
 import ast.preprocessor.PreBlockstarter;
 import ast.preprocessor.PreStatementBase;
+import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import parsing.ANTLRParserDriver;
@@ -59,6 +60,10 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	 * This stack contains structs/unions/enums
 	 */
 	private Stack<StructUnionEnum> structStack = new Stack<StructUnionEnum>();
+	/**
+	 * This stack contains function pointers
+	 */
+	private Stack<FunctionPointerDeclare> fpdeclStack = new Stack<FunctionPointerDeclare>();	
 	/**
 	 * Saves the previous statement to be able to connect comments with statements in the same line
 	 */
@@ -103,6 +108,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		this.commentStack.clear();
 		this.pendingList.clear();
 		this.structStack.clear();
+		this.fpdeclStack.clear();
 		this.previousStatement = null;
 		
 		p.notifyObserversOfUnitEnd(ctx);		
@@ -406,7 +412,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	/**
 	 * This builder calls the @FunctionParser, because StructUnionEnums follow the same
 	 * rules on module and on function level. As we dont want cloned code, we simple
-	 * parse the pre statements with the function parser and connect the result on
+	 * parse the statements with the function parser and connect the result on
 	 * module level.
 	 */
 	@Override
@@ -465,18 +471,78 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			logger.debug("Added struct child");
 		}
 	}
+
+// -------------------------------------- Function Pointer Declares -------------------------------------------------------------------------	
+		/**
+		 * This builder calls the @FunctionParser, because FunctionPointerDeclares follow the same
+		 * rules on module and on function level. As we dont want cloned code, we simple
+		 * parse the statements with the function parser and connect the result on
+		 * module level.
+		 */
+		@Override
+		public void enterFunctionPointerDeclare(ModuleParser.FunctionPointerDeclareContext ctx) {
+			logger.debug("Enter FunctionPointerDeclare");
+
+			// Initialize
+			FunctionPointerDeclare thisItem = new FunctionPointerDeclare();
+			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+
+			// Driver for calling function parser
+			fDriver = new ANTLRCFunctionParserDriver();
+			String text = thisItem.getEscapedCodeStr();
+			// Try to reuse the function parser rules for parsing the struct
+			try {
+				fDriver.parseAndWalkString(text);
+				FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
+				thisItem = (FunctionPointerDeclare) fb.getItem().getChild(0);
+			} catch (Exception e) {
+				System.err.println("Cannot create FunctionPointerDeclare " + text + " in ModuleParser");
+				e.printStackTrace();
+			}
+
+			// Initalize again to set correct location string
+			ASTNodeFactory.initializeFromContext(thisItem, ctx);
+
+			// Put item on its stack
+			fpdeclStack.push(thisItem);
+		}
+		
+		@Override
+		public void exitFunctionPointerDeclare(ModuleParser.FunctionPointerDeclareContext ctx) {
+			logger.debug("Leave FunctionPointerDeclare");
+			
+			FunctionPointerDeclare fpdecl = fpdeclStack.pop();
+			
+			//Only notify if we are at the outer fpdecl (to prevent duplication of statements)
+			if(fpdeclStack.isEmpty()) {
+				p.notifyObserversOfItem(fpdecl);
+			}
+			
+			//Set previous statement
+			previousStatement = fpdecl;
+					
+			//Connect to parent #ifdefs if they exist
+			checkVariability(fpdecl);
+			//Connect to parent comment if existing
+			checkIfCommented(fpdecl);
+			//Connect to parent fpdecl if existing
+			if(!fpdeclStack.isEmpty()) {
+				FunctionPointerDeclare parent = fpdeclStack.peek();
+				parent.addChild(fpdecl);
+				logger.debug("Added fpdecl child");
+			}
+		}
+	
 	
 // -------------------------------------- Decl by Type -------------------------------------------------------------------------	
 
 	@Override
 	public void enterDeclByType(ModuleParser.DeclByTypeContext ctx) {
 		logger.debug("Enter enterDeclByType");
-		//Do not declare struct variables twice
-//		if(currentStructs == 0) {
-			Init_declarator_listContext decl_list = ctx.init_declarator_list();
-			Type_nameContext typeName = ctx.type_name();
-			emitDeclarations(decl_list, typeName, ctx);
-//		}
+		Init_declarator_listContext decl_list = ctx.init_declarator_list();
+		Type_nameContext typeName = ctx.type_name();
+		emitDeclarations(decl_list, typeName, ctx);
+
 	}
 
 	private void emitDeclarations(ParserRuleContext decl_list, ParserRuleContext typeName, ParserRuleContext ctx) {
@@ -494,14 +560,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			stmt.addChild(decl);
 		}
 		
-		//Adds the declaration as child to its parent struct/union/enum
-//		if(!structStack.isEmpty()) {
-//			StructUnionEnum struct = structStack.peek();
-//			struct.addChild(stmt);
-//			logger.debug("Added child");
-//			//Do not proceed here
-//			return;
-//		}
 
 		p.notifyObserversOfItem(stmt);
 		

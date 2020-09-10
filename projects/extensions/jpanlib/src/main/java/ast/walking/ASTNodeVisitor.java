@@ -23,6 +23,7 @@ import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.ExpressionStatement;
+import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.DoStatement;
@@ -51,6 +52,11 @@ public abstract class ASTNodeVisitor {
 	public void visit(ASTNode item) {
 		visitChildren(item);
 	}
+	
+	//Function pointers
+	public void visit(FunctionPointerDeclare item) {
+		defaultHandler(item);		
+	}	
 	
 	//Special data types
 	public void visit(StructUnionEnum item) {
