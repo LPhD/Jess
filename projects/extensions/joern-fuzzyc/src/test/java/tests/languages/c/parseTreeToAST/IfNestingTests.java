@@ -30,6 +30,19 @@ public class IfNestingTests {
 	}
 
 	@Test
+	public void ifWithFunctionPointerInCondition() {
+		String input = "     if ((*filter)(dirname, entry, baton) == FALSE) {\n" + 
+				"        continue;\n" + 
+				"    }";
+		IfStatement ifStatement = (IfStatement) FunctionContentTestUtil.parseAndWalk(input).getChild(0);
+		assertEquals("if ( ( * filter ) ( dirname , entry , baton ) == FALSE )",ifStatement.getEscapedCodeStr());
+		assertEquals("( * filter ) ( dirname , entry , baton ) == FALSE",ifStatement.getCondition().getEscapedCodeStr());
+		assertEquals(" ",ifStatement.getCondition().getChild(0).getEscapedCodeStr());
+	}
+	
+
+
+	@Test
 	public void ifBlockNoCompound() {
 		String input = "if(foo) bar();";
 		CompoundStatement compound = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);

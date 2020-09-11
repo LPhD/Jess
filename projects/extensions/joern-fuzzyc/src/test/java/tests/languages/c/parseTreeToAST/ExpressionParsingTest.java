@@ -245,6 +245,15 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void FunktionPointerUse() {
+		String input = "( * filter ) ( dirname , entry , baton ) ;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement  exprS = (ExpressionStatement) contentItem.getStatements().get(0);
+		CastExpression expr = (CastExpression) exprS.getExpression();
+		assertEquals("", expr.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void ptrInc() {
 		String input = "++*p;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);

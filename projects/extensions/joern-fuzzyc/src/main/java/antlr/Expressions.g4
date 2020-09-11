@@ -34,10 +34,14 @@ multiplicative_expression: cast_expression (NEWLINE*  ('*'| '/'| '%') NEWLINE* m
 
 //No newline as this yields to problems with #if (variable) \n int something; -> (variable) \n int
 cast_expression: ('(' cast_target ')' cast_expression)
-               | unary_expression
+               | function_pointer_use_expression
                 ;
 
-cast_target: type_name (NEWLINE* ptr_operator)*;
+cast_target: type_name;
+
+function_pointer_use_expression: '(' ptr_operator identifier ')' '(' argument_list ')'
+               | unary_expression
+                ;
 
 // currently does not implement delete
 

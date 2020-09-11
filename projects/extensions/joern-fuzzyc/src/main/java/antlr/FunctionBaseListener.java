@@ -1294,6 +1294,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFunction_pointer_use_expression(FunctionParser.Function_pointer_use_expressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunction_pointer_use_expression(FunctionParser.Function_pointer_use_expressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUnary_expression(FunctionParser.Unary_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -896,6 +896,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitCast_target(ModuleParser.Cast_targetContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#function_pointer_use_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#function_pointer_use_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#unary_expression}.
 	 * @param ctx the parse tree
 	 */
