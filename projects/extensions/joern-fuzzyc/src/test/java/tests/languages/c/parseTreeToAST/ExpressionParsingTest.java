@@ -17,6 +17,7 @@ import ast.expressions.CastExpression;
 import ast.expressions.ConditionalExpression;
 import ast.expressions.EqualityExpression;
 import ast.expressions.ExclusiveOrExpression;
+import ast.expressions.FunctionPointerUseExpression;
 import ast.expressions.InclusiveOrExpression;
 import ast.expressions.MultiplicativeExpression;
 import ast.expressions.OrExpression;
@@ -249,8 +250,9 @@ public class ExpressionParsingTest {
 		String input = "( * filter ) ( dirname , entry , baton ) ;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement  exprS = (ExpressionStatement) contentItem.getStatements().get(0);
-		CastExpression expr = (CastExpression) exprS.getExpression();
-		assertEquals("", expr.getEscapedCodeStr());
+		FunctionPointerUseExpression expr = (FunctionPointerUseExpression) exprS.getExpression();
+		assertEquals("( * filter ) ( dirname , entry , baton )", expr.getEscapedCodeStr());
+		assertEquals("filter", expr.getChild(0).getEscapedCodeStr());
 	}
 	
 	@Test

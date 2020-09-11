@@ -30,18 +30,23 @@ shift_expression: additive_expression (NEWLINE* ('<<'|'>>') NEWLINE* shift_expre
 
 additive_expression: multiplicative_expression (NEWLINE* ('+'| '-') NEWLINE* additive_expression)?;
 
-multiplicative_expression: cast_expression (NEWLINE*  ('*'| '/'| '%') NEWLINE* multiplicative_expression)?;
+multiplicative_expression: function_pointer_use_expression (NEWLINE*  ('*'| '/'| '%') NEWLINE* multiplicative_expression)?;
+
+//Technically, cast operations can contain pointers (e.g. when cast to a void pointer), but we are more interested in function pointer usages and do not analyse casts in detail
+//Therefore, it is okay if we misclassify a pointer cast as a function pointer usage (as long as we get all function pointer usages)
+function_pointer_use_expression: '(' ptr_operator identifier ')' '(' argument_list ')'
+               | cast_expression
+                ;
+                
 
 //No newline as this yields to problems with #if (variable) \n int something; -> (variable) \n int
 cast_expression: ('(' cast_target ')' cast_expression)
-               | function_pointer_use_expression
+               | unary_expression
                 ;
 
 cast_target: type_name;
 
-function_pointer_use_expression: '(' ptr_operator identifier ')' '(' argument_list ')'
-               | unary_expression
-                ;
+
 
 // currently does not implement delete
 

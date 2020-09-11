@@ -9,6 +9,7 @@ import ast.declarations.ClassDefStatement;
 import ast.expressions.Argument;
 import ast.expressions.AssignmentExpression;
 import ast.expressions.CallExpressionBase;
+import ast.expressions.FunctionPointerUseExpression;
 import ast.expressions.Identifier;
 import ast.expressions.MemberAccess;
 import ast.expressions.NullExpression;
@@ -105,6 +106,11 @@ public abstract class ASTNodeVisitor {
 	public void visit(CallExpressionBase expression) {
 		defaultHandler(expression);
 	}
+	
+	public void visit(FunctionPointerUseExpression expression) {
+		defaultHandler(expression);
+	}
+
 
 	public void visit(Condition expression) {
 		defaultHandler(expression);

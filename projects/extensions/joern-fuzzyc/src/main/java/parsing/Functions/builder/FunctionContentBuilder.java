@@ -39,6 +39,7 @@ import antlr.FunctionParser.Expr_statementContext;
 import antlr.FunctionParser.For_init_statementContext;
 import antlr.FunctionParser.For_statementContext;
 import antlr.FunctionParser.FuncCallContext;
+import antlr.FunctionParser.Function_pointer_use_expressionContext;
 import antlr.FunctionParser.GotoStatementContext;
 import antlr.FunctionParser.IdentifierContext;
 import antlr.FunctionParser.If_statementContext;
@@ -139,6 +140,7 @@ import ast.expressions.EqualityExpression;
 import ast.expressions.ExclusiveOrExpression;
 import ast.expressions.Expression;
 import ast.expressions.ForInit;
+import ast.expressions.FunctionPointerUseExpression;
 import ast.expressions.Identifier;
 import ast.expressions.IncDec;
 import ast.expressions.InclusiveOrExpression;
@@ -1014,6 +1016,16 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void exitCast_target(Cast_targetContext ctx) {
 		nesting.consolidateSubExpression(ctx);
 	}
+	
+	public void enterFunctionPointerUse(Function_pointer_use_expressionContext ctx) {
+		FunctionPointerUseExpression expr = new FunctionPointerUseExpression();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);
+	}
+
+	public void exitFunctionPointerUse(Function_pointer_use_expressionContext ctx) {
+		nesting.consolidateSubExpression(ctx);
+	}	
 
 	public void enterFuncCall(FuncCallContext ctx) {
 		CallExpression expr = new CallExpression();

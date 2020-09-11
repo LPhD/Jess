@@ -2,6 +2,7 @@ package parsing.Functions;
 
 import antlr.FunctionBaseListener;
 import antlr.FunctionParser;
+import antlr.FunctionParser.Function_pointer_use_expressionContext;
 import parsing.ANTLRParserDriver;
 import parsing.Functions.builder.FunctionContentBuilder;
 
@@ -646,6 +647,18 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 	public void exitCast_target(FunctionParser.Cast_targetContext ctx) {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitCast_target(ctx);
+	}
+	
+	@Override
+	public void enterFunction_pointer_use_expression(Function_pointer_use_expressionContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterFunctionPointerUse(ctx);
+	}
+
+	@Override
+	public void exitFunction_pointer_use_expression(Function_pointer_use_expressionContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.exitFunctionPointerUse(ctx);
 	}
 
 	@Override

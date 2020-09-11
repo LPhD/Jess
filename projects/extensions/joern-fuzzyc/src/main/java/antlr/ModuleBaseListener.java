@@ -1042,6 +1042,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCast_expression(ModuleParser.Cast_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1061,18 +1073,6 @@ public class ModuleBaseListener implements ModuleListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCast_target(ModuleParser.Cast_targetContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

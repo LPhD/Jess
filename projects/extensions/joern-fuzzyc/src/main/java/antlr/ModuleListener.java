@@ -876,6 +876,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitMultiplicative_expression(ModuleParser.Multiplicative_expressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#function_pointer_use_expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#function_pointer_use_expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#cast_expression}.
 	 * @param ctx the parse tree
 	 */
@@ -895,16 +905,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCast_target(ModuleParser.Cast_targetContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#function_pointer_use_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#function_pointer_use_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunction_pointer_use_expression(ModuleParser.Function_pointer_use_expressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#unary_expression}.
 	 * @param ctx the parse tree

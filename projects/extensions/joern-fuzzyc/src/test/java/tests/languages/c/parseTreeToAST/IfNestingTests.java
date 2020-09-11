@@ -36,11 +36,10 @@ public class IfNestingTests {
 				"    }";
 		IfStatement ifStatement = (IfStatement) FunctionContentTestUtil.parseAndWalk(input).getChild(0);
 		assertEquals("if ( ( * filter ) ( dirname , entry , baton ) == FALSE )",ifStatement.getEscapedCodeStr());
-		assertEquals("( * filter ) ( dirname , entry , baton ) == FALSE",ifStatement.getCondition().getEscapedCodeStr());
-		assertEquals(" ",ifStatement.getCondition().getChild(0).getEscapedCodeStr());
+		assertEquals("( * filter ) ( dirname , entry , baton ) == FALSE", ifStatement.getCondition().getEscapedCodeStr());
+		assertEquals("( * filter ) ( dirname , entry , baton )",ifStatement.getCondition().getChild(0).getChild(0).getEscapedCodeStr());
 	}
 	
-
 
 	@Test
 	public void ifBlockNoCompound() {
