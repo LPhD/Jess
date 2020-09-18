@@ -24,18 +24,20 @@ includeComments = True
 includeExternalLibraryIncludes = True
 includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True # Works good for simple declares, but misses content of e.g. structs or enums
 checkGlobalStructUnionEnums = False # Should currently be false due to the problem mentioned above
-includeAllGoblaDelcarationsOfVariables = False #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true      
-inclundeNonFunctionLikeDefines = False   
-inclundeOnlyProbablyUsedNonFunctionLikeDefines = True #Has no effect if inclundeNonFunctionLikeDefines is true
+includeAllGoblaDelcarationsOfVariablesForSUFiles = False #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true     
+includeAllGoblaDelcarationsOfVariables = False #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
+inclundeOnlyProbablyUsedNonFunctionLikeDefines = True 
+inclundeNonFunctionLikeDefinesForSUFiles = False #Has no effect if inclundeNonFunctionLikeDefines is true   
+inclundeNonFunctionLikeDefines = False #Has no effect if inclundeNonFunctionLikeDefines is true. Potentially very big overhead   
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
-plotGraph = True
+plotGraph = False
 ###################### Configuration options for entry point input ## ####################
-console = False
+console = True
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 showStatistics = True
 ##########################################################################################
 
@@ -72,18 +74,19 @@ projectName = 'DonorProject'
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
 
-# 118808 main function
-# 348272 bubbleReversed call in main
-#search.c 481
+#  main function
+#  bubbleReversed call in main
 #  #HASH_ADD
-#7733312 #search_dir
+#  15609864 #search_dir search.c 481 (half of the project)
 #  #init_ignores
-#884800 #add_ignore_pattern
-# 8913040 malloc function util.c (very small with macro call)
-entryPointIds = {884800}
-#ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
-#entryPointIds = {29774032}
-#entryPointIds = {348272}
+#   #add_ignore_pattern
+#  #malloc function util.c (very small with macro call)
+#  #decompress function decompress.c (medium (~140secs) with typdef enum)
+#   scandir.c for typedef with brackets
+# ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
+entryPointIds = {15609864}
+
+
 
 entryFeatureNames = set()
 # Initialize empty Semantic Unit (result) set
@@ -104,7 +107,7 @@ alreadyCheckedIdentifierDict = dict()
 alreadyCheckedMacroIdentifierDict = dict()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 # VarDecl? DeclByClass? DeclByType? InitDeclarator?
-visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
+visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
 
 
 # Main function 
@@ -148,16 +151,23 @@ def identifySemanticUnits ():
         # Include only those declarations, for which there is an identifier in the SU (indicates usage, but no guarantee, as we do not analyze the scope) 
         if(includeOnlyProbablyUsedGlobalDeclarationsOfVariables):
             addUsedGlobalDeclares()             
+        # Include all global declarations from files of the SU 
+        elif (includeAllGoblaDelcarationsOfVariablesForSUFiles):        
+            addGlobalDeclaresForSUFiles() 
         # Include all global declarations of variables   
         elif (includeAllGoblaDelcarationsOfVariables):        
             addGlobalDeclares() 
             
-        # Check for includes of non-function-like #defines
-        if(inclundeNonFunctionLikeDefines):
-            addDefines() 
+        
         # Check for includes of non-function-like #defines whose identifer appears inside the SU (indicates a "usage")  
-        elif(inclundeOnlyProbablyUsedNonFunctionLikeDefines):
-            addProbablyUsedDefines()
+        if(inclundeOnlyProbablyUsedNonFunctionLikeDefines):
+            addProbablyUsedDefines() 
+        # Check for includes of non-function-like #defines in files that are part of the SU
+        elif(inclundeNonFunctionLikeDefinesForSUFiles):
+            addDefinesForSUFiles()
+        # Check for includes of non-function-like #defines
+        elif(inclundeNonFunctionLikeDefines):
+            addDefines()
                                
         #Check for variability information
         if(includeVariabilityInformation):
@@ -176,7 +186,6 @@ def identifySemanticUnits ():
         print ("Analysis took", time.time() - start_time, "seconds to run")
         print("--------------------------------------------------------------------------------- \n")
         
-        if DEBUG: print(str(semanticUnit))
         
         if (showStatistics):
             #Count number of nodes
@@ -775,8 +784,9 @@ def getCalledFunctionDef (verticeId, type):
         query = """g.V(%s).union(
             __.out().has('type', 'Function').has('code', '%s').out(),
             __.out().has('type', 'DeclStmt').where(out().has('identifier', '%s')),  
-            __.out().has('type', 'StructUnionEnum').where(out().has('type', 'Identifier').has('code', '%s'))            
-        ).dedup().id()""" % (parentFileId[0], functionName[0], functionName[0], functionName[0])
+            __.out().has('type', 'StructUnionEnum').where(out().has('type', 'Identifier').has('code', '%s')),     
+            __.out().has('type', 'FunctionPointerDeclare').where(out().has('type', 'Identifier').has('code', '%s'))             
+        ).dedup().id()""" % (parentFileId[0], functionName[0], functionName[0], functionName[0], functionName[0])
                             
     
     # Run the query         
@@ -815,8 +825,9 @@ def getCalledFunctionDef (verticeId, type):
                 query = """g.V(%s).union(
                     __.out().has('type', 'Function').has('code', '%s').out(),
                     __.out().has('type', 'DeclStmt').where(out().has('identifier', '%s')),  
-                    __.out().has('type', 'StructUnionEnum').where(out().has('type', 'Identifier').has('code', '%s'))            
-                ).dedup().id()""" % (file[0], functionName[0], functionName[0], functionName[0])
+                    __.out().has('type', 'StructUnionEnum').where(out().has('type', 'Identifier').has('code', '%s')),     
+                    __.out().has('type', 'FunctionPointerDeclare').where(out().has('type', 'Identifier').has('code', '%s'))             
+                ).dedup().id()""" % (file[0], functionName[0], functionName[0], functionName[0], functionName[0])
 
             # Run the query            
             declResult = db.runGremlinQuery(query)        
@@ -1074,6 +1085,7 @@ def getSUsFileNodes ():
     query = """idListToNodes(%s).union(
         has('type', 'FunctionDef').in(),
         has('type', 'StructUnionEnum'),
+        has('type', 'FunctionPointerDeclare'),
         has('type', 'DeclStmt'),
         has('type', 'PreDefine'),
         has('type', 'PreUndef'),
@@ -1108,7 +1120,7 @@ def addExternalIncludes ():
 # This is not exact. The result may contain more declarations than necessary, as we only look for any identifier match inside the SU (regardless of scope)
 # Furthermore, newly added declarations are not checked again. This could result in missing dependencies, e.g. when a declaration makes use of a typedef that is never used elsewhere.
 def addUsedGlobalDeclares():  
-    if (DEBUG): print("Checking for potentially used global variable declarations...")   
+    if (DEBUG): print("Checking for potentially used global variable declarations...")     
     
     # Collect ids of declarations and their declared identifier 
     declIdAndNameList = dict()
@@ -1118,23 +1130,32 @@ def addUsedGlobalDeclares():
     global semanticUnit, SUFilesSet
     # For all files that are part of the SU, get declarations of global variables
     
-    # First all StructUnionEnum, as they are easy to get.  
-    query = """idListToNodes(%s).out().has('type', 'StructUnionEnum').as('V')
-    .id().as('id')
-    .select('V').out().has('type', 'Identifier').values('code').as('name')
-    .select('id','name')""" % (list(SUFilesSet))  
-    aResult = db.runGremlinQuery(query)  
     
     # Currently, this should be false, as we cannot check the content of StructUnionEnums reliably
     if (checkGlobalStructUnionEnums):
+        print("Caution, checkGlobalStructUnionEnums should be false")
+        # First all StructUnionEnum, as they are easy to get. 
+######## Caution: This will only return all StructUnionEnums that have an indentifier, this means there are some missing that need an extra query! ######       
+        query = """idListToNodes(%s).out().has('type', 'StructUnionEnum').as('V')
+        .id().as('id')
+        .select('V').out().has('type', 'Identifier').values('code').as('name')
+        .select('id','name')""" % (list(SUFilesSet))  
+        aResult = db.runGremlinQuery(query)  
+   
         # Add the results to the declIdAndNameList 
         for line in aResult: 
             declIdAndNameList[line['id']] = line['name'] 
     else:
+        # Return all StructUnionEnum, as they are easy to get and we cannot currently check their usage reliably       
+        query = """idListToNodes(%s).out().has('type', 'StructUnionEnum').id()""" % (list(SUFilesSet))  
+        aResult = db.runGremlinQuery(query)  
+        
         # Add the results directly to the SU (without checking for their usage, as this does not reliably work) 
-        for line in aResult: 
-            semanticUnit.update([line['id']])
-    
+        semanticUnit.update(aResult)
+        
+        if (DEBUG): print("Found StructUnionEnums: "+str(aResult))
+
+#ToDo handle FunctionPointerDeclares    
    
     # Then we look for all other variable declarations. As the text filters do not really work, we first get all other declStmts
     query = """idListToNodes(%s).out().has('type', 'DeclStmt').as('V')
@@ -1174,18 +1195,18 @@ def addUsedGlobalDeclares():
 
   
 # Add all global declarations of variables that are declared in files that are part of the SU        
-def addGlobalDeclares(): 
-    if (DEBUG) : print("Checking for global variable declarations...")    
+def addGlobalDeclaresForSUFiles(): 
+    if (DEBUG) : print("Checking for global variable declarations in files that are part of the SU...")    
 
     global semanticUnit, SUFilesSet
     # For all files that are part of the SU, get declarations of global variables
     
-    # First all StructUnionEnum, as they are easy to get
-    query = """idListToNodes(%s).out().has('type', 'StructUnionEnum').id()""" % (list(SUFilesSet))  
+    # First all StructUnionEnum and FunctionPointerDeclares, as they are easy to get
+    query = """idListToNodes(%s).out().has('type', within('StructUnionEnum','FunctionPointerDeclare')).id()""" % (list(SUFilesSet))  
     aResult = db.runGremlinQuery(query)   
     semanticUnit.update(aResult) 
     
-    if (DEBUG) : print("Found additional global StructUnionEnum declarations: "+str(aResult))
+    if (DEBUG) : print("Found additional global StructUnionEnum and FunctionPointerDeclare declarations: "+str(aResult))
     
     # Then we look for all other variable declarations. As the text filters do not really work, we first get all other declStmts
     query = """idListToNodes(%s).out().has('type', 'DeclStmt').as('V').id().as('id').select('V').out().values('completeType').as('ct').select('id','ct')""" % (list(SUFilesSet))  
@@ -1198,11 +1219,51 @@ def addGlobalDeclares():
             if (DEBUG) : print("Found additional global variable declaration: "+str(line['id']))
 
 
+# Add all global declarations of variables (potentially very big overhead if the SU is small compared to the whole project)       
+def addGlobalDeclares(): 
+    if (DEBUG) : print("Checking for all global variable declarations...")    
+
+    global semanticUnit
+    
+    # First all StructUnionEnum and FunctionPointerDeclares, as they are easy to get
+    query = """g.V().has('type', within('StructUnionEnum','FunctionPointerDeclare')).id()"""  
+    aResult = db.runGremlinQuery(query)   
+    semanticUnit.update(aResult) 
+    
+    if (DEBUG) : print("Found additional global StructUnionEnum and FunctionPointerDeclare declarations: "+str(aResult))
+    
+    # Then we look for all other variable declarations. As the text filters do not really work, we first get all other declStmts
+    query = """g.V().has('type', 'DeclStmt').as('V').id().as('id').select('V').out().values('completeType').as('ct').select('id','ct')"""  
+    bResult = db.runGremlinQuery(query)
+    # Here we filter out all nodes whose completeType contains a bracket (or should we filter out nodes that end with a closing bracket?)  
+    for line in bResult: 
+        if not "(" in line['ct']:
+            # Add the whole id, not the digits one by one
+            semanticUnit.update([line['id']]) 
+            if (DEBUG) : print("Found additional global variable declaration: "+str(line['id']))
+
 ###################################### Non-function-like #defines (they are always global) ############################################################### 
 
-# Add all declarations of #defines that are declared in files that are part of the SU        
+# Add all declarations of #defines        
 def addDefines(): 
     if (DEBUG) : print("Checking for non-function-like #defines...")    
+
+    global semanticUnit
+
+    # We look for all #defines that do not have brackets in their identifier (precisely: do not end with a bracket), known as non-function-like #defines
+    query = """g.V().has('type', 'PreDefine').as('v').id().as('id').select('v').out().has('type', 'PreMacroIdentifier').values('code').as('name').select('id', 'name')""" 
+    result = db.runGremlinQuery(query)
+    # Here we filter out all nodes whose identifier ends with a bracket, indicating a function-like macro 
+    for line in result: 
+        if not line['name'].endswith(")"):
+            # Add the whole id, not the digits one by one
+            semanticUnit.update([line['id']]) 
+            if (DEBUG) : print("Found additional non-function-like #define: "+str(line['name']))
+
+
+# Add all declarations of #defines that are declared in files that are part of the SU        
+def addDefinesForSUFiles(): 
+    if (DEBUG) : print("Checking for non-function-like #defines in SU's files...")    
 
     global semanticUnit, SUFilesSet
 
@@ -1265,7 +1326,7 @@ def countNodes():
     print("The whole project has "+str(statResult[0])+" nodes.")
     # Count nodes of whole project that are visible (query is a little more complex because some nodes have visible types but are contained in other visible parent nodes)
     query = """g.V().has('type', within(%s))
-    .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
+    .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', 'ForInit'))
     .dedup().count()""" % (visibleStatementTypes) 
     statResult = db.runGremlinQuery(query) 
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
@@ -1273,7 +1334,7 @@ def countNodes():
     print("The SU has "+str(len(semanticUnit))+" nodes.")
     # Count nodes of SU that are visible
     query = """idListToNodes(%s).has('type', within(%s))
-    .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
+    .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', 'ForInit'))
     .dedup().count()""" % (list(semanticUnit), visibleStatementTypes) 
     statResult = db.runGremlinQuery(query) 
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
@@ -1477,7 +1538,7 @@ def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
     query = """idListToNodes(%s).has('type', within(%s))
-        .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
+        .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', 'ForInit'))
         .dedup().id()""" % (list(semanticUnit), visibleStatementTypes)  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)
