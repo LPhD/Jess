@@ -22,20 +22,20 @@ lookForAllMacroUsages = False
 includeVariabilityInformation = True
 includeComments = True
 includeExternalLibraryIncludes = True
-includeOnlyProbablyUsedGlobalDeclarationsOfVariables = True # Works good for simple declares, but misses content of e.g. structs or enums
+includeOnlyProbablyUsedGlobalDeclarationsOfVariables = False # Works good for simple declares, but misses content of e.g. structs or enums
 checkGlobalStructUnionEnums = False # Should currently be false due to the problem mentioned above
 includeAllGoblaDelcarationsOfVariablesForSUFiles = False #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true     
-includeAllGoblaDelcarationsOfVariables = False #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
-inclundeOnlyProbablyUsedNonFunctionLikeDefines = True 
+includeAllGoblaDelcarationsOfVariables = True #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
+inclundeOnlyProbablyUsedNonFunctionLikeDefines = False 
 inclundeNonFunctionLikeDefinesForSUFiles = False #Has no effect if inclundeNonFunctionLikeDefines is true   
-inclundeNonFunctionLikeDefines = False #Has no effect if inclundeNonFunctionLikeDefines is true. Potentially very big overhead   
+inclundeNonFunctionLikeDefines = True #Has no effect if inclundeNonFunctionLikeDefines is true. Potentially very big overhead   
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = False
 ###################### Configuration options for entry point input ## ####################
-console = True
+console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 showStatistics = True
@@ -157,8 +157,9 @@ def identifySemanticUnits ():
         # Include all global declarations of variables   
         elif (includeAllGoblaDelcarationsOfVariables):        
             addGlobalDeclares() 
-            
-        
+            # Also necessary here
+            addAllIncludes()
+                    
         # Check for includes of non-function-like #defines whose identifer appears inside the SU (indicates a "usage")  
         if(inclundeOnlyProbablyUsedNonFunctionLikeDefines):
             addProbablyUsedDefines() 
@@ -168,6 +169,8 @@ def identifySemanticUnits ():
         # Check for includes of non-function-like #defines
         elif(inclundeNonFunctionLikeDefines):
             addDefines()
+            # Also necessary here
+            addAllIncludes()
                                
         #Check for variability information
         if(includeVariabilityInformation):
@@ -319,7 +322,7 @@ def analyzeNode (currentNode):
          # Print result
         if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")      
 
-    # Get "called" function-like macro if current vertice is a macroCall
+    # Get "called" function-like macro if current vertice is a macroCall (funcCall without ;)
     if (type[0] == "MacroCall"):                 
         result = set(getCalledMacroDef(currentNode, type[0]))                
         # Get related elements of the called function
@@ -734,6 +737,8 @@ def getCalledFunctionDef (verticeId, type):
     query = """g.V(%s).out().has('type', 'Identifier').values('code', 'path')""" % (verticeId)
     functionName = db.runGremlinQuery(query)
     
+    #Check here for arguments that could lead to a function?
+    
     if(len(functionName) < 2): 
         print("Warning: Cannot get name or path of function: "+str(verticeId))
         return ""
@@ -1114,6 +1119,21 @@ def addExternalIncludes ():
     
     semanticUnit.update(result)
 
+    
+# Return all include statements for the whole project
+def addAllIncludes ():
+    if (DEBUG) : print("Checking for includes...")    
+
+    global semanticUnit
+    # Get all include statements
+    query = """g.V().has('type', 'PreInclude').id()""" % (list(SUFilesSet))   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found additional includes: "+str(result)+"\n")
+    
+    semanticUnit.update(result)    
+
 ######################################### Global Variable Declarations Checking #################################################################  
 
 # Add global declarations of variables that are declared in files that are part of the SU and used and least only once inside the SU (probably)   
@@ -1225,15 +1245,15 @@ def addGlobalDeclares():
 
     global semanticUnit
     
-    # First all StructUnionEnum and FunctionPointerDeclares, as they are easy to get
-    query = """g.V().has('type', within('StructUnionEnum','FunctionPointerDeclare')).id()"""  
+    # First all global StructUnionEnum and FunctionPointerDeclares, as they are easy to get
+    query = """g.V().has('type', 'File').out().has('type', within('StructUnionEnum','FunctionPointerDeclare')).id()"""  
     aResult = db.runGremlinQuery(query)   
     semanticUnit.update(aResult) 
     
     if (DEBUG) : print("Found additional global StructUnionEnum and FunctionPointerDeclare declarations: "+str(aResult))
     
     # Then we look for all other variable declarations. As the text filters do not really work, we first get all other declStmts
-    query = """g.V().has('type', 'DeclStmt').as('V').id().as('id').select('V').out().values('completeType').as('ct').select('id','ct')"""  
+    query = """g.V().has('type', 'File').out().has('type', 'DeclStmt').as('V').id().as('id').select('V').out().values('completeType').as('ct').select('id','ct')"""  
     bResult = db.runGremlinQuery(query)
     # Here we filter out all nodes whose completeType contains a bracket (or should we filter out nodes that end with a closing bracket?)  
     for line in bResult: 
