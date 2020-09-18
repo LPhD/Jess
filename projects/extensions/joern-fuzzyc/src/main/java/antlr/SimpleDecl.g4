@@ -4,7 +4,7 @@ import ModuleLex, Expressions, Preprocessor;
 simple_decl : var_decl;
 
 var_decl : template_decl_start? class_def  NEWLINE? init_declarator_list? pre_other? #declByClass
-         | template_decl_start? type_name  NEWLINE? init_declarator_list #declByType
+         | TYPEDEF? template_decl_start? type_name  NEWLINE? init_declarator_list #declByType
          | TYPEDEF? type_name NEWLINE? '(' callingConvention? ptr_operator identifier ')' param_type_list ';' #FunctionPointerDeclare
          | CV_QUALIFIER? TYPEDEF? special_datatype  NEWLINE? init_declarator_list? pre_other? ';'? #StructUnionEnum
          ;

@@ -60,6 +60,14 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testTypedefDecl() {
+		String input = "typedef unsigned int uint32_t;";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("typedef unsigned int uint32_t ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testUnnamedStruct() {
 		String input = "struct {int x; } a;";
 		List<ASTNode> codeItems = parseInput(input);
