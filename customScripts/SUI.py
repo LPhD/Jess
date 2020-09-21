@@ -19,16 +19,29 @@ includeOtherFeatures = False
 lookForAllFunctionCalls = False
 lookForAllMacroUsages = False
 ############### Further options to refine the Semantic Unit after analysis ###############
-includeVariabilityInformation = True
-includeComments = True
-includeExternalLibraryIncludes = True
-includeOnlyProbablyUsedGlobalDeclarationsOfVariables = False # Works good for simple declares, but misses content of e.g. structs or enums
+
+# --- Includes ---
+addAllFilesIncludedBySUFilesRecursively = True # Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
+addAllExternalLibraryIncludes = True
+addExternalLibraryIncludesOnlyForSUFiles = True # Has no effect if addAllExternalLibraryIncludes is true
+
+addAllInternalFileIncludes = True
+addInternalFileIncludesOnlyForSUFiles = True # Has no effect if addAllInternalFileIncludes is true
+
+# --- Global datatype/variable declarations
+addOnlyProbablyUsedGlobalDeclarationsOfVariables = False # Works good for simple declares, but misses content of e.g. structs or enums
 checkGlobalStructUnionEnums = False # Should currently be false due to the problem mentioned above
-includeAllGoblaDelcarationsOfVariablesForSUFiles = False #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true     
-includeAllGoblaDelcarationsOfVariables = True #Has no effect if the includeOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
-inclundeOnlyProbablyUsedNonFunctionLikeDefines = False 
-inclundeNonFunctionLikeDefinesForSUFiles = False #Has no effect if inclundeNonFunctionLikeDefines is true   
-inclundeNonFunctionLikeDefines = True #Has no effect if inclundeNonFunctionLikeDefines is true. Potentially very big overhead   
+addAllGoblaDelcarationsOfVariablesForSUFiles = False #Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true     
+addAllGoblaDelcarationsOfVariables = True #Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
+
+# --- Defines ---
+addOnlyProbablyUsedNonFunctionLikeDefines = False 
+addNonFunctionLikeDefinesForSUFiles = False #Has no effect if addNonFunctionLikeDefines is true   
+addNonFunctionLikeDefines = True #Has no effect if addNonFunctionLikeDefines is true. Potentially very big overhead 
+
+# --- These happen at the end ---
+addComments = True 
+addVariabilityInformation = True 
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
@@ -144,40 +157,61 @@ def identifySemanticUnits ():
         #Collect the file nodes of the SU
         getSUsFileNodes()
         
-        #Check for includes of (external) libraries
-        if(includeExternalLibraryIncludes):
-            addExternalIncludes() 
+        # Extend SU files by all included files outgoing from the original SU
+        if (addAllFilesIncludedBySUFilesRecursively):
+            #TODO add the included files to SUFilesSet
+            addFilesIncludedBySUFilesRecursively()
+        
+        # Add all includes (internal + external) from the whole project
+        if(addAllExternalLibraryIncludes and addAllInternalFileIncludes):
+            addAllIncludes()
+        else: 
+                
+            # Add includes of (external) libraries from the whole project
+            if(addAllExternalLibraryIncludes):
+                addAllExternalIncludes()
+            # Add includes of external libraries only for files that are part of the SU
+            elif(addExternalLibraryIncludesOnlyForSUFiles):
+                addExternalIncludesForSUFiles() 
+
+            # Add includes of (interal) files from the whole project
+            if(addAllInternalFileIncludes):
+                addAllInteralIncludes()
+            # Add includes of interal files only for files that are part of the SU
+            elif(addInternalFileIncludesOnlyForSUFiles):
+                addInteralIncludesForSUFiles()
+
                    
         # Include only those declarations, for which there is an identifier in the SU (indicates usage, but no guarantee, as we do not analyze the scope) 
-        if(includeOnlyProbablyUsedGlobalDeclarationsOfVariables):
+        if(addOnlyProbablyUsedGlobalDeclarationsOfVariables):
             addUsedGlobalDeclares()             
         # Include all global declarations from files of the SU 
-        elif (includeAllGoblaDelcarationsOfVariablesForSUFiles):        
+        elif (addAllGoblaDelcarationsOfVariablesForSUFiles):        
             addGlobalDeclaresForSUFiles() 
         # Include all global declarations of variables   
-        elif (includeAllGoblaDelcarationsOfVariables):        
+        elif (addAllGoblaDelcarationsOfVariables):        
             addGlobalDeclares() 
             # Also necessary here
-            addAllIncludes()
+            addAllIncludes() #TODO
                     
         # Check for includes of non-function-like #defines whose identifer appears inside the SU (indicates a "usage")  
-        if(inclundeOnlyProbablyUsedNonFunctionLikeDefines):
+        if(addOnlyProbablyUsedNonFunctionLikeDefines):
             addProbablyUsedDefines() 
         # Check for includes of non-function-like #defines in files that are part of the SU
-        elif(inclundeNonFunctionLikeDefinesForSUFiles):
+        elif(addNonFunctionLikeDefinesForSUFiles):
             addDefinesForSUFiles()
         # Check for includes of non-function-like #defines
-        elif(inclundeNonFunctionLikeDefines):
+        elif(addNonFunctionLikeDefines):
             addDefines()
             # Also necessary here
-            addAllIncludes()
+            addAllIncludes() #TODO
                                
         #Check for variability information
-        if(includeVariabilityInformation):
+        if(addVariabilityInformation):
             addVariability()
         
         #Check for comments
-        if(includeComments):
+        if(addComments):
             addComments()       
  
         #Print names of all functions that need external libraries (or that we failed to find a declaration for)
@@ -1104,10 +1138,25 @@ def getSUsFileNodes ():
     
     SUFilesSet.update(result)
 
+# Return all include statements that includes external libraries
+def addAllExternalIncludes ():
+    if (DEBUG) : print("Checking for all external includes...")    
+
+    global semanticUnit
+    # Go to the parent file nodes of all functionDefs, then get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
+    query = """g.V().has('type', 'PreInclude').where(not(out('IS_AST_PARENT'))).id()"""   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found additional includes of libraries: "+str(result)+"\n")
+    
+    semanticUnit.update(result)
+
+
 
 # Return all include statements for each file of the SU that includes external libraries
-def addExternalIncludes ():
-    if (DEBUG) : print("Checking for external includes...")    
+def addExternalIncludesForSUFiles ():
+    if (DEBUG) : print("Checking for external includes of SU's files...")    
 
     global semanticUnit, SUFilesSet
     # Go to the parent file nodes of all functionDefs, then get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
@@ -1120,9 +1169,9 @@ def addExternalIncludes ():
     semanticUnit.update(result)
 
     
-# Return all include statements for the whole project
+# Return all include statements (internal and external) for the whole project
 def addAllIncludes ():
-    if (DEBUG) : print("Checking for includes...")    
+    if (DEBUG) : print("Checking for all includes...")    
 
     global semanticUnit
     # Get all include statements
