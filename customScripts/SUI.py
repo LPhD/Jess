@@ -154,6 +154,7 @@ def identifySemanticUnits ():
         # Adapt results for syntactical correctness       
         # Add the function definition 
         addParentFunctions()  
+        
         #Collect the file nodes of the SU
         getSUsFileNodes()
         
@@ -1143,7 +1144,7 @@ def addAllExternalIncludes ():
     if (DEBUG) : print("Checking for all external includes...")    
 
     global semanticUnit
-    # Go to the parent file nodes of all functionDefs, then get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
+    # Get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
     query = """g.V().has('type', 'PreInclude').where(not(out('IS_AST_PARENT'))).id()"""   
    
     result = db.runGremlinQuery(query)       
@@ -1153,18 +1154,47 @@ def addAllExternalIncludes ():
     semanticUnit.update(result)
 
 
-
 # Return all include statements for each file of the SU that includes external libraries
 def addExternalIncludesForSUFiles ():
     if (DEBUG) : print("Checking for external includes of SU's files...")    
 
     global semanticUnit, SUFilesSet
-    # Go to the parent file nodes of all functionDefs, then get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
+    # Go to all file nodes that belong to the SU, then get all includes that include libraries (nodes who don't have an AST child ) and add them to the SU
     query = """idListToNodes(%s).out('IS_FILE_OF').has('type', 'PreInclude').where(not(out('IS_AST_PARENT'))).id()""" % (list(SUFilesSet))   
    
     result = db.runGremlinQuery(query)       
     
     if (DEBUG) : print("Found additional includes of libraries: "+str(result)+"\n")
+    
+    semanticUnit.update(result)
+
+
+# Return all include statements that includes interal files
+def addAllInteralIncludes ():
+    if (DEBUG) : print("Checking for all interal includes...")    
+
+    global semanticUnit
+    # Get all includes that include interal files (nodes who have an AST child ) and add them to the SU
+    query = """g.V().has('type', 'PreInclude').where(out('IS_AST_PARENT')).id()"""   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found additional includes of interal files: "+str(result)+"\n")
+    
+    semanticUnit.update(result)
+
+
+# Return all include statements for each file of the SU that includes interal files
+def addInteralIncludesForSUFiles ():
+    if (DEBUG) : print("Checking for interal includes of SU's files...")    
+
+    global semanticUnit, SUFilesSet
+    # Go to all file nodes that belong to the SU, then get all includes that include interal files (nodes who have an AST child) and add them to the SU
+    query = """idListToNodes(%s).out('IS_FILE_OF').has('type', 'PreInclude').where(out('IS_AST_PARENT')).id()""" % (list(SUFilesSet))   
+   
+    result = db.runGremlinQuery(query)       
+    
+    if (DEBUG) : print("Found additional includes of internal files: "+str(result)+"\n")
     
     semanticUnit.update(result)
 
