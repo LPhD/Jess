@@ -11,38 +11,32 @@ from joern.shelltool.PlotResult import NodeResult, EdgeResult
 start_time = time.time()
 
 ################# Configuration options for Semantic Unit identification #################
-includeEnclosedCode = True
-connectIfWithElse = True
-followDataflows = False
-searchDirsRecursively = False
-includeOtherFeatures = False
-lookForAllFunctionCalls = False
-lookForAllMacroUsages = False
+includeEnclosedCode = True # Recommended: True.
+connectIfWithElse = True # Recommended: True.
+followDataflows = False # Recommended: False.
+searchDirsRecursively = False # Recommended: False.
+includeOtherFeatures = False # Recommended: False.
+lookForAllFunctionCalls = False # Recommended: False.
+lookForAllMacroUsages = False # Recommended: False.
 ############### Further options to refine the Semantic Unit after analysis ###############
-
+# --- SU's files ---
+addAllFilesIncludedBySUFilesRecursively = True # Recommended: True. Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
 # --- Includes ---
-addAllFilesIncludedBySUFilesRecursively = True # Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
-
-addAllExternalLibraryIncludes = True
-addExternalLibraryIncludesOnlyForSUFiles = True # Has no effect if addAllExternalLibraryIncludes is true
-
-addAllInternalFileIncludes = True
-addInternalFileIncludesOnlyForSUFiles = True # Has no effect if addAllInternalFileIncludes is true
-
+addAllExternalLibraryIncludes = False # Recommended: False.
+addExternalLibraryIncludesOnlyForSUFiles = True # Recommended: True. Has no effect if addAllExternalLibraryIncludes is true
+addAllInternalFileIncludes = False # Recommended: False.
+addInternalFileIncludesOnlyForSUFiles = True # Recommended: True. Has no effect if addAllInternalFileIncludes is true
 # --- Global datatype/variable declarations
-addOnlyProbablyUsedGlobalDeclarationsOfVariables = False # Works good for simple declares, but misses content of e.g. structs or enums
-checkGlobalStructUnionEnums = False # Should currently be false due to the problem mentioned above
-addAllGoblaDelcarationsOfVariablesForSUFiles = False #Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true     
-addAllGoblaDelcarationsOfVariables = True #Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
-
+addOnlyProbablyUsedGlobalDeclarationsOfVariables = False # Recommended: False. Works good for simple declares, but misses content of e.g. structs or enums
+addAllGoblaDelcarationsOfVariablesForSUFiles = True # Recommended: True. Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true     
+addAllGoblaDelcarationsOfVariables = False # Recommended: False. Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
 # --- Defines ---
-addOnlyProbablyUsedNonFunctionLikeDefines = False 
-addNonFunctionLikeDefinesForSUFiles = False #Has no effect if addNonFunctionLikeDefines is true   
-addAllNonFunctionLikeDefines = True #Has no effect if addNonFunctionLikeDefines is true. Potentially very big overhead. Needs addAllExternalFileIncludes and addAllInternalFileIncludes
-
+addOnlyProbablyUsedNonFunctionLikeDefines = False # Recommended: False.
+addNonFunctionLikeDefinesForSUFiles = True Recommended: True. #Has no effect if addNonFunctionLikeDefines is true   
+addAllNonFunctionLikeDefines = False # Recommended: False. Has no effect if addNonFunctionLikeDefines is true. Potentially very big overhead. Needs addAllExternalFileIncludes and addAllInternalFileIncludes
 # --- These happen at the end ---
-addVariabilityInformation = True
-addAssociatedComments = True 
+addVariabilityInformation = True 
+addAssociatedComments = True  
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
@@ -97,7 +91,7 @@ projectName = 'DonorProject'
 #  #malloc function util.c (very small with macro call)
 #  #decompress function decompress.c (medium (~140secs) with typdef enum)
 #   scandir.c for typedef with brackets
-#  9982144 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~550 nodes).
+#  9982144 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~100-500 nodes).
 entryPointIds = {9982144}
 
 
@@ -1267,7 +1261,7 @@ def addUsedGlobalDeclares():
     
     
     # Currently, this should be false, as we cannot check the content of StructUnionEnums reliably
-    if (checkGlobalStructUnionEnums):
+    if (False):
         print("Caution, checkGlobalStructUnionEnums should be false")
         # First all StructUnionEnum, as they are easy to get. 
 ######## Caution: This will only return all StructUnionEnums that have an indentifier, this means there are some missing that need an extra query! ######       
