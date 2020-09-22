@@ -22,6 +22,7 @@ lookForAllMacroUsages = False
 
 # --- Includes ---
 addAllFilesIncludedBySUFilesRecursively = True # Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
+
 addAllExternalLibraryIncludes = True
 addExternalLibraryIncludesOnlyForSUFiles = True # Has no effect if addAllExternalLibraryIncludes is true
 
@@ -37,11 +38,11 @@ addAllGoblaDelcarationsOfVariables = True #Has no effect if the addOnlyProbablyU
 # --- Defines ---
 addOnlyProbablyUsedNonFunctionLikeDefines = False 
 addNonFunctionLikeDefinesForSUFiles = False #Has no effect if addNonFunctionLikeDefines is true   
-addNonFunctionLikeDefines = True #Has no effect if addNonFunctionLikeDefines is true. Potentially very big overhead 
+addAllNonFunctionLikeDefines = True #Has no effect if addNonFunctionLikeDefines is true. Potentially very big overhead. Needs addAllExternalFileIncludes and addAllInternalFileIncludes
 
 # --- These happen at the end ---
-addComments = True 
-addVariabilityInformation = True 
+addVariabilityInformation = True
+addAssociatedComments = True 
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
@@ -50,7 +51,7 @@ plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = False
+DEBUG = True
 showStatistics = True
 ##########################################################################################
 
@@ -96,8 +97,8 @@ projectName = 'DonorProject'
 #  #malloc function util.c (very small with macro call)
 #  #decompress function decompress.c (medium (~140secs) with typdef enum)
 #   scandir.c for typedef with brackets
-# ExpressionStatement (FCall) in function util C line 536/541. Good to show differences between with and without data flow. Small Slice.
-entryPointIds = {15609864}
+#  9982144 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~550 nodes).
+entryPointIds = {9982144}
 
 
 
@@ -160,7 +161,6 @@ def identifySemanticUnits ():
         
         # Extend SU files by all included files outgoing from the original SU
         if (addAllFilesIncludedBySUFilesRecursively):
-            #TODO add the included files to SUFilesSet
             addFilesIncludedBySUFilesRecursively()
         
         # Add all includes (internal + external) from the whole project
@@ -192,8 +192,7 @@ def identifySemanticUnits ():
         # Include all global declarations of variables   
         elif (addAllGoblaDelcarationsOfVariables):        
             addGlobalDeclares() 
-            # Also necessary here
-            addAllIncludes() #TODO
+
                     
         # Check for includes of non-function-like #defines whose identifer appears inside the SU (indicates a "usage")  
         if(addOnlyProbablyUsedNonFunctionLikeDefines):
@@ -202,17 +201,16 @@ def identifySemanticUnits ():
         elif(addNonFunctionLikeDefinesForSUFiles):
             addDefinesForSUFiles()
         # Check for includes of non-function-like #defines
-        elif(addNonFunctionLikeDefines):
+        elif(addAllNonFunctionLikeDefines):
             addDefines()
-            # Also necessary here
-            addAllIncludes() #TODO
+
                                
         #Check for variability information
         if(addVariabilityInformation):
             addVariability()
         
         #Check for comments
-        if(addComments):
+        if(addAssociatedComments):
             addComments()       
  
         #Print names of all functions that need external libraries (or that we failed to find a declaration for)
@@ -1139,6 +1137,44 @@ def getSUsFileNodes ():
     
     SUFilesSet.update(result)
 
+
+# Adds all files to the SU that were included by SU's files recursively
+def addFilesIncludedBySUFilesRecursively ():
+    if (DEBUG) : print("Checking for files included by SU's files (recursively) ...")    
+    print("Checking for files included by SU's files (recursively) ...")  
+    
+    global semanticUnit, SUFilesSet
+    
+    # Initialize the list with all files that are part of the SU
+    fileList = list(SUFilesSet)
+    
+    # For each file node, follow internal includes and add the included file node (recursive but not cyclic)
+    for file in fileList:
+        # Get the include statements of a file that have PreIncludeLocalFile nodes as children
+        # Info: We do not add the corresponding .c file for a .h file, as this is only necessary for functions, which we already checked earlier
+        query = """g.V(%s).out('IS_FILE_OF').has('type', 'PreInclude').out().has('type', 'PreIncludeLocalFile').out('INCLUDES').id()""" % (str(file))
+        fileIDs = db.runGremlinQuery(query)   
+           
+        # Proceed only if the current file includes other files    
+        if len(fileIDs) > 0:
+            if DEBUG: print("Found included files: "+str(fileIDs)+" of file "+str(file))
+            
+            # Add the included files to the fileList
+            for entry in fileIDs:
+                # Check that we do not add a file twice
+                if entry not in fileList:
+                    if DEBUG: print("Found new file: "+str(entry))
+                    fileList.append(entry)
+ 
+
+    # At the end, add the new files to the SUFilesSet (we do not care about duplicates, as it's a set)     
+    SUFilesSet.update(fileList)
+    
+    print("Updates files that are part of the SU (with included files): "+str(SUFilesSet))
+ 
+
+
+
 # Return all include statements that includes external libraries
 def addAllExternalIncludes ():
     if (DEBUG) : print("Checking for all external includes...")    
@@ -1423,14 +1459,25 @@ def countNodes():
     query = "g.V().count()"
     statResult = db.runGremlinQuery(query) 
     print("The whole project has "+str(statResult[0])+" nodes.")
+    # Write to file
+    with open("EvaluationStatistics/sizes.txt", "a") as file:
+        file.write("\nStatistics based on graph nodes: \n")
+        file.write("The whole project has "+str(statResult[0])+" nodes.\n")
+        
     # Count nodes of whole project that are visible (query is a little more complex because some nodes have visible types but are contained in other visible parent nodes)
     query = """g.V().has('type', within(%s))
     .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', 'ForInit'))
     .dedup().count()""" % (visibleStatementTypes) 
     statResult = db.runGremlinQuery(query) 
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
+    
+    # Write to file
+    with open("EvaluationStatistics/sizes.txt", "a") as file:
+        file.write(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).\n")
+        
     # Count nodes of SU
     print("The SU has "+str(len(semanticUnit))+" nodes.")
+    
     # Count nodes of SU that are visible
     query = """idListToNodes(%s).has('type', within(%s))
     .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', 'ForInit'))
@@ -1438,6 +1485,15 @@ def countNodes():
     statResult = db.runGremlinQuery(query) 
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
     print("--------------------------------------------------------------------------------- \n")
+    
+    # Write last results to file
+    with open("EvaluationStatistics/sizes.txt", "a") as file:
+        file.write("The SU has "+str(len(semanticUnit))+" nodes.\n")
+        file.write(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).\n")
+        file.write("*********************************************************************************** \n")
+        file.write("The configuration was: \n")
+        file.write(" includeEnclosedCode = "+str(includeEnclosedCode)+" \n connectIfWithElse = "+str(connectIfWithElse)+" \n followDataflows = "+str(followDataflows)+" \n searchDirsRecursively = "+str(searchDirsRecursively)+" \n includeOtherFeatures = "+str(includeOtherFeatures)+" \n lookForAllFunctionCalls = "+str(lookForAllFunctionCalls)+" \n lookForAllMacroUsages = "+str(lookForAllMacroUsages)+" \n addAllFilesIncludedBySUFilesRecursively = "+str(addAllFilesIncludedBySUFilesRecursively)+" \n addAllExternalLibraryIncludes = "+str(addAllExternalLibraryIncludes)+" \n addExternalLibraryIncludesOnlyForSUFiles = "+str(addExternalLibraryIncludesOnlyForSUFiles)+" \n addAllInternalFileIncludes = "+str(addAllInternalFileIncludes)+" \n addInternalFileIncludesOnlyForSUFiles = "+str(addInternalFileIncludesOnlyForSUFiles)+" \n addOnlyProbablyUsedGlobalDeclarationsOfVariables = "+str(addOnlyProbablyUsedGlobalDeclarationsOfVariables)+" \n addAllGoblaDelcarationsOfVariablesForSUFiles = "+str(addAllGoblaDelcarationsOfVariablesForSUFiles)+" \n addAllGoblaDelcarationsOfVariables = "+str(addAllGoblaDelcarationsOfVariables)+" \n addOnlyProbablyUsedNonFunctionLikeDefines = "+str(addOnlyProbablyUsedNonFunctionLikeDefines)+" \n addNonFunctionLikeDefinesForSUFiles = "+str(addNonFunctionLikeDefinesForSUFiles)+" \n addAllNonFunctionLikeDefines = "+str(addAllNonFunctionLikeDefines)+" \n addVariabilityInformation = "+str(addVariabilityInformation)+" \n addComments = "+str(addAssociatedComments)+" \n")
+        file.write("*********************************************************************************** \n")
 
    
 ###################################### Input ###############################################################    
