@@ -32,7 +32,7 @@ addAllGoblaDelcarationsOfVariablesForSUFiles = True # Recommended: True. Has no 
 addAllGoblaDelcarationsOfVariables = False # Recommended: False. Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
 # --- Defines ---
 addOnlyProbablyUsedNonFunctionLikeDefines = False # Recommended: False.
-addNonFunctionLikeDefinesForSUFiles = True Recommended: True. #Has no effect if addNonFunctionLikeDefines is true   
+addNonFunctionLikeDefinesForSUFiles = True # Recommended: True. Has no effect if addNonFunctionLikeDefines is true   
 addAllNonFunctionLikeDefines = False # Recommended: False. Has no effect if addNonFunctionLikeDefines is true. Potentially very big overhead. Needs addAllExternalFileIncludes and addAllInternalFileIncludes
 # --- These happen at the end ---
 addVariabilityInformation = True 
@@ -45,7 +45,7 @@ plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 showStatistics = True
 ##########################################################################################
 
@@ -85,14 +85,14 @@ projectName = 'DonorProject'
 #  main function
 #  bubbleReversed call in main
 #  #HASH_ADD
-#  15609864 #search_dir search.c 481 (half of the project)
+#  #search_dir search.c 481 (half of the project)
 #  #init_ignores
 #   #add_ignore_pattern
 #  #malloc function util.c (very small with macro call)
 #  #decompress function decompress.c (medium (~140secs) with typdef enum)
 #   scandir.c for typedef with brackets
-#  9982144 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~100-500 nodes).
-entryPointIds = {9982144}
+#  10149976 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~100-500 nodes).
+entryPointIds = {10149976}
 
 
 
@@ -328,13 +328,14 @@ def analyzeNode (currentNode):
          # Print result
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
 
-    # Get the AST children if current vertice is an expression or identifierDecl statement
-    if (type[0] in ["ExpressionStatement", "IdentifierDeclStatement"]):                       
+    # Get the AST children if current vertice is an expression, identifierDecl statement or PreDefine (they could contain callExpressions)
+    if (type[0] in ["ExpressionStatement", "IdentifierDeclStatement", "PreDefine"]):                       
         result = set(getASTChildren(currentNode))
         # Get related elements of the AST children
         analysisList.extend(result)          
          # Print result
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
+               
         
 ##################################################################################################################           
 ################################### Call relations ############################################################### 
@@ -369,7 +370,7 @@ def analyzeNode (currentNode):
         result = set(getMacroIdentifier(currentNode))
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation for a PreDefine: "+str(result)+"\n")
+        if (DEBUG): print("Result call relation for a PreDefine: "+str(result)+"\n")       
 
     # Get all statements (limited to preprocessor and function-like macro calls) connected to the PreMacroIdentifier     
     if (type[0] == "PreMacroIdentifier") and (lookForAllMacroUsages == True):  
@@ -1414,11 +1415,11 @@ def addProbablyUsedDefines():
 
     global semanticUnit, SUFilesSet
 
-    # We look for all #defines that do not have brackets in their identifier (precisely: do not end with a bracket), known as non-function-like #defines
+    # We look for all #defines that do not have brackets in their PreMacroIdentifier (precisely: do not end with a bracket), known as non-function-like #defines
     query = """idListToNodes(%s).out().has('type', 'PreDefine').as('v').id().as('id').select('v').out().has('type', 'PreMacroIdentifier').values('code').as('name').select('id', 'name')""" % (list(SUFilesSet))  
     aResult = db.runGremlinQuery(query)
     
-    # Here we filter out all nodes whose identifier ends with a bracket, indicating a function-like macro 
+    # Here we filter out all nodes whose PreMacroIdentifier ends with a bracket, indicating a function-like macro 
     for line in aResult: 
         if not line['name'].endswith(")"):
             # Check if it's only a definition without content (e.g. #define feature)
