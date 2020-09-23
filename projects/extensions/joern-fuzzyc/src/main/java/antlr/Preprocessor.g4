@@ -53,7 +53,8 @@ keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' |
 //Maybe needs more possibilites
 pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
 
-pre_macro: { preProcFindMacroEnd(); };
+pre_macro: expr 
+            | { preProcFindMacroEnd(); };
                   
 macroCall:  pre_macro_identifier '(' (  (',' | type_name | expr | ptr_operator | NEWLINE)* | VOID) ')'; //This is for macro calls
 

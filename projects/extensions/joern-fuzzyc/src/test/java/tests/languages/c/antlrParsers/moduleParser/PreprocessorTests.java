@@ -23,7 +23,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "#      define inline __inline";
 		ModuleParser parser = createParser(input);
 		String output = parser.pre_define().toStringTree(parser);
-		String outputExpected = "(pre_define #      define (pre_macro_identifier (keyword inline)) (pre_macro __inline))";
+		String outputExpected = "(pre_define #      define (pre_macro_identifier (keyword inline)) (pre_macro (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier __inline)))))))))))))))))))))";
 		assertEquals(outputExpected, output);
 	}
 

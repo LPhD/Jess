@@ -328,6 +328,19 @@ public class PreprocessorTests {
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("#define size( a ) a + 3", contentItem.getStatement(0).getEscapedCodeStr());
 	}
+
+	
+	@Test
+	public void testPreDefineMacroCallsAnotherMacro() {
+		String input = "#define size(a) calculateSize(a, a)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);	
+		PreDefine statement = (PreDefine) contentItem.getStatement(0);
+		assertEquals("PreDefine", statement.getTypeAsString());
+		assertEquals("#define size( a ) calculateSize ( a , a )", statement.getEscapedCodeStr());
+		assertEquals("size ( a )", statement.getChild(0).getEscapedCodeStr());
+		assertEquals("calculateSize ( a , a )", statement.getChild(1).getChild(0).getEscapedCodeStr());
+		assertEquals("CallExpression", statement.getChild(1).getChild(0).getTypeAsString());
+	}	
 	
 	@Test
 	public void testMacroCall() {
