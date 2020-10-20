@@ -76,7 +76,8 @@ public class IfNestingTests {
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) item.getStatements().get(0);
 		Expression condition = ((Condition) starter.getCondition()).getExpression();
-		assertTrue(condition.getEscapedCodeStr().equals("foo"));
+//		assertTrue(condition.getEscapedCodeStr().equals("foo"));
+		assertEquals("foo", condition.getEscapedCodeStr());
 	}
 	
 

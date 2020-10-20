@@ -1,5 +1,6 @@
 package tests.languages.c.antlrParsers.moduleParser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -39,6 +40,8 @@ public class ClassDeclarationTest {
 		int startIndex = class_def.OPENING_CURLY().getSymbol().getTokenIndex();
 		int stopIndex = class_def.stop.getTokenIndex();
 		assertTrue((startIndex == 2) && (stopIndex == 5));
+//		assertEquals(2, startIndex);
+//		assertEquals(5, stopIndex);
 	}
 
 }

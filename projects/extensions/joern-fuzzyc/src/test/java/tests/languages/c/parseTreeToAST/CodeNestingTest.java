@@ -28,22 +28,26 @@ public class CodeNestingTest {
 	public void testLineNumbers() {
 		String input = "if(foo)\nbar();\nfoo()\n";
 		StatementsContext ctx = (StatementsContext) FunctionContentTestUtil.parse(input);
-		assert (ctx.start.getLine() == 1);
-		assert (ctx.stop.getLine() == 3);
+//		assert (ctx.start.getLine() == 1);
+//		assert (ctx.stop.getLine() == 3);
+		assertEquals(1, ctx.start.getLine());
+		assertEquals(3, ctx.stop.getLine());
 	}
 
 	@Test
 	public void emptyContent() {
 		String input = "";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assert (item.getStatements().size() == 0);
+		//assert (item.getStatements().size() == 0); 
+		assertEquals(0, item.getStatements().size());
 	}
 
 	@Test
 	public void compoundWithoutBlockStart() {
 		String input = "bar(); {}";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertTrue(item.getStatements().size() == 2);
+		//assertTrue(item.getStatements().size() == 2); 
+		assertEquals(2, item.getStatements().size());
 	}
 
 	@Test
@@ -52,7 +56,8 @@ public class CodeNestingTest {
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) item.getStatements().get(0);
 		AssignmentExpression condition = (AssignmentExpression) ((Condition) starter.getCondition()).getExpression();
-		assertTrue(condition.getEscapedCodeStr().equals("foo = bar"));
+		//assertTrue(condition.getEscapedCodeStr().equals("foo = bar"));
+		assertEquals("foo = bar", condition.getEscapedCodeStr());
 	}
 
 	@Test
@@ -60,7 +65,7 @@ public class CodeNestingTest {
 		String input = "if(foo){bar();}else{ while(foo1){ if(bar2){} } }";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		IfStatement ifItem = (IfStatement) contentItem.getStatements().get(0);
-	}
+	} //??
 
 	@Test
 	public void complexIfElseNesting() {
@@ -78,7 +83,8 @@ public class CodeNestingTest {
 
 		String condExprString = ((Condition) forItem.getCondition()).getExpression().getEscapedCodeStr();
 
-		assertTrue(condExprString.equals("i < 10"));
+		//assertTrue(condExprString.equals("i < 10"));
+		assertEquals("i < 10", condExprString);
 
 	}
 
@@ -89,8 +95,8 @@ public class CodeNestingTest {
 		ForStatement forItem = (ForStatement) contentItem.getStatements().get(0);
 
 		String condExprString = ((Condition) forItem.getCondition()).getExpression().getEscapedCodeStr();
-		assertTrue(condExprString.equals("i < 10"));
-
+//		assertTrue(condExprString.equals("i < 10"));
+		assertEquals("i < 10", condExprString);
 	}
 
 	@Test
@@ -99,7 +105,9 @@ public class CodeNestingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		IdentifierDeclStatement declStatement = (IdentifierDeclStatement) contentItem.getStatements().get(0);
 		IdentifierDecl decl = (IdentifierDecl) declStatement.getChild(0);
-		assertTrue(decl.getName().getEscapedCodeStr().equals("x"));
+//		assertTrue(decl.getName().getEscapedCodeStr().equals("x"));
+		assertEquals("x", decl.getName().getEscapedCodeStr());
+		
 	}
 
 	@Test
@@ -120,8 +128,10 @@ public class CodeNestingTest {
 		IdentifierDecl decl = (IdentifierDecl) declStatement.getChild(0);
 
 		AssignmentExpression assign = (AssignmentExpression) decl.getChild(decl.getChildCount() - 1);
-		assertTrue(assign.getLeft().getEscapedCodeStr().equals("m"));
-		assertTrue(assign.getRight().getEscapedCodeStr().equals("\"Usage: untar [-tvx] [-f file] [file]\\n\""));
+		assertEquals("m", assign.getLeft().getEscapedCodeStr());
+//		assertTrue(assign.getLeft().getEscapedCodeStr().equals("m"));
+//		assertTrue(assign.getRight().getEscapedCodeStr().equals("\"Usage: untar [-tvx] [-f file] [file]\\n\""));
+		assertEquals("\"Usage: untar [-tvx] [-f file] [file]\\n\"", assign.getRight().getEscapedCodeStr());
 	}
 
 	@Test
@@ -159,7 +169,8 @@ public class CodeNestingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement stmt = (ExpressionStatement) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) stmt.getChild(0);
-		assertTrue(expr.getTargetFunc().getEscapedCodeStr().equals("foo"));
+//		assertTrue(expr.getTargetFunc().getEscapedCodeStr().equals("foo"));
+		assertEquals("foo", expr.getTargetFunc().getEscapedCodeStr());
 	}
 	
 	
