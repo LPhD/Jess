@@ -63,18 +63,18 @@ def workflow():
     # Collect useful statistics
     if EVALUATION:
         print("* * * Evaluation mode is on * * *")
-        if not os.path.exists("EvaluationStatistics"):
-            os.makedirs("EvaluationStatistics")
-        with open("EvaluationStatistics/timings.txt", "a") as file:
+        if not os.path.exists("Evaluation/EvaluationStatistics"):
+            os.makedirs("Evaluation/EvaluationStatistics")
+        with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
             file.write("\n----------------------------------------------------------------")
             file.write("\nBegin new run at: "+str(datetime.datetime.now()))
-        with open("EvaluationStatistics/sizes.txt", "a") as file:
+        with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
             file.write("\n----------------------------------------------------------------")
             file.write("\nBegin new run at: "+str(datetime.datetime.now()))
-        with open("EvaluationStatistics/testResults.txt", "a") as file:
+        with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:
             file.write("\n----------------------------------------------------------------")
             file.write("\nBegin new run at: "+str(datetime.datetime.now()))            
-        with open("EvaluationStatistics/diffs_TargetOldvsNew.txt", "a") as file:
+        with open("Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt", "a") as file:
             file.write("\n----------------------------------------------------------------")
             file.write("\nBegin new run at: "+str(datetime.datetime.now())) 
             
@@ -105,7 +105,7 @@ def workflow():
        
     #Measure Timings
     if EVALUATION:
-        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Beginn with Semantic Unit identification.") 
                        
     #### Identify SU ####
@@ -116,7 +116,7 @@ def workflow():
     
     #Measure Timings
     if EVALUATION:
-        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:   
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:   
             file.write("\n"+str(datetime.datetime.now())+": Identification finished. Begin with code export.")     
     
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
@@ -125,7 +125,7 @@ def workflow():
 
     #Measure Timings and SU's size
     if EVALUATION:
-        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")              
         #Count lines and words in all *.c and *.h files in SU
         os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
@@ -133,7 +133,7 @@ def workflow():
         suWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
         os.chdir(topLvlDir)        
         # Write counted results to file
-        with open(topLvlDir+"/EvaluationStatistics/sizes.txt", "a") as file:
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
             file.write("\n"+str(datetime.datetime.now())+": SU's size is lines: "+suLines+" and words (containing additional semantic enhancement): "+suWords) 
            
     #### Initalize analyses ####
@@ -148,7 +148,7 @@ def workflow():
 
     #Measure Timings
     if EVALUATION:
-        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Analysis finished. Begin with merging.")  
 
     #### Creates all files from the SU in Target, that did not exist there before ####
@@ -162,17 +162,17 @@ def workflow():
 
     # Measure timings and size. Install and run tests.
     if EVALUATION:
-        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Merge finished. Begin with installation and test of merged Target.")  
         # Count lines and words in all *.c and *.h files in merged Target
         os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
         tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
         tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
         #Get a diff of old vs new Target
-        os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/EvaluationStatistics/diffs_TargetOldvsNew.txt")
+        os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt")
         os.chdir(topLvlDir)        
         # Write counted results to file
-        with open(topLvlDir+"/EvaluationStatistics/sizes.txt", "a") as file:
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
             file.write("\n"+str(datetime.datetime.now())+": Final merged Target's size is lines: "+tLines+" and words: "+tWords)                             
             
         # Install Target, move (from Donor to Target), run, and document tests  
@@ -182,7 +182,7 @@ def workflow():
 ################################# silver_searcher end #########################################################################
 
         
-        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Final installation and test finished.")         
             file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
             file.write("\n"+str(datetime.datetime.now())+": < Insert useful statistics about time distributions here? >") 
@@ -203,7 +203,7 @@ def createRepos():
     # Measure timings
     if EVALUATION:
         start_checkout = time.time()
-        with open("EvaluationStatistics/timings.txt", "a") as file:
+        with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
             file.write("\n"+str(datetime.datetime.now())+": Starting with checkout...") 
     
     
@@ -260,7 +260,7 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
     os.chdir(topLvlDir)
     
     # Write counted results to file
-    with open("EvaluationStatistics/sizes.txt", "a") as file:
+    with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
         file.write("\n"+str(datetime.datetime.now())+": Target size is lines: "+tLines+" and words: "+tWords) 
         file.write(str(datetime.datetime.now())+": Donor size is lines: "+dLines+" and words: "+dWords) 
 
@@ -281,7 +281,7 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
     checkout_duration = time.time() - start_checkout
     print("Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")
     print("The whole checkout process took "+ str(checkout_duration) +" seconds")
-    with open("EvaluationStatistics/timings.txt", "a") as file:
+    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
         file.write("\n"+str(datetime.datetime.now())+": Project url is: "+repoURL+" and commit ids are: "+str(donorCommit)+" (Donor) and "+str(targetCommit)+" (Target)") 
         file.write("\n"+str(datetime.datetime.now())+": Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run") 
         file.write("\n"+str(datetime.datetime.now())+": The whole checkout process took "+ str(checkout_duration) +" seconds") 
@@ -300,7 +300,7 @@ def installSilverSearcher(DonorOrTarget):
     tests = os.popen("cram -v ./").read()
     # Store test results
     os.chdir(topLvlDir)
-    with open("EvaluationStatistics/testResults.txt", "a") as file:    
+    with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
         file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
 
 
@@ -324,7 +324,7 @@ def importProjectasCPG(projectname, internalPath):
         exit()
         
     if EVALUATION:
-        with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Start importing "+projectname+" as CPG")         
 
     print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ") 
@@ -332,7 +332,7 @@ def importProjectasCPG(projectname, internalPath):
     os.system("jess-import "+projectname+"") 
     
     if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+         with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Import finished. Starting evaluation of CPG.")     
     
     # Validate CPG (this includes creating the ID list that is used by the codeConverter)
@@ -342,7 +342,7 @@ def importProjectasCPG(projectname, internalPath):
     evaluateProject(projectname, topLvlDir+"/"+resultFoldername , internalPath) 
     
     if EVALUATION:
-         with open(topLvlDir+"/EvaluationStatistics/timings.txt", "a") as file:    
+         with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
             file.write("\n"+str(datetime.datetime.now())+": Evaluation finished.") 
 
 

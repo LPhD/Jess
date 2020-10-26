@@ -44,6 +44,7 @@ showOnlyStructuralEdges = True
 plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
+workflow = True
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 showStatistics = True
@@ -85,14 +86,14 @@ projectName = 'DonorProject'
 #  main function
 #  bubbleReversed call in main
 #  #HASH_ADD
-#  #search_dir search.c 481 (half of the project)
+#  7639200 #search_dir search.c 481 (half of the project)
 #  #init_ignores
 #   #add_ignore_pattern
 #  #malloc function util.c (very small with macro call)
 #  #decompress function decompress.c (medium (~140secs) with typdef enum)
 #   scandir.c for typedef with brackets
 #  10149976 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~100-500 nodes).
-entryPointIds = {10149976}
+entryPointIds = {7639200}
 
 
 
@@ -1455,7 +1456,7 @@ def countNodes():
     statResult = db.runGremlinQuery(query) 
     print("The whole project has "+str(statResult[0])+" nodes.")
     # Write to file
-    with open("EvaluationStatistics/sizes.txt", "a") as file:
+    with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
         file.write("\nStatistics based on graph nodes: \n")
         file.write("The whole project has "+str(statResult[0])+" nodes.\n")
         
@@ -1467,7 +1468,7 @@ def countNodes():
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
     
     # Write to file
-    with open("EvaluationStatistics/sizes.txt", "a") as file:
+    with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
         file.write(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).\n")
         
     # Count nodes of SU
@@ -1482,7 +1483,7 @@ def countNodes():
     print("--------------------------------------------------------------------------------- \n")
     
     # Write last results to file
-    with open("EvaluationStatistics/sizes.txt", "a") as file:
+    with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
         file.write("The SU has "+str(len(semanticUnit))+" nodes.\n")
         file.write(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).\n")
         file.write("*********************************************************************************** \n")
@@ -1493,8 +1494,48 @@ def countNodes():
    
 ###################################### Input ###############################################################    
 
+# Input options for evaluation mode of workflow.py
+def workflowInput():
+    global entryFeatureNames, entryPointIds, projectName
+    
+    print("--------------------------------------------------------------------------------- \n")
+    print("Workflow evaluation mode activated")
+    
+    # Project name
+    db.connectToDatabase("DonorProject")
+    
+    # Read inputs from file (first line is the path, second the line number, and third the statement type)
+    inputList = [line.rstrip('\n') for line in open('Evaluation/currentProject.txt')]
+    
+    # Feature?
+    #entryFeatureNames = {""}
+    
+    # Set path of desired entry point    
+    statementPath = inputList[0]
+    # Set line of desired entry point
+    statementLine = inputList[1]
+    # Set type of desired entry point node
+    statementType = inputList[2]
+    
+    # Get results for nodes at statementPath and statementLine with statementType
+    query = """g.V().has('path', textContains('%s')).has('line', '%s').has('type', '%s').id()""" % (statementPath, statementLine, statementType) 
+    result = db.runGremlinQuery(query)
+    
+    print("Result: "+str(result))
+                                
+    # If there is a statement at that path and line            
+    if(len(result) > 0):
+        # Set the entry point id        
+        entryPointIds = {int(result[0])}      
+        print("Set entry point to: "+str(entryPointIds))    
+    else:
+        print(" ! ! ! Error recieving input node id from file in evaluation mode ! ! ! ")
+        quit()
+
+                                
+
 # Let the user interactively set the project and entry points via console inputs
-def consoleInput ():
+def consoleInput():
     global entryFeatureNames, entryPointIds, projectName
     
     print("--------------------------------------------------------------------------------- \n")
@@ -1540,7 +1581,7 @@ def consoleInput ():
             break
             
         # Statement input loop
-        elif (selection == "2" or selection == "(12)" or selection == "code" or selection == "statement" or selection == "code statement"):
+        elif (selection == "2" or selection == "(2)" or selection == "code" or selection == "statement" or selection == "code statement"):
             while True:
                 statementPath = input("Please type in the path to the file containing the statement you would like to analyze relative to the project root \""+selectedProject+"\" e.g., \"/src/functions/FileContainingEntryPoint.c\"\n")
                 statementLine = input("Please type in the line number of your statement \n")
@@ -1777,6 +1818,8 @@ db = DBInterface()
 # Input of entry points
 if (console):
     consoleInput()
+elif (workflow):
+    workflowInput()    
 else: 
     # projectName must be set manually
     print("* * * Please set project name and entry point manually (or set console to 'True') in the SUI.py * * * ")
