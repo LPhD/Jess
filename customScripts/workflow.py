@@ -22,7 +22,7 @@ start_time = time.time()
 DEBUG = False
 # Enable evaluation mode for validating workflow. Includes installation and running tests of the selected projects. Therefore: Much slower.
 EVALUATION = True
-# Name of the configuration option to de/endable the SU
+# Name of the configuration option to de/enable the SU
 SUName = "SU"
 # Activate to add an "#ifdef $SUName" block around the SU's code in Target
 addIfdefAroundSU = False
