@@ -11,6 +11,7 @@ import pathlib
 import glob
 import time
 import datetime
+import csv
 
 
 #Timer
@@ -50,9 +51,7 @@ semanticBlockPattern = re.compile("(###.*?###)|(#\*#.*?#\*#)")
 
 #### Main function ####
 
-def workflow():
-    global mergeResult
-    
+def main():
     #### Begin of the workflow #### 
     print(" ### Welcome to the interactive code migration workflow ### ")
     print(" ### Prerequisite 1: Version control with Git ### ")
@@ -60,25 +59,20 @@ def workflow():
     print(" ### Prerequisite 3: The top level folder for source files is called 'src' ### ")
     print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
     
-    # Collect useful statistics
+    # If in EVALUATION mode, iterate over all projects in projectList.csv and all commits in commitList.csv
     if EVALUATION:
         print("* * * Evaluation mode is on * * *")
-        if not os.path.exists("Evaluation/EvaluationStatistics"):
-            os.makedirs("Evaluation/EvaluationStatistics")
-        with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
-            file.write("\n----------------------------------------------------------------")
-            file.write("\nBegin new run at: "+str(datetime.datetime.now()))
-        with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
-            file.write("\n----------------------------------------------------------------")
-            file.write("\nBegin new run at: "+str(datetime.datetime.now()))
-        with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:
-            file.write("\n----------------------------------------------------------------")
-            file.write("\nBegin new run at: "+str(datetime.datetime.now()))            
-        with open("Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt", "a") as file:
-            file.write("\n----------------------------------------------------------------")
-            file.write("\nBegin new run at: "+str(datetime.datetime.now())) 
-            
-            
+        evaluationWorkflow()
+              
+    # Otherwise, just run the script once and interactively    
+    else:  
+        normalWorkflow()
+              
+
+# Normal interactive workflow without evaluation
+def normalWorkflow():
+    global mergeResult
+
     #Import new branches or reuse old ones?
     reuse = input("Would you like to work with a new project (1) or keep the last one (2) ?\n")
 
@@ -102,12 +96,97 @@ def workflow():
         os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
         os.system("git reset --hard")
         os.system("git clean -fd")
-       
-    #Measure Timings
-    if EVALUATION:
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Beginn with Semantic Unit identification.") 
-                       
+
+                           
+    #### Identify SU ####
+    print(" ### Start of Semantic Unit identification process ### ")
+    print(" ### Please select 'DonorProject' as input project ### ")    
+    os.chdir(topLvlDir)    
+    import SUI  
+         
+    #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
+    print(" ### Convert SU back to source code ### ")    
+    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")   
+           
+    #### Initalize analyses ####
+    print("Initializing...")  
+    # Set list of changed targetFiles 
+    initializeAnalysis()     
+      
+    #### Diff SU vs Target ####
+    print(" ### Diff SU vs Target  ### ")
+    #Diff SU and Target (both with semantically enhanced code). Saves the different changes into their respective dictionary.
+    getDiffs()            
+
+    #### Creates all files from the SU in Target, that did not exist there before ####
+    print("Create completely new files in Target...")
+    createCompletelyNewFiles(newFiles)    
+
+    #### Create the final files ####
+    print("Create merged files in Target...")
+    for fileName in mergeResult.keys():
+        assembleFiles(fileName) 
+        
+    #### Finish workflow ####
+    print(" ### Code transplantation finished sucessfull! ### ")
+    print(" ### Please compile the code to check for duplicate identifiers ### ")               
+    print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
+        
+#TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
+#TODO Syntax check?
+
+
+# Same as above, but with additional statistics and evaluation processes (installation, testing, diffing)        
+def evaluationWorkflow():  
+    global mergeResult
+    # Iterate through projectList 
+    
+    # Create usefull statistics
+    if not os.path.exists("Evaluation/EvaluationStatistics"):
+        os.makedirs("Evaluation/EvaluationStatistics")
+    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n----------------------------------------------------------------")
+        file.write("\nBegin new run at: "+str(datetime.datetime.now()))
+    with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
+        file.write("\n----------------------------------------------------------------")
+        file.write("\nBegin new run at: "+str(datetime.datetime.now()))
+    with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:
+        file.write("\n----------------------------------------------------------------")
+        file.write("\nBegin new run at: "+str(datetime.datetime.now()))            
+    with open("Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt", "a") as file:
+        file.write("\n----------------------------------------------------------------")
+        file.write("\nBegin new run at: "+str(datetime.datetime.now()))
+        
+        # For each new project Create Repo from file
+            # For each new commit, keep repo and update to this commit
+            
+    #### Make a new CPG or reuse the previous one ####
+    if (reuse == "1"):   
+        # Delete old results
+        if os.path.exists(resultFoldername):
+            shutil.rmtree(resultFoldername)
+        os.makedirs(resultFoldername)
+
+        # Creates the needed repositories for Donor, Target and Origin
+        createRepos()
+                
+        # Imports the Donor as Code Property Graph and validates the result
+        os.chdir(topLvlDir+"/"+resultFoldername)
+        importProjectasCPG("DonorProject", "/DonorProjectCode/src") 
+  
+    else:
+        #Reset Target Repo (remove unversioned files)
+        print("Reset Target directory")
+        os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+        os.system("git reset --hard")
+        os.system("git clean -fd")            
+            
+    #Measure Timings after git clone
+
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Beginn with Semantic Unit identification.")   
+        
+                           
     #### Identify SU ####
     print(" ### Start of Semantic Unit identification process ### ")
     print(" ### Please select 'DonorProject' as input project ### ")    
@@ -193,13 +272,45 @@ def workflow():
     print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
         
 #TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
-#TODO Syntax check?
+#TODO Syntax check?  
      
 
 #### Helper functions ####
 
 # Creates all needed repositories
-def createRepos():
+def createRepos():    
+    repoURL = input("Please type in the url to your Git repository \n") 
+    print("Set donor repo to: "+repoURL+".")
+
+    # Get donor
+    donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
+    print("Set donor branch to: "+donorBranch+".")
+    
+    donorCommit = input("Please type in the commit id of the version of the software that contains the desired functionality \n")    
+    print("Set commit id to: "+donorCommit+".")
+    
+    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
+    os.chdir(resultFoldername+"/DonorProjectCode")    
+    os.system("git checkout "+donorCommit)  
+    #Get back to top level folder
+    os.chdir(topLvlDir)
+    
+    # Get target    
+    targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")      
+    print("Set target branch to: "+targetBranch+".")
+    
+    targetCommit = input("Please type in the commit id of the version of the software that you would like to merge into \n")   
+    print("Set commit id to: "+targetCommit+".")
+    
+    os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
+    os.chdir(resultFoldername+"/TargetProjectCode")    
+    os.system("git checkout "+targetCommit)  
+    os.chdir(topLvlDir)
+ 
+
+
+# Creates all needed repositories for the EVALUATION mode
+def createReposForEvaluation():
     # Measure timings
     if EVALUATION:
         start_checkout = time.time()
@@ -555,4 +666,4 @@ def assembleFiles(filePath):
 #### Helper functions end ####
 
 # Start the workflow
-workflow()
+main()
