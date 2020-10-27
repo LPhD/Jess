@@ -1,0 +1,96 @@
+diff --git a/src/ignore.c b/src/ignore.c
+index 8ed7be9..a36ec20 100644
+--- a/src/ignore.c
++++ b/src/ignore.c
+@@ -39,7 +39,7 @@ const char *ignore_pattern_files[] = {
+ 
+  int is_empty ( ignores * ig ) 	{
+  	return ( ig -> extensions_len + ig -> names_len + ig -> slash_names_len + ig -> regexes_len + ig -> slash_regexes_len == 0 ) ;
+-};
++  }  
+ 
+  ignores * init_ignore ( ignores * parent , const char * dirname , const size_t dirname_len ) 	{
+  	ignores * ig = ag_malloc ( sizeof ( ignores ) ) ;
+@@ -51,6 +51,8 @@ ignores *init_ignore(ignores *parent, const char *dirname, const size_t dirname_
+  	ig -> slash_names_len = 0 ;
+  	ig -> regexes = NULL ;
+  	ig -> regexes_len = 0 ;
++ 	ig -> invert_regexes = NULL ;
++ 	ig -> invert_regexes_len = 0 ;
+  	ig -> slash_regexes = NULL ;
+  	ig -> slash_regexes_len = 0 ;
+  	ig -> dirname = dirname ;
+@@ -84,6 +86,7 @@ void cleanup_ignore(ignores *ig) {
+  	free_strings ( ig -> names , ig -> names_len ) ;
+  	free_strings ( ig -> slash_names , ig -> slash_names_len ) ;
+  	free_strings ( ig -> regexes , ig -> regexes_len ) ;
++ 	free_strings ( ig -> invert_regexes , ig -> invert_regexes_len ) ;
+  	free_strings ( ig -> slash_regexes , ig -> slash_regexes_len ) ;
+  	if ( ig -> abs_path )	{
+  	free ( ig -> abs_path ) ;
+@@ -125,6 +128,11 @@ void add_ignore_pattern(ignores *ig, const char *pattern) {
+  	patterns_len = & ( ig -> slash_regexes_len ) ;
+  	pattern ++ ;
+  	pattern_len -- ;
++   	}	else	if ( pattern [ 0 ] == '!' )	{
++ 	patterns_p = & ( ig -> invert_regexes ) ;
++ 	patterns_len = & ( ig -> invert_regexes_len ) ;
++ 	pattern ++ ;
++ 	pattern_len -- ;
+   	}	else	{
+  	patterns_p = & ( ig -> regexes ) ;
+  	patterns_len = & ( ig -> regexes_len ) ;
+@@ -250,6 +258,14 @@ static int path_ignore_search(const ignores *ig, const char *path, const char *f
+  	log_debug ( "pattern %s doesn't match slash file %s" , ig -> slash_regexes [ i ] , slash_filename ) ;
+  	}
+  	}
++ 	for ( i = 0 ; i < ig -> invert_regexes_len ; i ++ )	{
++ 	if ( fnmatch ( ig -> invert_regexes [ i ] , filename , fnmatch_flags ) == 0 )	{
++ 	log_debug ( "file %s not ignored because name matches regex pattern !%s" , filename , ig -> invert_regexes [ i ] ) ;
++ 	free ( temp ) ;
++ 	return 0 ;
++ 	}
++ 	log_debug ( "pattern !%s doesn't match file %s" , ig -> invert_regexes [ i ] , filename ) ;
++ 	}
+ 
+  	for ( i = 0 ; i < ig -> regexes_len ; i ++ )	{
+  	if ( fnmatch ( ig -> regexes [ i ] , filename , fnmatch_flags ) == 0 )	{
+diff --git a/src/ignore.h b/src/ignore.h
+index 4b438a1..14ab329 100644
+--- a/src/ignore.h
++++ b/src/ignore.h
+@@ -15,6 +15,8 @@ struct ignores {
+  
+  char * * regexes ; /* For patterns that need fnmatch */ 
+  size_t regexes_len ; 
++ char * * invert_regexes ; /* For "!" patterns */ 
++ size_t invert_regexes_len ; 
+  char * * slash_regexes ; 
+  size_t slash_regexes_len ; 
+  
+diff --git a/src/uthash.h b/src/uthash.h
+index 5c17ca5..a8a329d 100644
+--- a/src/uthash.h
++++ b/src/uthash.h
+@@ -73,7 +73,7 @@ typedef unsigned char uint8_t;
+ #include <stdint.h>
+  #endif
+ 
+-#define UTHASH_VERSION 1.9.9
++#define UTHASH_VERSION 1.9
+ 
+  #ifndef uthash_fatal
+ #define uthash_fatal( msg ) exit ( - 1 )	/* fatal error (out of memory,etc) */
+diff --git a/src/util.c b/src/util.c
+index df7732c..4b87898 100644
+--- a/src/util.c
++++ b/src/util.c
+@@ -519,7 +519,7 @@ int is_named_pipe(const char *path, const struct dirent *d) {
+  	return FALSE ;
+  	}
+  	free ( full_path ) ;
+-    return S_ISFIFO(s.st_mode)
++ 	S_ISFIFO ( s . st_mode )
+   #ifdef S_ISSOCK 
+  || S_ISSOCK ( s . st_mode )
+   #endif

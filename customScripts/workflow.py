@@ -62,7 +62,7 @@ def main():
     # If in EVALUATION mode, iterate over all projects in projectList.csv and all commits in commitList.csv
     if EVALUATION:
         print("* * * Evaluation mode is on * * *")
-        evaluationWorkflow()
+        iterateThroughCommits()
               
     # Otherwise, just run the script once and interactively    
     else:  
@@ -83,7 +83,7 @@ def normalWorkflow():
             shutil.rmtree(resultFoldername)
         os.makedirs(resultFoldername)
 
-        # Creates the needed repositories for Donor, Target and Origin
+        # Creates the needed repositories for Donor and Target
         createRepos()
                 
         # Imports the Donor as Code Property Graph and validates the result
@@ -137,13 +137,13 @@ def normalWorkflow():
 
 
 # Same as above, but with additional statistics and evaluation processes (installation, testing, diffing)        
-def evaluationWorkflow():  
+def iterateThroughCommits():  
     global mergeResult
-    # Iterate through projectList 
     
-    # Create usefull statistics
+    # Make folder for evaluation results if not existent
     if not os.path.exists("Evaluation/EvaluationStatistics"):
         os.makedirs("Evaluation/EvaluationStatistics")
+    # Create usefull statistics
     with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
         file.write("\n----------------------------------------------------------------")
         file.write("\nBegin new run at: "+str(datetime.datetime.now()))
@@ -155,48 +155,110 @@ def evaluationWorkflow():
         file.write("\nBegin new run at: "+str(datetime.datetime.now()))            
     with open("Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt", "a") as file:
         file.write("\n----------------------------------------------------------------")
-        file.write("\nBegin new run at: "+str(datetime.datetime.now()))
+        file.write("\nBegin new run at: "+str(datetime.datetime.now())) 
+
+ 
+    # Read input of the project list (list of projects to be evaluated)     
+    with open('Evaluation/projectList.csv', mode ='r')as file: 
+        # reading the CSV file 
+        csvProjectFile = csv.reader(file) 
+        # Skip header
+        next(csvProjectFile)
+      
+        # Iterate through projectList (one line per project)
+        # Content per row: Name,URL,Dependencies,Install Location,Install Commands,Test Location,Test Commands
+        for project in csvProjectFile: 
+            print("Evaluating project: "+project[0])               
+            
+            # Delete old results
+            if os.path.exists(resultFoldername):
+                shutil.rmtree(resultFoldername)
+            os.makedirs(resultFoldername)
+
+            # Creates the needed repositories for Donor and Target based on the URL
+            createReposForEvaluation(project[1])
+                    
+            
+            # Read input of the commit list (list of commits to be evaluated)     
+            with open('Evaluation/commitList.csv', mode ='r')as file: 
+                # reading the CSV file 
+                csvCommitFile = csv.reader(file) 
+                # Skip header
+                next(csvCommitFile)
         
-        # For each new project Create Repo from file
-            # For each new commit, keep repo and update to this commit
-            
-    #### Make a new CPG or reuse the previous one ####
-    if (reuse == "1"):   
-        # Delete old results
-        if os.path.exists(resultFoldername):
-            shutil.rmtree(resultFoldername)
-        os.makedirs(resultFoldername)
+                # Iterate through commitList (one line per commit) 
+                # Content per row: Name,Donor Commit,Target Commit,Entry Path,Entry Line,Entry Type,Test Name
+                for commit in csvCommitFile:
+                    # Only iterate through the commits of the current project
+                    if (project[0] == commit[0]):
+                        print("Evaluating donor commit: "+project[1])  
+                        evaluationWorkflow()
+                        
+# TODO: How to handle restart of server?
+                                               
 
-        # Creates the needed repositories for Donor, Target and Origin
-        createRepos()
-                
-        # Imports the Donor as Code Property Graph and validates the result
-        os.chdir(topLvlDir+"/"+resultFoldername)
-        importProjectasCPG("DonorProject", "/DonorProjectCode/src") 
-  
-    else:
-        #Reset Target Repo (remove unversioned files)
-        print("Reset Target directory")
-        os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
-        os.system("git reset --hard")
-        os.system("git clean -fd")            
-            
-    #Measure Timings after git clone
+# Same as normalWorkflow, but with additional statistics and evaluation processes (installation, testing, diffing)        
+def evaluationWorkflow():      
+    global mergeResult
+                          
+    #Reset Target Repo (remove unversioned files)
+    print("Reset Target directory")
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+    os.system("git reset --hard")
+    os.system("git clean -fd")   
+    
+    # Measure timings
+    start_checkout = time.time()
+    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": Starting with checkout of specific commits...") 
+    
+    # Checkout the specific versions to be evaluated
+    checkoutCommitsForEvaluation(donorCommit, targetCommit)
+    
+    # Document size of Donor and Target
+    measureSizes()
+    
+    # Measure timings of installation and test processes separately
+    installAndTest_start = time.time()
+    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": Starting with setup of specific commits...")     
+    
+    # Perform additional actions required for evaluation (installation, run tests, etc.)
+    setupProjectsForEvaluation()
+    
+    # Get timings after project setup    
+    installAndTest_duration = time.time() - installAndTest_start
+    checkout_duration = time.time() - start_checkout
+    print("Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")
+    print("The whole checkout process took "+ str(checkout_duration) +" seconds")
+    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": Commit ids are: "+str(donorCommit)+" (Donor) and "+str(targetCommit)+" (Target)") 
+        file.write("\n"+str(datetime.datetime.now())+": Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run") 
+        file.write("\n"+str(datetime.datetime.now())+": The whole checkout process took "+ str(checkout_duration) +" seconds")     
+        file.write("\n"+str(datetime.datetime.now())+": Start importing project as CPG...") 
 
-    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-        file.write("\n"+str(datetime.datetime.now())+": Beginn with Semantic Unit identification.")   
+
+    # Imports the Donor as Code Property Graph and validates the result
+    os.chdir(topLvlDir+"/"+resultFoldername)
+    importProjectasCPG("DonorProject", "/DonorProjectCode/src")
+
+    # Measure timings after CPG import
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:  
+        file.write("\n"+str(datetime.datetime.now())+": Evaluation finished.") 
+        file.write("\n"+str(datetime.datetime.now())+": Beginn with Semantic Unit identification...")   
         
                            
     #### Identify SU ####
     print(" ### Start of Semantic Unit identification process ### ")
-    print(" ### Please select 'DonorProject' as input project ### ")    
+#TODO setup currentProject.txt with info from commitList.csv
+
+ 
     os.chdir(topLvlDir)    
     import SUI  
     
-    #Measure Timings
-    if EVALUATION:
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:   
-            file.write("\n"+str(datetime.datetime.now())+": Identification finished. Begin with code export.")     
+    # Measure Timings after SU identification
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:   
+        file.write("\n"+str(datetime.datetime.now())+": Identification finished. Begin with code export.")     
     
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
@@ -282,83 +344,64 @@ def createRepos():
     repoURL = input("Please type in the url to your Git repository \n") 
     print("Set donor repo to: "+repoURL+".")
 
-    # Get donor
-    donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
-    print("Set donor branch to: "+donorBranch+".")
-    
+    # Get Donor    
     donorCommit = input("Please type in the commit id of the version of the software that contains the desired functionality \n")    
     print("Set commit id to: "+donorCommit+".")
     
-    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
+    os.system("git clone "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
     os.chdir(resultFoldername+"/DonorProjectCode")    
     os.system("git checkout "+donorCommit)  
     #Get back to top level folder
     os.chdir(topLvlDir)
     
-    # Get target    
-    targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")      
-    print("Set target branch to: "+targetBranch+".")
-    
+    # Get Target
     targetCommit = input("Please type in the commit id of the version of the software that you would like to merge into \n")   
     print("Set commit id to: "+targetCommit+".")
     
-    os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
+    os.system("git clone "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
     os.chdir(resultFoldername+"/TargetProjectCode")    
     os.system("git checkout "+targetCommit)  
     os.chdir(topLvlDir)
  
 
 
-# Creates all needed repositories for the EVALUATION mode
-def createReposForEvaluation():
+# Creates all needed repositories for the EVALUATION mode (do this just once per project)
+def createReposForEvaluation(repoURL):
     # Measure timings
-    if EVALUATION:
-        start_checkout = time.time()
-        with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
-            file.write("\n"+str(datetime.datetime.now())+": Starting with checkout...") 
+    start_checkout = time.time()
+    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": Starting with checkout of new project...") 
     
+    # Get Donor    
+    os.system("git clone "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
     
-    #repoURL = input("Please type in the url to your Git repository \n") 
-    repoURL = "https://github.com/ggreer/the_silver_searcher.git"
-    print("Set donor repo to: "+repoURL+".")
+    # Get Target        
+    os.system("git clone "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
 
-    # Get donor
-    #donorBranch = input("Please type in the name of the branch that contains the functionality you would like to merge (donor branch) \n")   
-    donorBranch = "master"  
-    print("Set donor branch to: "+donorBranch+".")
-    
-    #donorCommit = input("Please type in the commit id of the version of the software that contains the desired functionality \n")   
-    donorCommit = "33d9d711766cbf3c5d9b52aa471722522b231d94"  
-    print("Set commit id to: "+donorCommit+".")
-    
-    os.system("git clone -b "+donorBranch+" "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
+    # Get timings    
+    checkout_duration = time.time() - start_checkout
+    print("The initial checkout process took "+ str(checkout_duration) +" seconds")
+    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": The initial checkout process took "+ str(checkout_duration) +" seconds") 
+ 
+
+# Checks out the specific commits, installs and tests the projects 
+def checkoutCommitsForEvaluation(donorCommit, targetCommit):       
+    # Get Donor
     os.chdir(resultFoldername+"/DonorProjectCode")    
     os.system("git checkout "+donorCommit)  
     #Get back to top level folder
     os.chdir(topLvlDir)
     
-    # Get target    
-    #targetBranch = input("Please type in the name of the branch you would like to merge into (target branch) \n")   
-    targetBranch = "master"    
-    print("Set target branch to: "+targetBranch+".")
-    
-    #targetCommit = input("Please type in the commit id of the version of the software that you would like to merge into \n")   
-    targetCommit = "abd982483eabb91b7ccf9eed2a918f638c149a7d" 
-    print("Set commit id to: "+targetCommit+".")
-    
-    os.system("git clone -b "+targetBranch+" "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
+    # Get Target    
     os.chdir(resultFoldername+"/TargetProjectCode")    
     os.system("git checkout "+targetCommit)  
-    os.chdir(topLvlDir)
- 
- 
-    # Measure timings and perform additional actions required for evaluation (installation, run tests, etc.)
-    if EVALUATION:
-        setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkout)
+    #Get back to top level folder
+    os.chdir(topLvlDir)     
 
 
-# Measures timings, installs projects, runs their tests and measures results 
-def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkout):
+# Measure size of Donor and Target
+def measureSizes():
     #Count lines and words in all *.c and *.h files in Target
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
     tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
@@ -375,9 +418,10 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
         file.write("\n"+str(datetime.datetime.now())+": Target size is lines: "+tLines+" and words: "+tWords) 
         file.write(str(datetime.datetime.now())+": Donor size is lines: "+dLines+" and words: "+dWords) 
 
-    # Measure timings of installation and test processes separately
-    installAndTest_start = time.time()
-    
+
+# Installs projects, runs their tests and measures results 
+# TODO automate based on projectList
+def setupProjectsForEvaluation():   
     # Install dependencies for all projects
     print("* * * Installing dependencies for project * * *")
     os.system("sudo apt-get install -y automake python-cram pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
@@ -387,16 +431,6 @@ def setupProjectsForEvaluation(repoURL, donorCommit, targetCommit, start_checkou
     installSilverSearcher("Target")
 ################################# silver_searcher end #########################################################################
     
-    # Get timings    
-    installAndTest_duration = time.time() - installAndTest_start
-    checkout_duration = time.time() - start_checkout
-    print("Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")
-    print("The whole checkout process took "+ str(checkout_duration) +" seconds")
-    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
-        file.write("\n"+str(datetime.datetime.now())+": Project url is: "+repoURL+" and commit ids are: "+str(donorCommit)+" (Donor) and "+str(targetCommit)+" (Target)") 
-        file.write("\n"+str(datetime.datetime.now())+": Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run") 
-        file.write("\n"+str(datetime.datetime.now())+": The whole checkout process took "+ str(checkout_duration) +" seconds") 
-
 
 
 # Installation and test process for the_silver_searcher
@@ -433,11 +467,7 @@ def importProjectasCPG(projectname, internalPath):
             print(" # # # Automated transplantation finished sucessfull # # # ")
         # Exit as we are finished
         exit()
-        
-    if EVALUATION:
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Start importing "+projectname+" as CPG")         
-
+               
     print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ") 
     os.system("tar -cvzf "+projectname+" "+projectname+"Code") 
     os.system("jess-import "+projectname+"") 
@@ -452,10 +482,6 @@ def importProjectasCPG(projectname, internalPath):
     # Project name, working directory, internal structure of the project
     evaluateProject(projectname, topLvlDir+"/"+resultFoldername , internalPath) 
     
-    if EVALUATION:
-         with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Evaluation finished.") 
-
 
 
 # Setup for the analysis (copy files to the right place to get list of changed files)

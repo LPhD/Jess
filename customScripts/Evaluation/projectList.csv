@@ -1,0 +1,2 @@
+Name,URL,Dependencies,Install Location,Install Commands,Test Location,Test Commands
+Silver Searcher,https://github.com/ggreer/the_silver_searcher.git,automake python-cram pkg-config libpcre3-dev zlib1g-dev liblzma-dev,"",os.system("./build.sh") os.system("sudo make install"),tests/,os.popen("cram -v ./").read()
