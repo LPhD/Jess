@@ -111,6 +111,7 @@ public class OctopusProjectManager {
 		
 		System.out.println("New db manager created");
 		
+		//Problem here
 		databaseManager.initializeDatabaseForProject(project);
 		
 		System.out.println("New db manager initialized");
