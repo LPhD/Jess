@@ -8,11 +8,12 @@ import spark.Response;
 public class CreateProjectHandler implements OctopusRestHandler {
 
 	@Override
-	public Object handle(Request req, Response resp)
-	{
+	public Object handle(Request req, Response resp) {
 		String projectName = req.params(":projectName");
 		ProjectManager manager = new ProjectManager();
+		System.out.println("Try to create project");
 		manager.create(projectName);
+		System.out.println("Project created!");
 		return "Project created.";
 	}
 
