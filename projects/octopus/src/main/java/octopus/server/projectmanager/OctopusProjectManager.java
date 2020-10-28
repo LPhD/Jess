@@ -100,12 +100,27 @@ public class OctopusProjectManager {
 			System.out.println("Project already exists, trying to remove it");
 			delete(name);
 		}
+		
+		System.out.println("Project deleted.");
 
 		OctopusProject project = createOctopusProjectForName(name);
+		
+		System.out.println("New project created");
+		
 		TitanLocalDatabaseManager databaseManager = new TitanLocalDatabaseManager();
+		
+		System.out.println("New db manager created");
+		
 		databaseManager.initializeDatabaseForProject(project);
+		
+		System.out.println("New db manager initialized");
+		
 		logger.debug("Adding project to map: " + name);
+		
 		nameToProject.put(name, project);
+		
+		System.out.println("New project put to map");
+		
 	}
 
 	public static void delete(String name) throws IOException {
@@ -129,15 +144,9 @@ public class OctopusProjectManager {
 	}
 
 	private static void deleteProjectWithName(String name) throws IOException {
-
 		removeDatabaseIfExists(name);
 		deleteProjectFiles(name);
-		nameToProject.remove(name);
-		
-		System.out.print("Exit here");
-		
-		System.exit(1);
-		
+		nameToProject.remove(name);		
 	}
 
 	private static void deleteProjectFiles(String name) throws IOException {
