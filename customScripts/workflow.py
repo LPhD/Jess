@@ -166,7 +166,7 @@ def iterateThroughCommits():
         next(csvProjectFile)
       
         # Iterate through projectList (one line per project)
-        # Content per row: Name,URL,Dependencies,Install Location,Install Commands,Test Location,Test Commands
+        # Content per row: 0:Name, 1:URL, 2:Dependencies, 3:Install Location, 4:Install Commands, 5:Test Location, 6:Test Commands
         for project in csvProjectFile: 
             print("Evaluating project: "+project[0])               
             
@@ -177,6 +177,10 @@ def iterateThroughCommits():
 
             # Creates the needed repositories for Donor and Target based on the URL
             createReposForEvaluation(project[1])
+            
+            # Install dependencies for project
+            print("* * * Installing dependencies for project * * *")
+            os.system("sudo apt-get install -y "+project[2])
                     
             
             # Read input of the commit list (list of commits to be evaluated)     
@@ -267,17 +271,16 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
     convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")   
 
     #Measure Timings and SU's size
-    if EVALUATION:
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")              
-        #Count lines and words in all *.c and *.h files in SU
-        os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
-        suLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
-        suWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
-        os.chdir(topLvlDir)        
-        # Write counted results to file
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
-            file.write("\n"+str(datetime.datetime.now())+": SU's size is lines: "+suLines+" and words (containing additional semantic enhancement): "+suWords) 
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")              
+    #Count lines and words in all *.c and *.h files in SU
+    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
+    suLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
+    suWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
+    os.chdir(topLvlDir)        
+    # Write counted results to file
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": SU's size is lines: "+suLines+" and words (containing additional semantic enhancement): "+suWords) 
            
     #### Initalize analyses ####
     print("Initializing...")  
@@ -290,9 +293,8 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
     getDiffs()            
 
     #Measure Timings
-    if EVALUATION:
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Analysis finished. Begin with merging.")  
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Analysis finished. Begin with merging.")  
 
     #### Creates all files from the SU in Target, that did not exist there before ####
     print("Create completely new files in Target...")
@@ -304,31 +306,30 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
         assembleFiles(fileName) 
 
     # Measure timings and size. Install and run tests.
-    if EVALUATION:
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Merge finished. Begin with installation and test of merged Target.")  
-        # Count lines and words in all *.c and *.h files in merged Target
-        os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
-        tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
-        tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
-        #Get a diff of old vs new Target
-        os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt")
-        os.chdir(topLvlDir)        
-        # Write counted results to file
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
-            file.write("\n"+str(datetime.datetime.now())+": Final merged Target's size is lines: "+tLines+" and words: "+tWords)                             
-            
-        # Install Target, move (from Donor to Target), run, and document tests  
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Merge finished. Begin with installation and test of merged Target.")  
+    # Count lines and words in all *.c and *.h files in merged Target
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
+    tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
+    tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
+    #Get a diff of old vs new Target
+    os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt")
+    os.chdir(topLvlDir)        
+    # Write counted results to file
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": Final merged Target's size is lines: "+tLines+" and words: "+tWords)                             
+        
+    # Install Target, move (from Donor to Target), run, and document tests  
 ################################# silver_searcher #############################################################################   
-        moveSilverSearcherTests("ignore_invert.t")
-        installSilverSearcher("Target")
+    moveSilverSearcherTests(testName)
+    installSilverSearcher("Target")
 ################################# silver_searcher end #########################################################################
 
-        
-        with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-            file.write("\n"+str(datetime.datetime.now())+": Final installation and test finished.")         
-            file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
-            file.write("\n"+str(datetime.datetime.now())+": < Insert useful statistics about time distributions here? >") 
+    
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Final installation and test finished.")         
+        file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
+        file.write("\n"+str(datetime.datetime.now())+": < Insert useful statistics about time distributions here? >") 
         
     #### Finish workflow ####
     print(" ### Code transplantation finished sucessfull! ### ")
@@ -424,9 +425,7 @@ def measureSizes():
 # Installs projects, runs their tests and measures results 
 # TODO automate based on projectList
 def setupProjectsForEvaluation():   
-    # Install dependencies for all projects
-    print("* * * Installing dependencies for project * * *")
-    os.system("sudo apt-get install -y automake python-cram pkg-config libpcre3-dev zlib1g-dev liblzma-dev")
+
     
 ################################# silver_searcher #############################################################################   
     installSilverSearcher("Donor")
