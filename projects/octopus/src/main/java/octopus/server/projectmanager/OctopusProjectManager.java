@@ -82,6 +82,7 @@ public class OctopusProjectManager {
 
 	public static OctopusProject getProjectByName(String name) {
 		logger.debug("requesting project: " + name);
+		System.out.println("requesting project: " + name);
 		return nameToProject.get(name);
 	}
 
@@ -147,7 +148,9 @@ public class OctopusProjectManager {
 	private static void deleteProjectWithName(String name) throws IOException {
 		removeDatabaseIfExists(name);
 		deleteProjectFiles(name);
+		System.out.println("Before: "+nameToProject.toString());
 		nameToProject.remove(name);		
+		System.out.println("After: "+nameToProject.toString());
 	}
 
 	private static void deleteProjectFiles(String name) throws IOException {

@@ -29,7 +29,7 @@ public class OctopusProjectConnector {
 	}
 
 	public void disconnect() {
-		// TODO Auto-generated method stub
+		wrapper = null;
 	}
 
 	public OctopusProjectWrapper getWrapper() {
