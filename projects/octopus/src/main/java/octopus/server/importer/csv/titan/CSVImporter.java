@@ -243,10 +243,6 @@ public class CSVImporter {
 		}
 	}
 
-	public boolean isNewDatabase() {
-		return isNewDatabase;
-	}
-
 	public void setGraph(Graph graph) {
 		this.graph = graph;
 	}

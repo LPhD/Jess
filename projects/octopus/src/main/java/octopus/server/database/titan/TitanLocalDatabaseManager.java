@@ -23,15 +23,13 @@ import octopus.api.projects.OctopusProject;
 public class TitanLocalDatabaseManager implements DatabaseManager {
 
 	@Override
-	public void initializeDatabaseForProject(OctopusProject project) throws IOException
-	{
+	public void initializeDatabaseForProject(OctopusProject project) throws IOException {
 		String pathToProject = project.getPathToProjectDir();
 		String configFilename = createConfigurationFile(pathToProject);
 		initializeDatabaseSchema(configFilename);
 	}
 
-	private String createConfigurationFile(String pathToProject) throws IOException
-	{
+	private String createConfigurationFile(String pathToProject) throws IOException {
 		String dbPath = Paths.get(pathToProject, "database").toAbsolutePath().toString();
 		String indexPath = Paths.get(pathToProject, "index").toAbsolutePath().toString();
 		String dbConfigFile = Paths.get(pathToProject, "db").toAbsolutePath().toString();
@@ -46,8 +44,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		return dbConfigFile;
 	}
 
-	private void initializeDatabaseSchema(String configFilename)
-	{
+	private void initializeDatabaseSchema(String configFilename) {
 		TitanGraph graph = TitanFactory.open(configFilename);
 		TitanManagement schema = graph.openManagement();
 
@@ -63,8 +60,8 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		// Lucene indices can be built as follows:
 		// This would be how to build a STRING index
 		PropertyKey codeKey = schema.makePropertyKey("code").dataType(String.class).make();
-		schema.buildIndex("byValue", Vertex.class)
-				.addKey(codeKey, Mapping.STRING.asParameter()).buildMixedIndex("search");
+		schema.buildIndex("byValue", Vertex.class).addKey(codeKey, Mapping.STRING.asParameter())
+				.buildMixedIndex("search");
 
 		// And this is how to build a TEXT index
 		// schema.buildIndex("byTypeAndValue", Vertex.class).addKey(typeKey).
@@ -75,8 +72,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 	}
 
 	@Override
-	public Database getDatabaseInstanceForProject(OctopusProject project)
-	{
+	public Database getDatabaseInstanceForProject(OctopusProject project) {
 		TitanLocalDatabase database = new TitanLocalDatabase();
 		String dbConfigFile = project.getDBConfigFile();
 		TitanGraph graph = TitanFactory.open(dbConfigFile);
@@ -85,8 +81,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 	}
 
 	@Override
-	public void deleteDatabaseForProject(OctopusProject project)
-	{
+	public void deleteDatabaseForProject(OctopusProject project) {
 		Database database = getDatabaseInstanceForProject(project);
 		TitanLocalDatabase titanDatabase = (TitanLocalDatabase) database;
 		String dbPathName = titanDatabase.getPathToDatabase();
@@ -95,17 +90,18 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		try {
 			FileUtils.deleteDirectory(new File(dbPathName));
 			FileUtils.deleteDirectory(new File(indexPathName));
+			System.out.println("Directories of old DB deleted");
 		} catch (IOException e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 			database.closeInstance();
+			titanDatabase.closeInstance();
 		}
 
 	}
 
 	@Override
-	public void resetDatabase(OctopusProject project)
-	{
+	public void resetDatabase(OctopusProject project) {
 		Database database = getDatabaseInstanceForProject(project);
 		Graph graph = database.getGraph();
 		try {
