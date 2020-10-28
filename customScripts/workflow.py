@@ -187,18 +187,18 @@ def iterateThroughCommits():
                 next(csvCommitFile)
         
                 # Iterate through commitList (one line per commit) 
-                # Content per row: Name,Donor Commit,Target Commit,Entry Path,Entry Line,Entry Type,Test Name
+                # Content per row: 0:Name, 1:Donor Commit, 2:Target Commit, 3:Entry Path, 4:Entry Line, 5:Entry Type, 6:Test Name
                 for commit in csvCommitFile:
                     # Only iterate through the commits of the current project
                     if (project[0] == commit[0]):
-                        print("Evaluating donor commit: "+project[1])  
-                        evaluationWorkflow()
+                        print("Evaluating donor commit: "+commit[1])  
+                        evaluationWorkflow(commit[1],commit[2],commit[3],commit[4],commit[5],commit[6])
                         
 # TODO: How to handle restart of server?
                                                
 
 # Same as normalWorkflow, but with additional statistics and evaluation processes (installation, testing, diffing)        
-def evaluationWorkflow():      
+def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryType, testName):      
     global mergeResult
                           
     #Reset Target Repo (remove unversioned files)
@@ -206,6 +206,7 @@ def evaluationWorkflow():
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
     os.system("git reset --hard")
     os.system("git clean -fd")   
+    os.chdir(topLvlDir)
     
     # Measure timings
     start_checkout = time.time()
@@ -250,9 +251,10 @@ def evaluationWorkflow():
                            
     #### Identify SU ####
     print(" ### Start of Semantic Unit identification process ### ")
-#TODO setup currentProject.txt with info from commitList.csv
-
- 
+    # Setup currentProject.txt with info from commitList.csv
+    with open(topLvlDir+"/Evaluation/currentProject.txt", "w") as file:  
+        file.write(entryPath+"\n"+entryLine+"\n"+entryType)
+    # Start identification process
     os.chdir(topLvlDir)    
     import SUI  
     
