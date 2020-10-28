@@ -74,7 +74,7 @@ public class OctopusRestServer {
 
 		exception(RuntimeException.class, (e, req, res) -> {
 			res.status(400);
-			res.body("Runtime Exception: " + e.getMessage());
+			res.body("Runtime Exception: " + e.getMessage() +"\n"+ e.printStackTrace());
 		});
 
 	}
