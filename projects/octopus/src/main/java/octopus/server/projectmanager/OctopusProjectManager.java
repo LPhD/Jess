@@ -133,6 +133,11 @@ public class OctopusProjectManager {
 		removeDatabaseIfExists(name);
 		deleteProjectFiles(name);
 		nameToProject.remove(name);
+		
+		System.out.print("Exit here");
+		
+		System.exit(1);
+		
 	}
 
 	private static void deleteProjectFiles(String name) throws IOException {

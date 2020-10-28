@@ -22,8 +22,6 @@ public class CSVImporter {
 	String[] VertexKeys;
 	String[] EdgeKeys;
 
-	boolean isNewDatabase;
-
 	NodeFile nodeFile;
 	EdgeFile edgeFile;
 
