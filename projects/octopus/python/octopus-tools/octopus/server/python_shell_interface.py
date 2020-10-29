@@ -113,7 +113,6 @@ class PythonShellInterface:
         while True:
             try:
                 result = self.shell_connection.run_command(query)
-                self.shell_connection.close()
                 return result
             except ConnectionResetError:
                 self.shell_connection = self._getOrCreateFreeShell()
