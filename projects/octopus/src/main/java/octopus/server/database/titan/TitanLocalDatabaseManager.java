@@ -48,7 +48,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 
 	private void initializeDatabaseSchema(String configFilename) {
 		System.out.println("COnfig file: "+configFilename);
-		//Here?
+
 		TitanGraph graph = TitanFactory.open(configFilename);
 		
 		System.out.println("Graph: "+graph.toString());
@@ -57,6 +57,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		
 		System.out.println("Schema: "+schema.toString());
 
+		//Here?
 		PropertyKey extIdKey = schema.makePropertyKey("_key").dataType(String.class).make();
 		PropertyKey typeKey = schema.makePropertyKey("type").dataType(String.class).make();
 
