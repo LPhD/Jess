@@ -6,14 +6,17 @@ class ShellManager(object):
         self.command = ServerCommand(server_host, server_port)
 
     def create(self, project_name, shellname = 'noname'):
-        response = self.command.execute_get_command("/manageshells/create/{}/{}".format(project_name, shellname))
-
+        print("1b")
+        #response = self.command.execute_get_command("/manageshells/create/{}/{}".format(project_name, shellname))
+        response = 2
+        print("2b")
         try:
             port = int(response)
+            print("3b")
         except:
             print(response)
             raise Exception("Error creating shell. Does the project exist?")
-
+        print("4b")
         return port
     
     # Disconnect from server
