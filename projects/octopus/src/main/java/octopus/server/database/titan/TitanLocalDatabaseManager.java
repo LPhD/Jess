@@ -96,12 +96,15 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		TitanLocalDatabase titanDatabase = (TitanLocalDatabase) database;
 		String dbPathName = titanDatabase.getPathToDatabase();
 		String indexPathName = titanDatabase.getPathToIndex();
+		
+		Graph graph = database.getGraph();
 
 		try {
+			graph.close();
 			FileUtils.deleteDirectory(new File(dbPathName));
 			FileUtils.deleteDirectory(new File(indexPathName));
 			System.out.println("Directories of old DB deleted");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			database.closeInstance();

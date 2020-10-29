@@ -173,7 +173,6 @@ public class OctopusProjectManager {
 	private static void removeDatabaseIfExists(String name) throws IOException {
 		OctopusProject project = new ProjectManager().getProjectByName(name);
 		TitanLocalDatabaseManager dbManager = new TitanLocalDatabaseManager();
-		dbManager.resetDatabase(project);
 		dbManager.deleteDatabaseForProject(project);
 	}
 
