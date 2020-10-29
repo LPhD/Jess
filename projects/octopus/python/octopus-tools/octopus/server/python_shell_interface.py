@@ -84,7 +84,7 @@ class PythonShellInterface:
         print("1aaa")
         shellname = self._generateNameForNewShell()
         print("2aaa")
-        port = self.shell_manager.create(self.databaseName, shellname)
+        #port = self.shell_manager.create(self.databaseName, shellname)
         print("3aaa")
         return ""#self._connectToShellWithPort(port)
 
