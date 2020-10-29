@@ -50,7 +50,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		System.out.println("COnfig file: "+configFilename);
 
 		TitanGraph graph = TitanFactory.open(configFilename);
-		
+
 		System.out.println("Graph: "+graph.toString());
 		
 		TitanManagement schema = graph.openManagement();
@@ -58,7 +58,13 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		System.out.println("Schema: "+schema.toString());
 
 		//Here?
-		PropertyKey extIdKey = schema.makePropertyKey("_key").dataType(String.class).make();
+		PropertyKey extIdKey = schema.getPropertyKey("_key");
+		
+		System.out.println(extIdKey);
+		
+		if (extIdKey != null) {
+			extIdKey = schema.makePropertyKey("_key").dataType(String.class).make();
+		} 
 		PropertyKey typeKey = schema.makePropertyKey("type").dataType(String.class).make();
 
 		// At import, we only create separate composite indices for key and type.
