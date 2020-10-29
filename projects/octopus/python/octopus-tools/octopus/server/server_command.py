@@ -23,11 +23,8 @@ class ServerCommand(object):
     def execute_get_command(self, name):
         print("1c")
         self._connect()
-        print("2c")
         self._connection.request("GET", name)
-        print("3c")
         response = self._connection.getresponse().read().decode().strip()
-        print("4c")
         self._disconnect()
-        print("5c")
+        print("2c")
         return response
