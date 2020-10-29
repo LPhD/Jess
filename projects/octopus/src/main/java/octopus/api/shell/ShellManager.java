@@ -9,21 +9,18 @@ import octopus.server.shellmanager.OctopusShellManager;
 
 public class ShellManager {
 
-	public List<OctopusGremlinShell> getActiveShells()
-	{
+	public List<OctopusGremlinShell> getActiveShells() {
 		return OctopusShellManager.getActiveShells();
 	}
 
-	public int createNewShellThread(String projectName, String shellName) throws IOException
-	{
+	public int createNewShellThread(String projectName, String shellName) throws IOException {
 		int port = OctopusShellManager.createNewShell(projectName, shellName);
 		OctopusGremlinShell shell = OctopusShellManager.getShellForPort(port);
 		startShellThread(shell);
 		return port;
 	}
 
-	private void startShellThread(OctopusGremlinShell shell) throws IOException
-	{
+	private void startShellThread(OctopusGremlinShell shell) throws IOException {
 		ShellRunnable runnable = new ShellRunnable(shell);
 		Thread thread = new Thread(runnable);
 		thread.start();
