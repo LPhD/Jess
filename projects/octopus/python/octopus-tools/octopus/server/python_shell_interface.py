@@ -32,8 +32,9 @@ class PythonShellInterface:
     
     # Close connection
     def close(self):
-        OctopusShellConnection(self.host, self.port).close()
         OctopusShellConnection(self.host, self.port).quit()
+        OctopusShellConnection(self.host, self.port).close()
+        
   
     def _getOrCreateFreeShell(self):
 
