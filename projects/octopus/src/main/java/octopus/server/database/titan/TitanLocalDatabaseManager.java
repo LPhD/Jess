@@ -62,7 +62,8 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		
 		System.out.println(extIdKey);
 		
-		if (extIdKey != null) {
+		// Make schema only if it's non existent
+		if (extIdKey == null) {
 			extIdKey = schema.makePropertyKey("_key").dataType(String.class).make();
 		} 
 		PropertyKey typeKey = schema.makePropertyKey("type").dataType(String.class).make();
