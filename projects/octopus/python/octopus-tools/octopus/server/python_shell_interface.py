@@ -30,11 +30,11 @@ class PythonShellInterface:
         self._createShellManagerAndConnection()
         self.shell_connection = self._getOrCreateFreeShell()
     
-    # Close connection
+    # Close connection (to avoid db lock)
     def close(self):
-        OctopusShellConnection(self.host, self.port).quit()
-        OctopusShellConnection(self.host, self.port).close()
-        
+        self.shell_connection.close()
+        self.shell_manager.disconnect()
+                
   
     def _getOrCreateFreeShell(self):
 
