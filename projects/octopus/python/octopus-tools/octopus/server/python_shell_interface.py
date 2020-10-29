@@ -28,8 +28,10 @@ class PythonShellInterface:
         self.databaseName = databaseName
 
     def connectToDatabase(self):
+        print("1a")
         self._createShellManagerAndConnection()
-        self.shell_connection = self._getOrCreateFreeShell()
+        print("2a")
+        #self.shell_connection = self._getOrCreateFreeShell()
         print("Connected")
 
   

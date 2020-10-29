@@ -12,18 +12,16 @@ class DBInterface:
         self.jsonEnabled = False;
 
     def connectToDatabase(self, databaseName = 'octopusDB'):
-        print("1")
         self.j = PythonShellInterface()
-        print("2")
         self.j.setDatabaseName(databaseName)
-        print("3")
-        #self.j.connectToDatabase()
-        print("4")
+        print("1")
+        self.j.connectToDatabase()
+        print("2")
 
         #if self.jsonEnabled:
             #self.j.runGremlinQuery('toggle_json')
             
-        print("5")   
+        print("3")   
 
             
     def close(self):
