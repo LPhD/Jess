@@ -84,7 +84,7 @@ class PythonShellInterface:
         #Here
         port = self.shell_manager.create(self.databaseName, shellname)
         print("2aaa")
-        return ""#self._connectToShellWithPort(port)
+        return self._connectToShellWithPort(port)
 
     def _generateNameForNewShell(self):
         prefix = self._getPythonShellPrefix()

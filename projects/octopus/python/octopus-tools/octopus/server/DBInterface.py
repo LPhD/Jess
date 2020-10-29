@@ -18,8 +18,8 @@ class DBInterface:
         self.j.connectToDatabase()
         print("2")
 
-        #if self.jsonEnabled:
-            #self.j.runGremlinQuery('toggle_json')
+        if self.jsonEnabled:
+            self.j.runGremlinQuery('toggle_json')
             
         print("3")   
 
