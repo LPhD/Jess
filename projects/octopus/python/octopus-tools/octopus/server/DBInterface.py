@@ -17,7 +17,7 @@ class DBInterface:
         print("2")
         self.j.setDatabaseName(databaseName)
         print("3")
-        self.j.connectToDatabase()
+        #self.j.connectToDatabase()
         print("4")
 
         #if self.jsonEnabled:
