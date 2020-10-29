@@ -9,9 +9,7 @@ class OctopusShellConnection(object):
         self._port = port
 
     def connect(self):
-        print("1aaaa")
-        #self.socket.connect((self.host, self.port))
-        print("2aaaa")
+        self.socket.connect((self.host, self.port))
 
     def request(self, request):
     

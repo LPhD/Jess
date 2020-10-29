@@ -71,14 +71,12 @@ class PythonShellInterface:
                                       for (port, name, occupied) in self.shellsForDatabase
                                       if occupied == 'free']
 
+
     def _connectToShellWithPort(self, port):
-        print("4aaa")
-        #connection = OctopusShellConnection(self.host, port)
-        print("5aaa")
-        #connection.connect()
-        print("6aaa")
-        #return connection
-        return ""
+        connection = OctopusShellConnection(self.host, port)
+        connection.connect()
+        return connection
+
 
     def _createNewShell(self):
         shellname = self._generateNameForNewShell()

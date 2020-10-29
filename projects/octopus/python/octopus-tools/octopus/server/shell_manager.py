@@ -7,6 +7,7 @@ class ShellManager(object):
 
     def create(self, project_name, shellname = 'noname'):
         print("1b")
+        #Here
         #response = self.command.execute_get_command("/manageshells/create/{}/{}".format(project_name, shellname))
         response = 2
         print("2b")
