@@ -15,6 +15,10 @@ class ShellManager(object):
             raise Exception("Error creating shell. Does the project exist?")
 
         return port
+    
+    # Disconnect from server
+    def disconnect(self):
+        self.command._disconnect()
 
     def list(self, project_name=None, shell_port=None, filter_occupied=False):
         response = self.command.execute_get_command("/manageshells/list")
