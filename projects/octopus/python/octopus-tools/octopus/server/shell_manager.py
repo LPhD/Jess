@@ -18,7 +18,7 @@ class ShellManager(object):
     
     # Disconnect from server
     def disconnect(self):
-        self.command._disconnect()
+        ServerCommand(server_host, server_port)._disconnect()
 
     def list(self, project_name=None, shell_port=None, filter_occupied=False):
         response = self.command.execute_get_command("/manageshells/list")
