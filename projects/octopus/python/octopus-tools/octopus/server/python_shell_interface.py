@@ -29,7 +29,11 @@ class PythonShellInterface:
     def connectToDatabase(self):
         self._createShellManagerAndConnection()
         self.shell_connection = self._getOrCreateFreeShell()
-
+    
+    # Close connection
+    def close(self):
+        OctopusShellConnection(self.host, self.port).close(self)
+  
     def _getOrCreateFreeShell(self):
 
         while True:

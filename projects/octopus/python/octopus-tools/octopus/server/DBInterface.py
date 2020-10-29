@@ -18,6 +18,9 @@ class DBInterface:
 
         if self.jsonEnabled:
             self.j.runGremlinQuery('toggle_json')
+            
+    def close(self):
+         PythonShellInterface().close(self)       
 
     def runGremlinQuery(self, query):
     
