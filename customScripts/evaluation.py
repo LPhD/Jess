@@ -41,6 +41,10 @@ def getVisibleNodes(projectName):
                 .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
                 .id()""" % (visibleStatementTypes) 
     result = db.runGremlinQuery(query)
+            
+    # Finally close db connection and release the shell
+    db.runGremlinQuery("Quit") 
+    
     return result  
 
 def fileOutput (result, projectName):    

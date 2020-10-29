@@ -78,7 +78,10 @@ def importData(db, idList, SEMANTIC):
     # # # Semantic Diff # # #
     if SEMANTIC:
         enhanceWithSemanticForIfDefBlocks(structuredCodeList)
-    # # # Semantic Diff End # # #    
+    # # # Semantic Diff End # # #  
+    
+    # Finally close db connection and release the shell
+    db.runGremlinQuery("Quit")     
     
     return structuredCodeList
 
@@ -256,8 +259,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             elif inBlock and (statement[3] == "}") and not (statement[4] == "FunctionBlockEnder"):     
                 if DEBUG: print("Found blockEnder of non-function block: "+statement[3])   
                 # Build the line content with the name of the current block before removing it
-                lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
-                print("lineContent3: "+lineContent)                 
+                lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent                 
                 #Remove the closed blockstarter from the stack
                 lastBlockstarter = blockStarterStack.pop()
                 
@@ -265,7 +267,6 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             elif (statement[4] == "FunctionBlockEnder"):
                 #Insert the block name to the statement (we do this here, as we set inBlock to false before we reach the next if)
                 lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
-                print("lineContent2: "+lineContent) 
                 inBlock = False
                 if DEBUG: print("Found block ender line: "+str(statement[1]))   
         
@@ -274,8 +275,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
             lineContent = re.sub("###.*?###", '', lineContent) 
             # Then add prefix for statements that are inside a block 
-            lineContent = "###Block " +str(blockStarterStack)+ "### " +  lineContent
-            print("lineContent1: "+lineContent) 
+            lineContent = "###Block " +str(blockStarterStack)+ "### " +  lineContent 
                  
         # # # Semantic Diff End # # #
     
@@ -297,13 +297,14 @@ def convertToCode(SEMANTIC, workingdir, foldername):
     os.chdir(workingdir)
     input = initialize()    
     output = importData(input[0], input[1], SEMANTIC)
+    
     if(len(output)==0):
         print("Error: Output is empty")
-        exit()
     else:
         writeOutput(output, SEMANTIC, foldername)
         print("Code creation successfull")
+   
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-#convertToCode(True, os.getcwd(), "ConvertedCode/src")    
+#convertToCode(False, os.getcwd()+"/Results", "ConvertedCode/src")    

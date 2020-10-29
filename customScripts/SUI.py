@@ -44,7 +44,7 @@ showOnlyStructuralEdges = True
 plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
-workflow = True
+EVALUATION = True #Reads input from the currentProject.txt in the Evaluation folder
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 showStatistics = True
@@ -93,7 +93,7 @@ projectName = 'DonorProject'
 #  #decompress function decompress.c (medium (~140secs) with typdef enum)
 #   scandir.c for typedef with brackets
 #  10149976 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~100-500 nodes).
-entryPointIds = {7639200}
+entryPointIds = {1}
 
 
 
@@ -121,7 +121,9 @@ visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 
 
 # Main function 
 def identifySemanticUnits ():
-# Check if a feature is selected as entry point
+    global db
+    
+    # Check if a feature is selected as entry point
     if (len(entryFeatureNames) > 0):        
         result = set(getFeatureBlocks(entryFeatureNames))
         if (len(result) > 1):
@@ -240,6 +242,9 @@ def identifySemanticUnits ():
         #nodeOutput()
     else:
         print("SemanticUnit is empty!")
+        
+    # Finally close db connection and release the shell
+    db.runGremlinQuery("Quit")   
 
 
 ####################################### Rules ###############################################   
@@ -1520,8 +1525,6 @@ def workflowInput():
     # Get results for nodes at statementPath and statementLine with statementType
     query = """g.V().has('path', textContains('%s')).has('line', '%s').has('type', '%s').id()""" % (statementPath, statementLine, statementType) 
     result = db.runGremlinQuery(query)
-    
-    print("Result: "+str(result))
                                 
     # If there is a statement at that path and line            
     if(len(result) > 0):
@@ -1529,7 +1532,7 @@ def workflowInput():
         entryPointIds = {int(result[0])}      
         print("Set entry point to: "+str(entryPointIds))    
     else:
-        print(" ! ! ! Error recieving input node id from file in evaluation mode ! ! ! ")
+        print(" ! ! ! Error recieving input node id from file: \""+statementPath+"\" at line: \""+statementLine+"\" with type: \""+statementType+"\" in evaluation mode ! ! ! ")
         quit()
 
                                 
@@ -1812,13 +1815,14 @@ def output(G):
     
     
 ################################################### Start of program #################################################################
+
 #Initialize DB interface
 db = DBInterface()
 
 # Input of entry points
 if (console):
     consoleInput()
-elif (workflow):
+elif (EVALUATION):
     workflowInput()    
 else: 
     # projectName must be set manually
