@@ -8,8 +8,12 @@ class ShellManager(object):
 
     def create(self, project_name, shellname = 'noname'):
         print("1b")
+        self.command.execute_get_command("/manageshells/list")
         #Here
         response = self.command.execute_get_command("/manageshells/create/{}/{}".format(project_name, shellname))
+        print(project_name)
+        print(shellname)
+        self.command.execute_get_command("/manageshells/list")
         print("2b")
         try:
             port = int(response)
