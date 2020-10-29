@@ -38,20 +38,17 @@ class PythonShellInterface:
 
         while True:
             try:
-                print("1aa")
                 shell = self._getExistingFreeShell()
-                print("2aa")
                 
                 if not shell:
                     print("3aa")
-                    #shell = self._createNewShell()
+                    shell = self._createNewShell()
                     print("4aa")
                     
                 print("5aa")    
                 return shell
             
             except ConnectionRefusedError:
-                print("Except")
                 time.sleep(0.1)
 
     def _getExistingFreeShell(self):
@@ -75,13 +72,19 @@ class PythonShellInterface:
                                       if occupied == 'free']
 
     def _connectToShellWithPort(self, port):
+        print("4aaa")
         connection = OctopusShellConnection(self.host, port)
+        print("5aaa")
         connection.connect()
+        print("6aaa")
         return connection
 
     def _createNewShell(self):
+        print("1aaa")
         shellname = self._generateNameForNewShell()
+        print("2aaa")
         port = self.shell_manager.create(self.databaseName, shellname)
+        print("3aaa")
         return self._connectToShellWithPort(port)
 
     def _generateNameForNewShell(self):
