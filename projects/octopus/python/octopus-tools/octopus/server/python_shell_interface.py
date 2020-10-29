@@ -28,10 +28,9 @@ class PythonShellInterface:
         self.databaseName = databaseName
 
     def connectToDatabase(self):
-        print("1a")
         self._createShellManagerAndConnection()
-        print("2a")
-        #self.shell_connection = self._getOrCreateFreeShell()
+        print("1a")
+        self.shell_connection = self._getOrCreateFreeShell()
         print("Connected")
 
   
@@ -39,11 +38,20 @@ class PythonShellInterface:
 
         while True:
             try:
+                print("1aa")
                 shell = self._getExistingFreeShell()
+                print("2aa")
+                
                 if not shell:
-                    shell = self._createNewShell()
+                    print("3aa")
+                    #shell = self._createNewShell()
+                    print("4aa")
+                    
+                print("5aa")    
                 return shell
+            
             except ConnectionRefusedError:
+                print("Except")
                 time.sleep(0.1)
 
     def _getExistingFreeShell(self):
