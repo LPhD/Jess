@@ -77,7 +77,8 @@ class PythonShellInterface:
         print("5aaa")
         #connection.connect()
         print("6aaa")
-        return connection
+        #return connection
+        return ""
 
     def _createNewShell(self):
         print("1aaa")
