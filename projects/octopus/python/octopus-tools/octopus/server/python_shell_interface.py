@@ -16,6 +16,7 @@ class PythonShellInterface:
         self.host = DEFAULT_HOST
         self.port = DEFAULT_PORT
         self.databaseName = DEFAULT_DATABASE_NAME
+        print("Initialize")
 
     def setHost(self, host):
         self.host = host
@@ -29,9 +30,11 @@ class PythonShellInterface:
     def connectToDatabase(self):
         self._createShellManagerAndConnection()
         self.shell_connection = self._getOrCreateFreeShell()
+        print("Connected")
     
     # Close connection (to avoid db lock)
     def close(self):
+        print("Try to close")
         self.shell_connection.close()
         self.shell_manager.disconnect()
                 
@@ -94,6 +97,7 @@ class PythonShellInterface:
 
 
     def _createShellManagerAndConnection(self):
+        print("Creating shells")
         self.shell_manager = ShellManager(self.host, self.port)
         self.shell_connection = OctopusShellConnection(self.host, self.port)
 
@@ -103,6 +107,7 @@ class PythonShellInterface:
 #        print(self)
  #       print(query)
  #       print('TESTENDE IN PYTHON_SHELL_INTERFACE______________________________________________________')
+        print("Run query "+query)
         while True:
             try:
                 return self.shell_connection.run_command(query)
@@ -110,6 +115,7 @@ class PythonShellInterface:
                 self.shell_connection = self._getOrCreateFreeShell()
                 time.sleep(0.1)
 
+        print("Query run finished")        
     """
     Create chunks from a list of ids.
     This method is useful when you want to execute many independent
