@@ -20,7 +20,7 @@ class DBInterface:
             self.j.runGremlinQuery('toggle_json')
             
     def close(self):
-         PythonShellInterface().close(self)       
+         PythonShellInterface().close()       
 
     def runGremlinQuery(self, query):
     
