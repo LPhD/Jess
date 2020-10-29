@@ -59,6 +59,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 
 		//Here?
 		PropertyKey extIdKey = schema.getPropertyKey("_key");
+		PropertyKey typeKey = schema.getPropertyKey("type");
 		
 		System.out.println(extIdKey);
 		
@@ -66,7 +67,12 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		if (extIdKey == null) {
 			extIdKey = schema.makePropertyKey("_key").dataType(String.class).make();
 		} 
-		PropertyKey typeKey = schema.makePropertyKey("type").dataType(String.class).make();
+		
+		// Make schema only if it's non existent
+		if (typeKey == null) {
+			typeKey = schema.makePropertyKey("type").dataType(String.class).make();
+		} 
+		
 
 		// At import, we only create separate composite indices for key and type.
 		// Additional indices should be built by plugins.
