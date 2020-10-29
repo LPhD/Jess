@@ -14,26 +14,17 @@ class DBInterface:
     def connectToDatabase(self, databaseName = 'octopusDB'):
         self.j = PythonShellInterface()
         self.j.setDatabaseName(databaseName)
-        print("1")
         self.j.connectToDatabase()
-        print("2")
 
         if self.jsonEnabled:
             self.j.runGremlinQuery('toggle_json')
-            
-        print("3")   
+             
 
             
     def close(self):
          PythonShellInterface().close()       
 
-    def runGremlinQuery(self, query):
-    
- #       print('DBI _______________________##############_______________________________')
- #       print(self)
- #       print(query)
- #       print('DBIENDE ____________________################__________________________________')
-        
+    def runGremlinQuery(self, query):       
         result = self.j.runGremlinQuery(query)
 
         if not self.jsonEnabled:

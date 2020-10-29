@@ -16,7 +16,6 @@ class PythonShellInterface:
         self.host = DEFAULT_HOST
         self.port = DEFAULT_PORT
         self.databaseName = DEFAULT_DATABASE_NAME
-        print("Initialize")
 
     def setHost(self, host):
         self.host = host
@@ -29,23 +28,18 @@ class PythonShellInterface:
 
     def connectToDatabase(self):
         self._createShellManagerAndConnection()
-        print("1a")
         self.shell_connection = self._getOrCreateFreeShell()
-        print("Connected")
+        #print("Connected")
 
   
     def _getOrCreateFreeShell(self):
 
         while True:
             try:
-                shell = self._getExistingFreeShell()
-                
+                shell = self._getExistingFreeShell()                
                 if not shell:
-                    print("3aa")
                     shell = self._createNewShell()
-                    print("4aa")
-                    
-                print("5aa")    
+  
                 return shell
             
             except ConnectionRefusedError:
@@ -80,10 +74,8 @@ class PythonShellInterface:
 
     def _createNewShell(self):
         shellname = self._generateNameForNewShell()
-        print("1aaa")
-        #Here
+        #Creates a new shell/thread
         port = self.shell_manager.create(self.databaseName, shellname)
-        print("2aaa")
         return self._connectToShellWithPort(port)
 
     def _generateNameForNewShell(self):
@@ -103,25 +95,15 @@ class PythonShellInterface:
 
 
     def _createShellManagerAndConnection(self):
-        print("Creating shells")
         self.shell_manager = ShellManager(self.host, self.port)
         self.shell_connection = OctopusShellConnection(self.host, self.port)
-        
-         
-    # Close connection (to avoid db lock)
+                 
+    # Close connection 
     def close(self):
-        print("Try to close")
         OctopusShellConnection(self.host, self.port).close()
-        #ShellManager(self.host, self.port).disconnect()
-                   
-
+                  
     def runGremlinQuery(self, query):
-
-#        print('TEST IN PYTHON_SHELL_INTERFACE______________________________________________________')
-#        print(self)
- #       print(query)
- #       print('TESTENDE IN PYTHON_SHELL_INTERFACE______________________________________________________')
-        print("Run query "+query)
+        #print("Run query "+query)
         while True:
             try:
                 result = self.shell_connection.run_command(query)

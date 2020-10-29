@@ -42,12 +42,7 @@ public class JoernImporter extends JoernProjectPlugin {
 		if (parsecode)
 			parseSourceCode();
 		if (importcsv)
-			importCSVFilesIntoDatabase();
-		
-		System.out.println("Close project");
-		
-		//Close project?
-		joernProject = null;
+			importCSVFilesIntoDatabase();		
 	}
 
 	private void openProject() {

@@ -1,7 +1,7 @@
 import re
 import socket
 
-
+# Shell for running commands / communication with the server + db
 class OctopusShellConnection(object):
     def __init__(self, host, port):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,28 +12,17 @@ class OctopusShellConnection(object):
         self.socket.connect((self.host, self.port))
 
     def request(self, request):
-    
- #       print('REQUEST ______________________________________________________')
         request = "{}\0".format(request.strip())
- #       print(request)
         request = request.encode()
- #       print(request)
         self.socket.sendall(request)
-  #      print('REQUESTENDE ______________________________________________________')
 
-    def getresponse(self):
- #       print('RESPONSE ______________________________________________________')
- #       print(self)
-            
+
+    def getresponse(self):        
         response = b""
- #       print(response)
         
         while True:
             chunk = self.socket.recv(2048)
-            response += chunk
-            
-#            print('RESPONSEWHILE ______________________________________________________')
- #           print(response)
+            response += chunk            
             
             try:
                 if response[-1] == 0x00:
@@ -41,21 +30,13 @@ class OctopusShellConnection(object):
             except:
                 pass
                 
- #       print('RESPONSEWHILEENDE ______________________________________________________')
- #       print(response)
         response = response[:-1].decode().strip()
- #       print(response)
- #       print('RESPONSEENDE ______________________________________________________')
         return response
+
 
     def run_command(self, command):
         self.request(command)
         response = self.getresponse()
- #       print('TEST2 ______________________________________________________')
- #       print(self)
-  #      print(command)
-  #      print(response)
- #       print('TESTENDE2 ______________________________________________________')
         if re.match("\[.*Exception\]", response):
             raise RuntimeError(response)
         return response.split('\n')

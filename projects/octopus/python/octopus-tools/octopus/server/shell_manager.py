@@ -4,17 +4,11 @@ class ShellManager(object):
 
     def __init__(self, server_host, server_port):
         self.command = ServerCommand(server_host, server_port)
-        print("Init command")
 
     def create(self, project_name, shellname = 'noname'):
-        print("1b")
-        print(self.command.execute_get_command("/manageshells/list"))
-        #Here
+        # Creates a new shell on the octopus server. This shell locks the db as long as it lives.
         response = self.command.execute_get_command("/manageshells/create/{}/{}".format(project_name, shellname))
-        print(project_name)
-        print(shellname)
-        print(self.command.execute_get_command("/manageshells/list"))
-        print("2b")
+
         try:
             port = int(response)
         except:

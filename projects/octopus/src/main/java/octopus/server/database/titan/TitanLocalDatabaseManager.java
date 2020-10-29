@@ -46,18 +46,11 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		return dbConfigFile;
 	}
 
+	//Creates a new db schema. This does not work if the db is locked, e.g. by existing shells connected to the db
 	private void initializeDatabaseSchema(String configFilename) {
-		System.out.println("COnfig file: "+configFilename);
-
 		TitanGraph graph = TitanFactory.open(configFilename);
-
-		System.out.println("Graph: "+graph.toString());
-		
 		TitanManagement schema = graph.openManagement();
-		
-		System.out.println("Schema: "+schema.toString());
 
-		//Here?
 		PropertyKey extIdKey = schema.makePropertyKey("_key").dataType(String.class).make();
 		PropertyKey typeKey = schema.makePropertyKey("type").dataType(String.class).make();
 
@@ -90,6 +83,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 		return database;
 	}
 
+	//Deletes the db from the disk
 	@Override
 	public void deleteDatabaseForProject(OctopusProject project) {
 		Database database = getDatabaseInstanceForProject(project);
@@ -103,7 +97,7 @@ public class TitanLocalDatabaseManager implements DatabaseManager {
 			graph.close();
 			FileUtils.deleteDirectory(new File(dbPathName));
 			FileUtils.deleteDirectory(new File(indexPathName));
-			System.out.println("Directories of old DB deleted");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

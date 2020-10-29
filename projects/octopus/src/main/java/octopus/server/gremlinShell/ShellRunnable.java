@@ -47,8 +47,8 @@ public class ShellRunnable implements Runnable {
 		serverSocket = new ServerSocket(shell.getPort(), 10, bindAddr);
 	}
 
+	//This locks the db
 	private void processClients() throws IOException {
-		System.out.println("Started to process clients");
 		while (listening) {
 			try {
 				acceptNewClient();
@@ -64,7 +64,7 @@ public class ShellRunnable implements Runnable {
 			}
 
 		}
-		System.out.println("Finished to process clients");
+		//This should happen automatically or must be triggered manually by running the "quit" command, e.g. as Gremlin query
 		OctopusShellManager.destroyShell(shell.getPort());
 		serverSocket.close();
 	}

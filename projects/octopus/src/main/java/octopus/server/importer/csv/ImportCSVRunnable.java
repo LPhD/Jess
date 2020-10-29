@@ -43,8 +43,7 @@ public class ImportCSVRunnable implements Runnable {
 			csvBatchImporter.importCSVFiles(nodeFilename, edgeFilename);
 			database.closeInstance();
 			
-			
-			
+		
 		} catch (IOException e) {
 			System.err.println("Error in ImportCSVRunnable");
 			e.printStackTrace();
