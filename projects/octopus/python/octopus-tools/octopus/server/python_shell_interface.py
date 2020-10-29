@@ -73,9 +73,9 @@ class PythonShellInterface:
 
     def _connectToShellWithPort(self, port):
         print("4aaa")
-        connection = OctopusShellConnection(self.host, port)
+        #connection = OctopusShellConnection(self.host, port)
         print("5aaa")
-        connection.connect()
+        #connection.connect()
         print("6aaa")
         return connection
 
