@@ -100,7 +100,7 @@ class PythonShellInterface:
     def close(self):
         print("Try to close")
         OctopusShellConnection(self.host, self.port).close()
-        self.shell_manager.disconnect()
+        ShellManager(self.host, self.port).shell_manager.disconnect()
                    
 
     def runGremlinQuery(self, query):
