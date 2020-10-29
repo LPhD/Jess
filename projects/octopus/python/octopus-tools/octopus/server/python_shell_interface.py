@@ -36,7 +36,7 @@ class PythonShellInterface:
     def close(self):
         print("Try to close")
         OctopusShellConnection(self.host, self.port).close()
-        ShellManager(self.host, self.port).disconnect()
+        self.shell_manager.disconnect()
                 
   
     def _getOrCreateFreeShell(self):
