@@ -31,13 +31,7 @@ class PythonShellInterface:
         self._createShellManagerAndConnection()
         self.shell_connection = self._getOrCreateFreeShell()
         print("Connected")
-    
-    # Close connection (to avoid db lock)
-    def close(self):
-        print("Try to close")
-        OctopusShellConnection(self.host, self.port).close()
-        ShellManager(self.host, self.port).disconnect()
-                
+
   
     def _getOrCreateFreeShell(self):
 
@@ -100,6 +94,14 @@ class PythonShellInterface:
         print("Creating shells")
         self.shell_manager = ShellManager(self.host, self.port)
         self.shell_connection = OctopusShellConnection(self.host, self.port)
+        
+         
+    # Close connection (to avoid db lock)
+    def close(self):
+        print("Try to close")
+        self.shell_connection.close()
+        self.shell_manager.disconnect()
+                   
 
     def runGremlinQuery(self, query):
 
