@@ -108,12 +108,12 @@ class PythonShellInterface:
  #       print(query)
  #       print('TESTENDE IN PYTHON_SHELL_INTERFACE______________________________________________________')
         print("Run query "+query)
-        while True:
-            try:
-                return self.shell_connection.run_command(query)
-            except ConnectionResetError:
-                self.shell_connection = self._getOrCreateFreeShell()
-                time.sleep(0.1)
+        #while True:
+        try:
+            return self.shell_connection.run_command(query)
+        except ConnectionResetError:
+            self.shell_connection = self._getOrCreateFreeShell()
+            time.sleep(0.1)
 
         print("Query run finished")        
     """
