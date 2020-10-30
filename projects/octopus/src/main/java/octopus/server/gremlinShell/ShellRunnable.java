@@ -49,6 +49,7 @@ public class ShellRunnable implements Runnable {
 
 	//This locks the db
 	private void processClients() throws IOException {
+		System.out.println("Opening new shell...");
 		while (listening) {
 			try {
 				acceptNewClient();
@@ -67,6 +68,7 @@ public class ShellRunnable implements Runnable {
 		//This should happen automatically or must be triggered manually by running the "quit" command, e.g. as Gremlin query
 		OctopusShellManager.destroyShell(shell.getPort());
 		serverSocket.close();
+		System.out.println("Socket closed and shell destroyed...");
 	}
 
 	private void markShellAsOccupied() {
