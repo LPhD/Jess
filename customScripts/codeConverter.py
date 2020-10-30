@@ -81,7 +81,7 @@ def importData(db, idList, SEMANTIC):
     # # # Semantic Diff End # # #  
     
     # Finally close db connection and release the shell
-    db.runGremlinQuery("Quit")     
+    db.runGremlinQuery("quit")     
     
     return structuredCodeList
 

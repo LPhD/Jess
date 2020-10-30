@@ -44,7 +44,7 @@ showOnlyStructuralEdges = True
 plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
-EVALUATION = True #Reads input from the currentProject.txt in the Evaluation folder
+EVALUATION = False #Reads input from the currentProject.txt in the Evaluation folder
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 showStatistics = True
@@ -60,6 +60,7 @@ showStatistics = True
 #projectName = 'PL_Current.tar.gz'
 #projectName = 'PV_Current.tar.gz'
 projectName = 'DonorProject'
+projectName = 'Test1'
 #projectName = 'Origin.tar.gz'
 #projectName = 'Collection'
 
@@ -244,7 +245,7 @@ def identifySemanticUnits ():
         print("SemanticUnit is empty!")
         
     # Finally close db connection and release the shell
-    db.runGremlinQuery("Quit")   
+    db.runGremlinQuery("quit")   
 
 
 ####################################### Rules ###############################################   

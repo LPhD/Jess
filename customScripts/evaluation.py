@@ -43,7 +43,7 @@ def getVisibleNodes(projectName):
     result = db.runGremlinQuery(query)
             
     # Finally close db connection and release the shell
-    db.runGremlinQuery("Quit") 
+    db.runGremlinQuery("quit") 
     
     return result  
 
