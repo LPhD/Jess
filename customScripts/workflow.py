@@ -205,53 +205,58 @@ def iterateThroughCommits():
 def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryType, testName):      
     global mergeResult
                           
-    #Reset Target Repo (remove unversioned files)
+    #Reset result repos (remove unversioned files)
     print("Reset Target directory")
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
     os.system("git reset --hard")
-    os.system("git clean -fd")   
+    os.system("git clean -fd")  
+    os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
+    os.system("git reset --hard")
+    os.system("git clean -fd")     
     os.chdir(topLvlDir)
     
     # Measure timings
     start_checkout = time.time()
     with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
-        file.write("\n"+str(datetime.datetime.now())+": Starting with checkout of specific commits...") 
+        file.write("\n"+str(datetime.datetime.now())+": * * * Starting with checkout of specific commits... * * * ") 
     
     # Checkout the specific versions to be evaluated
     checkoutCommitsForEvaluation(donorCommit, targetCommit)
     
-    # Document size of Donor and Target
-    measureSizes()
-    
-    # Measure timings of installation and test processes separately
-    installAndTest_start = time.time()
-    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
-        file.write("\n"+str(datetime.datetime.now())+": Starting with setup of specific commits...")     
-    
-    # Perform additional actions required for evaluation (installation, run tests, etc.)
-    setupProjectsForEvaluation()
-    
-    # Get timings after project setup    
-    installAndTest_duration = time.time() - installAndTest_start
+    # Timing
     checkout_duration = time.time() - start_checkout
-    print("Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")
     print("The whole checkout process took "+ str(checkout_duration) +" seconds")
     with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
         file.write("\n"+str(datetime.datetime.now())+": Commit ids are: "+str(donorCommit)+" (Donor) and "+str(targetCommit)+" (Target)") 
-        file.write("\n"+str(datetime.datetime.now())+": Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run") 
-        file.write("\n"+str(datetime.datetime.now())+": The whole checkout process took "+ str(checkout_duration) +" seconds")     
+        file.write("\n"+str(datetime.datetime.now())+": The whole checkout process took "+ str(checkout_duration) +" seconds") 
+        file.write("\n"+str(datetime.datetime.now())+": Starting with setup of specific commits...")          
+    installAndTest_start = time.time()
+    
+    # Document size of Donor and Target
+    measureSizes()
+            
+    # Perform additional actions required for evaluation (installation, run tests, etc.)
+    setupProjectsForEvaluation()
+    
+    # Measure timings of installation and test processes separately   
+    installAndTest_duration = time.time() - installAndTest_start    
+    print("Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")
+    with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": Setting up projects and running tests took "+str(installAndTest_duration)+" seconds to run")  
         file.write("\n"+str(datetime.datetime.now())+": Start importing project as CPG...") 
-
+    start_import = time.time()
 
     # Imports the Donor as Code Property Graph and validates the result
     os.chdir(topLvlDir+"/"+resultFoldername)
     importProjectasCPG("DonorProject", "/DonorProjectCode/src")
 
     # Measure timings after CPG import
+    import_and_eval_duration = time.time() - start_import
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:  
         file.write("\n"+str(datetime.datetime.now())+": Evaluation finished.") 
+        file.write("\n"+str(datetime.datetime.now())+": Importing and evaluating projects took "+str(import_and_eval_duration)+" seconds to run") 
         file.write("\n"+str(datetime.datetime.now())+": Beginn with Semantic Unit identification...")   
-        
+    start_SUI = time.time()    
                            
     #### Identify SU ####
     print(" ### Start of Semantic Unit identification process ### ")
@@ -263,16 +268,25 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
     import SUI  
     
     # Measure Timings after SU identification
+    SUI_duration = time.time() - start_SUI
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:   
-        file.write("\n"+str(datetime.datetime.now())+": Identification finished. Begin with code export.")     
+        file.write("\n"+str(datetime.datetime.now())+": Identification finished.")   
+        file.write("\n"+str(datetime.datetime.now())+": Semantic Unit identification process took "+str(SUI_duration)+" seconds to run")
+        file.write("\n"+str(datetime.datetime.now())+": Begin with code export.")   
+    start_export = time.time()         
     
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
     convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")   
 
-    #Measure Timings and SU's size
+    #Measure Timings 
+    export_duration = time.time() - start_export
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-        file.write("\n"+str(datetime.datetime.now())+": Code export finished. Begin with code analysis.")              
+        file.write("\n"+str(datetime.datetime.now())+": Code export finished.")   
+        file.write("\n"+str(datetime.datetime.now())+": Export process took "+str(export_duration)+" seconds to run")
+        file.write("\n"+str(datetime.datetime.now())+": Begin with code analysis.")
+    start_analysis = time.time()        
+        
     #Count lines and words in all *.c and *.h files in SU
     os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
     suLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
@@ -292,10 +306,14 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
     #Diff SU and Target (both with semantically enhanced code). Saves the different changes into their respective dictionary.
     getDiffs()            
 
-    #Measure Timings
+    #Measure Timings 
+    analysis_duration = time.time() - start_analysis     
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-        file.write("\n"+str(datetime.datetime.now())+": Analysis finished. Begin with merging.")  
-
+        file.write("\n"+str(datetime.datetime.now())+": Analysis finished. ")  
+        file.write("\n"+str(datetime.datetime.now())+": Analysis process took "+str(analysis_duration)+" seconds to run")
+        file.write("\n"+str(datetime.datetime.now())+": Begin with merging.")
+    start_merge = time.time() 
+    
     #### Creates all files from the SU in Target, that did not exist there before ####
     print("Create completely new files in Target...")
     createCompletelyNewFiles(newFiles)    
@@ -305,31 +323,51 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
     for fileName in mergeResult.keys():
         assembleFiles(fileName) 
 
-    # Measure timings and size. Install and run tests.
+    # Measure timings and size. 
+    merge_duration = time.time() - start_merge
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-        file.write("\n"+str(datetime.datetime.now())+": Merge finished. Begin with installation and test of merged Target.")  
+        file.write("\n"+str(datetime.datetime.now())+": Merge finished.") 
+        file.write("\n"+str(datetime.datetime.now())+": Merge process took "+str(merge_duration)+" seconds to run")
+        file.write("\n"+str(datetime.datetime.now())+": Begin with installation and test of merged Target.")  
+        
     # Count lines and words in all *.c and *.h files in merged Target
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
     tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
     tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
+    
     #Get a diff of old vs new Target
     os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt")
-    os.chdir(topLvlDir)        
+    os.chdir(topLvlDir)    
+    
     # Write counted results to file
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
         file.write("\n"+str(datetime.datetime.now())+": Final merged Target's size is lines: "+tLines+" and words: "+tWords)                             
         
+    # Measure timings
+    start_final_installation = time.time()
+    
     # Install Target, move (from Donor to Target), run, and document tests  
 ################################# silver_searcher #############################################################################   
     moveSilverSearcherTests(testName)
     installSilverSearcher("Target")
 ################################# silver_searcher end #########################################################################
 
-    
+    # Measure timings 
+    final_installation_duration = time.time() - start_final_installation
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
-        file.write("\n"+str(datetime.datetime.now())+": Final installation and test finished.")         
+        file.write("\n"+str(datetime.datetime.now())+": Final installation and test finished.")    
+        file.write("\n"+str(datetime.datetime.now())+": Installation and test took "+str(final_installation_duration)+" seconds to run")        
         file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
         file.write("\n"+str(datetime.datetime.now())+": < Insert useful statistics about time distributions here? >") 
+        file.write("\n"+str(datetime.datetime.now())+": First installation and test: "+str(installAndTest_duration))
+        file.write("\n"+str(datetime.datetime.now())+": Checkout: "+str(checkout_duration))
+        file.write("\n"+str(datetime.datetime.now())+": Import and evaluation: "+str(import_and_eval_duration))
+        file.write("\n"+str(datetime.datetime.now())+": Semantic Unit identification: "+str(SUI_duration))
+        file.write("\n"+str(datetime.datetime.now())+": Export: "+str(export_duration))
+        file.write("\n"+str(datetime.datetime.now())+": Analysis: "+str(analysis_duration))
+        file.write("\n"+str(datetime.datetime.now())+": Merge: "+str(merge_duration))
+        file.write("\n"+str(datetime.datetime.now())+": Final installation and test: "+str(final_installation_duration))
+        file.write("\n"+str(datetime.datetime.now())+" * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
         
     #### Finish workflow ####
     print(" ### Code transplantation finished sucessfull! ### ")
@@ -452,7 +490,7 @@ def installSilverSearcher(DonorOrTarget):
 
 #Copy SilverSearcher's test(s) from Donor to Target
 def moveSilverSearcherTests(testname): 
-    os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/"+testname+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests")
+    os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testname+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
 
  
 # Imports the "projectname" as Code Property Graph 
@@ -470,6 +508,9 @@ def importProjectasCPG(projectname, internalPath):
         exit()
                
     print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ") 
+
+    #ToDo only tar relevant filetypes
+
     os.system("tar -cvzf "+projectname+" "+projectname+"Code") 
     os.system("jess-import "+projectname+"") 
     
