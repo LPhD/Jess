@@ -520,7 +520,7 @@ def importProjectasCPG(projectname, internalPath):
 
     #ToDo only tar relevant filetypes
  
-    os.system("jess-import "+projectname+"Code "+projectname+"") 
+    os.system("jess-import "+projectname+"Code "+projectname) 
     
     if EVALUATION:
          with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
@@ -529,8 +529,8 @@ def importProjectasCPG(projectname, internalPath):
     # Validate CPG (this includes creating the ID list that is used by the codeConverter)
 #TODO we could skip this step for performance. But then we need to tell the codeConverter the right projectname and ids
     print(" ### Validating CPG of "+projectname+" ### ") 
-    # Project name, working directory, internal structure of the project
-    evaluateProject(projectname, topLvlDir+"/"+resultFoldername , internalPath) 
+    # Project name, working directory, path to original source code
+    evaluateProject(projectname, topLvlDir+"/"+resultFoldername , topLvlDir+"/"+resultFoldername+"/"+projectname+"Code") 
     
 
 

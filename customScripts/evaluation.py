@@ -74,13 +74,13 @@ def evaluateProject (projectName, workingdir, projectPath):
 
     #pathToOriginalProject = basePath+projectPath   
     #Currently the customScripts/Results folder
-    pathToOriginalProject = os.getcwd()+"/"+projectName+"Code"    
+    #pathToOriginalProject = os.getcwd()+"/"+projectName+"Code"    
 
     os.makedirs(foldername)
     
     #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder preserving their folder structure
     #(necessary because git diff --no-index does not allow for filtering of filetypes
-    os.chdir(pathToOriginalProject)    
+    os.chdir(projectPath+"/src")    
     os.system("find -iname '*.[c|h]' -exec cp --parent  '{}' "+workingdir+"/"+foldername+"/ \;")
     
     # Go back to the current dir
