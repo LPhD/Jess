@@ -9,8 +9,9 @@ class OctopusImporter:
     def __init__(self):
         pass
 
-    def importFile(self, filename):
+    def importFile(self, filename, projectName):
         self.filename = filename
+        self.projectName = projectName
 
         self.initProjectManager()
         self.initPluginExecutor()
@@ -27,7 +28,6 @@ class OctopusImporter:
         self.pluginExecutor = PluginExecutor()
 
     def createProject(self):
-        self.projectName = os.path.split(self.filename)[-1]
         print('Creating project: %s' % (self.projectName))
         print(self.projectManager.create(self.projectName))
 

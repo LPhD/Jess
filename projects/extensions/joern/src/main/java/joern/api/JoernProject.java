@@ -10,9 +10,6 @@ public class JoernProject extends OctopusProjectWrapper {
 		return getPathToProjectDir() + File.separator + "src";
 	}
 
-	public String getTarballName() {
-		return getPathToProjectDir() + File.separator + "binary";
-	}
 
 	public String getParserOutputDirectory() {
 		return getPathToProjectDir() + File.separator + "parseroutput";

@@ -6,29 +6,24 @@ public class OctopusProjectWrapper {
 
 	private OctopusProject oProject;
 
-	public void setWrappedProject(OctopusProject project)
-	{
+	public void setWrappedProject(OctopusProject project) {
 		oProject = project;
 	}
 
-	public OctopusProject unwrap()
-	{
+	public OctopusProject unwrap() {
 		return oProject;
 	}
 
-	 public String getPathToProjectDir()
-     {
-             return oProject.getPathToProjectDir();
-     }
+	public String getPathToProjectDir() {
+		return oProject.getPathToProjectDir();
+	}
 
-     public Database getNewDatabaseInstance()
-     {
-    	 return oProject.getNewDatabaseInstance();
-     }
+	public Database getNewDatabaseInstance() {
+		return oProject.getNewDatabaseInstance();
+	}
 
-     public String getName()
-     {
-    	 return oProject.getName();
- 	}
+	public String getName() {
+		return oProject.getName();
+	}
 
 }
