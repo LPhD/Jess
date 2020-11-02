@@ -7,8 +7,7 @@ import time
 from octopus.server.DBInterface import DBInterface
 from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
-#Timer
-start_time = time.time()
+
 
 ################# Configuration options for Semantic Unit identification #################
 includeEnclosedCode = True # Recommended: True.
@@ -44,80 +43,62 @@ showOnlyStructuralEdges = True
 plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
-EVALUATION = True #Reads input from the currentProject.txt in the Evaluation folder
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 showStatistics = True
 ##########################################################################################
 
-
-# Set the project DB manually (has only an effect if consoleInput is deactivated)
-#projectName = 'JoernTest.tar.gz'
-#projectName = 'EvoDiss.tar.gz'
-#projectName = 'Revamp'
-#projectName = 'SPLC'
-#projectName = 'expat'
-#projectName = 'PL_Current.tar.gz'
-#projectName = 'PV_Current.tar.gz'
-projectName = 'DonorProject'
-#projectName = 'Test1'
-#projectName = 'Origin.tar.gz'
-#projectName = 'Collection'
-
-
-## Example entry points ##
-## Caution, depends on db ##
-# [4280, 12472] Directory src
-# [237632] File C_Test.c
-# [262328] FunctionDef compareResults
-# [516184, 524440] IfStatements in compareResults
-# [528472] ElseStatement in compareResults
-# [266424] ForStatement in compareResults
-# [241688, 503896, 540824] Conditions in compareResults
-# [499800] PostIncDecOperationExpression in compareResults
-# [282752] FunctionDef threeElmArray
-# [622744] CallExpression compareResults in threeElmArray
-# [622680] Callee compareResults in threeElmArray
-
-## Work with sets, as they are way faster and allow only unique elements ##
+# Work with sets, as they are way faster and allow only unique elements 
 # Ids of entry point vertices or name of entry feature
 # You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-
-#  main function
-#  bubbleReversed call in main
-#  #HASH_ADD
-#  7639200 #search_dir search.c 481 (half of the project)
-#  #init_ignores
-#   #add_ignore_pattern
-#  #malloc function util.c (very small with macro call)
-#  #decompress function decompress.c (medium (~140secs) with typdef enum)
-#   scandir.c for typedef with brackets
-#  10149976 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~100-500 nodes).
+# # Set the project DB and entry points manually here has only an effect if consoleInput is deactivated # #
+projectName = 'DonorProject'
 entryPointIds = {1}
+entryFeatureNames = {'Name'}
 
-
-
-entryFeatureNames = set()
-# Initialize empty Semantic Unit (result) set
-semanticUnit = set()
-# Initialize empty set of checked vertices (because we only need to check the vertices once)
-checkedVertices = set()
-# Initialize empty set of vertices that will be checked
-analysisList = list()
-# Collect all external functions, as we do not need to look for their declaration more than once
-externalFunctionsSet = set()
-# Collect all external macros, as we do not need to look for their declaration more than once
-externalMacrosSet = set()
-# Collect all files that are part of the SU, so we can reuse this information instead of querying multiple times
-SUFilesSet = set()
-# Collect all identifiers (value as list) for a file (key), as we do not need to look for file-identifier pair declaration more than once 
-alreadyCheckedIdentifierDict = dict()
-# Same list as above, but for macroCalls 
-alreadyCheckedMacroIdentifierDict = dict()
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
-# VarDecl? DeclByClass? DeclByType? InitDeclarator?
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
+
+# Initialize the needed variables and runs the desired process (interactive console, predefined evaluation mode via workflow.py, or automated process with predefined db and entry points)
+def initialize(EVALUATION):
+    global db, start_time, semanticUnit, checkedVertices, analysisList, externalFunctionsSet, externalMacrosSet, SUFilesSet, alreadyCheckedIdentifierDict, alreadyCheckedMacroIdentifierDict
+    
+    # For time measurements
+    start_time = time.time()
+    # Initialize DB interface
+    db = DBInterface()
+    # Initialize empty Semantic Unit (result) set
+    semanticUnit = set()
+    # Initialize empty set of checked vertices (because we only need to check the vertices once)
+    checkedVertices = set()
+    # Initialize empty set of vertices that will be checked
+    analysisList = list()
+    # Collect all external functions, as we do not need to look for their declaration more than once
+    externalFunctionsSet = set()
+    # Collect all external macros, as we do not need to look for their declaration more than once
+    externalMacrosSet = set()
+    # Collect all files that are part of the SU, so we can reuse this information instead of querying multiple times
+    SUFilesSet = set()
+    # Collect all identifiers (value as list) for a file (key), as we do not need to look for file-identifier pair declaration more than once 
+    alreadyCheckedIdentifierDict = dict()
+    # Same list as above, but for macroCalls 
+    alreadyCheckedMacroIdentifierDict = dict()
+
+    # Input of entry points
+    if (EVALUATION):
+        workflowInput()         
+    elif (console):
+        consoleInput()    
+    else: 
+        # projectName must be set manually
+        print("* * * Please set project name and entry point manually (or set console to 'True') in the SUI.py * * * ")
+        db.connectToDatabase(projectName)
+        print("Project is set to: "+projectName)
+
+    # Start identification process    
+    identifySemanticUnits() 
+
 
 
 # Main function 
@@ -1514,7 +1495,7 @@ def workflowInput():
     inputList = [line.rstrip('\n') for line in open('Evaluation/currentProject.txt')]
     
     # Feature?
-    #entryFeatureNames = {""}
+    entryFeatureNames = set()
     
     # Set path of desired entry point    
     statementPath = inputList[0]
@@ -1817,20 +1798,6 @@ def output(G):
     
 ################################################### Start of program #################################################################
 
-#Initialize DB interface
-db = DBInterface()
 
-# Input of entry points
-if (console):
-    consoleInput()
-elif (EVALUATION):
-    workflowInput()    
-else: 
-    # projectName must be set manually
-    print("* * * Please set project name and entry point manually (or set console to 'True') in the SUI.py * * * ")
-    db.connectToDatabase(projectName)
-    print("Project is set to: "+projectName)
-
-# Start identification process    
-identifySemanticUnits() 
-    
+# Un-comment to run the script via console
+#initialize(False)    

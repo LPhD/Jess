@@ -2,6 +2,7 @@
 from octopus.server.DBInterface import DBInterface
 from codeConverter import convertToCode
 from evaluation import evaluateProject
+from SUI import initialize
 import subprocess
 import os
 import shutil
@@ -102,7 +103,7 @@ def normalWorkflow():
     print(" ### Start of Semantic Unit identification process ### ")
     print(" ### Please select 'DonorProject' as input project ### ")    
     os.chdir(topLvlDir)    
-    import SUI  
+    initialize(False)  
          
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
@@ -197,13 +198,20 @@ def iterateThroughCommits():
                     if (project[0] == commit[0]):
                         print("Evaluating donor commit: "+commit[1])  
                         evaluationWorkflow(commit[1],commit[2],commit[3],commit[4],commit[5],commit[6])
-                        
+    
+    # Final time measures
+    print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
+    with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:
+        file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run")
+    
 # TODO: How to handle restart of server?
                                                
 
 # Same as normalWorkflow, but with additional statistics and evaluation processes (installation, testing, diffing)        
 def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryType, testName):      
     global mergeResult
+    
+    start_iteration = time.time()
                           
     #Reset result repos (remove unversioned files)
     print("Reset Target directory")
@@ -265,7 +273,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
         file.write(entryPath+"\n"+entryLine+"\n"+entryType)
     # Start identification process
     os.chdir(topLvlDir)    
-    import SUI  
+    initialize(True)  
     
     # Measure Timings after SU identification
     SUI_duration = time.time() - start_SUI
@@ -357,7 +365,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
         file.write("\n"+str(datetime.datetime.now())+": Final installation and test finished.")    
         file.write("\n"+str(datetime.datetime.now())+": Installation and test took "+str(final_installation_duration)+" seconds to run")        
-        file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run") 
+        file.write("\n"+str(datetime.datetime.now())+": This iteration took "+ str(time.time() - start_iteration) +"seconds to run") 
         file.write("\n"+str(datetime.datetime.now())+": < Insert useful statistics about time distributions here? >") 
         file.write("\n"+str(datetime.datetime.now())+": First installation and test: "+str(installAndTest_duration))
         file.write("\n"+str(datetime.datetime.now())+": Checkout: "+str(checkout_duration))
@@ -371,8 +379,9 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
         
     #### Finish workflow ####
     print(" ### Code transplantation finished sucessfull! ### ")
-    print(" ### Please compile the code to check for duplicate identifiers ### ")               
-    print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
+    print("This iteration took "+ str(time.time() - start_iteration) +"seconds to run")
+    print(" ### Please compile the code to check for duplicate identifiers ### ")    
+ 
         
 #TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
 #TODO Syntax check?  
@@ -510,9 +519,8 @@ def importProjectasCPG(projectname, internalPath):
     print(" ### Start importing "+projectname+" as Code Property Graph. Please make sure the server is running ### ") 
 
     #ToDo only tar relevant filetypes
-
-    os.system("tar -cvzf "+projectname+" "+projectname+"Code") 
-    os.system("jess-import "+projectname+"") 
+ 
+    os.system("jess-import "+projectname+"Code "+projectname+"") 
     
     if EVALUATION:
          with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    

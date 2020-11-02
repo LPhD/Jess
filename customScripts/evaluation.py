@@ -69,10 +69,12 @@ def evaluateProject (projectName, workingdir, projectPath):
         shutil.rmtree(foldername)
         
     # TODO: Caution, working directory can change, paths are hardcoded here    
-    basePath = os.getcwd().replace("/customScripts", "/projects/octopus/data/projects/"+projectName+"/src")
-    basePath = basePath.replace("/Results","")
+    #basePath = os.getcwd().replace("/customScripts", "/projects/octopus/data/projects/"+projectName+"/src")
+    #basePath = basePath.replace("/Results","")
 
-    pathToOriginalProject = basePath+projectPath    
+    #pathToOriginalProject = basePath+projectPath   
+    #Currently the customScripts/Results folder
+    pathToOriginalProject = os.getcwd()+"/"+projectName+"Code"    
 
     os.makedirs(foldername)
     
