@@ -17,7 +17,6 @@ class OctopusImporter:
         self.initPluginExecutor()
 
         self.createProject()
-        self.uploadFile()
         self.executeImporterPlugin()
 
     def initProjectManager(self):
@@ -31,12 +30,10 @@ class OctopusImporter:
         print('Creating project: %s' % (self.projectName))
         print(self.projectManager.create(self.projectName))
 
-    def uploadFile(self):
-        print('Uploading file: %s' % (self.filename))
-        self.projectManager.upload(self.projectName, self.filename, "binary")
 
     def executeImporterPlugin(self):
         print('Executing importer plugin')
         print('plugin name: %s\n' % self.pluginName)
-        pluginSettings = { 'projectName' : self.projectName }
+        srcDir = os.getcwd() +"/"+ self.filename
+        pluginSettings = { 'projectName' : self.projectName, 'srcDir' : srcDir }
         print(self.pluginExecutor.execute(self.pluginName, self.pluginClass, pluginSettings))

@@ -18,6 +18,7 @@ public class JoernImporter extends JoernProjectPlugin {
 
 	private boolean parsecode = true;
 	private boolean importcsv = true;
+	String projectPath;
 
 	private JoernProject joernProject;
 
@@ -29,6 +30,14 @@ public class JoernImporter extends JoernProjectPlugin {
 			parsecode = false;
 		if (settings.has("noimportcsv"))
 			importcsv = false;
+		
+		if (settings.has("srcDir")) {		
+			projectPath = settings.getString("srcDir");
+			System.out.println("Found source dir: "+projectPath);
+		}
+		else {
+			System.out.println("No source found!");
+		}
 	}
 
 	@Override
@@ -45,13 +54,12 @@ public class JoernImporter extends JoernProjectPlugin {
 	}
 
 
-
 	private void parseSourceCode() {
 		logger.warn("Parsing code");
 
 		String parserOutputDirectory = joernProject.getParserOutputDirectory();
 		//TODO
-		String sourceCodeDirectory = "";
+		String sourceCodeDirectory = projectPath;
 
 		CParserWrapper parserWrapper = new CParserWrapper();
 		parserWrapper.setMultiFileOutput(false);

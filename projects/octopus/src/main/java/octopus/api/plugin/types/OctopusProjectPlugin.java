@@ -10,40 +10,33 @@ import octopus.api.plugin.connectors.OctopusProjectConnector;
  *
  **/
 
-public abstract class OctopusProjectPlugin implements Plugin
-{
+public abstract class OctopusProjectPlugin implements Plugin {
 
 	private OctopusProjectConnector projectConnector;
 
-	public OctopusProjectPlugin()
-	{
+	public OctopusProjectPlugin() {
 		setProjectConnector(new OctopusProjectConnector());
 	}
 
 	@Override
-	public void configure(JSONObject settings)
-	{
-		String projectName = settings.getString("projectName");
+	public void configure(JSONObject settings) {
+		String projectName = settings.getString("projectName");		
 		getProjectConnector().connect(projectName);
 	}
 
-	protected void setProjectConnector(OctopusProjectConnector connector)
-	{
+	protected void setProjectConnector(OctopusProjectConnector connector) {
 		this.projectConnector = connector;
 	}
 
-	protected OctopusProjectConnector getProjectConnector()
-	{
+	protected OctopusProjectConnector getProjectConnector() {
 		return projectConnector;
 	}
 
-	protected String getProjectName()
-	{
+	protected String getProjectName() {
 		return projectConnector.getWrapper().getName();
 	}
 
-	protected String getPathToProjectDir()
-	{
+	protected String getPathToProjectDir() {
 		return projectConnector.getWrapper().getPathToProjectDir();
 	}
 
