@@ -58,7 +58,7 @@ public class JoernImporter extends JoernProjectPlugin {
 		logger.warn("Parsing code");
 
 		String parserOutputDirectory = joernProject.getParserOutputDirectory();
-		//TODO
+		//This path is not on the server
 		String sourceCodeDirectory = projectPath;
 
 		CParserWrapper parserWrapper = new CParserWrapper();
