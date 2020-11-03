@@ -192,12 +192,12 @@ def iterateThroughCommits():
                 next(csvCommitFile)
         
                 # Iterate through commitList (one line per commit) 
-                # Content per row: 0:Name, 1:Donor Commit, 2:Target Commit, 3:Entry Path, 4:Entry Line, 5:Entry Type, 6:Test Name
+                # Content per row: 0:Name, 1:Donor Commit, 2:Target Commit, 3:Entry Path, 4:Entry Line, 5:Entry Type, 6:Test Folder, 7:Test Name
                 for commit in csvCommitFile:
                     # Only iterate through the commits of the current project
                     if (project[0] == commit[0]):
                         print("Evaluating donor commit: "+commit[1])  
-                        evaluationWorkflow(commit[1],commit[2],commit[3],commit[4],commit[5],commit[6])
+                        evaluationWorkflow(commit[1],commit[2],commit[3],commit[4],commit[5],commit[6],commit[7])
     
     # Final time measures
     print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
@@ -208,7 +208,7 @@ def iterateThroughCommits():
                                                
 
 # Same as normalWorkflow, but with additional statistics and evaluation processes (installation, testing, diffing)        
-def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryType, testName):      
+def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryType, testFolder, testName):      
     global mergeResult
     
     start_iteration = time.time()
@@ -356,7 +356,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
     
     # Install Target, move (from Donor to Target), run, and document tests  
 ################################# silver_searcher #############################################################################   
-    moveSilverSearcherTests(testName)
+    moveSilverSearcherTests(testFolder, testName)
     installSilverSearcher("Target")
 ################################# silver_searcher end #########################################################################
 
@@ -498,8 +498,8 @@ def installSilverSearcher(DonorOrTarget):
 
 
 #Copy SilverSearcher's test(s) from Donor to Target
-def moveSilverSearcherTests(testname): 
-    os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testname+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
+def moveSilverSearcherTests(testFolder, testName): 
+    os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testFolder+testName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+testFolder)
 
  
 # Imports the "projectname" as Code Property Graph 
