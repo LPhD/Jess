@@ -1,2 +1,3 @@
-Name,Donor Commit,Target Commit,Entry Path,Entry Line,Entry Type,Test Name
-Silver Searcher,33d9d711766cbf3c5d9b52aa471722522b231d94,abd982483eabb91b7ccf9eed2a918f638c149a7d,src/search.c,481,FunctionDef,tests/ignore_invert.t 
+Name,Donor Commit,Target Commit,Entry Path,Entry Line,Entry Type,Test Folder,Test Name
+Silver Searcher,33d9d711766cbf3c5d9b52aa471722522b231d94,abd982483eabb91b7ccf9eed2a918f638c149a7d,src/search.c,481,FunctionDef,tests/,ignore_invert.t 
+Silver Searcher,33d9d711766cbf3c5d9b52aa471722522b231d94,abd982483eabb91b7ccf9eed2a918f638c149a7d,src/search.c,481,FunctionDef,tests/,ignore_invert.t 
