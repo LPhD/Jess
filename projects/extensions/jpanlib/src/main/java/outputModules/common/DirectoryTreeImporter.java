@@ -52,7 +52,6 @@ public abstract class DirectoryTreeImporter {
 		
 		//Adds file to list of files for this directory
 		IncludeAnalyzer.fileNodeList.put(node.getFileName(), node);
-		System.out.println("Added file to fileNodeList: "+node.getFileName());
 		
 		// Adds file to header list or c file list (or none of them)
 		String nodeName = node.getFileName();
@@ -129,7 +128,6 @@ public abstract class DirectoryTreeImporter {
 				//Draw includes-connection if filename and included filename match
 				if(IncludeAnalyzer.fileNodeList.containsKey(filename.getName())) {
 					linkIncludeToFileNode(includeNode, IncludeAnalyzer.fileNodeList.get(filename.getName()));
-					System.out.println("Draw include connection from: "+includeNode.getAstNode().getEscapedCodeStr()+" to: "+IncludeAnalyzer.fileNodeList.get(filename.getName()));
 				}	
 			}	
 	}

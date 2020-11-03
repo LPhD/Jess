@@ -31,7 +31,6 @@ public class JoernImporter extends JoernProjectPlugin {
 		
 		if (settings.has("srcDir")) {		
 			projectPath = settings.getString("srcDir");
-			System.out.println("Found source dir: "+projectPath);
 		}
 		else {
 			System.out.println("No source found!");

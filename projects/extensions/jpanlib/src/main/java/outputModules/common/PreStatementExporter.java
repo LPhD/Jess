@@ -33,7 +33,6 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			//Look for file inclusions
 			if(astNode.getTypeAsString().equals("PreIncludeLocalFile")) {
 				IncludeAnalyzer.includeNodeList.add(preDBNode);
-				System.out.println("Added note to includeNodeList: "+preDBNode.getAstNode().getEscapedCodeStr());
 			}
 	
 			//Look for statements that are inside an #ifdef block and add a variability edge
@@ -105,7 +104,6 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			//Link include statement with included file
 			if(currentASTNode.getTypeAsString().equals("PreIncludeLocalFile")) {
 				IncludeAnalyzer.includeNodeList.add(astDatabaseNode);
-				System.out.println("Added note to includeNodeList: "+astDatabaseNode.getAstNode().getEscapedCodeStr());
 			}
 				
 			//Look for statements that are inside an #ifdef block
