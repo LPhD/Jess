@@ -1,6 +1,5 @@
 package joern.plugins.importer;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.json.JSONObject;
@@ -10,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import fileWalker.OrderedWalker;
 import joern.api.JoernProject;
 import joern.api.plugintypes.JoernProjectPlugin;
-import octopus.server.decompressor.TarballDecompressor;
 
 public class JoernImporter extends JoernProjectPlugin {
 

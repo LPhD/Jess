@@ -38,6 +38,9 @@ public abstract class DirectoryTreeImporter {
 			matchHeaderToFile();
 			//Connect files with included files
 			matchIncludeToFile();
+			//Finally clear both lists, as they persist as long as the server is running
+			IncludeAnalyzer.includeNodeList.clear();
+			IncludeAnalyzer.fileNodeList.clear();
 		}		
 	}
 
