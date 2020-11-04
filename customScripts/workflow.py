@@ -344,7 +344,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
     tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
     
     #Get a diff of old vs new Target
-    os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt")
+    os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_"+str(donorCommit)+"_in_"+str(targetCommit)+".txt")
     os.chdir(topLvlDir)    
     
     # Write counted results to file
