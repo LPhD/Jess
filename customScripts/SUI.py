@@ -49,13 +49,15 @@ showStatistics = True
 ##########################################################################################
 
 # Work with sets, as they are way faster and allow only unique elements 
-# Ids of entry point vertices or name of entry feature
-# You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
+# Ids of entry point vertice, or name of entry feature (configuration option), or identifier of any code fragment, or any generic occurance of a string
+# You can select all four, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
 # # Set the project DB and entry points manually here has only an effect if consoleInput is deactivated # #
 projectName = 'DonorProject'
-entryPointIds = {1}
-entryFeatureNames = {'Name'}
+entryPointIds = set()
+entryFeatureNames = set()
+entryIdentifiers = set()
+entryStrings = {'passthrough'}
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
@@ -111,6 +113,22 @@ def identifySemanticUnits ():
         if (len(result) > 1):
             print("Found feature as entry point, updated entry points: "+str(result)+"\n") 
             entryPointIds.update(result)
+        
+    # Check if any identifier is selected as entry point
+    if (len(entryIdentifiers) > 0):        
+        result = set(getIdentifierParent(entryIdentifiers))
+        if (len(result) > 1):
+            print("Found generic identifier as entry point, updated entry points: "+str(result)+"\n") 
+            entryPointIds.update(result)        
+
+
+    # Check if any generic string is selected as entry point
+    if (len(entryStrings) > 0):        
+        result = set(getStringParent(entryStrings))
+        if (len(result) > 1):
+            print("Found generic string as entry point, updated entry points: "+str(result)+"\n") 
+            entryPointIds.update(result) 
+            
         
     # Add the initial list of nodes to the analysis set
     analysisList.extend(entryPointIds)
@@ -173,7 +191,7 @@ def identifySemanticUnits ():
             addGlobalDeclares() 
 
                     
-        # Check for includes of non-function-like #defines whose identifer appears inside the SU (indicates a "usage")  
+        # Check for includes of non-function-like #defines whose identifier appears inside the SU (indicates a "usage")  
         if(addOnlyProbablyUsedNonFunctionLikeDefines):
             addProbablyUsedDefines() 
         # Check for includes of non-function-like #defines in files that are part of the SU
@@ -1022,13 +1040,15 @@ def getPreIf (verticeId):
     # We need the __. before in, so Groovy doesn't confuse it with its own keyword in
     query = """g.V(%s).until(has('type', 'PreIfStatement')).repeat(__.in('IS_AST_PARENT')).dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query) 
-        
+ 
+ 
 # Return all variable statements of the current node   
 def getVariableStatements (verticeId):
     query = """g.V(%s).out('VARIABILITY').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query) 
+
     
-# Return all variable statements of the current feature, this is done once in the beginning of the entry point is a feature   
+# Return all variable statements of the current feature, this is done once in the beginning if the entry point is a feature   
 def getFeatureBlocks (featureName):
     for currentNode in featureName:    
         # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
@@ -1040,6 +1060,31 @@ def getFeatureBlocks (featureName):
 
     return result              
 
+
+# Return all parents of identifiers that contain the specified string, this is done once in the beginning if the entry point is a generic identifier    
+def getIdentifierParent (identifiers):
+    for currentNode in identifiers:    
+        # Find the visible parent nodes of an identifier that matches the given string
+        query = """g.V().has('type', 'Identifier').has('code', '%s').repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
+        result = db.runGremlinQuery(query)              
+        
+        if (len(result) == 0):
+            print("##### Warning! No identifiers found containing the string: "+currentNode+" #### \n")            
+
+    return result  
+
+
+# Return all parents of any nodes that contain the specified string, this is done once in the beginning if the entry point is a generic string    
+def getStringParent (strings):
+    for currentNode in strings:    
+        # Find the visible parent nodes of an node that contains the given string
+        query = """g.V().has('code', textContains('%s')).repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
+        result = db.runGremlinQuery(query)              
+        
+        if (len(result) == 0):
+            print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n")            
+
+    return result 
 
 ######################################### Syntax Checking #################################################################
 
@@ -1422,7 +1467,7 @@ def addProbablyUsedDefines():
                 if (DEBUG) : print("Found additional non-function-like #define without macro content: "+str(line['name'])) 
             # Otherwise    
             else:
-                # Check if identifer appears somewhere in the visible statements of the SU 
+                # Check if identifier appears somewhere in the visible statements of the SU 
                 # Note: As textContains is very unprecise, we get more results than needed (e.g. "H_SIZE" is true for "size")
                 query = """idListToNodes(%s).has('type', within(%s)).has('code', textContains('%s')).values('code')""" % (list(semanticUnit), visibleStatementTypes, line['name'])  
                 result = db.runGremlinQuery(query)
@@ -1483,7 +1528,7 @@ def countNodes():
 
 # Input options for evaluation mode of workflow.py
 def workflowInput():
-    global entryFeatureNames, entryPointIds, projectName
+    global entryFeatureNames, entryPointIds, entryIdentifiers, entryStrings, projectName
     
     print("--------------------------------------------------------------------------------- \n")
     print("Workflow evaluation mode activated")
@@ -1496,6 +1541,8 @@ def workflowInput():
     
     # Feature?
     entryFeatureNames = set()
+    entryIdentifiers = set()
+    entryStrings = set()
     
     # Set path of desired entry point    
     statementPath = inputList[0]
@@ -1521,7 +1568,7 @@ def workflowInput():
 
 # Let the user interactively set the project and entry points via console inputs
 def consoleInput():
-    global entryFeatureNames, entryPointIds, projectName
+    global entryFeatureNames, entryPointIds, entryIdentifiers, entryStrings, projectName
     
     print("--------------------------------------------------------------------------------- \n")
     print("Starting with project selection...")    
@@ -1555,18 +1602,40 @@ def consoleInput():
     
     # Feature or statement as entry point?
     while True:
-        selection = input("Do you want to start with a feature/configuration option (1) or a code statement (2) ? \n")      
+        selection = input("Do you want to start with a feature/configuration option (1), a generic identifier (2), a generic string (3), or a specific line of code (4) ? \n")      
         
         # Feature
         if (selection == "1" or selection == "(1)" or selection == "feature" or selection == "configuration option"):
             feature = input("Please type in the name of the feature/configuration option \n")
             print("You selected \""+feature+"\" as entry point \n")
             entryFeatureNames = {feature}
+            entryIdentifiers = set()
+            entryStrings = set()
             entryPointIds = set()
             break
+        
+        # Generic identifier
+        elif (selection == "2" or selection == "(2)" or selection == "generic identifier" or selection == "identifier"):
+            identifier = input("Please type in the desired identifier \n")
+            print("You selected \""+identifier+"\" as entry point \n")
+            entryIdentifiers = {identifier}
+            entryFeatureNames = set()
+            entryStrings = set()
+            entryPointIds = set()
+            break   
+
+        # Generic string
+        elif (selection == "3" or selection == "(3)" or selection == "generic string" or selection == "string"):
+            eString = input("Please type in the desired string \n")
+            print("You selected \""+eString+"\" as entry point \n")
+            entryStrings = {eString}
+            entryIdentifiers = set()
+            entryFeatureNames = set()
+            entryPointIds = set()
+            break             
             
         # Statement input loop
-        elif (selection == "2" or selection == "(2)" or selection == "code" or selection == "statement" or selection == "code statement"):
+        elif (selection == "4" or selection == "(4)" or selection == "code" or selection == "line of code" or selection == "specific line of code"):
             while True:
                 statementPath = input("Please type in the path to the file containing the statement you would like to analyze relative to the project root \""+selectedProject+"\" e.g., \"/src/functions/FileContainingEntryPoint.c\"\n")
                 statementLine = input("Please type in the line number of your statement \n")
@@ -1597,6 +1666,8 @@ def consoleInput():
                             if (len(result) > 0):
                                 print("You selected \""+selectedID+"\" as entry point \n")
                                 entryFeatureNames = set()
+                                entryIdentifiers = set()
+                                entryStrings = set()
                                 entryPointIds = {int(selectedID)}    
                                 # Stop the id input loop if we get valid results        
                                 break
@@ -1800,4 +1871,4 @@ def output(G):
 
 
 # Un-comment to run the script via console
-#initialize(False)    
+initialize(False)    
