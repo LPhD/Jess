@@ -161,7 +161,7 @@ def iterateThroughCommits():
     # Read input of the project list (list of projects to be evaluated)     
     with open('Evaluation/projectList.csv', mode ='r')as file: 
         # reading the CSV file 
-        csvProjectFile = csv.reader(file) 
+        csvProjectFile = csv.reader(file, delimiter=";") 
         # Skip header
         next(csvProjectFile)
       
@@ -186,7 +186,7 @@ def iterateThroughCommits():
             # Read input of the commit list (list of commits to be evaluated)     
             with open('Evaluation/commitList.csv', mode ='r')as file: 
                 # reading the CSV file 
-                csvCommitFile = csv.reader(file) 
+                csvCommitFile = csv.reader(file, delimiter=";") 
                 # Skip header
                 next(csvCommitFile)
         
@@ -208,9 +208,13 @@ def iterateThroughCommits():
 
 # Same as normalWorkflow, but with additional statistics and evaluation processes (installation, testing, diffing)        
 def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNameOrIdentifierOrString, entryLine, entryNodeType, testFolder, testName):      
-    global mergeResult
+    global mergeResult, newFiles
     
     start_iteration = time.time()
+    
+    # Reset lists
+    mergeResult = {}
+    newFiles = []
                           
     #Reset result repos (remove unversioned files)
     print("Reset Target directory")
@@ -341,7 +345,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNam
     tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
     
     #Get a diff of old vs new Target
-    os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_"+str(donorCommit)+"_in_"+str(targetCommit)+".txt")
+    os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_"+str(donorCommit)+"_in_"+str(targetCommit)+"_"+str(entryPointType)+".txt")
     os.chdir(topLvlDir)    
     
     # Write counted results to file
