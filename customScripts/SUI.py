@@ -63,7 +63,7 @@ entryStrings = {'passthrough'}
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
 
 # Initialize the needed variables and runs the desired process (interactive console, predefined evaluation mode via workflow.py, or automated process with predefined db and entry points)
-def initialize(EVALUATION):
+def initializeSUI(EVALUATION, entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType):
     global db, start_time, semanticUnit, checkedVertices, analysisList, externalFunctionsSet, externalMacrosSet, SUFilesSet, alreadyCheckedIdentifierDict, alreadyCheckedMacroIdentifierDict
     
     # For time measurements
@@ -89,7 +89,7 @@ def initialize(EVALUATION):
 
     # Input of entry points
     if (EVALUATION):
-        workflowInput()         
+        workflowInput(entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType)         
     elif (console):
         consoleInput()    
     else: 
@@ -1527,7 +1527,7 @@ def countNodes():
 ###################################### Input ###############################################################    
 
 # Input options for evaluation mode of workflow.py
-def workflowInput():
+def workflowInput(entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType):
     global entryFeatureNames, entryPointIds, entryIdentifiers, entryStrings, projectName
     
     print("--------------------------------------------------------------------------------- \n")
@@ -1536,32 +1536,38 @@ def workflowInput():
     # Project name
     db.connectToDatabase("DonorProject")
     
-    # Read inputs from file (first line is the path, second the line number, and third the statement type)
-    inputList = [line.rstrip('\n') for line in open('Evaluation/currentProject.txt')]
-    
-    # Feature?
-    entryFeatureNames = set()
-    entryIdentifiers = set()
-    entryStrings = set()
-    
-    # Set path of desired entry point    
-    statementPath = inputList[0]
-    # Set line of desired entry point
-    statementLine = inputList[1]
-    # Set type of desired entry point node
-    statementType = inputList[2]
-    
-    # Get results for nodes at statementPath and statementLine with statementType
-    query = """g.V().has('path', textContains('%s')).has('line', '%s').has('type', '%s').id()""" % (statementPath, statementLine, statementType) 
-    result = db.runGremlinQuery(query)
+    # Adapt behavior based on selected entry point type
+    if (entryPointType == "Feature"):
+        entryFeatureNames = {pathOrNameOrIdentifierOrString}
+        print("Set entry point to: "+str(entryFeatureNames)) 
+        
+    elif (entryPointType == "Identifier"):     
+        entryIdentifiers = {pathOrNameOrIdentifierOrString}
+        print("Set entry point to: "+str(entryIdentifiers)) 
+        
+    elif (entryPointType == "String"):    
+        entryStrings = {pathOrNameOrIdentifierOrString}
+        print("Set entry point to: "+str(entryStrings)) 
+        
+    elif (entryPointType == "Location"):     
+        # Set path of desired entry point    
+        statementPath = pathOrNameOrIdentifierOrString
+   
+        # Get results for nodes at statementPath and statementLine with statementType
+        query = """g.V().has('path', textContains('%s')).has('line', '%s').has('type', '%s').id()""" % (statementPath, statementLine, statementType) 
+        result = db.runGremlinQuery(query)
                                 
-    # If there is a statement at that path and line            
-    if(len(result) > 0):
-        # Set the entry point id        
-        entryPointIds = {int(result[0])}      
-        print("Set entry point to: "+str(entryPointIds))    
-    else:
-        print(" ! ! ! Error recieving input node id from file: \""+statementPath+"\" at line: \""+statementLine+"\" with type: \""+statementType+"\" in evaluation mode ! ! ! ")
+        # If there is a statement at that path and line            
+        if(len(result) > 0):
+            # Set the entry point id        
+            entryPointIds = {int(result[0])}      
+            print("Set entry point to: "+str(entryPointIds))    
+        else:
+            print(" ! ! ! Error recieving input node id from file: \""+statementPath+"\" at line: \""+statementLine+"\" with type: \""+statementType+"\" in evaluation mode ! ! ! ")
+            quit()
+    
+    else :
+        print(" ! ! ! Error in entry point type, no matching type found for: "+entryPointType+" ! ! ! ")
         quit()
 
                                 
@@ -1871,4 +1877,4 @@ def output(G):
 
 
 # Un-comment to run the script via console
-initialize(False)    
+#initializeSUI(False, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType")    

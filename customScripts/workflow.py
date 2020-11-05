@@ -2,7 +2,7 @@
 from octopus.server.DBInterface import DBInterface
 from codeConverter import convertToCode
 from evaluation import evaluateProject
-from SUI import initialize
+from SUI import initializeSUI
 import subprocess
 import os
 import shutil
@@ -23,7 +23,7 @@ start_time = time.time()
 # Enable debug output
 DEBUG = False
 # Enable evaluation mode for validating workflow. Includes installation and running tests of the selected projects. Therefore: Much slower.
-EVALUATION = True
+EVALUATION = False
 # Name of the configuration option to de/enable the SU
 SUName = "SU"
 # Activate to add an "#ifdef $SUName" block around the SU's code in Target
@@ -56,8 +56,7 @@ def main():
     #### Begin of the workflow #### 
     print(" ### Welcome to the interactive code migration workflow ### ")
     print(" ### Prerequisite 1: Version control with Git ### ")
-    print(" ### Prerequisite 2: Jess server is (re-)started before running the script ### ")
-    print(" ### Prerequisite 3: The top level folder for source files is called 'src' ### ")
+    print(" ### Prerequisite 2: The top level folder for source files is called 'src' ### ")
     print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
     
     # If in EVALUATION mode, iterate over all projects in projectList.csv and all commits in commitList.csv
@@ -103,7 +102,7 @@ def normalWorkflow():
     print(" ### Start of Semantic Unit identification process ### ")
     print(" ### Please select 'DonorProject' as input project ### ")    
     os.chdir(topLvlDir)    
-    initialize(False)  
+    initializeSUI(False, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType")   
          
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
@@ -192,12 +191,12 @@ def iterateThroughCommits():
                 next(csvCommitFile)
         
                 # Iterate through commitList (one line per commit) 
-                # Content per row: 0:Name, 1:Donor Commit, 2:Target Commit, 3:Entry Path, 4:Entry Line, 5:Entry Type, 6:Test Folder, 7:Test Name
+                # Content per row: 0:Name, 1:Donor Commit, 2:Target Commit, 3:Entry Point Type, 4:Entry Path/Id/String, 5:Entry Line, 6:Entry Node Type, 7:Test Folder, 8:Test Name
                 for commit in csvCommitFile:
                     # Only iterate through the commits of the current project
                     if (project[0] == commit[0]):
                         print("Evaluating donor commit: "+commit[1])  
-                        evaluationWorkflow(commit[1],commit[2],commit[3],commit[4],commit[5],commit[6],commit[7])
+                        evaluationWorkflow(commit[1],commit[2],commit[3],commit[4],commit[5],commit[6],commit[7],commit[8])
     
     # Final time measures
     print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
@@ -208,7 +207,7 @@ def iterateThroughCommits():
                                                
 
 # Same as normalWorkflow, but with additional statistics and evaluation processes (installation, testing, diffing)        
-def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryType, testFolder, testName):      
+def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNameOrIdentifierOrString, entryLine, entryNodeType, testFolder, testName):      
     global mergeResult
     
     start_iteration = time.time()
@@ -268,12 +267,10 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPath, entryLine, entryTyp
                            
     #### Identify SU ####
     print(" ### Start of Semantic Unit identification process ### ")
-    # Setup currentProject.txt with info from commitList.csv
-    with open(topLvlDir+"/Evaluation/currentProject.txt", "w") as file:  
-        file.write(entryPath+"\n"+entryLine+"\n"+entryType)
     # Start identification process
     os.chdir(topLvlDir)    
-    initialize(True)  
+    # Evaluation mode on, entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType
+    initializeSUI(True, entryPointType, entryPathOrNameOrIdentifierOrString, entryLine, entryNodeType)
     
     # Measure Timings after SU identification
     SUI_duration = time.time() - start_SUI
@@ -395,7 +392,7 @@ def createRepos():
     print("Set donor repo to: "+repoURL+".")
 
     # Get Donor    
-    donorCommit = input("Please type in the commit id of the version of the software that contains the desired functionality \n")    
+    donorCommit = input("Please type in the commit id of the version of the software that contains the desired functionality (Donor) \n")    
     print("Set commit id to: "+donorCommit+".")
     
     os.system("git clone "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
@@ -405,7 +402,7 @@ def createRepos():
     os.chdir(topLvlDir)
     
     # Get Target
-    targetCommit = input("Please type in the commit id of the version of the software that you would like to merge into \n")   
+    targetCommit = input("Please type in the commit id of the version of the software that you would like to merge into (Target) \n")   
     print("Set commit id to: "+targetCommit+".")
     
     os.system("git clone "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
