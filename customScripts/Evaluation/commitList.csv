@@ -1,4 +1,6 @@
 Name,Donor Commit,Target Commit, Entry Point Type,Entry PathorIDorString,Entry Line,Entry Node Type,Test Folder,Test Name
 Silver Searcher,33d9d711766cbf3c5d9b52aa471722522b231d94,abd982483eabb91b7ccf9eed2a918f638c149a7d,Location,src/search.c,481,FunctionDef,tests/,ignore_invert.t
+Silver Searcher,33d9d711766cbf3c5d9b52aa471722522b231d94,abd982483eabb91b7ccf9eed2a918f638c149a7d,Identifier,{invert_regexes,invert_regexes_len},"","",ignore_invert.t
+Silver Searcher,33d9d711766cbf3c5d9b52aa471722522b231d94,abd982483eabb91b7ccf9eed2a918f638c149a7d,String,{invert_regexes,invert_regexes_len},"","",ignore_invert.t
 Silver Searcher,73999f1e59272f80fbe79d33d0d619d74211f678,7b24ee5d22d8c43581c21303875723ea6b30c095,Identifier,passthrough,"","",tests/,passthrough.t
 Silver Searcher,73999f1e59272f80fbe79d33d0d619d74211f678,7b24ee5d22d8c43581c21303875723ea6b30c095,String,passthrough,"","",tests/,passthrough.t

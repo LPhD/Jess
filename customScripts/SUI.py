@@ -1539,15 +1539,24 @@ def workflowInput(entryPointType, pathOrNameOrIdentifierOrString, statementLine,
     # Adapt behavior based on selected entry point type
     if (entryPointType == "Feature"):
         entryFeatureNames = {pathOrNameOrIdentifierOrString}
-        print("Set entry point to: "+str(entryFeatureNames)) 
+        print("Set entry point feature to: "+str(entryFeatureNames)) 
+        entryIdentifiers = set()
+        entryPointIds = set()
+        entryStrings = set()
         
     elif (entryPointType == "Identifier"):     
         entryIdentifiers = {pathOrNameOrIdentifierOrString}
-        print("Set entry point to: "+str(entryIdentifiers)) 
+        print("Set entry point identifier to: "+str(entryIdentifiers)) 
+        entryPointIds = set()
+        entryFeatureNames = set()
+        entryStrings = set()
         
     elif (entryPointType == "String"):    
         entryStrings = {pathOrNameOrIdentifierOrString}
-        print("Set entry point to: "+str(entryStrings)) 
+        print("Set entry point string to: "+str(entryStrings)) 
+        entryIdentifiers = set()
+        entryPointIds = set()
+        entryFeatureNames = set()
         
     elif (entryPointType == "Location"):     
         # Set path of desired entry point    
@@ -1561,7 +1570,10 @@ def workflowInput(entryPointType, pathOrNameOrIdentifierOrString, statementLine,
         if(len(result) > 0):
             # Set the entry point id        
             entryPointIds = {int(result[0])}      
-            print("Set entry point to: "+str(entryPointIds))    
+            print("Set entry point id to: "+str(entryPointIds))   
+            entryIdentifiers = set() 
+            entryFeatureNames = set()  
+            entryStrings = set()    
         else:
             print(" ! ! ! Error recieving input node id from file: \""+statementPath+"\" at line: \""+statementLine+"\" with type: \""+statementType+"\" in evaluation mode ! ! ! ")
             quit()
