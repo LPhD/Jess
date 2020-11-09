@@ -6,6 +6,7 @@ class ShellManager(object):
         self.command = ServerCommand(server_host, server_port)
 
     def create(self, project_name, shellname = 'noname'):
+        # Creates a new shell on the octopus server. This shell locks the db as long as it lives.
         response = self.command.execute_get_command("/manageshells/create/{}/{}".format(project_name, shellname))
 
         try:
@@ -15,6 +16,10 @@ class ShellManager(object):
             raise Exception("Error creating shell. Does the project exist?")
 
         return port
+    
+    # Disconnect from server
+    def disconnect(self):
+        self.command._disconnect()
 
     def list(self, project_name=None, shell_port=None, filter_occupied=False):
         response = self.command.execute_get_command("/manageshells/list")

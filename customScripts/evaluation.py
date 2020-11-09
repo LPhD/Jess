@@ -34,13 +34,17 @@ def getVisibleNodes(projectName):
     db = DBInterface()
     db.connectToDatabase(projectName)
     
-    visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment']
+    visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
     
     # Remove unneeded nodes (we need to exclude IdentifierDeclStatement that have a ForInit or StructUnionEnum as parent)
     query = """g.V().has('type', within(%s))
                 .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
                 .id()""" % (visibleStatementTypes) 
     result = db.runGremlinQuery(query)
+            
+    # Finally close db connection and release the shell
+    db.runGremlinQuery("quit") 
+    
     return result  
 
 def fileOutput (result, projectName):    
@@ -64,17 +68,19 @@ def evaluateProject (projectName, workingdir, projectPath):
     if os.path.exists(foldername):
         shutil.rmtree(foldername)
         
-    # TODO: Caution, working directory can changes, paths are hardcoded here    
-    basePath = os.getcwd().replace("/customScripts", "/projects/octopus/data/projects/"+projectName+"/src")
-    basePath = basePath.replace("/Results","")
+    # TODO: Caution, working directory can change, paths are hardcoded here    
+    #basePath = os.getcwd().replace("/customScripts", "/projects/octopus/data/projects/"+projectName+"/src")
+    #basePath = basePath.replace("/Results","")
 
-    pathToOriginalProject = basePath+projectPath    
+    #pathToOriginalProject = basePath+projectPath   
+    #Currently the customScripts/Results folder
+    #pathToOriginalProject = os.getcwd()+"/"+projectName+"Code"    
 
     os.makedirs(foldername)
     
     #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder preserving their folder structure
     #(necessary because git diff --no-index does not allow for filtering of filetypes
-    os.chdir(pathToOriginalProject)    
+    os.chdir(projectPath+"/src")    
     os.system("find -iname '*.[c|h]' -exec cp --parent  '{}' "+workingdir+"/"+foldername+"/ \;")
     
     # Go back to the current dir

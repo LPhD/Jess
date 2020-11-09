@@ -20,14 +20,12 @@ public class CreateShellHandler implements OctopusRestHandler {
 		return String.format("%d\n", port);
 	}
 
-	private void extractParameters(Request req)
-	{
+	private void extractParameters(Request req) {
 		projectName = req.params(":projectName");
 		shellName = req.params(":shellname");
 	}
 
-	private int createNewShell()
-	{
+	private int createNewShell() {
 		int port;
 		try {
 			port = (new ShellManager()).createNewShellThread(projectName, shellName);

@@ -100,12 +100,15 @@ public class OctopusProjectManager {
 			System.out.println("Project already exists, trying to remove it");
 			delete(name);
 		}
-
-		OctopusProject project = createOctopusProjectForName(name);
+		
+		//Creates a new project and initializes its db
+		OctopusProject project = createOctopusProjectForName(name);		
 		TitanLocalDatabaseManager databaseManager = new TitanLocalDatabaseManager();
 		databaseManager.initializeDatabaseForProject(project);
-		logger.debug("Adding project to map: " + name);
+
+		logger.debug("Adding project to map: " + name);		
 		nameToProject.put(name, project);
+		
 	}
 
 	public static void delete(String name) throws IOException {
@@ -128,11 +131,14 @@ public class OctopusProjectManager {
 		return newProject;
 	}
 
+	/**
+	 * Removes the project with @name from disk, including the db. Also removes the project's name from the @nameToProject hasmap.
+	 * Does not work if there are still shells alive that are connected to the project's db.
+	 */
 	private static void deleteProjectWithName(String name) throws IOException {
-
 		removeDatabaseIfExists(name);
 		deleteProjectFiles(name);
-		nameToProject.remove(name);
+		nameToProject.remove(name);		
 	}
 
 	private static void deleteProjectFiles(String name) throws IOException {
@@ -154,7 +160,6 @@ public class OctopusProjectManager {
 
 	private static void removeDatabaseIfExists(String name) throws IOException {
 		OctopusProject project = new ProjectManager().getProjectByName(name);
-
 		TitanLocalDatabaseManager dbManager = new TitanLocalDatabaseManager();
 		dbManager.deleteDatabaseForProject(project);
 	}

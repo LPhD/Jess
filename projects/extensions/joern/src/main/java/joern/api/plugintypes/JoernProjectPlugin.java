@@ -5,14 +5,12 @@ import octopus.api.plugin.types.OctopusProjectPlugin;
 
 public class JoernProjectPlugin extends OctopusProjectPlugin {
 
-	public JoernProjectPlugin()
-	{
+	public JoernProjectPlugin() {
 		setProjectConnector(new JoernProjectConnector());
 	}
 
 	@Override
-	public void execute() throws Exception
-	{
+	public void execute() throws Exception {
 
 	}
 }

@@ -5,12 +5,12 @@ Introduction
 -------------------------------------
 
 The last step of Jess' workflow is the automated migration of the identified Semantic Unit to a target software (called Target). 
-This process is also known as software transplantation (`see this paper <http://crest.cs.ucl.ac.uk/autotransplantation/downloads/autotransplantation.pdf>`_), where code is extracted and transplanted the Donor to a new target, 
+This process is also known as software transplantation (`see this paper <http://crest.cs.ucl.ac.uk/autotransplantation/downloads/autotransplantation.pdf>`_), where code is extracted and transplanted from the Donor to a new Target, 
 where Target should recieve additional functionality from Donor.
 
 The workflow.py script realizes an interactive workflow for this scenario.
-It contains the functionality of the SUI, codeConverter and evaluation script.
-Furthermore, the workflow script clones the necessary Git branches from Donor and Target and allows to automate the whole migration process.
+It contains the functionality of the SUI, codeConverter, and evaluation script.
+Furthermore, the workflow script clones the necessary Git branches from Donor and Target, and allows to automate the whole migration process.
 Currently, the configuration of the Semantic Unit identification process must still be set manually in the SUI script.
 
 
@@ -50,3 +50,16 @@ After the Semantic Unit is identified, it is automatically transplanted into Tar
 However, some fine polishing of the result is necessary, as the transplantation process does not solve conflicts or does not always know the right order of statements. 
 In the future, it is planned to use Search Based Software Engineering techniques to automate this step as well.
 
+
+Configuration Options
+--------------
+
+
+- EVALUATION 
+    - Enable to activate the evaluation mode. This mode includes installation and running tests of pre-defined projects, measuring timings and project/SU's sizes. Therefore it is much slower. This mode is not needed for the normal usage of the workflow script.
+
+- addIfdefAroundSU 
+    - Activate to add an "#ifdef $SUName" block around the SU's code in Target
+    
+- SUName 
+    - Name of the configuration option to de/enable the SU

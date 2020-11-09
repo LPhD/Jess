@@ -7,33 +7,30 @@ import static spark.Spark.post;
 
 import octopus.server.restServer.handlers.*;
 
-
 public class OctopusRestServer {
 
 	private static final int REST_PORT = 2480;
 
-	public static void start()
-	{
+	public static void start() {
 		port(REST_PORT);
 
 		/*
-		 * This is a complete list of all REST commands. If you want to
-		 * add a command, please stick to the following RULES:
+		 * This is a complete list of all REST commands. If you want to add a command,
+		 * please stick to the following RULES:
 		 *
-		 * - If you need optional parameters, create multiple routes
-		 *   but do NOT use slack. This will ensure that all ways of
-		 *   executing commands remain visible in this file.
+		 * - If you need optional parameters, create multiple routes but do NOT use
+		 * slack. This will ensure that all ways of executing commands remain visible in
+		 * this file.
 		 *
-		 * - Try to place your command into one of the existing
-		 * 	 groups first. Only if none exists that matches, create
-		 *   your own group.
+		 * - Try to place your command into one of the existing groups first. Only if
+		 * none exists that matches, create your own group.
 		 *
-		 * - Choose a group name that describes functionality, not
-		 *   code origin.
+		 * - Choose a group name that describes functionality, not code origin.
 		 **/
 
 		post("executeplugin/", (req, res) -> {
-			return new ExecutePluginHandler().handle(req, res); });
+			return new ExecutePluginHandler().handle(req, res);
+		});
 
 		get("manageprojects/create/:projectName", (req, res) -> {
 			return new CreateProjectHandler().handle(req, res);
@@ -72,12 +69,13 @@ public class OctopusRestServer {
 		});
 
 		get("manageshells/create/:projectName/:shellName", (req, res) -> {
-			return new CreateShellHandler().handle(req,res);
+			return new CreateShellHandler().handle(req, res);
 		});
 
 		exception(RuntimeException.class, (e, req, res) -> {
 			res.status(400);
 			res.body("Runtime Exception: " + e.getMessage());
+			e.printStackTrace();
 		});
 
 	}

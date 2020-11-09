@@ -29,15 +29,19 @@ class PythonShellInterface:
     def connectToDatabase(self):
         self._createShellManagerAndConnection()
         self.shell_connection = self._getOrCreateFreeShell()
+        #print("Connected")
 
+  
     def _getOrCreateFreeShell(self):
 
         while True:
             try:
-                shell = self._getExistingFreeShell()
+                shell = self._getExistingFreeShell()                
                 if not shell:
                     shell = self._createNewShell()
+  
                 return shell
+            
             except ConnectionRefusedError:
                 time.sleep(0.1)
 
@@ -61,13 +65,16 @@ class PythonShellInterface:
                                       for (port, name, occupied) in self.shellsForDatabase
                                       if occupied == 'free']
 
+
     def _connectToShellWithPort(self, port):
         connection = OctopusShellConnection(self.host, port)
         connection.connect()
         return connection
 
+
     def _createNewShell(self):
         shellname = self._generateNameForNewShell()
+        #Creates a new shell/thread
         port = self.shell_manager.create(self.databaseName, shellname)
         return self._connectToShellWithPort(port)
 
@@ -90,20 +97,22 @@ class PythonShellInterface:
     def _createShellManagerAndConnection(self):
         self.shell_manager = ShellManager(self.host, self.port)
         self.shell_connection = OctopusShellConnection(self.host, self.port)
-
+                 
+    # Close connection 
+    def close(self):
+        OctopusShellConnection(self.host, self.port).close()
+                  
     def runGremlinQuery(self, query):
-
-#        print('TEST IN PYTHON_SHELL_INTERFACE______________________________________________________')
-#        print(self)
- #       print(query)
- #       print('TESTENDE IN PYTHON_SHELL_INTERFACE______________________________________________________')
+        #print("Run query "+query)
         while True:
             try:
-                return self.shell_connection.run_command(query)
+                result = self.shell_connection.run_command(query)
+                return result
             except ConnectionResetError:
                 self.shell_connection = self._getOrCreateFreeShell()
                 time.sleep(0.1)
 
+               
     """
     Create chunks from a list of ids.
     This method is useful when you want to execute many independent

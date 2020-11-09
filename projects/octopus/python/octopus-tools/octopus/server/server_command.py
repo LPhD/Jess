@@ -21,8 +21,10 @@ class ServerCommand(object):
         return response
 
     def execute_get_command(self, name):
+        # Communicates with the server/db via get commands
         self._connect()
         self._connection.request("GET", name)
         response = self._connection.getresponse().read().decode().strip()
         self._disconnect()
+
         return response

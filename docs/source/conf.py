@@ -196,7 +196,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'jess.tex', u'Jess Documentation',
-   u'Fabian Yamaguchi', 'manual'),
+   u'Lea Gerling', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -226,7 +226,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'Jess', u'Jess Documentation',
-     [u'Fabian Yamaguchi'], 1)
+     [u'Lea Gerling'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -240,7 +240,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'Jess', u'Jess Documentation',
-   u'Fabian Yamaguchi', 'Jess', 'One line description of project.',
+   u'Lea Gerling', 'Jess', 'One line description of project.',
    'Miscellaneous'),
 ]
 

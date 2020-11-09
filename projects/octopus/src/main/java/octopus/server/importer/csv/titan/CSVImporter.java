@@ -22,8 +22,6 @@ public class CSVImporter {
 	String[] VertexKeys;
 	String[] EdgeKeys;
 
-	boolean isNewDatabase;
-
 	NodeFile nodeFile;
 	EdgeFile edgeFile;
 
@@ -241,10 +239,6 @@ public class CSVImporter {
 			System.err.println("Error while closing database");
 			e.printStackTrace();
 		}
-	}
-
-	public boolean isNewDatabase() {
-		return isNewDatabase;
 	}
 
 	public void setGraph(Graph graph) {

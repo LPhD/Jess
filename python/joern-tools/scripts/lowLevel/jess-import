@@ -18,23 +18,24 @@ class JoernImporter(OctopusImporter):
         self.pluginClass = "joern.plugins.importer.JoernImporter"
 
 
-def main(filename):
+def main(filename, projectname):
     importer = JoernImporter()
-    importer.importFile(filename)
+    importer.importFile(filename, projectName)
 
 def usage():
-    print('%s <tarball>' % (sys.argv[0]))
+    print('%s <top level project folder> <desired project name>' % (sys.argv[0]))
 
 if __name__ == '__main__':
 
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         usage()
         exit()
 
     filename = sys.argv[1]
+    projectName = sys.argv[2]
 
     if not os.path.exists(filename):
         print('no such file or directory: %s' % (filename))
         exit()
 
-    main(filename)
+    main(filename, projectName)

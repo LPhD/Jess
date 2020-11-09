@@ -6,8 +6,7 @@ import octopus.server.projectmanager.OctopusProjectManager;
 
 public class ProjectManager {
 
-	public void create(String projectName)
-	{
+	public void create(String projectName) {
 		try {
 			OctopusProjectManager.create(projectName);
 		} catch (IOException e) {
@@ -15,13 +14,11 @@ public class ProjectManager {
 		}
 	}
 
-	public boolean doesProjectExist(String projectName)
-	{
+	public boolean doesProjectExist(String projectName) {
 		return OctopusProjectManager.doesProjectExist(projectName);
 	}
 
-	public void delete(String projectName)
-	{
+	public void delete(String projectName) {
 		try {
 			OctopusProjectManager.delete(projectName);
 		} catch (IOException e) {
@@ -29,13 +26,11 @@ public class ProjectManager {
 		}
 	}
 
-	public Iterable<String> listProjects()
-	{
+	public Iterable<String> listProjects() {
 		return OctopusProjectManager.listProjects();
 	}
 
-	public OctopusProject getProjectByName(String name)
-	{
+	public OctopusProject getProjectByName(String name) {
 		return OctopusProjectManager.getProjectByName(name);
 	}
 

@@ -8,13 +8,14 @@ import spark.Response;
 public class DeleteProjectHandler implements OctopusRestHandler {
 
 	@Override
-	public Object handle(Request req, Response resp)
-	{
+	public Object handle(Request req, Response resp) {
 		String projectName = req.params(":projectName");
 		ProjectManager manager = new ProjectManager();
-		if(!manager.doesProjectExist(projectName))
+		System.out.println("Try to delete project");
+		if (!manager.doesProjectExist(projectName))
 			return "Project does not exist.";
 		manager.delete(projectName);
+		System.out.println("Project deleted!");
 		return "Project deleted.";
 	}
 

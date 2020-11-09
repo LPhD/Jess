@@ -15,8 +15,8 @@ import random
 #projectName = 'expat'
 #projectName = 'sample'
 #projectName = 'PV_Current.tar.gz'
-#projectName = 'DonorProject'
 projectName = 'DonorProject'
+#projectName = 'Test6'
 #Connect do database of project
 db = DBInterface()
 db.connectToDatabase(projectName)
@@ -269,6 +269,19 @@ query = "g.V().has('type', within('DeclStmt', 'StructUnionEnum')).count()"
 query = "g.V().has('type', 'File').out().values('type').dedup()"
 query = "g.V().has('type', 'IdentifierDeclStatement').in().values('type').dedup()"
 
+query = "g.V(21332184).out().values('code')"
+
+query = "g.V().has('code', 'util.h').out().values('type').dedup()"
+
+query = "g.V().has('code', 'util.h').out().has('type', 'File').values('code')"
+
+
+query = "g.V(10489992).in().values('code', 'type')"
+
+query = "g.V().has('code', 'BUF_SIZE').has('type', 'PreMacroIdentifier').outE()"
+
+query = "g.E().hasLabel('INCLUDES').bothV().values('type').dedup()"
+
 # Execute query
 result = db.runGremlinQuery(query)
 
@@ -277,6 +290,10 @@ result = db.runGremlinQuery(query)
 for x in result: print(x)
 
 
+
+# Close shell
+query = "quit"
+result = db.runGremlinQuery(query)
 ############################################################################################################
 ##### NOT WORKING OR PROBLEMS
 ############################################################################################################

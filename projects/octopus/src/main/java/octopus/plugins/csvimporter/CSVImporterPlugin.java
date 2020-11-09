@@ -9,9 +9,9 @@ import octopus.server.importer.csv.ImportJob;
 
 public class CSVImporterPlugin extends OctopusProjectPlugin {
 
+	//Imports a new project from csv files
     @Override
     public void execute() throws Exception {
-
         String projectName = getProjectName();
         String pathToProjecDir = getPathToProjectDir();
         String nodeFilename = Paths.get(pathToProjecDir, "nodes.csv").toString();

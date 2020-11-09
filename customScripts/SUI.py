@@ -7,8 +7,7 @@ import time
 from octopus.server.DBInterface import DBInterface
 from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
-#Timer
-start_time = time.time()
+
 
 ################# Configuration options for Semantic Unit identification #################
 includeEnclosedCode = True # Recommended: True.
@@ -49,83 +48,87 @@ DEBUG = False
 showStatistics = True
 ##########################################################################################
 
-
-# Set the project DB manually (has only an effect if consoleInput is deactivated)
-#projectName = 'JoernTest.tar.gz'
-#projectName = 'EvoDiss.tar.gz'
-#projectName = 'Revamp'
-#projectName = 'SPLC'
-#projectName = 'expat'
-#projectName = 'PL_Current.tar.gz'
-#projectName = 'PV_Current.tar.gz'
-projectName = 'DonorProject'
-#projectName = 'Origin.tar.gz'
-#projectName = 'Collection'
-
-
-## Example entry points ##
-## Caution, depends on db ##
-# [4280, 12472] Directory src
-# [237632] File C_Test.c
-# [262328] FunctionDef compareResults
-# [516184, 524440] IfStatements in compareResults
-# [528472] ElseStatement in compareResults
-# [266424] ForStatement in compareResults
-# [241688, 503896, 540824] Conditions in compareResults
-# [499800] PostIncDecOperationExpression in compareResults
-# [282752] FunctionDef threeElmArray
-# [622744] CallExpression compareResults in threeElmArray
-# [622680] Callee compareResults in threeElmArray
-
-## Work with sets, as they are way faster and allow only unique elements ##
-# Ids of entry point vertices or name of entry feature
-# You can select both, if you want additional entry points. Empty sets should be declared as set() and not {}
+# Work with sets, as they are way faster and allow only unique elements 
+# Ids of entry point vertice, or name of entry feature (configuration option), or identifier of any code fragment, or any generic occurance of a string
+# You can select all four, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
-
-#  main function
-#  bubbleReversed call in main
-#  #HASH_ADD
-#  #search_dir search.c 481 (half of the project)
-#  #init_ignores
-#   #add_ignore_pattern
-#  #malloc function util.c (very small with macro call)
-#  #decompress function decompress.c (medium (~140secs) with typdef enum)
-#   scandir.c for typedef with brackets
-#  10149976 ExpressionStatement (FCall) in function util C line 541. Good to show differences between with and without data flow. Small Slice (~100-500 nodes).
-entryPointIds = {10149976}
-
-
-
+# # Set the project DB and entry points manually here has only an effect if consoleInput is deactivated # #
+projectName = 'DonorProject'
+entryPointIds = set()
 entryFeatureNames = set()
-# Initialize empty Semantic Unit (result) set
-semanticUnit = set()
-# Initialize empty set of checked vertices (because we only need to check the vertices once)
-checkedVertices = set()
-# Initialize empty set of vertices that will be checked
-analysisList = list()
-# Collect all external functions, as we do not need to look for their declaration more than once
-externalFunctionsSet = set()
-# Collect all external macros, as we do not need to look for their declaration more than once
-externalMacrosSet = set()
-# Collect all files that are part of the SU, so we can reuse this information instead of querying multiple times
-SUFilesSet = set()
-# Collect all identifiers (value as list) for a file (key), as we do not need to look for file-identifier pair declaration more than once 
-alreadyCheckedIdentifierDict = dict()
-# Same list as above, but for macroCalls 
-alreadyCheckedMacroIdentifierDict = dict()
+entryIdentifiers = set()
+entryStrings = {'passthrough'}
+
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
-# VarDecl? DeclByClass? DeclByType? InitDeclarator?
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
+
+# Initialize the needed variables and runs the desired process (interactive console, predefined evaluation mode via workflow.py, or automated process with predefined db and entry points)
+def initializeSUI(EVALUATION, entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType):
+    global db, start_time, semanticUnit, checkedVertices, analysisList, externalFunctionsSet, externalMacrosSet, SUFilesSet, alreadyCheckedIdentifierDict, alreadyCheckedMacroIdentifierDict
+    
+    # For time measurements
+    start_time = time.time()
+    # Initialize DB interface
+    db = DBInterface()
+    # Initialize empty Semantic Unit (result) set
+    semanticUnit = set()
+    # Initialize empty set of checked vertices (because we only need to check the vertices once)
+    checkedVertices = set()
+    # Initialize empty set of vertices that will be checked
+    analysisList = list()
+    # Collect all external functions, as we do not need to look for their declaration more than once
+    externalFunctionsSet = set()
+    # Collect all external macros, as we do not need to look for their declaration more than once
+    externalMacrosSet = set()
+    # Collect all files that are part of the SU, so we can reuse this information instead of querying multiple times
+    SUFilesSet = set()
+    # Collect all identifiers (value as list) for a file (key), as we do not need to look for file-identifier pair declaration more than once 
+    alreadyCheckedIdentifierDict = dict()
+    # Same list as above, but for macroCalls 
+    alreadyCheckedMacroIdentifierDict = dict()
+
+    # Input of entry points
+    if (EVALUATION):
+        workflowInput(entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType)         
+    elif (console):
+        consoleInput()    
+    else: 
+        # projectName must be set manually
+        print("* * * Please set project name and entry point manually (or set console to 'True') in the SUI.py * * * ")
+        db.connectToDatabase(projectName)
+        print("Project is set to: "+projectName)
+
+    # Start identification process    
+    identifySemanticUnits() 
+
 
 
 # Main function 
 def identifySemanticUnits ():
-# Check if a feature is selected as entry point
+    global db
+    
+    # Check if a feature is selected as entry point
     if (len(entryFeatureNames) > 0):        
         result = set(getFeatureBlocks(entryFeatureNames))
         if (len(result) > 1):
             print("Found feature as entry point, updated entry points: "+str(result)+"\n") 
             entryPointIds.update(result)
+        
+    # Check if any identifier is selected as entry point
+    if (len(entryIdentifiers) > 0):        
+        result = set(getIdentifierParent(entryIdentifiers))
+        if (len(result) > 1):
+            print("Found generic identifier as entry point, updated entry points: "+str(result)+"\n") 
+            entryPointIds.update(result)        
+
+
+    # Check if any generic string is selected as entry point
+    if (len(entryStrings) > 0):        
+        result = set(getStringParent(entryStrings))
+        if (len(result) > 1):
+            print("Found generic string as entry point, updated entry points: "+str(result)+"\n") 
+            entryPointIds.update(result) 
+            
         
     # Add the initial list of nodes to the analysis set
     analysisList.extend(entryPointIds)
@@ -188,7 +191,7 @@ def identifySemanticUnits ():
             addGlobalDeclares() 
 
                     
-        # Check for includes of non-function-like #defines whose identifer appears inside the SU (indicates a "usage")  
+        # Check for includes of non-function-like #defines whose identifier appears inside the SU (indicates a "usage")  
         if(addOnlyProbablyUsedNonFunctionLikeDefines):
             addProbablyUsedDefines() 
         # Check for includes of non-function-like #defines in files that are part of the SU
@@ -239,6 +242,9 @@ def identifySemanticUnits ():
         #nodeOutput()
     else:
         print("SemanticUnit is empty!")
+        
+    # Finally close db connection and release the shell
+    db.runGremlinQuery("quit")   
 
 
 ####################################### Rules ###############################################   
@@ -1034,13 +1040,15 @@ def getPreIf (verticeId):
     # We need the __. before in, so Groovy doesn't confuse it with its own keyword in
     query = """g.V(%s).until(has('type', 'PreIfStatement')).repeat(__.in('IS_AST_PARENT')).dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query) 
-        
+ 
+ 
 # Return all variable statements of the current node   
 def getVariableStatements (verticeId):
     query = """g.V(%s).out('VARIABILITY').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query) 
+
     
-# Return all variable statements of the current feature, this is done once in the beginning of the entry point is a feature   
+# Return all variable statements of the current feature, this is done once in the beginning if the entry point is a feature   
 def getFeatureBlocks (featureName):
     for currentNode in featureName:    
         # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
@@ -1052,6 +1060,31 @@ def getFeatureBlocks (featureName):
 
     return result              
 
+
+# Return all parents of identifiers that contain the specified string, this is done once in the beginning if the entry point is a generic identifier    
+def getIdentifierParent (identifiers):
+    for currentNode in identifiers:    
+        # Find the visible parent nodes of an identifier that matches the given string
+        query = """g.V().has('type', 'Identifier').has('code', '%s').repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
+        result = db.runGremlinQuery(query)              
+        
+        if (len(result) == 0):
+            print("##### Warning! No identifiers found containing the string: "+currentNode+" #### \n")            
+
+    return result  
+
+
+# Return all parents of any nodes that contain the specified string, this is done once in the beginning if the entry point is a generic string    
+def getStringParent (strings):
+    for currentNode in strings:    
+        # Find the visible parent nodes of an node that contains the given string
+        query = """g.V().has('code', textContains('%s')).repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
+        result = db.runGremlinQuery(query)              
+        
+        if (len(result) == 0):
+            print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n")            
+
+    return result 
 
 ######################################### Syntax Checking #################################################################
 
@@ -1434,7 +1467,7 @@ def addProbablyUsedDefines():
                 if (DEBUG) : print("Found additional non-function-like #define without macro content: "+str(line['name'])) 
             # Otherwise    
             else:
-                # Check if identifer appears somewhere in the visible statements of the SU 
+                # Check if identifier appears somewhere in the visible statements of the SU 
                 # Note: As textContains is very unprecise, we get more results than needed (e.g. "H_SIZE" is true for "size")
                 query = """idListToNodes(%s).has('type', within(%s)).has('code', textContains('%s')).values('code')""" % (list(semanticUnit), visibleStatementTypes, line['name'])  
                 result = db.runGremlinQuery(query)
@@ -1455,7 +1488,7 @@ def countNodes():
     statResult = db.runGremlinQuery(query) 
     print("The whole project has "+str(statResult[0])+" nodes.")
     # Write to file
-    with open("EvaluationStatistics/sizes.txt", "a") as file:
+    with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
         file.write("\nStatistics based on graph nodes: \n")
         file.write("The whole project has "+str(statResult[0])+" nodes.\n")
         
@@ -1467,7 +1500,7 @@ def countNodes():
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
     
     # Write to file
-    with open("EvaluationStatistics/sizes.txt", "a") as file:
+    with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
         file.write(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).\n")
         
     # Count nodes of SU
@@ -1482,7 +1515,7 @@ def countNodes():
     print("--------------------------------------------------------------------------------- \n")
     
     # Write last results to file
-    with open("EvaluationStatistics/sizes.txt", "a") as file:
+    with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
         file.write("The SU has "+str(len(semanticUnit))+" nodes.\n")
         file.write(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).\n")
         file.write("*********************************************************************************** \n")
@@ -1493,9 +1526,67 @@ def countNodes():
    
 ###################################### Input ###############################################################    
 
+# Input options for evaluation mode of workflow.py
+def workflowInput(entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType):
+    global entryFeatureNames, entryPointIds, entryIdentifiers, entryStrings, projectName
+    
+    print("--------------------------------------------------------------------------------- \n")
+    print("Workflow evaluation mode activated")
+    
+    # Project name
+    db.connectToDatabase("DonorProject")
+    
+    # Adapt behavior based on selected entry point type
+    if (entryPointType == "Feature"):
+        entryFeatureNames = {pathOrNameOrIdentifierOrString}
+        print("Set entry point feature to: "+str(entryFeatureNames)) 
+        entryIdentifiers = set()
+        entryPointIds = set()
+        entryStrings = set()
+        
+    elif (entryPointType == "Identifier"):     
+        entryIdentifiers = {pathOrNameOrIdentifierOrString}
+        print("Set entry point identifier to: "+str(entryIdentifiers)) 
+        entryPointIds = set()
+        entryFeatureNames = set()
+        entryStrings = set()
+        
+    elif (entryPointType == "String"):    
+        entryStrings = {pathOrNameOrIdentifierOrString}
+        print("Set entry point string to: "+str(entryStrings)) 
+        entryIdentifiers = set()
+        entryPointIds = set()
+        entryFeatureNames = set()
+        
+    elif (entryPointType == "Location"):     
+        # Set path of desired entry point    
+        statementPath = pathOrNameOrIdentifierOrString
+   
+        # Get results for nodes at statementPath and statementLine with statementType
+        query = """g.V().has('path', textContains('%s')).has('line', '%s').has('type', '%s').id()""" % (statementPath, statementLine, statementType) 
+        result = db.runGremlinQuery(query)
+                                
+        # If there is a statement at that path and line            
+        if(len(result) > 0):
+            # Set the entry point id        
+            entryPointIds = {int(result[0])}      
+            print("Set entry point id to: "+str(entryPointIds))   
+            entryIdentifiers = set() 
+            entryFeatureNames = set()  
+            entryStrings = set()    
+        else:
+            print(" ! ! ! Error recieving input node id from file: \""+statementPath+"\" at line: \""+statementLine+"\" with type: \""+statementType+"\" in evaluation mode ! ! ! ")
+            quit()
+    
+    else :
+        print(" ! ! ! Error in entry point type, no matching type found for: "+entryPointType+" ! ! ! ")
+        quit()
+
+                                
+
 # Let the user interactively set the project and entry points via console inputs
-def consoleInput ():
-    global entryFeatureNames, entryPointIds, projectName
+def consoleInput():
+    global entryFeatureNames, entryPointIds, entryIdentifiers, entryStrings, projectName
     
     print("--------------------------------------------------------------------------------- \n")
     print("Starting with project selection...")    
@@ -1529,18 +1620,40 @@ def consoleInput ():
     
     # Feature or statement as entry point?
     while True:
-        selection = input("Do you want to start with a feature/configuration option (1) or a code statement (2) ? \n")      
+        selection = input("Do you want to start with a feature/configuration option (1), a generic identifier (2), a generic string (3), or a specific line of code (4) ? \n")      
         
         # Feature
         if (selection == "1" or selection == "(1)" or selection == "feature" or selection == "configuration option"):
             feature = input("Please type in the name of the feature/configuration option \n")
             print("You selected \""+feature+"\" as entry point \n")
             entryFeatureNames = {feature}
+            entryIdentifiers = set()
+            entryStrings = set()
             entryPointIds = set()
             break
+        
+        # Generic identifier
+        elif (selection == "2" or selection == "(2)" or selection == "generic identifier" or selection == "identifier"):
+            identifier = input("Please type in the desired identifier \n")
+            print("You selected \""+identifier+"\" as entry point \n")
+            entryIdentifiers = {identifier}
+            entryFeatureNames = set()
+            entryStrings = set()
+            entryPointIds = set()
+            break   
+
+        # Generic string
+        elif (selection == "3" or selection == "(3)" or selection == "generic string" or selection == "string"):
+            eString = input("Please type in the desired string \n")
+            print("You selected \""+eString+"\" as entry point \n")
+            entryStrings = {eString}
+            entryIdentifiers = set()
+            entryFeatureNames = set()
+            entryPointIds = set()
+            break             
             
         # Statement input loop
-        elif (selection == "2" or selection == "(12)" or selection == "code" or selection == "statement" or selection == "code statement"):
+        elif (selection == "4" or selection == "(4)" or selection == "code" or selection == "line of code" or selection == "specific line of code"):
             while True:
                 statementPath = input("Please type in the path to the file containing the statement you would like to analyze relative to the project root \""+selectedProject+"\" e.g., \"/src/functions/FileContainingEntryPoint.c\"\n")
                 statementLine = input("Please type in the line number of your statement \n")
@@ -1571,6 +1684,8 @@ def consoleInput ():
                             if (len(result) > 0):
                                 print("You selected \""+selectedID+"\" as entry point \n")
                                 entryFeatureNames = set()
+                                entryIdentifiers = set()
+                                entryStrings = set()
                                 entryPointIds = {int(selectedID)}    
                                 # Stop the id input loop if we get valid results        
                                 break
@@ -1771,18 +1886,7 @@ def output(G):
     
     
 ################################################### Start of program #################################################################
-#Initialize DB interface
-db = DBInterface()
 
-# Input of entry points
-if (console):
-    consoleInput()
-else: 
-    # projectName must be set manually
-    print("* * * Please set project name and entry point manually (or set console to 'True') in the SUI.py * * * ")
-    db.connectToDatabase(projectName)
-    print("Project is set to: "+projectName)
 
-# Start identification process    
-identifySemanticUnits() 
-    
+# Un-comment to run the script via console
+#initializeSUI(False, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType")    
