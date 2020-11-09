@@ -1,6 +1,6 @@
 import os, sys, fnmatch, platform 
 
-from platform import linux_distribution
+
     
 #Only if Linux
 if (platform.system() == "Linux"):
