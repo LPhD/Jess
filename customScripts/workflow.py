@@ -193,10 +193,35 @@ def iterateThroughCommits():
                 # Iterate through commitList (one line per commit) 
                 # Content per row: 0:Name, 1:Donor Commit, 2:Target Commit, 3:Entry Point Type, 4:Entry Path/Id/String, 5:Entry Line, 6:Entry Node Type, 7:Test Folder, 8:Test Name
                 for commit in csvCommitFile:
+                    
+                    # Reset collection of entry points for each new commit
+                    entryPointString = ""
+                    entryPointList = []
+                    
                     # Only iterate through the commits of the current project
                     if (project[0] == commit[0]):
                         print("Evaluating donor commit: "+commit[1])  
-                        evaluationWorkflow(commit[1],commit[2],commit[3],commit[4],commit[5],commit[6],commit[7],commit[8])
+                        
+                        # Handle a list of entry points inside a field
+                        if (commit[4].startswith("{")):
+                            #Iterate over each char to build the string objects that should be inside the list
+                            for char in commit[4]:
+                                # Skip beginning of list declaration
+                                if (not char == "{"):
+                                    # Collect all chars of one string (strings are separated by a "," the listing is ended by a "}")
+                                    if ((not char == ",") and (not char == "}")):
+                                        entryPointString += char
+                                    # Add the whole string to the list     
+                                    else:
+                                        entryPointList.append(entryPointString)
+                                        entryPointString = ""
+                                        
+                        # If we don't have several entry points, just add the single point to the list directly                
+                        else:
+                            entryPointList.append(commit[4])
+                                                  
+                        # Pass the relevant information for the selected commit to the workflow                          
+                        evaluationWorkflow(commit[1],commit[2],commit[3],entryPointList,commit[5],commit[6],commit[7],commit[8])
     
     # Final time measures
     print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  

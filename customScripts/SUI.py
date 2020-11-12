@@ -54,10 +54,10 @@ showStatistics = True
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
 # # Set the project DB and entry points manually here has only an effect if consoleInput is deactivated # #
 projectName = 'DonorProject'
-entryPointIds = set()
-entryFeatureNames = set()
-entryIdentifiers = set()
-entryStrings = {'passthrough'}
+entryPointIds = list()
+entryFeatureNames = list()
+entryIdentifiers = list()
+entryStrings = ['passthrough']
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
@@ -74,7 +74,7 @@ def initializeSUI(EVALUATION, entryPointType, pathOrNameOrIdentifierOrString, st
     semanticUnit = set()
     # Initialize empty set of checked vertices (because we only need to check the vertices once)
     checkedVertices = set()
-    # Initialize empty set of vertices that will be checked
+    # Initialize empty list (needs to be iterable) of vertices that will be checked
     analysisList = list()
     # Collect all external functions, as we do not need to look for their declaration more than once
     externalFunctionsSet = set()
@@ -109,29 +109,34 @@ def identifySemanticUnits ():
     
     # Check if a feature is selected as entry point
     if (len(entryFeatureNames) > 0):        
-        result = set(getFeatureBlocks(entryFeatureNames))
+        result = getFeatureBlocks(entryFeatureNames)
         if (len(result) > 1):
             print("Found feature as entry point, updated entry points: "+str(result)+"\n") 
-            entryPointIds.update(result)
+            entryPointIds.extend(result)
         
     # Check if any identifier is selected as entry point
     if (len(entryIdentifiers) > 0):        
-        result = set(getIdentifierParent(entryIdentifiers))
+        result = getIdentifierParent(entryIdentifiers)
         if (len(result) > 1):
             print("Found generic identifier as entry point, updated entry points: "+str(result)+"\n") 
-            entryPointIds.update(result)        
+            entryPointIds.extend(result)        
 
 
     # Check if any generic string is selected as entry point
     if (len(entryStrings) > 0):        
-        result = set(getStringParent(entryStrings))
+        result = getStringParent(entryStrings)
         if (len(result) > 1):
             print("Found generic string as entry point, updated entry points: "+str(result)+"\n") 
-            entryPointIds.update(result) 
+            entryPointIds.extend(result) 
             
         
     # Add the initial list of nodes to the analysis set
     analysisList.extend(entryPointIds)
+    
+    print("List 1")
+    print(str(entryPointIds))
+    print("List 2")
+    print(str(analysisList))
     
     print("Starting analysis...")
     print("--------------------------------------------------------------------------------- \n")
@@ -1538,29 +1543,29 @@ def workflowInput(entryPointType, pathOrNameOrIdentifierOrString, statementLine,
     
     # Adapt behavior based on selected entry point type
     if (entryPointType == "Feature"):
-        entryFeatureNames = {pathOrNameOrIdentifierOrString}
+        entryFeatureNames = list(pathOrNameOrIdentifierOrString)
         print("Set entry point feature to: "+str(entryFeatureNames)) 
-        entryIdentifiers = set()
-        entryPointIds = set()
-        entryStrings = set()
+        entryIdentifiers = list()
+        entryPointIds = list()
+        entryStrings = list()
         
     elif (entryPointType == "Identifier"):     
-        entryIdentifiers = {pathOrNameOrIdentifierOrString}
+        entryIdentifiers = list(pathOrNameOrIdentifierOrString)
         print("Set entry point identifier to: "+str(entryIdentifiers)) 
-        entryPointIds = set()
-        entryFeatureNames = set()
-        entryStrings = set()
+        entryPointIds = list()
+        entryFeatureNames = list()
+        entryStrings = list()
         
     elif (entryPointType == "String"):    
-        entryStrings = {pathOrNameOrIdentifierOrString}
+        entryStrings = list(pathOrNameOrIdentifierOrString)
         print("Set entry point string to: "+str(entryStrings)) 
-        entryIdentifiers = set()
-        entryPointIds = set()
-        entryFeatureNames = set()
+        entryIdentifiers = list()
+        entryPointIds = list()
+        entryFeatureNames = list()
         
     elif (entryPointType == "Location"):     
         # Set path of desired entry point    
-        statementPath = pathOrNameOrIdentifierOrString
+        statementPath = pathOrNameOrIdentifierOrString[0]
    
         # Get results for nodes at statementPath and statementLine with statementType
         query = """g.V().has('path', textContains('%s')).has('line', '%s').has('type', '%s').id()""" % (statementPath, statementLine, statementType) 
@@ -1568,12 +1573,13 @@ def workflowInput(entryPointType, pathOrNameOrIdentifierOrString, statementLine,
                                 
         # If there is a statement at that path and line            
         if(len(result) > 0):
-            # Set the entry point id        
-            entryPointIds = {int(result[0])}      
+            # Set the entry point id      
+            entryPointIds = list()    
+            entryPointIds.append(int(result[0]))      
             print("Set entry point id to: "+str(entryPointIds))   
-            entryIdentifiers = set() 
-            entryFeatureNames = set()  
-            entryStrings = set()    
+            entryIdentifiers = list() 
+            entryFeatureNames = list()  
+            entryStrings = list()    
         else:
             print(" ! ! ! Error recieving input node id from file: \""+statementPath+"\" at line: \""+statementLine+"\" with type: \""+statementType+"\" in evaluation mode ! ! ! ")
             quit()
@@ -1626,30 +1632,30 @@ def consoleInput():
         if (selection == "1" or selection == "(1)" or selection == "feature" or selection == "configuration option"):
             feature = input("Please type in the name of the feature/configuration option \n")
             print("You selected \""+feature+"\" as entry point \n")
-            entryFeatureNames = {feature}
-            entryIdentifiers = set()
-            entryStrings = set()
-            entryPointIds = set()
+            entryFeatureNames = list(feature)
+            entryIdentifiers = list()
+            entryStrings = list()
+            entryPointIds = list()
             break
         
         # Generic identifier
         elif (selection == "2" or selection == "(2)" or selection == "generic identifier" or selection == "identifier"):
             identifier = input("Please type in the desired identifier \n")
             print("You selected \""+identifier+"\" as entry point \n")
-            entryIdentifiers = {identifier}
-            entryFeatureNames = set()
-            entryStrings = set()
-            entryPointIds = set()
+            entryIdentifiers = list(identifier)
+            entryFeatureNames = list()
+            entryStrings = list()
+            entryPointIds = list()
             break   
 
         # Generic string
         elif (selection == "3" or selection == "(3)" or selection == "generic string" or selection == "string"):
             eString = input("Please type in the desired string \n")
             print("You selected \""+eString+"\" as entry point \n")
-            entryStrings = {eString}
-            entryIdentifiers = set()
-            entryFeatureNames = set()
-            entryPointIds = set()
+            entryStrings = list(eString)
+            entryIdentifiers = list()
+            entryFeatureNames = list()
+            entryPointIds = list()
             break             
             
         # Statement input loop
@@ -1683,10 +1689,10 @@ def consoleInput():
                             result = db.runGremlinQuery(query)
                             if (len(result) > 0):
                                 print("You selected \""+selectedID+"\" as entry point \n")
-                                entryFeatureNames = set()
-                                entryIdentifiers = set()
-                                entryStrings = set()
-                                entryPointIds = {int(selectedID)}    
+                                entryFeatureNames = list()
+                                entryIdentifiers = list()
+                                entryStrings = list()
+                                entryPointIds = list(int(selectedID))    
                                 # Stop the id input loop if we get valid results        
                                 break
                             else:    
