@@ -168,6 +168,12 @@ def iterateThroughCommits():
         # Iterate through projectList (one line per project)
         # Content per row: 0:Name, 1:URL, 2:Dependencies, 3:Install Location, 4:Install Commands, 5:Test Location, 6:Test Commands
         for project in csvProjectFile: 
+        
+            if (len(project) == 0):
+                print("Project information in projectList.csv is empty!. Terminating process")
+                break
+                
+                
             print("Evaluating project: "+project[0])               
             
             # Delete old results
@@ -193,6 +199,10 @@ def iterateThroughCommits():
                 # Iterate through commitList (one line per commit) 
                 # Content per row: 0:Name, 1:Donor Commit, 2:Target Commit, 3:Entry Point Type, 4:Entry Path/Id/String, 5:Entry Line, 6:Entry Node Type, 7:Test Folder, 8:Test Name
                 for commit in csvCommitFile:
+                
+                    if (len(commit) == 0):
+                        print("Commit information in commitList.csv is empty!. Terminating process")
+                        break
                     
                     # Reset collection of entry points for each new commit
                     entryPointString = ""
