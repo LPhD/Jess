@@ -133,10 +133,6 @@ def identifySemanticUnits ():
     # Add the initial list of nodes to the analysis set
     analysisList.extend(entryPointIds)
     
-    print("List 1")
-    print(str(entryPointIds))
-    print("List 2")
-    print(str(analysisList))
     
     print("Starting analysis...")
     print("--------------------------------------------------------------------------------- \n")
@@ -1055,10 +1051,14 @@ def getVariableStatements (verticeId):
     
 # Return all variable statements of the current feature, this is done once in the beginning if the entry point is a feature   
 def getFeatureBlocks (featureName):
+    #Empty set
+    result = set()
+    
     for currentNode in featureName:    
         # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
         query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').dedup().id())""" % (currentNode)     
-        result = db.runGremlinQuery(query)              
+        #Add the result
+        result.update(set(db.runGremlinQuery(query)))               
         
         if (len(result) == 0):
             print("##### Warning! No #if/#ifdef/#elif statements found for feature: "+currentNode+" #### \n")            
@@ -1068,11 +1068,15 @@ def getFeatureBlocks (featureName):
 
 # Return all parents of identifiers that contain the specified string, this is done once in the beginning if the entry point is a generic identifier    
 def getIdentifierParent (identifiers):
+    #Empty set
+    result = set()
+    
     for currentNode in identifiers:    
         # Find the visible parent nodes of an identifier that matches the given string
         query = """g.V().has('type', 'Identifier').has('code', '%s').repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
-        result = db.runGremlinQuery(query)              
-        
+        #Add the result
+        result.update(set(db.runGremlinQuery(query)))    
+
         if (len(result) == 0):
             print("##### Warning! No identifiers found containing the string: "+currentNode+" #### \n")            
 
@@ -1081,10 +1085,14 @@ def getIdentifierParent (identifiers):
 
 # Return all parents of any nodes that contain the specified string, this is done once in the beginning if the entry point is a generic string    
 def getStringParent (strings):
+    #Empty set
+    result = set()
+    
     for currentNode in strings:    
         # Find the visible parent nodes of an node that contains the given string
         query = """g.V().has('code', textContains('%s')).repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
-        result = db.runGremlinQuery(query)              
+        #Add the result
+        result.update(set(db.runGremlinQuery(query)))              
         
         if (len(result) == 0):
             print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n")            
@@ -1895,4 +1903,5 @@ def output(G):
 
 
 # Un-comment to run the script via console
-#initializeSUI(False, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType")    
+# Evaluation mode?, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
+#initializeSUI(True, "Identifier", ['invert_regexes', 'invert_regexes_len'], "", "")    
