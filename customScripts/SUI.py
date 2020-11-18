@@ -17,6 +17,8 @@ searchDirsRecursively = False # Recommended: False.
 includeOtherFeatures = False # Recommended: False.
 lookForAllFunctionCalls = False # Recommended: False.
 lookForAllMacroUsages = False # Recommended: False.
+################# Configuration options for entry point handling #################
+getToplevelParent = True # Recommended: True. Has only an effect for string or identifier entry points.
 ############### Further options to refine the Semantic Unit after analysis ###############
 # --- SU's files ---
 addAllFilesIncludedBySUFilesRecursively = True # Recommended: True. Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
@@ -1071,14 +1073,27 @@ def getIdentifierParent (identifiers):
     #Empty set
     result = set()
     
-    for currentNode in identifiers:    
+    # For each entry point
+    for currentNode in identifiers:   
+       
         # Find the visible parent nodes of an identifier that matches the given string
-        query = """g.V().has('type', 'Identifier').has('code', '%s').repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
+        query = """g.V().has('type', 'Identifier').has('code', '%s').repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)             
+        # Save nodes for the next query
+        nodes = db.runGremlinQuery(query)
         #Add the result
-        result.update(set(db.runGremlinQuery(query)))    
-
+        result.update(set(nodes))        
+        
+        # Check if we got any results
         if (len(result) == 0):
-            print("##### Warning! No identifiers found containing the string: "+currentNode+" #### \n")            
+            print("##### Warning! No identifiers found containing the string: "+currentNode+" #### \n") 
+            
+        # Get the parent function if existing and the configuration option is true    
+        elif (getToplevelParent):       
+            # Find the parent function (if existing) of an identifier that matches the given string
+            query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().id()""" % (nodes)             
+            #Add the result
+            result.update(set(db.runGremlinQuery(query))) 
+            
 
     return result  
 
@@ -1091,11 +1106,20 @@ def getStringParent (strings):
     for currentNode in strings:    
         # Find the visible parent nodes of an node that contains the given string
         query = """g.V().has('code', textContains('%s')).repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
+        # Save nodes for the next query
+        nodes = db.runGremlinQuery(query)
         #Add the result
-        result.update(set(db.runGremlinQuery(query)))              
+        result.update(set(nodes))      
         
+        # Check if we got any results
         if (len(result) == 0):
-            print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n")            
+            print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n")    
+        # Get the parent function if existing and the configuration option is true    
+        elif (getToplevelParent):       
+            # Find the parent function (if existing) of an identifier that matches the given string
+            query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().id()""" % (nodes)             
+            #Add the result
+            result.update(set(db.runGremlinQuery(query)))             
 
     return result 
 
