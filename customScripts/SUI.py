@@ -448,14 +448,6 @@ def analyzeNode (currentNode):
 ##################################################################################################################
 ##################################### Control Flow ###############################################################       
 
-    # Get enclosed vertices if current vertice is a label statement
-    if (type[0] == "Label"): 
-        # Get all goto statements that refer to this label
-        result = set(getGotos(currentNode))  
-        # Just add, no further analysis (we do not need to look at the gotos again, as they will result in the used labels)
-        semanticUnit.update(result) 
-         # Print result
-        if (DEBUG): print("Result control flow relation: "+str(result)+"\n")
        
     # Get enclosed vertices if current vertice is a GotoStatement 
     if (type[0] == "GotoStatement"): 
@@ -646,21 +638,6 @@ def getParent (verticeId):
     query = """g.V(%s).out('IS_AST_PARENT').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)                 
 
-# Return all GotoStatements that use the given label
-def getGotos (verticeId):
-    # Get code of the referenced label
-    query = """g.V(%s).out('IS_AST_PARENT').values('code')""" % (verticeId) 
-    name = db.runGremlinQuery(query)
-
-    # Go to parent filenode
-    # Look in all children for the the goto that references the label
-    query = """g.V(%s)
-        .until(has('type', 'File'))
-        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
-        .until(has('type', 'GotoStatement').out('IS_AST_PARENT').has('code', '%s'))
-        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).dedup().id()
-    """ % (verticeId, name[0]) 
-    return db.runGremlinQuery(query)
 
 # Return all Labels and the connected code that were refered by the given GotoStatement
 def getLabels (verticeId):
