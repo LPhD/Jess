@@ -44,7 +44,7 @@ generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = False
 ###################### Configuration options for entry point input ## ####################
-console = False
+console = True
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 showStatistics = True
@@ -1635,36 +1635,71 @@ def consoleInput():
     
     # Feature or statement as entry point?
     while True:
-        selection = input("Do you want to start with a feature/configuration option (1), a generic identifier (2), a generic string (3), or a specific line of code (4) ? \n")      
+        selection = input("Do you want to start with a feature/configuration option (1), a generic identifier (2), a generic string (3), or a specific line of code (4) ? \n")   
+        # Initialize all different types    
+        entryFeatureNames = list()
+        entryIdentifiers = list()
+        entryStrings = list()
+        entryPointIds = list()
         
         # Feature
-        if (selection == "1" or selection == "(1)" or selection == "feature" or selection == "configuration option"):
-            feature = input("Please type in the name of the feature/configuration option \n")
+        if (selection == "1" or selection == "(1)" or selection == "feature" or selection == "configuration option"):           
+            print("Please type in the name(s) of the feature/configuration option(s), one name per line")
+            feature = input("Please type in the first name (required) \n")
             print("You selected \""+feature+"\" as entry point \n")
-            entryFeatureNames = list(feature)
-            entryIdentifiers = list()
-            entryStrings = list()
-            entryPointIds = list()
+            entryFeatureNames.append(feature)
+            
+            #Add optional additional entry points
+            while True:            
+                feature = input("Do you want to add more names as entry points? If not, leave the input empty. \n")
+                if len(feature) > 0:
+                    print("You selected \""+feature+"\" as additional entry point \n")
+                    entryFeatureNames.append(feature)
+                else:
+                    #Stop the input loop for additional entry points
+                    break
+                    
+            #Stop the input loop for setting the entry point(s)
             break
         
         # Generic identifier
         elif (selection == "2" or selection == "(2)" or selection == "generic identifier" or selection == "identifier"):
-            identifier = input("Please type in the desired identifier \n")
+            print("Please type in the desired identifier(s), one name per line")
+            identifier = input("Please type in the first identifier (required) \n")
             print("You selected \""+identifier+"\" as entry point \n")
-            entryIdentifiers = list(identifier)
-            entryFeatureNames = list()
-            entryStrings = list()
-            entryPointIds = list()
+            entryIdentifiers.append(identifier)
+
+            #Add optional additional entry points
+            while True:            
+                identifier = input("Do you want to add more identifiers as entry points? If not, leave the input empty. \n")
+                if len(identifier) > 0:
+                    print("You selected \""+identifier+"\" as additional entry point \n")
+                    entryIdentifiers.append(identifier)
+                else:
+                    #Stop the input loop for additional entry points
+                    break
+
+            #Stop the input loop for setting the entry point(s)
             break   
 
         # Generic string
         elif (selection == "3" or selection == "(3)" or selection == "generic string" or selection == "string"):
-            eString = input("Please type in the desired string \n")
+            print("Please type in the desired string(s), one name per line")
+            eString = input("Please type in the first string (required) \n")           
             print("You selected \""+eString+"\" as entry point \n")
-            entryStrings = list(eString)
-            entryIdentifiers = list()
-            entryFeatureNames = list()
-            entryPointIds = list()
+            entryStrings.append(eString)
+            
+            #Add optional additional entry points
+            while True:            
+                eString = input("Do you want to add more strings as entry points? If not, leave the input empty. \n")
+                if len(eString) > 0:
+                    print("You selected \""+eString+"\" as additional entry point \n")
+                    entryStrings.append(eString)
+                else:
+                    #Stop the input loop for additional entry points
+                    break            
+            
+            #Stop the input loop for setting the entry point(s)
             break             
             
         # Statement input loop
@@ -1697,11 +1732,9 @@ def consoleInput():
                             query = """g.V(%s)""" % (selectedID) 
                             result = db.runGremlinQuery(query)
                             if (len(result) > 0):
+                                # If so, set it as entry point
                                 print("You selected \""+selectedID+"\" as entry point \n")
-                                entryFeatureNames = list()
-                                entryIdentifiers = list()
-                                entryStrings = list()
-                                entryPointIds = list(int(selectedID))    
+                                entryPointIds.append(selectedID)   
                                 # Stop the id input loop if we get valid results        
                                 break
                             else:    
@@ -1905,4 +1938,4 @@ def output(G):
 
 # Un-comment to run the script via console
 # Evaluation mode?, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
-#initializeSUI(True, "Identifier", ['invert_regexes', 'invert_regexes_len'], "", "")    
+#initializeSUI(True, "Location", ["src/options.c"], "427", "ExpressionStatement")    
