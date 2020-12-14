@@ -635,6 +635,7 @@ def getDiffs():
         
         if DEBUG: print("Current diff file: "+diffFileName)
         if DEBUG: print("Current filename: "+filename)
+        print("Current filename: "+filename)
        
         #Open Target and SU file pair (do this nested, as otherwise the readeability of one line is bad)
         with codecs.open("SUCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as SUFile:
@@ -662,6 +663,7 @@ def getDiffs():
                             # line is in Target and SU (ignore empty lines)
                             if (not line == "\n") and line == targetLine:
                                 if DEBUG: print("Found same line: "+line+" at index: "+str(index))
+                                if filename == "ignore.c": print("Found same line: "+line+" at index: "+str(index))
                                 
                                 #We write this here only for logging purposes
                                 if DEBUG: diffFile.write(" "+line)   
@@ -677,17 +679,19 @@ def getDiffs():
                                     mergeResultCopy_forSearching.insert(anchorIndex+1, "")
                                 
                                 #If we added an additional line before the current index, we need to increment the anchor
-                                if anchorIndex <= index and lastLineIsExclusive:
-                                    anchorIndex = index +1
-                                else:
-                                    #Set the current anchorIndex, so that we insert the SU lines at the right position if possible
-                                    anchorIndex = index
+                                #if anchorIndex < index and lastLineIsExclusive:
+                                    #anchorIndex = index +1
+                                    #if filename == "ignore.c": print("Incremented anchor: "+str(anchorIndex))
+                                #else:
+                                #Set the current anchorIndex, so that we insert the SU lines at the right position if possible
+                                anchorIndex = index
+                                    
                                                                 
                                 #Set new bools
                                 found = True
                                 lastLineIsExclusive = False
                                                             
-                                #Stops the iteration, as we change the length of the list and do not need to iterate further
+                                #Stops the (inner loop) iteration, as we change the length of the list and do not need to iterate further
                                 break
                                 
                         # line is in SU but not in Target        
@@ -722,7 +726,8 @@ def getDiffs():
                             lastLineIsExclusive = True
                             
                             if DEBUG: print("Insert new line: "+line+"+ at index: "+str(anchorIndex))
-                            
+                            if filename == "ignore.c": print("Insert new line: "+line+"+ at index: "+str(anchorIndex))
+                                                
 # TODO Check if line belongs to a block, keep blocks whole
 # ToDo: Add more complex analysis for #ifdefs and #defines? Currently we are just looking at one previous line
                         
