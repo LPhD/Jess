@@ -635,7 +635,6 @@ def getDiffs():
         
         if DEBUG: print("Current diff file: "+diffFileName)
         if DEBUG: print("Current filename: "+filename)
-        print("Current filename: "+filename)
        
         #Open Target and SU file pair (do this nested, as otherwise the readeability of one line is bad)
         with codecs.open("SUCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as SUFile:
@@ -663,7 +662,6 @@ def getDiffs():
                             # line is in Target and SU (ignore empty lines)
                             if (not line == "\n") and line == targetLine:
                                 if DEBUG: print("Found same line: "+line+" at index: "+str(index))
-                                if filename == "ignore.c": print("Found same line: "+line+" at index: "+str(index))
                                 
                                 #We write this here only for logging purposes
                                 if DEBUG: diffFile.write(" "+line)   
@@ -726,7 +724,6 @@ def getDiffs():
                             lastLineIsExclusive = True
                             
                             if DEBUG: print("Insert new line: "+line+"+ at index: "+str(anchorIndex))
-                            if filename == "ignore.c": print("Insert new line: "+line+"+ at index: "+str(anchorIndex))
                                                 
 # TODO Check if line belongs to a block, keep blocks whole
 # ToDo: Add more complex analysis for #ifdefs and #defines? Currently we are just looking at one previous line

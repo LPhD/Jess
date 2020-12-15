@@ -18,8 +18,8 @@ includeOtherFeatures = False # Recommended: False.
 lookForAllFunctionCalls = False # Recommended: False.
 lookForAllMacroUsages = False # Recommended: False.
 ################# Configuration options for entry point handling #################
-getParentFunction = True # Recommended: True. Has only an effect for string or identifier entry points. Makes the slice bigger, not recommended for fine-grained slicing.
-getParentBlocks = True # Recommended: True. Preserve syntactical structure, e.g. if statements around the entry point. Does not add the parent function (if existing).
+includeParentFunction = False # Recommended: False. Has only an effect for string, identifier or feature entry points. Makes the slice bigger, not recommended for fine-grained slicing.
+includeParentBlocks = True # Recommended: True. Has only an effect for string, identifier or feature entry points. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function (if existing).
 ############### Further options to refine the Semantic Unit after analysis ###############
 # --- SU's files ---
 addAllFilesIncludedBySUFilesRecursively = True # Recommended: True. Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
@@ -112,22 +112,21 @@ def identifySemanticUnits ():
     
     # Check if a feature is selected as entry point
     if (len(entryFeatureNames) > 0):        
-        result = getFeatureBlocks(entryFeatureNames)
+        result = getNodeParents(entryFeatureNames, "feature")
         if (len(result) > 1):
             print("Found feature as entry point, updated entry points: "+str(result)+"\n") 
             entryPointIds.extend(result)
         
     # Check if any identifier is selected as entry point
     if (len(entryIdentifiers) > 0):        
-        result = getIdentifierParent(entryIdentifiers)
+        result = getNodeParents(entryIdentifiers, "identifier")
         if (len(result) > 1):
             print("Found generic identifier as entry point, updated entry points: "+str(result)+"\n") 
             entryPointIds.extend(result)        
 
-
     # Check if any generic string is selected as entry point
     if (len(entryStrings) > 0):        
-        result = getStringParent(entryStrings)
+        result = getNodeParents(entryStrings, "string")
         if (len(result) > 1):
             print("Found generic string as entry point, updated entry points: "+str(result)+"\n") 
             entryPointIds.extend(result) 
@@ -155,8 +154,8 @@ def identifySemanticUnits ():
     if (len(semanticUnit) > 1):
         # Adapt results for syntactical correctness       
         # Add the function definition 
-        addParentFunctions()  
-        
+        semanticUnit.update(addParentFunctions(list(semanticUnit)))
+                
         #Collect the file nodes of the SU
         getSUsFileNodes()
         
@@ -634,12 +633,6 @@ def getFunctionDefinCFile (verticeId):
     return ""
 
 
-# Return AST parent of a given node (can be empty)
-def getParent (verticeId):
-    query = """g.V(%s).out('IS_AST_PARENT').dedup().id()""" % (verticeId)
-    return db.runGremlinQuery(query)                 
-
-
 # Return all Labels and the connected code that were refered by the given GotoStatement
 def getLabels (verticeId):
     # Get code of the referenced label
@@ -661,7 +654,6 @@ def getLabels (verticeId):
 def getASTChildren (verticeId):
     query = """g.V(%s).emit().repeat(__.out('IS_AST_PARENT')).unfold().dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)   
-
 
 
 # Return the id of the declaration of the called macro, including needed include statements
@@ -1014,6 +1006,7 @@ def getRelationsToMacro (verticeId):
    
     return db.runGremlinQuery(query)     
 
+
 ###################################### Variability ###############################################################
 
 # Return the blockstarter #if
@@ -1026,36 +1019,30 @@ def getPreIf (verticeId):
 # Return all variable statements of the current node   
 def getVariableStatements (verticeId):
     query = """g.V(%s).out('VARIABILITY').dedup().id()""" % (verticeId)
-    return db.runGremlinQuery(query) 
-
+    return db.runGremlinQuery(query)         
     
-# Return all variable statements of the current feature, this is done once in the beginning if the entry point is a feature   
-def getFeatureBlocks (featureName):
-    #Empty set
-    result = set()
     
-    for currentNode in featureName:    
-        # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
-        query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').dedup().id())""" % (currentNode)     
-        #Add the result
-        result.update(set(db.runGremlinQuery(query)))               
-        
-        if (len(result) == 0):
-            print("##### Warning! No #if/#ifdef/#elif statements found for feature: "+currentNode+" #### \n")            
-
-    return result              
-
+######################################### Parent Nodes #################################################################
 
 # Return all parents of identifiers that contain the specified string, this is done once in the beginning if the entry point is a generic identifier    
-def getIdentifierParent (identifiers):
+def getNodeParents (nodes, type):
     #Empty set
     result = set()
-    
+        
     # For each entry point
-    for currentNode in identifiers:   
+    for currentNode in nodes:   
+        query = ""
        
-        # Find the visible parent nodes of an identifier that matches the given string
-        query = """g.V().has('type', 'Identifier').has('code', '%s').repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)             
+        if (type == "identifier"):
+            # Find the visible parent nodes of an identifier that matches the given string
+            query = """g.V().has('type', 'Identifier').has('code', '%s').repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)  
+        elif (type == "string"):
+            # Find the visible parent nodes of an node that contains the given string
+            query = """g.V().has('code', textContains('%s')).repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)
+        elif (type == "feature"):
+            # Find all #if/#elfif nodes that contain the name of the feature and all nodes that belong to the variability blocks
+            query = """g.V().has('type', within('PreIfStatement','PreElIfStatement')).has('code', textContains('%s')).union(id(), out('VARIABILITY').dedup().id())""" % (currentNode)             
+        
         # Save nodes for the next query
         nodes = db.runGremlinQuery(query)
         #Add the result
@@ -1063,65 +1050,53 @@ def getIdentifierParent (identifiers):
         
         # Check if we got any results
         if (len(result) == 0):
-            print("##### Warning! No identifiers found containing the string: "+currentNode+" #### \n") 
-            
-        # Get the parent function if existing and the configuration option is true    
-        elif (getParentFunction):       
-            # Find the parent function (if existing) of an identifier that matches the given string
-            query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().id()""" % (nodes)             
-            #Add the result
-            result.update(set(db.runGremlinQuery(query))) 
-            
-
-    return result  
-
-
-# Return all parents of any nodes that contain the specified string, this is done once in the beginning if the entry point is a generic string    
-def getStringParent (strings):
-    #Empty set
-    result = set()
-    
-    for currentNode in strings:    
-        # Find the visible parent nodes of an node that contains the given string
-        query = """g.V().has('code', textContains('%s')).repeat(__.in('IS_AST_PARENT')).until(has('type', within(%s))).dedup().id()""" % (currentNode, visibleStatementTypes)     
-        # Save nodes for the next query
-        nodes = db.runGremlinQuery(query)
-        #Add the result
-        result.update(set(nodes))      
-        
-        # Check if we got any results
-        if (len(result) == 0):
-            print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n")    
-        # Get the parent function if existing and the configuration option is true    
-        elif (getParentFunction):       
-            # Find the parent function (if existing) of an identifier that matches the given string
-            query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().id()""" % (nodes)             
-            #Add the result
-            result.update(set(db.runGremlinQuery(query)))             
+            print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n") 
+        else:    
+            # Get the parent function if existing and the configuration option is true    
+            if (includeParentFunction):       
+                # Find the parent function (if existing) of an identifier that matches the given string and add the result
+                result.update(set(addParentFunctions(list(result)))) 
+                
+            # Get the parent blockstarters if existing and the configuration option is true    
+            if (includeParentBlocks):       
+                # Find the parent blocks (if existing) of an identifier that matches the given string and add the result
+                result.update(set(addParentBlocks(list(result))))             
 
     return result 
 
-######################################### Syntax Checking #################################################################
+
+# Return AST parent of a given node (can be empty)
+def getParent (verticeId):
+    query = """g.V(%s).out('IS_AST_PARENT').dedup().id()""" % (verticeId)
+    return db.runGremlinQuery(query)                 
+
 
 # Return parent function of a given set of node ids (can be empty)
-def addParentFunctions ():
-    if (DEBUG) : print("Checking for syntactic correctness...")    
-
-    global semanticUnit
-    # Get the compound statements and function definitions, add them to the SemanticUnit (without dupes)
-    #query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT').simplePath()).emit().union(
-    #        __.has('type', 'FunctionDef').as('result'),
-    #        __.has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type', 'BlockCloser').as('result')
-    #    ).select('result').unfold().dedup().id()"""  % (list(semanticUnit)) 
-
-    query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().id()"""  % (list(semanticUnit))         
-   
-    result = db.runGremlinQuery(query)       
+def addParentFunctions (nodes):
+    global SemanticUnit
     
-    if (DEBUG) : print("Found additional nodes (FunctionDef and CompundStatement): "+str(result)+"\n")
-    
-    semanticUnit.update(result)
+    if (DEBUG) : print("Checking for parent functionDefs ...")    
 
+    # Find the parent function (if existing), its CompoundStatement and its BlockCloser (without dupes)
+    query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().as('result').out('IS_AST_PARENT').has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type','BlockCloser').as('result').select('result').unfold().id()"""  % (nodes)                
+    
+    return db.runGremlinQuery(query) 
+
+
+# Return parent blocks of a given set of node ids (can be empty)
+def addParentBlocks (nodes):
+    global SemanticUnit
+    
+    if (DEBUG) : print("Looking for parent blocks...")    
+
+    # Find the parent blocks (if existing and without dupes)
+    blockStarter = ['SwitchStatement', 'IfStatement', 'ElseStatement', 'ForStatement', 'WhileStatement', 'DoStatement']
+
+    query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).emit().has('type', within(%s)).dedup().as('result').out('IS_AST_PARENT').has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type','BlockCloser').as('result').select('result').unfold().dedup().id()"""  % (nodes, blockStarter)                
+    
+    return db.runGremlinQuery(query) 
+    
+    
 ######################################### Variability Checking #################################################################
 
 # Return parent variability information for each statement in the SemanticUnit (without further analysis)
