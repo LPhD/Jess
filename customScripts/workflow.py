@@ -282,7 +282,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNam
     measureSizes()
             
     # Perform additional actions required for evaluation (installation, run tests, etc.)
-    setupProjectsForEvaluation()
+    setupProjectsForEvaluation(testFolder, testName)
     
     # Measure timings of installation and test processes separately   
     installAndTest_duration = time.time() - installAndTest_start    
@@ -507,10 +507,10 @@ def measureSizes():
 
 # Installs projects, runs their tests and measures results 
 # TODO automate based on projectList
-def setupProjectsForEvaluation():   
-
-    
+def setupProjectsForEvaluation(testFolder, testName):      
 ################################# silver_searcher #############################################################################   
+    # Also add the new test to Target to see if it initially fails
+    moveSilverSearcherTests(testFolder, testName)
     installSilverSearcher("Donor")
     installSilverSearcher("Target")
 ################################# silver_searcher end #########################################################################
