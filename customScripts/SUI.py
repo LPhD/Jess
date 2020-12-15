@@ -18,7 +18,8 @@ includeOtherFeatures = False # Recommended: False.
 lookForAllFunctionCalls = False # Recommended: False.
 lookForAllMacroUsages = False # Recommended: False.
 ################# Configuration options for entry point handling #################
-getToplevelParent = True # Recommended: True. Has only an effect for string or identifier entry points.
+getParentFunction = True # Recommended: True. Has only an effect for string or identifier entry points. Makes the slice bigger, not recommended for fine-grained slicing.
+getParentBlocks = True # Recommended: True. Preserve syntactical structure, e.g. if statements around the entry point. Does not add the parent function (if existing).
 ############### Further options to refine the Semantic Unit after analysis ###############
 # --- SU's files ---
 addAllFilesIncludedBySUFilesRecursively = True # Recommended: True. Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
@@ -1065,7 +1066,7 @@ def getIdentifierParent (identifiers):
             print("##### Warning! No identifiers found containing the string: "+currentNode+" #### \n") 
             
         # Get the parent function if existing and the configuration option is true    
-        elif (getToplevelParent):       
+        elif (getParentFunction):       
             # Find the parent function (if existing) of an identifier that matches the given string
             query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().id()""" % (nodes)             
             #Add the result
@@ -1092,7 +1093,7 @@ def getStringParent (strings):
         if (len(result) == 0):
             print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n")    
         # Get the parent function if existing and the configuration option is true    
-        elif (getToplevelParent):       
+        elif (getParentFunction):       
             # Find the parent function (if existing) of an identifier that matches the given string
             query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().id()""" % (nodes)             
             #Add the result
@@ -1108,10 +1109,12 @@ def addParentFunctions ():
 
     global semanticUnit
     # Get the compound statements and function definitions, add them to the SemanticUnit (without dupes)
-    query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT').simplePath()).emit().union(
-            __.has('type', 'FunctionDef').as('result'),
-            __.has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type', 'BlockCloser').as('result')
-        ).select('result').unfold().dedup().id()"""  % (list(semanticUnit))   
+    #query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT').simplePath()).emit().union(
+    #        __.has('type', 'FunctionDef').as('result'),
+    #        __.has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type', 'BlockCloser').as('result')
+    #    ).select('result').unfold().dedup().id()"""  % (list(semanticUnit)) 
+
+    query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().id()"""  % (list(semanticUnit))         
    
     result = db.runGremlinQuery(query)       
     
