@@ -17,9 +17,13 @@ searchDirsRecursively = False # Recommended: False.
 includeOtherFeatures = False # Recommended: False.
 lookForAllFunctionCalls = False # Recommended: False.
 lookForAllMacroUsages = False # Recommended: False.
-################# Configuration options for entry point handling #################
-includeParentFunction = False # Recommended: False. Has only an effect for string, identifier or feature entry points. Makes the slice bigger, not recommended for fine-grained slicing.
-includeParentBlocks = True # Recommended: True. Has only an effect for string, identifier or feature entry points. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function (if existing).
+################# Configuration options for entry point handling (only affecting string/identifier/feature and not id) #################
+includeParentFunction = False # Recommended: False. Makes the slice bigger, not recommended for fine-grained slicing.
+
+includeLocalDataflows = False # Recommended: False.  Makes the slice bigger, but (potentially) not so much as the option above. Recursively includes all statements inside the function of an entry point that have a dataflow connection (read/write).
+
+includeParentBlocks = True # Recommended: True. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares.
+
 ############### Further options to refine the Semantic Unit after analysis ###############
 # --- SU's files ---
 addAllFilesIncludedBySUFilesRecursively = True # Recommended: True. Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
@@ -42,10 +46,10 @@ addAssociatedComments = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
-showOnlyStructuralEdges = True
-plotGraph = False
+showOnlyStructuralEdges = False
+plotGraph = True
 ###################### Configuration options for entry point input ## ####################
-console = True
+console = False
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 showStatistics = True
@@ -56,11 +60,11 @@ showStatistics = True
 # You can select all four, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
 # # Set the project DB and entry points manually here has only an effect if consoleInput is deactivated # #
-projectName = 'DonorProject'
+projectName = 'Test'
 entryPointIds = list()
 entryFeatureNames = list()
-entryIdentifiers = list()
-entryStrings = ['passthrough']
+entryIdentifiers = ['invert_regexes','invert_regexes_len']
+entryStrings = list()
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
@@ -1006,22 +1010,7 @@ def getRelationsToMacro (verticeId):
    
     return db.runGremlinQuery(query)     
 
-
-###################################### Variability ###############################################################
-
-# Return the blockstarter #if
-def getPreIf (verticeId):
-    # We need the __. before in, so Groovy doesn't confuse it with its own keyword in
-    query = """g.V(%s).until(has('type', 'PreIfStatement')).repeat(__.in('IS_AST_PARENT')).dedup().id()""" % (verticeId)
-    return db.runGremlinQuery(query) 
- 
- 
-# Return all variable statements of the current node   
-def getVariableStatements (verticeId):
-    query = """g.V(%s).out('VARIABILITY').dedup().id()""" % (verticeId)
-    return db.runGremlinQuery(query)         
-    
-    
+  
 ######################################### Parent Nodes #################################################################
 
 # Return all parents of identifiers that contain the specified string, this is done once in the beginning if the entry point is a generic identifier    
@@ -1051,23 +1040,29 @@ def getNodeParents (nodes, type):
         # Check if we got any results
         if (len(result) == 0):
             print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n") 
-        else:    
-            # Get the parent function if existing and the configuration option is true    
-            if (includeParentFunction):       
-                # Find the parent function (if existing) of an identifier that matches the given string and add the result
-                result.update(set(addParentFunctions(list(result)))) 
-                
-            # Get the parent blockstarters if existing and the configuration option is true    
-            if (includeParentBlocks):       
-                # Find the parent blocks (if existing) of an identifier that matches the given string and add the result
-                result.update(set(addParentBlocks(list(result))))             
-
+    
+    # If we have found all initial nodes, pre-analyze them    
+    if (len(result) > 0):    
+        # Get the parent function if existing and the configuration option is true    
+        if (includeParentFunction):       
+            # Find the parent function (if existing) of an identifier that matches the given string and add the result
+            result.update(set(addParentFunctions(list(result)))) 
+            
+        # Get the parent blockstarters if existing and the configuration option is true    
+        if (includeParentBlocks):       
+            # Find the parent blocks (if existing) of an identifier that matches the given string and add the result
+            result.update(set(addParentBlocks(list(result)))) 
+            
+        # For all entry points, add declaration of local variables if we wont get them otherways
+        if (not includeLocalDataflows) and (not followDataflows) and (not includeParentFunction):  
+            result.update(set(addLocalDeclares(list(result)))) 
+            
     return result 
 
 
 # Return AST parent of a given node (can be empty)
 def getParent (verticeId):
-    query = """g.V(%s).out('IS_AST_PARENT').dedup().id()""" % (verticeId)
+    query = """g.V(%s).in('IS_AST_PARENT').dedup().id()""" % (verticeId)
     return db.runGremlinQuery(query)                 
 
 
@@ -1095,6 +1090,22 @@ def addParentBlocks (nodes):
     query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).emit().has('type', within(%s)).dedup().as('result').out('IS_AST_PARENT').has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type','BlockCloser').as('result').select('result').unfold().dedup().id()"""  % (nodes, blockStarter)                
     
     return db.runGremlinQuery(query) 
+
+
+######################################### Local Declares (Pre-Analysis) #################################################################
+
+# Return parent blocks of a given set of node ids (can be empty)
+def addLocalDeclares (nodes):
+    global SemanticUnit
+    
+    if (DEBUG) : print("Looking for local declares...")   
+    print("Looking for local declares...")     
+
+    # Find the declaration of all identifiers inside the same function and before the current statement (if existing and without dupes)
+    query = """idListToNodes(%s).repeat(__.in('FLOWS_TO')).emit().has('type', 'IdentifierDeclStatement').dedup().id()"""  % (nodes)                
+    
+    return db.runGremlinQuery(query)
+
     
     
 ######################################### Variability Checking #################################################################
@@ -1115,7 +1126,21 @@ def addVariability ():
     if (DEBUG) : print("Found additional variability nodes (#ifdef etc): "+str(result)+"\n")
     
     semanticUnit.update(result)
+ 
+
+# Return the blockstarter #if
+def getPreIf (verticeId):
+    # We need the __. before in, so Groovy doesn't confuse it with its own keyword in
+    query = """g.V(%s).until(has('type', 'PreIfStatement')).repeat(__.in('IS_AST_PARENT')).dedup().id()""" % (verticeId)
+    return db.runGremlinQuery(query) 
+ 
+ 
+# Return all variable statements of the current node   
+def getVariableStatements (verticeId):
+    query = """g.V(%s).out('VARIABILITY').dedup().id()""" % (verticeId)
+    return db.runGremlinQuery(query)         
     
+   
 ######################################### Comment Checking #################################################################
 
 # Return parent comment for each statement in the SemanticUnit (without further analysis)
@@ -1916,4 +1941,4 @@ def output(G):
 
 # Un-comment to run the script via console
 # Evaluation mode?, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
-#initializeSUI(True, "Location", ["src/options.c"], "427", "ExpressionStatement")    
+initializeSUI(False, "Location", ["src/options.c"], "427", "ExpressionStatement")    
