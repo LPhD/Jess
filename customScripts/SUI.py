@@ -1041,19 +1041,21 @@ def getNodeParents (nodes, type):
         if (len(result) == 0):
             print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n") 
     
-    # If we have found all initial nodes, pre-analyze them    
+    # If we have found all initial nodes, pre-analyze them and add the results to the initial analysis set   
     if (len(result) > 0):    
-        # Get the parent function if existing and the configuration option is true    
+        # Get the parent function if existing and the configuration option is true  
         if (includeParentFunction):       
-            # Find the parent function (if existing) of an identifier that matches the given string and add the result
             result.update(set(addParentFunctions(list(result)))) 
             
-        # Get the parent blockstarters if existing and the configuration option is true    
+        # Get the parent blockstarters if existing and the configuration option is true  
         if (includeParentBlocks):       
-            # Find the parent blocks (if existing) of an identifier that matches the given string and add the result
             result.update(set(addParentBlocks(list(result)))) 
             
-        # For all entry points, add declaration of local variables if we wont get them otherways
+        # Get all via dataflow related statements if existing and the configuration option is true    
+        if (includeLocalDataflows):       
+            result.update(set(addLocalDataflows(list(result))))            
+            
+        # For all entry points, add declaration of local variables if existing and if we wont get them otherways 
         if (not includeLocalDataflows) and (not followDataflows) and (not includeParentFunction):  
             result.update(set(addLocalDeclares(list(result)))) 
             
@@ -1098,14 +1100,27 @@ def addParentBlocks (nodes):
 def addLocalDeclares (nodes):
     global SemanticUnit
     
-    if (DEBUG) : print("Looking for local declares...")   
-    print("Looking for local declares...")     
+    if (DEBUG) : print("Looking for local declares...")       
 
     # Find the declaration of all identifiers inside the same function and before the current statement (if existing and without dupes)
     query = """idListToNodes(%s).repeat(__.in('FLOWS_TO')).emit().has('type', 'IdentifierDeclStatement').dedup().id()"""  % (nodes)                
     
     return db.runGremlinQuery(query)
 
+
+######################################### Local Dataflows (Pre-Analysis) #################################################################    
+    
+# Return parent blocks of a given set of node ids (can be empty)
+def addLocalDataflows (nodes):
+    global SemanticUnit
+    
+    if (DEBUG) : print("Looking for local dataflows...")        
+
+    # Follow all dataflows inside a function and add the involved statements (if existing and without dupes)
+    query = """idListToNodes(%s).out('USE','DEF').in('USE','DEF').simplePath().dedup().id()"""  % (nodes)                
+    
+    return db.runGremlinQuery(query)
+   
     
     
 ######################################### Variability Checking #################################################################
@@ -1941,4 +1956,4 @@ def output(G):
 
 # Un-comment to run the script via console
 # Evaluation mode?, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
-initializeSUI(False, "Location", ["src/options.c"], "427", "ExpressionStatement")    
+#initializeSUI(False, "Location", ["src/options.c"], "427", "ExpressionStatement")    
