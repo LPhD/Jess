@@ -22,7 +22,9 @@ includeParentFunction = False # Recommended: False. Makes the slice bigger, not 
 
 includeLocalDataflows = False # Recommended: False.  Makes the slice bigger, but (potentially) not so much as the option above. Recursively includes all statements inside the function of an entry point that have a dataflow connection (read/write).
 
-includeParentBlocks = True # Recommended: True. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares.
+includeParentBlocks = False # Recommended: False. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares. Potentially the smallest number of entry points.
+
+includeBackwardSlice = True #Recommended: True. Classical syntax preserving backward slice, includes all statements that appear previously in the control flow and are reachable either via dataflow or are structural (AST) parents.
 
 ############### Further options to refine the Semantic Unit after analysis ###############
 # --- SU's files ---
@@ -60,7 +62,7 @@ showStatistics = True
 # You can select all four, if you want additional entry points. Empty sets should be declared as set() and not {}
 # The id should be of a node that can appear directly in the code (e.g. FunctionDef and not its Identifier)
 # # Set the project DB and entry points manually here has only an effect if consoleInput is deactivated # #
-projectName = 'Test'
+projectName = 'DonorProject'
 entryPointIds = list()
 entryFeatureNames = list()
 entryIdentifiers = ['invert_regexes','invert_regexes_len']
@@ -1053,10 +1055,14 @@ def getNodeParents (nodes, type):
             
         # Get all via dataflow related statements if existing and the configuration option is true    
         if (includeLocalDataflows):       
-            result.update(set(addLocalDataflows(list(result))))            
+            result.update(set(addLocalDataflows(list(result))))   
+
+        # Get all via dataflow related statements if existing and the configuration option is true    
+        if (includeBackwardSlice):       
+            result.update(set(addLocalBackwardSlice(list(result))))            
             
         # For all entry points, add declaration of local variables if existing and if we wont get them otherways 
-        if (not includeLocalDataflows) and (not followDataflows) and (not includeParentFunction):  
+        if (not includeLocalDataflows) and (not followDataflows) and (not includeParentFunction) and (not includeBackwardSlice):  
             result.update(set(addLocalDeclares(list(result)))) 
             
     return result 
@@ -1108,7 +1114,7 @@ def addLocalDeclares (nodes):
     return db.runGremlinQuery(query)
 
 
-######################################### Local Dataflows (Pre-Analysis) #################################################################    
+######################################### Local Data Flows (Pre-Analysis) #################################################################    
     
 # Return parent blocks of a given set of node ids (can be empty)
 def addLocalDataflows (nodes):
@@ -1117,12 +1123,41 @@ def addLocalDataflows (nodes):
     if (DEBUG) : print("Looking for local dataflows...")        
 
     # Follow all dataflows inside a function and add the involved statements (if existing and without dupes)
-    query = """idListToNodes(%s).out('USE','DEF').in('USE','DEF').simplePath().dedup().id()"""  % (nodes)                
+    query = """idListToNodes(%s).repeat(__.out('USE','DEF').dedup().in('USE','DEF').simplePath()).emit().has('type', within(%s)).id()"""  % (nodes)                
     
     return db.runGremlinQuery(query)
    
+   
+######################################### Local Control- and Data Flows (Pre-Analysis) #################################################################    
     
+# Return the classical backward slice of a given set of node ids (can be empty)
+def addLocalBackwardSlice (nodes):
+    global SemanticUnit
     
+    if (DEBUG) : print("Looking for local backward slice...") 
+
+    result = set()    
+
+    for node in nodes:
+            
+        #Get all nodes that appear previously in the control flow (if the node is a condition, get its parent)
+        query = """g.V(%s).repeat(__.in('FLOWS_TO')).emit().choose(has('type','Condition'),__.in('IS_AST_PARENT'),identity()).id()""" % (node)
+        controlFlow = set(db.runGremlinQuery(query))
+
+        #Get all nodes that are connected via DEF/USE or (real or, not xor) AST parent edges to the initial node
+        query = """g.V(%s).repeat(__.union(
+            __.out('USE','DEF').dedup().in('USE','DEF').simplePath(),
+            __.in('IS_AST_PARENT').not(has('type','FunctionDef')).dedup()
+            ).dedup()
+        ).emit().has('type', within(%s)).id()""" % (node, visibleStatementTypes)
+        dataFlow = set(db.runGremlinQuery(query))        
+
+        #Get all nodes that appear in both queries (previous control flow node and direct or indirect data flow connection) -> All nodes that can have an impact to the entry point
+        result.update(controlFlow.intersection(dataFlow))                  
+    
+    return result
+   
+        
 ######################################### Variability Checking #################################################################
 
 # Return parent variability information for each statement in the SemanticUnit (without further analysis)
@@ -1955,5 +1990,5 @@ def output(G):
 
 
 # Un-comment to run the script via console
-# Evaluation mode?, "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
+# Evaluation mode? (if False: the other parameters have no effect), "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
 #initializeSUI(False, "Location", ["src/options.c"], "427", "ExpressionStatement")    
