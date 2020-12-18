@@ -1585,7 +1585,7 @@ def countNodes():
     .dedup().count()""" % (list(semanticUnit), visibleStatementTypes) 
     statResult = db.runGremlinQuery(query) 
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
-    print("--------------------------------------------------------------------------------- \n")
+    print("--------------------------------------------------------------------------------- \n")    
     
     # Write last results to file
     with open("Evaluation/EvaluationStatistics/sizes.txt", "a") as file:
@@ -1593,7 +1593,30 @@ def countNodes():
         file.write(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).\n")
         file.write("*********************************************************************************** \n")
         file.write("The configuration was: \n")
-        file.write(" includeEnclosedCode = "+str(includeEnclosedCode)+" \n connectIfWithElse = "+str(connectIfWithElse)+" \n followDataflows = "+str(followDataflows)+" \n searchDirsRecursively = "+str(searchDirsRecursively)+" \n includeOtherFeatures = "+str(includeOtherFeatures)+" \n lookForAllFunctionCalls = "+str(lookForAllFunctionCalls)+" \n lookForAllMacroUsages = "+str(lookForAllMacroUsages)+" \n addAllFilesIncludedBySUFilesRecursively = "+str(addAllFilesIncludedBySUFilesRecursively)+" \n addAllExternalLibraryIncludes = "+str(addAllExternalLibraryIncludes)+" \n addExternalLibraryIncludesOnlyForSUFiles = "+str(addExternalLibraryIncludesOnlyForSUFiles)+" \n addAllInternalFileIncludes = "+str(addAllInternalFileIncludes)+" \n addInternalFileIncludesOnlyForSUFiles = "+str(addInternalFileIncludesOnlyForSUFiles)+" \n addOnlyProbablyUsedGlobalDeclarationsOfVariables = "+str(addOnlyProbablyUsedGlobalDeclarationsOfVariables)+" \n addAllGoblaDelcarationsOfVariablesForSUFiles = "+str(addAllGoblaDelcarationsOfVariablesForSUFiles)+" \n addAllGoblaDelcarationsOfVariables = "+str(addAllGoblaDelcarationsOfVariables)+" \n addOnlyProbablyUsedNonFunctionLikeDefines = "+str(addOnlyProbablyUsedNonFunctionLikeDefines)+" \n addNonFunctionLikeDefinesForSUFiles = "+str(addNonFunctionLikeDefinesForSUFiles)+" \n addAllNonFunctionLikeDefines = "+str(addAllNonFunctionLikeDefines)+" \n addVariabilityInformation = "+str(addVariabilityInformation)+" \n addComments = "+str(addAssociatedComments)+" \n")
+        file.write(" includeEnclosedCode = "+str(includeEnclosedCode)+
+        " \n connectIfWithElse = "+str(connectIfWithElse)+
+        " \n followDataflows = "+str(followDataflows)+
+        " \n searchDirsRecursively = "+str(searchDirsRecursively)+
+        " \n includeOtherFeatures = "+str(includeOtherFeatures)+
+        " \n lookForAllFunctionCalls = "+str(lookForAllFunctionCalls)+
+        " \n lookForAllMacroUsages = "+str(lookForAllMacroUsages)+
+        " \n includeBackwardSlice = "+str(includeBackwardSlice)+
+        " \n includeParentBlocks = "+str(includeParentBlocks)+
+        " \n includeLocalDataflows = "+str(includeLocalDataflows)+
+        " \n includeParentFunction = "+str(includeParentFunction)+       
+        " \n addAllFilesIncludedBySUFilesRecursively = "+str(addAllFilesIncludedBySUFilesRecursively)+
+        " \n addAllExternalLibraryIncludes = "+str(addAllExternalLibraryIncludes)+
+        " \n addExternalLibraryIncludesOnlyForSUFiles = "+str(addExternalLibraryIncludesOnlyForSUFiles)+
+        " \n addAllInternalFileIncludes = "+str(addAllInternalFileIncludes)+
+        " \n addInternalFileIncludesOnlyForSUFiles = "+str(addInternalFileIncludesOnlyForSUFiles)+
+        " \n addOnlyProbablyUsedGlobalDeclarationsOfVariables = "+str(addOnlyProbablyUsedGlobalDeclarationsOfVariables)+
+        " \n addAllGoblaDelcarationsOfVariablesForSUFiles = "+str(addAllGoblaDelcarationsOfVariablesForSUFiles)+
+        " \n addAllGoblaDelcarationsOfVariables = "+str(addAllGoblaDelcarationsOfVariables)+
+        " \n addOnlyProbablyUsedNonFunctionLikeDefines = "+str(addOnlyProbablyUsedNonFunctionLikeDefines)+
+        " \n addNonFunctionLikeDefinesForSUFiles = "+str(addNonFunctionLikeDefinesForSUFiles)+
+        " \n addAllNonFunctionLikeDefines = "+str(addAllNonFunctionLikeDefines)+
+        " \n addVariabilityInformation = "+str(addVariabilityInformation)+
+        " \n addComments = "+str(addAssociatedComments)+" \n")
         file.write("*********************************************************************************** \n")
 
    
