@@ -1131,11 +1131,10 @@ def addLocalBackwardSlice (nodes):
     global SemanticUnit
     
     if (DEBUG) : print("Looking for local backward slice...") 
-    print("Looking for local backward slice..."+str(nodes))
     result = set()    
 
     for node in nodes:
-        print("Look at node: "+str(node))  
+        if (DEBUG) : print("Look at node: "+str(node))  
 
         #Get all nodes that appear previously in the control flow 
         #If the starting node has a condition, follow its control flow instead. if the resulting node is a condition, get its parent (bc control flows follow condition, not their visible parent statements)
@@ -1145,7 +1144,7 @@ def addLocalBackwardSlice (nodes):
             .choose(has('type','Condition'),__.in('IS_AST_PARENT'),identity())
             .id()""" % (node)
         controlFlow = set(db.runGremlinQuery(query))
-        print("Got control flow: "+str(controlFlow))
+        if (DEBUG) : print("Got control flow: "+str(controlFlow))
         
         #Only check for data flow if we have nodes that could influence the entry point
         if (len(controlFlow) > 0):        
@@ -1160,7 +1159,7 @@ def addLocalBackwardSlice (nodes):
         
             #Get all nodes that appear in both queries (previous control flow node and direct or indirect data flow connection) -> All nodes that can have an impact to the entry point
             result.update(controlFlow.intersection(dataFlow))    
-            print("Updated result: "+str(result))    
+            if (DEBUG) : print("Updated result: "+str(result))    
     
     return result
    
