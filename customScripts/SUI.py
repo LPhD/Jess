@@ -18,14 +18,10 @@ includeOtherFeatures = False # Recommended: False.
 lookForAllFunctionCalls = False # Recommended: False.
 lookForAllMacroUsages = False # Recommended: False.
 ################# Configuration options for entry point handling (only affecting string/identifier/feature and not id) #################
-includeParentFunction = False # Recommended: False. Makes the slice bigger, not recommended for fine-grained slicing.
-
-includeLocalDataflows = False # Recommended: False.  Makes the slice bigger, but (potentially) not so much as the option above. Recursively includes all statements inside the function of an entry point that have a dataflow connection (read/write).
-
-includeParentBlocks = False # Recommended: False. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares. Potentially the smallest number of entry points.
-
 includeBackwardSlice = True #Recommended: True. Classical syntax preserving backward slice, includes all statements that appear previously in the control flow and are reachable either via dataflow or are structural (AST) parents.
-
+includeParentBlocks = False # Recommended: False. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares. Potentially the smallest number of entry points, but also not complete (no data dependencies taken into account)
+includeLocalDataflows = False # Recommended: False.  Makes the slice bigger, but (potentially) not so much as the option underneath. Recursively includes all statements inside the function of an entry point that have a dataflow connection (read/write).
+includeParentFunction = False # Recommended: False. Makes the slice bigger, not recommended for fine-grained slicing. Most complete, but potentially overfitting.
 ############### Further options to refine the Semantic Unit after analysis ###############
 # --- SU's files ---
 addAllFilesIncludedBySUFilesRecursively = True # Recommended: True. Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
@@ -48,8 +44,8 @@ addAssociatedComments = True
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
-showOnlyStructuralEdges = False
-plotGraph = True
+showOnlyStructuralEdges = True
+plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
@@ -1059,7 +1055,7 @@ def getNodeParents (nodes, type):
 
         # Get all via dataflow related statements if existing and the configuration option is true    
         if (includeBackwardSlice):       
-            result.update(set(addLocalBackwardSlice(list(result))))            
+            result.update(set(addLocalBackwardSlice(result)))            
             
         # For all entry points, add declaration of local variables if existing and if we wont get them otherways 
         if (not includeLocalDataflows) and (not followDataflows) and (not includeParentFunction) and (not includeBackwardSlice):  
@@ -1135,25 +1131,36 @@ def addLocalBackwardSlice (nodes):
     global SemanticUnit
     
     if (DEBUG) : print("Looking for local backward slice...") 
-
+    print("Looking for local backward slice..."+str(nodes))
     result = set()    
 
     for node in nodes:
-            
-        #Get all nodes that appear previously in the control flow (if the node is a condition, get its parent)
-        query = """g.V(%s).repeat(__.in('FLOWS_TO')).emit().choose(has('type','Condition'),__.in('IS_AST_PARENT'),identity()).id()""" % (node)
+        print("Look at node: "+str(node))  
+
+        #Get all nodes that appear previously in the control flow 
+        #If the starting node has a condition, follow its control flow instead. if the resulting node is a condition, get its parent (bc control flows follow condition, not their visible parent statements)
+        query = """g.V(%s)
+            .choose(__.out('IS_AST_PARENT').has('type','Condition'),__.out('IS_AST_PARENT').has('type','Condition'),identity())
+            .repeat(__.in('FLOWS_TO').simplePath().dedup()).emit()
+            .choose(has('type','Condition'),__.in('IS_AST_PARENT'),identity())
+            .id()""" % (node)
         controlFlow = set(db.runGremlinQuery(query))
-
-        #Get all nodes that are connected via DEF/USE or (real or, not xor) AST parent edges to the initial node
-        query = """g.V(%s).repeat(__.union(
-            __.out('USE','DEF').dedup().in('USE','DEF').simplePath(),
-            __.in('IS_AST_PARENT').not(has('type','FunctionDef')).dedup()
-            ).dedup()
-        ).emit().has('type', within(%s)).id()""" % (node, visibleStatementTypes)
-        dataFlow = set(db.runGremlinQuery(query))        
-
-        #Get all nodes that appear in both queries (previous control flow node and direct or indirect data flow connection) -> All nodes that can have an impact to the entry point
-        result.update(controlFlow.intersection(dataFlow))                  
+        print("Got control flow: "+str(controlFlow))
+        
+        #Only check for data flow if we have nodes that could influence the entry point
+        if (len(controlFlow) > 0):        
+            #Get all nodes that are connected via DEF/USE or (real or, not xor) AST parent edges to the initial node
+            query = """g.V(%s).repeat(__.union(
+                __.out('USE','DEF').dedup().in('USE','DEF').simplePath().dedup(),
+                __.in('IS_AST_PARENT').not(has('type','FunctionDef')).simplePath().dedup()
+                ).dedup()
+            ).emit().has('type', within(%s)).id()""" % (node, visibleStatementTypes)
+            dataFlow = set(db.runGremlinQuery(query))        
+            print("Got dataFlow: "+str(dataFlow))
+        
+            #Get all nodes that appear in both queries (previous control flow node and direct or indirect data flow connection) -> All nodes that can have an impact to the entry point
+            result.update(controlFlow.intersection(dataFlow))    
+            print("Updated result: "+str(result))    
     
     return result
    
