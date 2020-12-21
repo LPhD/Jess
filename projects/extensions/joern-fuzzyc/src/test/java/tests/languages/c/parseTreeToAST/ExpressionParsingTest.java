@@ -26,6 +26,7 @@ import ast.expressions.ShiftExpression;
 import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
+import ast.logical.statements.Label;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 
@@ -50,6 +51,14 @@ public class ExpressionParsingTest {
 		AssignmentExpression expr = (AssignmentExpression) statementItem.getExpression();
 		assertEquals("x",expr.getLeft().getEscapedCodeStr());
 		assertEquals("y = z",expr.getRight().getEscapedCodeStr());
+	}
+	
+	@Test
+	public void a2() {
+		String input = "case 'm':";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		Label statementItem = (Label) contentItem.getStatements().get(0);
+		assertEquals("case 'm' :",statementItem.getEscapedCodeStr());
 	}
 
 	@Test

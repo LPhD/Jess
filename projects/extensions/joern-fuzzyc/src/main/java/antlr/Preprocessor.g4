@@ -1,4 +1,5 @@
 grammar Preprocessor;
+import ModuleLex;
 
 //Angelehnt an ISO/IEC 9899:TC3 sowie GCC Manual 2019
 

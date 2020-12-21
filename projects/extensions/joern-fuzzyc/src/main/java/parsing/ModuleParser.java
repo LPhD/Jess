@@ -4,8 +4,6 @@ import java.util.Observer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import parsing.Modules.CModuleParserTreeListener;
-
 public class ModuleParser {
 	ANTLRParserDriver parserDriver;
 	private static final Logger logger = LoggerFactory.getLogger(ModuleParser.class);

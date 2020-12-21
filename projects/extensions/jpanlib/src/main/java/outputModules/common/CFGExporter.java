@@ -1,8 +1,6 @@
 package outputModules.common;
 
 import java.util.Map;
-
-import ast.ASTNode;
 import cfg.CFG;
 import cfg.CFGEdge;
 import cfg.nodes.ASTNodeContainer;

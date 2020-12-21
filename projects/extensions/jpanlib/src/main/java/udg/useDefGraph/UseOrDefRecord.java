@@ -1,7 +1,6 @@
 package udg.useDefGraph;
 
 import ast.ASTNode;
-import ast.ASTNodeProperties;
 
 public class UseOrDefRecord
 {

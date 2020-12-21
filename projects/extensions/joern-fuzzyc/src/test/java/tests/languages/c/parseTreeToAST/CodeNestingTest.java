@@ -8,6 +8,7 @@ import org.junit.Test;
 import antlr.FunctionParser.StatementsContext;
 import ast.Comment;
 import ast.c.expressions.CallExpression;
+import ast.c.statements.blockstarters.ElseStatement;
 import ast.c.statements.blockstarters.IfStatement;
 import ast.declarations.IdentifierDecl;
 import ast.expressions.Argument;
@@ -21,6 +22,7 @@ import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import ast.statements.blockstarters.ForStatement;
+import ast.statements.blockstarters.WhileStatement;
 
 public class CodeNestingTest {
 
@@ -28,8 +30,6 @@ public class CodeNestingTest {
 	public void testLineNumbers() {
 		String input = "if(foo)\nbar();\nfoo()\n";
 		StatementsContext ctx = (StatementsContext) FunctionContentTestUtil.parse(input);
-//		assert (ctx.start.getLine() == 1);
-//		assert (ctx.stop.getLine() == 3);
 		assertEquals(1, ctx.start.getLine());
 		assertEquals(3, ctx.stop.getLine());
 	}
@@ -38,7 +38,6 @@ public class CodeNestingTest {
 	public void emptyContent() {
 		String input = "";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		//assert (item.getStatements().size() == 0); 
 		assertEquals(0, item.getStatements().size());
 	}
 
@@ -46,7 +45,6 @@ public class CodeNestingTest {
 	public void compoundWithoutBlockStart() {
 		String input = "bar(); {}";
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		//assertTrue(item.getStatements().size() == 2); 
 		assertEquals(2, item.getStatements().size());
 	}
 
@@ -56,16 +54,21 @@ public class CodeNestingTest {
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) item.getStatements().get(0);
 		AssignmentExpression condition = (AssignmentExpression) ((Condition) starter.getCondition()).getExpression();
-		//assertTrue(condition.getEscapedCodeStr().equals("foo = bar"));
 		assertEquals("foo = bar", condition.getEscapedCodeStr());
 	}
 
 	@Test
 	public void whileInElse() {
-		String input = "if(foo){bar();}else{ while(foo1){ if(bar2){} } }";
+		String input = "if(foo){bar();}else{ while(foo1){ if(bar2){bar2;} } }";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		IfStatement ifItem = (IfStatement) contentItem.getStatements().get(0);
-	} //??
+		ElseStatement elseItem = ifItem.getElseNode();		
+		// child(0) is the CompoundStatement, child(0) of that should be the WhileStatement		
+		WhileStatement whileItem = (WhileStatement) elseItem.getChild(0).getChild(0);
+		// Here child(0) is the condition and child(1) is the CompoundStatement
+		IfStatement nestedIfItem = (IfStatement) whileItem.getChild(1).getChild(0);
+		assertEquals("bar2", nestedIfItem.getCondition().getEscapedCodeStr());
+	} 
 
 	@Test
 	public void complexIfElseNesting() {
@@ -80,12 +83,8 @@ public class CodeNestingTest {
 		String input = "for(i = 0; i < 10; i++){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ForStatement forItem = (ForStatement) contentItem.getStatements().get(0);
-
 		String condExprString = ((Condition) forItem.getCondition()).getExpression().getEscapedCodeStr();
-
-		//assertTrue(condExprString.equals("i < 10"));
 		assertEquals("i < 10", condExprString);
-
 	}
 
 	@Test
@@ -93,9 +92,7 @@ public class CodeNestingTest {
 		String input = "for(int i = 0; i < 10; i++){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ForStatement forItem = (ForStatement) contentItem.getStatements().get(0);
-
 		String condExprString = ((Condition) forItem.getCondition()).getExpression().getEscapedCodeStr();
-//		assertTrue(condExprString.equals("i < 10"));
 		assertEquals("i < 10", condExprString);
 	}
 
@@ -105,7 +102,6 @@ public class CodeNestingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		IdentifierDeclStatement declStatement = (IdentifierDeclStatement) contentItem.getStatements().get(0);
 		IdentifierDecl decl = (IdentifierDecl) declStatement.getChild(0);
-//		assertTrue(decl.getName().getEscapedCodeStr().equals("x"));
 		assertEquals("x", decl.getName().getEscapedCodeStr());
 		
 	}
@@ -116,7 +112,6 @@ public class CodeNestingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		IdentifierDeclStatement declStatement = (IdentifierDeclStatement) contentItem.getStatements().get(0);
 		IdentifierDecl decl = (IdentifierDecl) declStatement.getChild(0);
-
 		assertEquals("int", decl.getType().getEscapedCodeStr());
 	}
 
@@ -129,8 +124,6 @@ public class CodeNestingTest {
 
 		AssignmentExpression assign = (AssignmentExpression) decl.getChild(decl.getChildCount() - 1);
 		assertEquals("m", assign.getLeft().getEscapedCodeStr());
-//		assertTrue(assign.getLeft().getEscapedCodeStr().equals("m"));
-//		assertTrue(assign.getRight().getEscapedCodeStr().equals("\"Usage: untar [-tvx] [-f file] [file]\\n\""));
 		assertEquals("\"Usage: untar [-tvx] [-f file] [file]\\n\"", assign.getRight().getEscapedCodeStr());
 	}
 
@@ -140,7 +133,6 @@ public class CodeNestingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals(1,contentItem.getChildCount());
 		StructUnionEnum struct = (StructUnionEnum) contentItem.getChild(0);
-//		assertEquals(3, struct.getChildCount());
 		assertEquals(2, struct.getChildCount());
 		Identifier id = (Identifier) struct.getChild(0);
 		assertEquals("foo", id.getEscapedCodeStr());
@@ -169,7 +161,6 @@ public class CodeNestingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement stmt = (ExpressionStatement) contentItem.getStatements().get(0);
 		CallExpression expr = (CallExpression) stmt.getChild(0);
-//		assertTrue(expr.getTargetFunc().getEscapedCodeStr().equals("foo"));
 		assertEquals("foo", expr.getTargetFunc().getEscapedCodeStr());
 	}
 	

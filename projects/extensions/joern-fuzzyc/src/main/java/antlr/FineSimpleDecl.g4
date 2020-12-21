@@ -1,7 +1,7 @@
 // Encompasses declarations in the function scope, e.g. local variable declarations
 
 grammar FineSimpleDecl;
-import SimpleDecl;
+import SimpleDecl, ModuleLex;
 
 init_declarator: declarator '(' expr? ')' #initDeclWithCall
                | declarator NEWLINE? '=' NEWLINE? argument #initDeclWithAssign

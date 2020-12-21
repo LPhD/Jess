@@ -12,7 +12,6 @@ import databaseNodes.FileDatabaseNode;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.CustomExporter;
-import outputModules.common.StructUnionEnumExporter;
 
 public class Neo4JCustomExporter extends CustomExporter {
 

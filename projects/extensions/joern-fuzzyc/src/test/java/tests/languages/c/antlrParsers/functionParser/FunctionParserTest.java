@@ -5,12 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
-
-import ast.c.statements.blockstarters.IfStatement;
-import ast.logical.statements.CompoundStatement;
-import ast.statements.ExpressionStatement;
 import parsing.FunctionParser;
-import tests.languages.c.parseTreeToAST.FunctionContentTestUtil;
 
 public class FunctionParserTest extends FunctionParserTestBase {
 

@@ -2,7 +2,7 @@
 
 grammar CoarseSimpleDecl;
 
-import SimpleDecl;
+import SimpleDecl, ModuleLex;
 
 // The following two contain 'water'-rules for expressions
 

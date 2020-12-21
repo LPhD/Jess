@@ -14,8 +14,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 
-public class Neo4JDBInterface
-{
+public class Neo4JDBInterface {
 
 	static GraphDatabaseService graphDb;
 	static Index<Node> nodeIndex;
@@ -24,31 +23,24 @@ public class Neo4JDBInterface
 
 	static Transaction tx;
 
-	public static void startTransaction()
-	{
+	public static void startTransaction() {
 		tx = graphDb.beginTx();
 	}
 
-	public static void finishTransaction()
-	{
+	public static void finishTransaction() {
 		tx.success();
 		tx.close();
 	}
 
-	public static void setDatabaseDir(String aDir)
-	{
+	public static void setDatabaseDir(String aDir) {
 		databaseDir = aDir;
 	}
 
-	public static void openDatabase()
-	{
+	public static void openDatabase() {
 
-		Map<String, String> conf = ConfigurationGenerator
-				.generateConfiguration();
+		Map<String, String> conf = ConfigurationGenerator.generateConfiguration();
 
-		graphDb = new GraphDatabaseFactory()
-				.newEmbeddedDatabaseBuilder(databaseDir).setConfig(conf)
-				.newGraphDatabase();
+		graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(databaseDir).setConfig(conf).newGraphDatabase();
 
 		registerShutdownHook();
 		startTransaction();
@@ -57,64 +49,51 @@ public class Neo4JDBInterface
 
 	}
 
-	private static void registerShutdownHook()
-	{
+	private static void registerShutdownHook() {
 		// Registers a shutdown hook for the Neo4j and index service instances
 		// so that it shuts down nicely when the VM exits (even if you
 		// "Ctrl-C" the running example before it's completed)
-		Runtime.getRuntime().addShutdownHook(new Thread()
-		{
+		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				graphDb.shutdown();
 			}
 		});
 	}
 
-	public static IndexHits<Node> queryIndex(String query)
-	{
+	public static IndexHits<Node> queryIndex(String query) {
 		return nodeIndex.query(query);
 	}
 
-	public static void closeDatabase()
-	{
+	public static void closeDatabase() {
 		finishTransaction();
 		graphDb.shutdown();
 	}
 
-	public static Node getNodeById(Long nodeId)
-	{
+	public static Node getNodeById(Long nodeId) {
 		return graphDb.getNodeById(nodeId);
 	}
 
-	public static void removeEdge(long id)
-	{
+	public static void removeEdge(long id) {
 		graphDb.getRelationshipById(id).delete();
 	}
 
-	public static void addRelationship(long src, long dst,
-			RelationshipType relType, Map<String, Object> properties)
-	{
+	public static void addRelationship(long src, long dst, RelationshipType relType, Map<String, Object> properties) {
 		Node node = graphDb.getNodeById(src);
-		Relationship rel = node.createRelationshipTo(graphDb.getNodeById(dst),
-				relType);
+		Relationship rel = node.createRelationshipTo(graphDb.getNodeById(dst), relType);
 		if (properties == null)
 			return;
-		for (Entry<String, Object> entry : properties.entrySet())
-		{
+		for (Entry<String, Object> entry : properties.entrySet()) {
 			rel.setProperty(entry.getKey(), entry.getValue());
 		}
 	}
 
-	public static Node addNode(Map<String, Object> properties)
-	{
+	public static Node addNode(Map<String, Object> properties) {
 		Node newNode = graphDb.createNode();
 
 		Set<Entry<String, Object>> entrySet = properties.entrySet();
 		Iterator<Entry<String, Object>> it = entrySet.iterator();
-		while (it.hasNext())
-		{
+		while (it.hasNext()) {
 			Entry<String, Object> next = it.next();
 			newNode.setProperty(next.getKey(), next.getValue());
 		}

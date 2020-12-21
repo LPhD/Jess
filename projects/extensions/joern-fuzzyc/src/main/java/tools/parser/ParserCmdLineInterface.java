@@ -6,57 +6,47 @@ import org.apache.commons.cli.ParseException;
 
 import tools.CommonCommandLineInterface;
 
-public class ParserCmdLineInterface extends CommonCommandLineInterface
-{
+public class ParserCmdLineInterface extends CommonCommandLineInterface {
 
 	private String[] filenames;
 
 	String outputDir = ".joernIndex/";
 	String outputFormat = "neo4j";
 
-	public String[] getFilenames()
-	{
+	public String[] getFilenames() {
 		return filenames;
 	}
 
-	public String getOutputDir()
-	{
+	public String getOutputDir() {
 		return outputDir;
 	}
 
-	public String getOutputFormat()
-	{
+	public String getOutputFormat() {
 		return outputFormat;
 	}
 
-	public ParserCmdLineInterface()
-	{
+	public ParserCmdLineInterface() {
 		super();
 	}
 
 	@Override
-	protected void initializeOptions()
-	{
+	protected void initializeOptions() {
 		super.initializeOptions();
 
 		Option outputDirectory = OptionBuilder.withArgName("outdir").hasArg()
-				.withDescription("the directory the output will be written to")
-				.create("outdir");
+				.withDescription("the directory the output will be written to").create("outdir");
 
 		Option outputFormat = OptionBuilder.withArgName("outformat").hasArg()
-				.withDescription("the output format: \"neo4j\" or \"csv\" ")
-				.create("outformat");
+				.withDescription("the output format: \"neo4j\" or \"csv\" ").create("outformat");
 
 		options.addOption(outputDirectory);
 		options.addOption(outputFormat);
 
 	}
 
-	public void parseCommandLine(String[] args) throws ParseException
-	{
+	public void parseCommandLine(String[] args) throws ParseException {
 		if (args.length == 0)
-			throw new RuntimeException(
-					"At least one file needs to be supplied for parsing.");
+			throw new RuntimeException("At least one file needs to be supplied for parsing.");
 
 		cmd = parser.parse(options, args);
 		filenames = cmd.getArgs();
@@ -69,8 +59,7 @@ public class ParserCmdLineInterface extends CommonCommandLineInterface
 
 	}
 
-	public void printHelp()
-	{
+	public void printHelp() {
 		formatter.printHelp("joern [SOURCE_DIR1] ...", options);
 	}
 

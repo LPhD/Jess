@@ -12,7 +12,8 @@ public class CCFGCreatorTest {
 	}
 
 	protected CFG getCFGForCode(String input) {
-		CCFGFactory ccfgFactory = new CCFGFactory();
+		//Used to create a new structuredFlowVisitior
+		new CCFGFactory();
 		return CCFGFactory.convert(getASTForCode(input));
 	}
 

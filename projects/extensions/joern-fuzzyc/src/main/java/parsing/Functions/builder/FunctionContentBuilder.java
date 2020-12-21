@@ -1443,8 +1443,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}	
 
 	protected void replaceTopOfStack(ASTNode item, ParserRuleContext ctx) {
-		ASTNode oldNode = stack.pop();
+		//Removes the topNode
+		stack.pop();
 		nodeToRuleContext.put(item, ctx);
+		//Puts a new node on the top
 		stack.push(item);
 	}
 

@@ -8,7 +8,6 @@ import org.neo4j.graphdb.RelationshipType;
 import databaseNodes.DatabaseNode;
 import databaseNodes.EdgeTypes;
 import databaseNodes.FileDatabaseNode;
-import databaseNodes.NodeKeys;
 import neo4j.batchInserter.GraphNodeStore;
 import neo4j.batchInserter.Neo4JBatchInserter;
 import outputModules.common.DeclStmtExporter;

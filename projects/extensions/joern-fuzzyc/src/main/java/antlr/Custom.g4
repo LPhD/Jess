@@ -1,5 +1,5 @@
 grammar Custom;
-import FunctionDef, Preprocessor, SimpleDecl;
+import FunctionDef, Preprocessor, SimpleDecl, ModuleLex;
 
 //Define custom rules for your project
 
