@@ -227,31 +227,6 @@ public class ModuleBuildersTest {
 		assertEquals("myFuncDef", codeItem.getChild(0).getEscapedCodeStr());
 	}
 
-	@Test
-	public void testFunctionPointerDeclWithTypedefAndCallingConvetionPerMacro() {
-		String input = "typedef void(XMLCALL *XML_AttlistDeclHandler)("
-				+ "\n void *userData, const XML_Char *elname, const XML_Char *attname,"
-				+ "\n const XML_Char *att_type, const XML_Char *dflt, int isrequired);";
-		List<ASTNode> codeItems = parseInput(input);
-		FunctionPointerDeclare codeItem = (FunctionPointerDeclare) codeItems.get(0);
-		assertEquals("typedef void ( XMLCALL * XML_AttlistDeclHandler ) ( "
-				+ "\n void * userData , const XML_Char * elname , const XML_Char * attname , "
-				+ "\n const XML_Char * att_type , const XML_Char * dflt , int isrequired ) ;", codeItem.getEscapedCodeStr());
-		assertEquals("XML_AttlistDeclHandler", codeItem.getChild(0).getEscapedCodeStr());
-	}	
-	
-	@Test
-	public void testFunctionDeclWithTypePerMacro() {
-		String input = "XMLPARSEAPI(enum XML_Status)\n" + 
-				"XML_SetEncoding(XML_Parser parser, const XML_Char *encoding);";
-		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
-		assertEquals("XMLPARSEAPI ( enum XML_Status ) \n" + 
-				" XML_SetEncoding ( XML_Parser parser , const XML_Char * encoding ) ;", codeItem.getEscapedCodeStr());
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
-		assertEquals("XML_SetEncoding", decl.getName().getEscapedCodeStr());
-	}
-		
 	
 	@Test
 	public void testDeclWithExternKeyword() {
@@ -263,36 +238,6 @@ public class ModuleBuildersTest {
 		assertEquals("XML_ProcessFile", identifierDecl.getName().getEscapedCodeStr());
 	}
 	
-	@Test
-	public void testCustomTestFunction() {
-		String input = "START_TEST(test_nul_byte) {\n" + 
-				" 	char text [ ] = \"<doc>\\0</doc>\" ;\n" + 
-				" 	/* test that a NUL byte (in US-ASCII data) is an error */\n" + 
-				"  if (_XML_Parse_SINGLE_BYTES(g_parser, text, sizeof(text) - 1, XML_TRUE)\n" + 
-				"      == XML_STATUS_OK)\n" + 
-				"    fail(\"Parser did not report error on NUL-byte.\");\n" + 
-				"  if (XML_GetErrorCode(g_parser) != XML_ERROR_INVALID_TOKEN)\n" + 
-				"    xml_failure(g_parser);\n" + 
-				"}\n" + 
-				"END_TEST";
-		List<ASTNode> codeItems = parseInput(input);
-		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
-		assertEquals("START_TEST ( test_nul_byte ) ", codeItem.getEscapedCodeStr());
-		assertEquals("test_nul_byte", codeItem.getIdentifier().getEscapedCodeStr());
-		CompoundStatement compound = codeItem.getContent();
-		assertEquals("IdentifierDeclStatement",compound.getChild(0).getTypeAsString());
-		assertEquals("char text [ ] = \"<doc>\\0</doc>\" ;",compound.getChild(0).getEscapedCodeStr());
-		assertEquals("IfStatement",compound.getChild(1).getTypeAsString());
-		assertEquals("if ( _XML_Parse_SINGLE_BYTES ( g_parser , text , sizeof ( text ) - 1 , XML_TRUE ) \n" + 
-				" == XML_STATUS_OK )",compound.getChild(1).getEscapedCodeStr());
-		assertEquals("IfStatement",compound.getChild(2).getTypeAsString());
-		assertEquals("if ( XML_GetErrorCode ( g_parser ) != XML_ERROR_INVALID_TOKEN )",compound.getChild(2).getEscapedCodeStr());
-		assertEquals("BlockCloser",compound.getChild(3).getTypeAsString());
-		assertEquals("Statement",compound.getChild(4).getTypeAsString());
-		assertEquals("END_TEST",compound.getChild(4).getEscapedCodeStr());
-		assertEquals("Comment",compound.getChild(5).getTypeAsString());
-		assertEquals("/* test that a NUL byte (in US-ASCII data) is an error */",compound.getChild(5).getEscapedCodeStr());		
-	}
 		
 	@Test
 	public void testStaticConstUnsignedArrayInitializatio() {
@@ -365,17 +310,7 @@ public class ModuleBuildersTest {
 		assertEquals("macro ( type ) foo ( int x , char * * ptr ) ", codeItem.getEscapedCodeStr());
 	}
 	
-	@Test
-	public void testFuncDeclarationWithMacroCall() {
-		String input = "XMLPARSEAPI(void)\n" + 
-				"XML_SetElementDeclHandler(XML_Parser parser, XML_ElementDeclHandler eldecl);";
-		List<ASTNode> codeItems = parseInput(input);
-		Statement codeItem = (Statement) codeItems.get(0);
-		
-		assertEquals("XMLPARSEAPI ( void ) \n" + 
-				" XML_SetElementDeclHandler ( XML_Parser parser , XML_ElementDeclHandler eldecl ) ;", codeItem.getEscapedCodeStr());
-	}
-	
+
 	@Test
 	public void testStaticFuncDeclaration() {
 		String input = "static int blogic_diskparam(struct scsi_device *sdev, struct block_device *dev, int *params);";
@@ -383,6 +318,22 @@ public class ModuleBuildersTest {
 		Statement codeItem = (Statement) codeItems.get(0);
 		
 		assertEquals("static int blogic_diskparam ( struct scsi_device * sdev , struct block_device * dev , int * params ) ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testStaticFuncDeclarationWithNewlines() {
+		String input = "int\n" + 
+				"main(int argc, char *argv[])\n" + 
+				"{\n" + 
+				"    return windows_main(argc, argv);\n" + 
+				"}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
+		
+		assertEquals("FunctionDef", codeItem.getTypeAsString());
+		assertEquals("main", codeItem.getName());
+		assertEquals("int \n" + 
+				" main ( int argc , char * argv [ ] ) \n ", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test

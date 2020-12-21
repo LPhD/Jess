@@ -1,5 +1,9 @@
 lexer grammar ModuleLex;
 
+NEWLINE: '\r'? '\n';
+ESCAPE: '\\';
+ELLIPSIS : '...';
+
 // Keywords shared among C/C++/Java
 
 IF: 'if'; 
@@ -132,12 +136,6 @@ UnicodeEscape
 fragment
 HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
-NEWLINE: '\r'? '\n';
-
-ESCAPE: '\\';
     
 WHITESPACE :  [ \t\u000C]+ -> skip  ;   
-    
-ELLIPSIS : '...';
-
 OTHER : . -> skip ;

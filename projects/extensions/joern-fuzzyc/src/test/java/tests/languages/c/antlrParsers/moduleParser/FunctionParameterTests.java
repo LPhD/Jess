@@ -34,8 +34,8 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 				"xmlstrlen(const XML_Char *s){}";
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
-		assertEquals("(function_def (return_type (function_decl_specifiers static) (type_name (base_type int))) "
-				+ "\\n (function_name (identifier xmlstrlen)) (function_param_list ( (parameter_decl_clause (parameter_decl (param_decl_specifiers (type_name const (base_type XML_Char) (ptr_operator *))) (parameter_id (parameter_name (identifier s))))) )) (compound_statement { }))", output);
+		assertEquals("(function_def (return_type (function_decl_specifiers static) (type_name (base_type int \\n))) "
+				+ "(function_name (identifier xmlstrlen)) (function_param_list ( (parameter_decl_clause (parameter_decl (param_decl_specifiers (type_name const (base_type XML_Char) (ptr_operator *))) (parameter_id (parameter_name (identifier s))))) )) (compound_statement { }))", output);
 	}
 	
 	@Test
@@ -81,5 +81,20 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
 		assertTrue(output.startsWith("(function_def"));
+	}
+	
+	
+	@Test
+	public void testFunctionWithNewlines() {
+		String input = "int\n" + 
+				"main(int argc, char *argv[])\n" + 
+				"{\n" + 
+				"    return windows_main(argc, argv);\n" + 
+				"}";
+
+		ModuleParser parser = createParser(input);
+		String output = parser.function_def().toStringTree(parser);
+
+		assertEquals("(function_def (return_type (type_name (base_type int \\n))) (function_name (identifier main)) (function_param_list ( (parameter_decl_clause (parameter_decl (param_decl_specifiers (type_name (base_type int))) (parameter_id (parameter_name (identifier argc)))) , (parameter_decl (param_decl_specifiers (type_name (base_type char) (ptr_operator *))) (parameter_id (parameter_name (identifier argv)) (type_suffix [ constant_expr_w_ ])))) )) \\n (compound_statement { \\n return windows_main ( argc , argv ) ; \\n }))", output);
 	}
 }

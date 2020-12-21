@@ -2,7 +2,6 @@ package tests.languages.c.antlrParsers.moduleParser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-
 import antlr.ModuleLexer;
 import antlr.ModuleParser;
 
@@ -15,5 +14,6 @@ public class FunctionDefinitionTests {
 		ModuleParser parser = new ModuleParser(tokens);
 		return parser;
 	}
+
 
 }

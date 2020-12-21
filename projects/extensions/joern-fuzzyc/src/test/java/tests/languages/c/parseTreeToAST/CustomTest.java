@@ -35,22 +35,6 @@ public class CustomTest {
 		assertEquals("BT_NONXML , BT_NONXML , BT_NONXML , BT_NONXML ,", codeItem.getEscapedCodeStr());
 	}
 	
-	@Test
-	public void testCustomFunctionDef() {
-		String input = "START_TEST(test_wfc_no_recursive_entity_refs) {\n" + 
-				"  const char *text = \"<!DOCTYPE doc [\\n\"\n" + 
-				"                     \"  <!ENTITY entity '&#38;entity;'>\\n\"\n" + 
-				"                     \"]>\\n\"\n" + 
-				"                     \"<doc>&entity;</doc>\";\n" + 
-				"\n" + 
-				"  expect_failure(text, XML_ERROR_RECURSIVE_ENTITY_REF,\n" + 
-				"                 \"Parser did not report recursive entity reference.\");\n" + 
-				"}\n" + 
-				"END_TEST";
-		List<ASTNode> codeItems = parseInput(input);
-		FunctionDef codeItem = (FunctionDef) codeItems.get(0);		
-		assertEquals("START_TEST ( test_wfc_no_recursive_entity_refs ) ", codeItem.getEscapedCodeStr());
-	}
 	
 	@Test
 	public void testSTART_TEST() {
