@@ -67,6 +67,7 @@ pre_other: PRE_OTHER STRING?
            | '_GL_ATTRIBUTE_PURE'
            | '_GL_INLINE_HEADER_BEGIN'
            | '_GL_INLINE_HEADER_END'
+           | '_GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD' '(' attributeList? ')'
            ;   
 
 attributeList:  attribute (',' attribute)* ;

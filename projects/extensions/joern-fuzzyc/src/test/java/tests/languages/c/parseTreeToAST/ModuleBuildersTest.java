@@ -18,7 +18,6 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
-import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.statements.FunctionPointerDeclare;
@@ -367,6 +366,18 @@ public class ModuleBuildersTest {
 		
 		assertEquals("static bool _GL_ATTRIBUTE_PURE \n" + 
 				" possible_backrefs_in_pattern ( char const * keys , ptrdiff_t len , bool bs_safe ) \n ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testFuncDefWithAnotherGCCAttribute() {
+		String input = "static void _GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD (1, 2)\n" + 
+				"printf_errno (char const *format, ...)\n" + 
+				"{}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
+		
+		assertEquals("static void _GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD ( 1 , 2 ) \n" + 
+				" printf_errno ( char const * format , ... ) \n ", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test
