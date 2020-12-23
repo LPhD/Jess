@@ -52,7 +52,8 @@ jump_statement: BREAK ';'		#breakStatement
               | THROW expr?  ';'	#throwStatement
               ;
 
-label: CASE? (identifier | number | CHAR ) ':' ;
+//Allow casts in labels
+label: CASE? (identifier | number | CHAR | cast_expression) ':' ;
 
 expr_statement: expr ';' | null_expression;
 

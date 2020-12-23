@@ -64,6 +64,9 @@ pre_diagnostic: PRE_DIAGNOSTIC STRING
 
 pre_other: PRE_OTHER STRING? 
            |PRE_ATTRIBUTE '(' '(' attributeList? ')' ')'
+           | '_GL_ATTRIBUTE_PURE'
+           | '_GL_INLINE_HEADER_BEGIN'
+           | '_GL_INLINE_HEADER_END'
            ;   
 
 attributeList:  attribute (',' attribute)* ;
@@ -71,6 +74,7 @@ attributeList:  attribute (',' attribute)* ;
 attribute: pre_macro_identifier //Identifier or keyword 
             | pre_macro_identifier '(' identifier (',' expr)* ')'
             | pre_macro_identifier '(' expr? (',' expr)* ')'
+            | constant
             ;        
 
 pre_include: PRE_INCLUDE pre_include_local_file

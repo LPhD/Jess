@@ -106,6 +106,6 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
 
-		assertEquals("", output);
+		assertEquals("(function_def (return_type (type_name (base_type size_t \\n))) (function_name (identifier wordchar_prev)) (function_param_list ( (parameter_decl_clause (parameter_decl (param_decl_specifiers (type_name (base_type char) const (ptr_operator *))) (parameter_id (parameter_name (identifier buf)))) , (parameter_decl (param_decl_specifiers (type_name (base_type char) const (ptr_operator *))) (parameter_id (parameter_name (identifier cur)))) , (parameter_decl (param_decl_specifiers (type_name (base_type char) const (ptr_operator *))) (parameter_id (parameter_name (identifier end))))) )) \\n (compound_statement { }))", output);
 	}
 }

@@ -46,6 +46,17 @@ public class OtherTests extends FunctionDefinitionTests {
 	}
 	
 	@Test
+	public void testDeclWithAttributeMacro() {
+		String input = "extern ptrdiff_t kwsexec (kwset_t, char const *, ptrdiff_t,\n" + 
+				"                          struct kwsmatch *, bool)\n" + 
+				"  _GL_ARG_NONNULL ((4));";
+
+		ModuleParser parser = createParser(input);
+		String output = parser.simple_decl().toStringTree(parser);
+		assertEquals("(simple_decl (var_decl (type_name extern (base_type ptrdiff_t)) (init_declarator_list (init_declarator (declarator (identifier kwsexec) (type_suffix (param_type_list ( (param_type (param_decl_specifiers (type_name (base_type kwset_t))) param_type_id) , (param_type (param_decl_specifiers (type_name (base_type char) const (ptr_operator *))) param_type_id) , (param_type (param_decl_specifiers (type_name (base_type ptrdiff_t))) param_type_id) , \\n (param_type (param_decl_specifiers (type_name (base_type struct kwsmatch) (ptr_operator *))) param_type_id) , (param_type (param_decl_specifiers (type_name (base_type bool))) param_type_id) )))) \\n) (pre_other _GL_ARG_NONNULL ( ( (attributeList (attribute (constant 4))) ) )) ;)))", output);
+	}
+	
+	@Test
 	public void testOperatorOverloading() {
 		String input = "inline bool operator == (const PlMessageHeader &b) const {}";
 

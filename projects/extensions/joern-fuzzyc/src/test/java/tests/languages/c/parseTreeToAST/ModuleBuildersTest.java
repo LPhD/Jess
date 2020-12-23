@@ -344,6 +344,28 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testFuncDeclarationWithGCCAttribute() {
+		String input = "extern ptrdiff_t kwswords (kwset_t) _GL_ATTRIBUTE_PURE;";
+		List<ASTNode> codeItems = parseInput(input);
+		Statement codeItem = (Statement) codeItems.get(0);
+		
+		assertEquals("extern ptrdiff_t kwswords ( kwset_t ) _GL_ATTRIBUTE_PURE ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testFuncDeclarationWithAnotherGCCAttribute() {
+		String input = "extern ptrdiff_t kwsexec (kwset_t, char const *, ptrdiff_t,\n" + 
+				" struct kwsmatch *, bool)\n" + 
+				" _GL_ARG_NONNULL ((4));";
+		List<ASTNode> codeItems = parseInput(input);
+		Statement codeItem = (Statement) codeItems.get(0);
+		
+		assertEquals("extern ptrdiff_t kwsexec ( kwset_t , char const * , ptrdiff_t , \n" + 
+				" struct kwsmatch * , bool ) \n" + 
+				" _GL_ARG_NONNULL ( ( 4 ) ) ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testVoidPointerFuncDeclarationWithNewline() {
 		String input = "void *\n" + 
 				"GEAcompile (char *pattern, size_t size, reg_syntax_t syntax_bits,\n" + 

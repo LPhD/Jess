@@ -54,12 +54,28 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
-	public void a2() {
+	public void testNormalCase() {
 		String input = "case 'm':";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		Label statementItem = (Label) contentItem.getStatements().get(0);
 		assertEquals("case 'm' :",statementItem.getEscapedCodeStr());
 	}
+	
+	@Test
+	public void testCaseWithCast() {
+		String input = "case (char) -2:";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		Label statementItem = (Label) contentItem.getStatements().get(0);
+		assertEquals("case ( char ) - 2 :",statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testWideChar() {
+		String input = "wchar_t c = u'_';";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("wchar_t c = u'_' ;",statementItem.getEscapedCodeStr());
+	}	
 
 	@Test
 	public void testDeclWithNewKeyword() {

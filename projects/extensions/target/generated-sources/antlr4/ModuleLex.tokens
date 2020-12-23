@@ -81,7 +81,6 @@ DECIMAL_LITERAL=56
 'try'=23
 'if'=4
 'for'=6
-'__attribute__'=50
 'goto'=13
 '}'=54
 '\\'=2

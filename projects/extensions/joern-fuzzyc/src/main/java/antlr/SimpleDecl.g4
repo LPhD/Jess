@@ -3,10 +3,10 @@ import ModuleLex, Expressions, Preprocessor, Common;
 
 simple_decl : var_decl;
 
-var_decl : template_decl_start? class_def  init_declarator_list? pre_other? #declByClass
+var_decl : template_decl_start? class_def  init_declarator_list? #declByClass
          | (TYPEDEF NEWLINE?)?  template_decl_start? type_name  init_declarator_list #declByType
-         | (TYPEDEF NEWLINE?)?  type_name '(' callingConvention? ptr_operator identifier ')' param_type_list ';' #FunctionPointerDeclare
-         | (CV_QUALIFIER NEWLINE?)? (TYPEDEF NEWLINE?)? special_datatype init_declarator_list? pre_other? ';'? #StructUnionEnum
+         | (TYPEDEF NEWLINE?)?  type_name '(' callingConvention? ptr_operator identifier ')' param_type_list NEWLINE? pre_other? ';' #FunctionPointerDeclare
+         | (CV_QUALIFIER NEWLINE?)? (TYPEDEF NEWLINE?)? special_datatype init_declarator_list? ';'? #StructUnionEnum
          ;
 
 //Can be done by a macro or directly (something like __cdecl)
@@ -18,7 +18,7 @@ special_datatype: SPECIAL_DATA NEWLINE? pre_other? (identifier NEWLINE?)? pre_ot
         ;
 
         
-init_declarator_list: init_declarator (',' init_declarator)* pre_other? ';';
+init_declarator_list: init_declarator (NEWLINE? ',' NEWLINE? init_declarator)* NEWLINE? pre_other? ';';
 
 
 class_def: CLASS_KEY NEWLINE? class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;

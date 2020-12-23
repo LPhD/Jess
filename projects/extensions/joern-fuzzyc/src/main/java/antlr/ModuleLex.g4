@@ -67,7 +67,7 @@ PRE_PRAGMA: '#' [ \t\u000C]* 'pragma';
 PRE_GCC: 'GCC';
 PRE_PRAGMA_KEYWORDS: ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning');
 PRE_STR: ('##' | '#');
-PRE_ATTRIBUTE: '__attribute__';
+PRE_ATTRIBUTE: '__attribute__' | '_GL_ARG_NONNULL';
 END_TEST : 'END_TEST'; //Custom
 //PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
 
@@ -95,9 +95,9 @@ COMMENT: '/*' ( ~('*') | ('*' ~('/')) )*  '*/'
     | '//'  ~('\n'|'\r')* '\r'? '\n'
  ;
  
-CHAR:   '\'' ( EscapeSequence | ~('\''|'\\') ) '\'';
+CHAR:  WideCharTypeSuffix?  '\'' ( EscapeSequence | ~('\''|'\\') ) '\'';
 
-STRING:  '"' ( EscapeSequence | ~('\\'|'"') )* '"';
+STRING:  WideCharTypeSuffix? '"' ( EscapeSequence | ~('\\'|'"') )* '"';
 
 
 
@@ -112,6 +112,9 @@ Exponent : ('e'|'E') ('+'|'-')? ('0'..'9')+;
 
 fragment
 FloatTypeSuffix : ('f'|'F'|'d'|'D');
+
+fragment
+WideCharTypeSuffix : ('L'|'u'|'U'|'u8');
 
 
 fragment
