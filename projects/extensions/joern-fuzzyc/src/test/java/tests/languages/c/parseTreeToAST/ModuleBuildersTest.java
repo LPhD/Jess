@@ -177,6 +177,25 @@ public class ModuleBuildersTest {
 		assertEquals("dfa_comp", codeItem.getChild(0).getEscapedCodeStr());
 	}	
 	
+	
+	@Test
+	public void testStaticEnumWithNewlines() {
+		String input = "static enum\n" + 
+				"  {\n" + 
+				"    READ_COMMAND_LINE_DEVICES,\n" + 
+				"    READ_DEVICES,\n" + 
+				"    SKIP_DEVICES\n" + 
+				"  } devices = READ_COMMAND_LINE_DEVICES;";
+		List<ASTNode> codeItems = parseInput(input);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
+		assertEquals("static enum \n" + 
+				" { \n" + 
+				" READ_COMMAND_LINE_DEVICES , \n" + 
+				" READ_DEVICES , \n" + 
+				" SKIP_DEVICES \n" + 
+				" } devices = READ_COMMAND_LINE_DEVICES ;", codeItem.getEscapedCodeStr());
+	}
+	
 	@Test
 	public void testFunctionInClass() {
 		String input = "class foo{ bar(){} };";
