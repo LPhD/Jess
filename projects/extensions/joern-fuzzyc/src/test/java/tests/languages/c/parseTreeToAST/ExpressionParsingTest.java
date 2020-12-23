@@ -53,6 +53,22 @@ public class ExpressionParsingTest {
 		assertEquals("y = z",expr.getRight().getEscapedCodeStr());
 	}
 	
+	
+	@Test
+	public void testComplexAssignExprWithStructAndNewlines() {
+		String input = "patloc[patlocs_used++]\n" + 
+				"= (struct patloc) { .lineno = n_patterns,\n" + 
+				".filename = filename,\n" + 
+				".fileline = fileline };";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		assertEquals("patloc [ patlocs_used ++ ] \n" + 
+				" = ( struct patloc ) { . lineno = n_patterns , \n" + 
+				" . filename = filename , \n" + 
+				" . fileline = fileline } ;", statementItem.getEscapedCodeStr());
+	}
+	
+	
 	@Test
 	public void testNormalCase() {
 		String input = "case 'm':";
@@ -76,7 +92,7 @@ public class ExpressionParsingTest {
 		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
 		assertEquals("wchar_t c = u'_' ;",statementItem.getEscapedCodeStr());
 	}	
-
+	
 	@Test
 	public void testDeclWithNewKeyword() {
 		String input = "StructDataEntry *new;";

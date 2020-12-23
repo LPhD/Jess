@@ -98,16 +98,12 @@ public class ModuleBuildersTest {
 		String input = "void function() {  \n"
 				+ "struct TestCase cases[] = {\n" + 
 				"      {00, \"\"},\n" + 
-				"\n" + 
 				"      {00, UTF8_LEAD_1},\n" + 
-				"\n" + 
 				"      {-1, UTF8_LEAD_2},\n" + 
 				"      {00, UTF8_LEAD_2 UTF8_FOLLOW},\n" + 
-				"\n" + 
 				"      {-1, UTF8_LEAD_3},\n" + 
 				"      {-2, UTF8_LEAD_3 UTF8_FOLLOW},\n" + 
 				"      {00, UTF8_LEAD_3 UTF8_FOLLOW UTF8_FOLLOW},\n" + 
-				"\n" + 
 				"      {-1, UTF8_LEAD_4},\n" + 
 				"      {-2, UTF8_LEAD_4 UTF8_FOLLOW},\n" + 
 				"      {-3, UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW},\n" + 
@@ -119,16 +115,12 @@ public class ModuleBuildersTest {
 		IdentifierDeclStatement codeItem2 = (IdentifierDeclStatement) codeItem1.getContent().getChild(0);
 		assertEquals("struct TestCase cases [ ] = { \n" + 
 				" { 00 , \"\" } , \n" + 
-				" \n" + 
 				" { 00 , UTF8_LEAD_1 } , \n" + 
-				" \n" + 
 				" { - 1 , UTF8_LEAD_2 } , \n" + 
 				" { 00 , UTF8_LEAD_2 UTF8_FOLLOW } , \n" + 
-				" \n" + 
 				" { - 1 , UTF8_LEAD_3 } , \n" + 
 				" { - 2 , UTF8_LEAD_3 UTF8_FOLLOW } , \n" + 
 				" { 00 , UTF8_LEAD_3 UTF8_FOLLOW UTF8_FOLLOW } , \n" + 
-				" \n" + 
 				" { - 1 , UTF8_LEAD_4 } , \n" + 
 				" { - 2 , UTF8_LEAD_4 UTF8_FOLLOW } , \n" + 
 				" { - 3 , UTF8_LEAD_4 UTF8_FOLLOW UTF8_FOLLOW } , \n" + 
