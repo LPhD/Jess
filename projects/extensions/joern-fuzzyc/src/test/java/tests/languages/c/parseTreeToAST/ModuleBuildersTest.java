@@ -366,6 +366,18 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testFuncDefWithGCCAttribute() {
+		String input = "static bool _GL_ATTRIBUTE_PURE\n" + 
+				"possible_backrefs_in_pattern (char const *keys, ptrdiff_t len, bool bs_safe)\n" + 
+				"{};";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
+		
+		assertEquals("static bool _GL_ATTRIBUTE_PURE \n" + 
+				" possible_backrefs_in_pattern ( char const * keys , ptrdiff_t len , bool bs_safe ) \n ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testVoidPointerFuncDeclarationWithNewline() {
 		String input = "void *\n" + 
 				"GEAcompile (char *pattern, size_t size, reg_syntax_t syntax_bits,\n" + 

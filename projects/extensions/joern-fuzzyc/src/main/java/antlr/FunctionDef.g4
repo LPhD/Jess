@@ -1,7 +1,7 @@
 grammar FunctionDef;
 import ModuleLex, Preprocessor, SimpleDecl, Expressions, Common;
 
-function_def : template_decl_start? return_type? function_name function_param_list ctor_list? NEWLINE? compound_statement; 
+function_def : template_decl_start? return_type? (pre_other NEWLINE?)? function_name NEWLINE? function_param_list ctor_list? NEWLINE? compound_statement; 
 
 return_type : ((function_decl_specifiers  NEWLINE?)* type_name) (ptr_operator NEWLINE?)*
 				| macroCall NEWLINE?
