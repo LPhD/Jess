@@ -12,11 +12,10 @@ var_decl : template_decl_start? class_def  init_declarator_list? pre_other? #dec
 //Can be done by a macro or directly (something like __cdecl)
 callingConvention: ALPHA_NUMERIC+ ;   
          
-special_datatype: SPECIAL_DATA NEWLINE? pre_other? identifier? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
-        | SPECIAL_DATA NEWLINE?  pre_other? identifier ptrs? identifier ptrs? '=' {skipToEndOfObject(); }         //Designated initializer
+special_datatype: SPECIAL_DATA NEWLINE? pre_other? (identifier NEWLINE?)? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
+        | SPECIAL_DATA NEWLINE?  pre_other? identifier NEWLINE? ptrs? identifier ptrs? '=' {skipToEndOfObject(); }         //Designated initializer
         | SPECIAL_DATA NEWLINE?  pre_other? identifier  //Short declaration
         ;
-
 
         
 init_declarator_list: init_declarator (',' init_declarator)* pre_other? ';';

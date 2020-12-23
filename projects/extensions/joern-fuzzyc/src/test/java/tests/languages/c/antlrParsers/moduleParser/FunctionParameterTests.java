@@ -97,4 +97,15 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 
 		assertEquals("(function_def (return_type (type_name (base_type int \\n))) (function_name (identifier main)) (function_param_list ( (parameter_decl_clause (parameter_decl (param_decl_specifiers (type_name (base_type int))) (parameter_id (parameter_name (identifier argc)))) , (parameter_decl (param_decl_specifiers (type_name (base_type char) (ptr_operator *))) (parameter_id (parameter_name (identifier argv)) (type_suffix [ constant_expr_w_ ])))) )) \\n (compound_statement { \\n return windows_main ( argc , argv ) ; \\n }))", output);
 	}
+	
+	@Test
+	public void testFunctionWithNewlinesAndNonBaseReturnType() {
+		String input = "size_t\n" + 
+				"wordchar_prev (char const *buf, char const *cur, char const *end)\n" + 
+				"{}";
+		ModuleParser parser = createParser(input);
+		String output = parser.function_def().toStringTree(parser);
+
+		assertEquals("", output);
+	}
 }

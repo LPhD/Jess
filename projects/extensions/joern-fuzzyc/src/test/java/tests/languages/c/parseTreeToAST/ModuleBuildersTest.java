@@ -164,6 +164,29 @@ public class ModuleBuildersTest {
 	}
 
 	@Test
+	public void structWithNewline() {
+		String input = "struct dfa_comp\n" + 
+				"{\n" + 
+				"  /* Regex compiled regexps. */\n" + 
+				"  struct re_pattern_buffer *patterns;\n" + 
+				"  size_t pcount;\n" + 
+				"  struct re_registers regs;\n" + 
+				"  bool begline;\n" + 
+				"};";
+		List<ASTNode> codeItems = parseInput(input);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
+		assertEquals("struct dfa_comp \n" + 
+				" { \n" + 
+				" /* Regex compiled regexps. */ \n" + 
+				" struct re_pattern_buffer * patterns ; \n" + 
+				" size_t pcount ; \n" + 
+				" struct re_registers regs ; \n" + 
+				" bool begline ; \n" + 
+				" } ;", codeItem.getEscapedCodeStr());
+		assertEquals("dfa_comp", codeItem.getChild(0).getEscapedCodeStr());
+	}	
+	
+	@Test
 	public void testFunctionInClass() {
 		String input = "class foo{ bar(){} };";
 		List<ASTNode> codeItems = parseInput(input);
@@ -318,6 +341,21 @@ public class ModuleBuildersTest {
 		Statement codeItem = (Statement) codeItems.get(0);
 		
 		assertEquals("static int blogic_diskparam ( struct scsi_device * sdev , struct block_device * dev , int * params ) ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testVoidPointerFuncDeclarationWithNewline() {
+		String input = "void *\n" + 
+				"GEAcompile (char *pattern, size_t size, reg_syntax_t syntax_bits,\n" + 
+				"            bool exact)\n" + 
+				"{}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);	
+		assertEquals("FunctionDef", codeItem.getTypeAsString());
+		assertEquals("GEAcompile", codeItem.getName());
+		assertEquals("void * \n" + 
+				" GEAcompile ( char * pattern , size_t size , reg_syntax_t syntax_bits , \n" + 
+				" bool exact ) \n ", codeItem.getEscapedCodeStr());
 	}
 	
 	@Test
