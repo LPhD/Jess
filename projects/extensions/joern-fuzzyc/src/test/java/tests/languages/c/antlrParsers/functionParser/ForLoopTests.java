@@ -1,5 +1,6 @@
 package tests.languages.c.antlrParsers.functionParser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.antlr.v4.runtime.tree.ParseTree;

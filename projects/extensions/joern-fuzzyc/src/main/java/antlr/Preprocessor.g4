@@ -1,5 +1,5 @@
 grammar Preprocessor;
-import ModuleLex;
+import ModuleLex, Common;
 
 //Angelehnt an ISO/IEC 9899:TC3 sowie GCC Manual 2019
 
@@ -57,7 +57,11 @@ pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
 pre_macro: expr 
             | { preProcFindMacroEnd(); };
                   
-macroCall:  pre_macro_identifier '(' (  (',' | type_name | expr | ptr_operator | NEWLINE)* | VOID) ')'; //This is for macro calls
+macroCall:  pre_macro_identifier '(' 
+        (  ( (expr | type_name)?  NEWLINE?) (','  NEWLINE? (expr | type_name))* ','?
+            | VOID
+        ) ')'; //This is for macro calls
+
 
 pre_diagnostic: PRE_DIAGNOSTIC STRING
             | PRE_DIAGNOSTIC;

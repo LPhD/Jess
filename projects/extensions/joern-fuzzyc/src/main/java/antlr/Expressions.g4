@@ -1,5 +1,5 @@
 grammar Expressions;
-import ModuleLex, Preprocessor;
+import ModuleLex, Preprocessor, Common;
 
 expr: assign_expr (ESCAPE NEWLINE)* (NEWLINE? ',' NEWLINE? expr)? (ESCAPE NEWLINE)*;
 
@@ -56,6 +56,7 @@ unary_expression: address_of_expression
                 | new_expression
                 | postfix_expression
                 | defined_expression
+                | macroCall
                 ;
 
 address_of_expression: '&' identifier;
@@ -95,14 +96,11 @@ postfix_expression: postfix_expression NEWLINE? '[' expr? ']' #arrayIndexing
                   
 initializer_expression:  OPENING_CURLY NEWLINE? (COMMENT NEWLINE?)* argument_list? NEWLINE? (COMMENT NEWLINE?)* CLOSING_CURLY;   //Can be an empty list
 
-argument_list: argument? NEWLINE? (','?  NEWLINE? (COMMENT NEWLINE?)* argument)* ','?;       // Allows empty arguments after a comma           
+argument_list: (NEWLINE? argument)? NEWLINE? (','?  NEWLINE? (COMMENT NEWLINE?)* argument)* ','?;       // Allows empty arguments after a comma           
 
-argument: '.'? assign_expr
-           | ( (COMMENT NEWLINE?)* pre_macro_identifier NEWLINE?)+
-           | ( (COMMENT NEWLINE?)* macroCall NEWLINE?)+
-        ;
+argument: assign_expr;
 
-primary_expression: identifier | constant | '(' expr ')';
+primary_expression: ('.'? identifier) | constant | comment | '(' expr ')';
 
 null_expression: ';' ;  //Empty expression aka null expression
 

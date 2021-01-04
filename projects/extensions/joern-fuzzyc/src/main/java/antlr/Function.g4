@@ -1,5 +1,5 @@
 grammar Function;
-import Preprocessor, Custom, ModuleLex, Common, Expressions, FineSimpleDecl;
+import Preprocessor, Custom, ModuleLex, Common, Expressions, SimpleDecl, FineSimpleDecl;
 
 
 @header{

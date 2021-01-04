@@ -14,6 +14,7 @@ import ast.declarations.IdentifierDecl;
 import ast.expressions.Argument;
 import ast.expressions.ArgumentList;
 import ast.expressions.AssignmentExpression;
+import ast.expressions.ForInit;
 import ast.expressions.Identifier;
 import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
@@ -95,6 +96,16 @@ public class CodeNestingTest {
 		String condExprString = ((Condition) forItem.getCondition()).getExpression().getEscapedCodeStr();
 		assertEquals("i < 10", condExprString);
 	}
+	
+	@Test
+	public void testForWithoutBracketsAndWithMacroCallInForInit() {
+		String input = " for (s = CAST_ALIGNED (uword const *, p); ! (*s & unibyte_mask); s++)\n" + 
+				"    continue;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ForStatement forItem = (ForStatement) contentItem.getStatements().get(0);
+		ForInit expr = (ForInit) forItem.getChild(0); 
+		assertEquals("s = CAST_ALIGNED ( uword const * , p ) ;", expr.getEscapedCodeStr());
+	}	
 
 	@Test
 	public void testVarDeclName() {
