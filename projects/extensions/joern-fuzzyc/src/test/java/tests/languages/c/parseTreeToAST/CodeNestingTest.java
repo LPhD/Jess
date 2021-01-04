@@ -106,6 +106,18 @@ public class CodeNestingTest {
 		ForInit expr = (ForInit) forItem.getChild(0); 
 		assertEquals("s = CAST_ALIGNED ( uword const * , p ) ;", expr.getEscapedCodeStr());
 	}	
+	
+	@Test
+	public void testForWithNewlines() {
+		String input = "for (newsize = bufalloc - pagesize - sizeof (uword);\n" + 
+				" newsize < minsize;\n" + 
+				" newsize *= 2)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ForStatement forItem = (ForStatement) contentItem.getStatements().get(0);
+		String condExprString = ((Condition) forItem.getCondition()).getExpression().getEscapedCodeStr();
+		assertEquals("newsize < minsize", condExprString);
+	}
+
 
 	@Test
 	public void testVarDeclName() {
