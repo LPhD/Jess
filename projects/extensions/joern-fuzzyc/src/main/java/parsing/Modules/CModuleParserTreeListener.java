@@ -20,7 +20,6 @@ import ast.Comment;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.preprocessor.commands.macro.MacroCall;
-import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.custom.CustomNode;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
@@ -161,7 +160,7 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 				if (thisItem == null)
 					thisItem = (PreStatementBase) fb.currentItem;
 			
-			//Handling of other statement types that do not extend from PreStatementBase (currently only MacroCalls are planned to appear here)	
+			//Handling of other statement types that do not extend from PreStatementBase (currently only solo MacroCalls are planned to appear here)	
 			} else {
 				//Manually add a MacroCall as child to the PreStatement
 				MacroCall macro = new MacroCall();
@@ -367,9 +366,31 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			checkVariability(custom);	
 			// Connect to parrent comment if existing
 			checkIfCommented(custom);			
-		}			
-	
-	
+		}
+		
+// -------------------------------------- Null Expression Statement -------------------------------------------------------------------------	
+		//Custom handling, as these nodes can appear solo on module level and need a similar handling to global variable declarations
+		@Override
+		public void enterNull_expression(ModuleParser.Null_expressionContext ctx) {			
+			//We handle them as declStatements
+			IdentifierDeclStatement expr = new IdentifierDeclStatement();
+			
+			//Custom handling
+			expr.setLine(ctx.start.getLine());
+			expr.setCharAtLine(ctx.start.getCharPositionInLine());
+			expr.setCodeStr(";");
+			
+			p.notifyObserversOfItem(expr);
+			
+			//Set previous statement
+			previousStatement = expr;
+			
+			// Connect to parent blockstarters if they exist
+			checkVariability(expr);	
+			// Connect to parrent comment if existing
+			checkIfCommented(expr);			
+		}		
+				
 // -------------------------------------- Function Def -------------------------------------------------------------------------	
 	@Override
 	public void enterFunction_def(ModuleParser.Function_defContext ctx) {

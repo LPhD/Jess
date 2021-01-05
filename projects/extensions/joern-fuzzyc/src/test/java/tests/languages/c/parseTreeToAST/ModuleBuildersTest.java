@@ -200,7 +200,7 @@ public class ModuleBuildersTest {
 	
 	@Test
 	public void testFunctionInClass() {
-		String input = "class foo{ bar(){} };";
+		String input = "class foo{ bar(){} }";
 		List<ASTNode> codeItems = parseInput(input);
 		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
 		FunctionDefBase funcItem = (FunctionDefBase) codeItem.content.getStatements().get(0);
@@ -320,7 +320,7 @@ public class ModuleBuildersTest {
 
 	@Test
 	public void testFuncName() {
-		String input = "void foo(){};";
+		String input = "void foo(){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
 		assertEquals("foo", codeItem.getName());
@@ -381,7 +381,7 @@ public class ModuleBuildersTest {
 	public void testFuncDefWithGCCAttribute() {
 		String input = "static bool _GL_ATTRIBUTE_PURE\n" + 
 				"possible_backrefs_in_pattern (char const *keys, ptrdiff_t len, bool bs_safe)\n" + 
-				"{};";
+				"{}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
 		
@@ -549,7 +549,7 @@ public class ModuleBuildersTest {
 	
 	@Test
 	public void testMacroCallOnModuleLevel() {
-		String input = "MACRO(A);";
+		String input = "MACRO(A)";
 		List<ASTNode> codeItems = parseInput(input);
 		PreStatementBase codeItem = (PreStatementBase) codeItems.get(0);
 		MacroCall codeItem2 = (MacroCall) codeItem.getChild(0);
@@ -676,6 +676,15 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		Comment comment = (Comment) codeItems.get(0);
 		assertEquals("/* Bit 7 */", comment.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testNullExpressionStatement() {
+		String input = ";";
+
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement stmt = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals(";", stmt.getEscapedCodeStr());
 	}
 
 	private List<ASTNode> parseInput(String input) {
