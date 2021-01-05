@@ -65,7 +65,7 @@ entryIdentifiers = ['invert_regexes','invert_regexes_len']
 entryStrings = list()
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
-visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'MacroCall', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
+visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
 
 # Initialize the needed variables and runs the desired process (interactive console, predefined evaluation mode via workflow.py, or automated process with predefined db and entry points)
 def initializeSUI(EVALUATION, entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType):
@@ -1155,7 +1155,6 @@ def addLocalBackwardSlice (nodes):
                 ).dedup()
             ).emit().has('type', within(%s)).id()""" % (node, visibleStatementTypes)
             dataFlow = set(db.runGremlinQuery(query))        
-            print("Got dataFlow: "+str(dataFlow))
         
             #Get all nodes that appear in both queries (previous control flow node and direct or indirect data flow connection) -> All nodes that can have an impact to the entry point
             result.update(controlFlow.intersection(dataFlow))    
