@@ -57,7 +57,21 @@ public class IfNestingTests {
 		assertFirstChildIsIfStatement(compound);
 	}
 	
-
+	@Test
+	public void ifWithMultipleLineConditionInlineCommentsLinebreaksAndOtherComplexStuff() {
+		String input = "  if (fd == STDIN_FILENO\n" + 
+				"      && (outleft\n" + 
+				"          ? (!ineof\n" + 
+				"             && (seek_failed\n" + 
+				"                 || (lseek (fd, 0, SEEK_END) < 0\n" + 
+				"                     /* Linux proc file system has EINVAL (Bug#25180).  */\n" + 
+				"                     && errno != EINVAL))\n" + 
+				"             && ! drain_input (fd, st))\n" + 
+				"          : (bufoffset != after_last_match && !seek_failed\n" + 
+				"             && lseek (fd, after_last_match, SEEK_SET) < 0)))";
+		CompoundStatement compound = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertFirstChildIsIfStatement(compound);
+	}
 
 	@Test
 	public void nestedIfBlocksNoCompound() {

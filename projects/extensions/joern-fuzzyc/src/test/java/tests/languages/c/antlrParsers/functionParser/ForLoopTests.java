@@ -18,8 +18,7 @@ public class ForLoopTests extends FunctionParserTestBase {
 		String output = tree.toStringTree(functionParser.getAntlrParser());
 		assertTrue(output.contains("selection_or_iteration"));
 	}
-
-
+	
 	@Test
 	public void testDeclInFor() {
 		String input = "for(int k = 0; k < 10; k++ ){}";
