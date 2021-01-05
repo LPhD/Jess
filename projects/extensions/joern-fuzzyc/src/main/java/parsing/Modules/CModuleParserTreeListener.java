@@ -20,6 +20,7 @@ import ast.Comment;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.preprocessor.commands.macro.MacroCall;
+import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.custom.CustomNode;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
@@ -162,6 +163,8 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 			
 			//Handling of other statement types that do not extend from PreStatementBase (currently only solo MacroCalls are planned to appear here)	
 			} else {
+				//Workaround, as after preprocessing the call will be replaced with the preDefine, therefore we need simlir handling during SUI
+				thisItem = (PreStatementBase) new PreDefine();
 				//Manually add a MacroCall as child to the PreStatement
 				MacroCall macro = new MacroCall();
 				ASTNodeFactory.initializeFromContext(macro, ctx);
