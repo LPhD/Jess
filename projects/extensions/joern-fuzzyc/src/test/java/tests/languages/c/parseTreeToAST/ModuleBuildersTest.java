@@ -14,12 +14,14 @@ import ast.c.functionDef.FunctionDef;
 import ast.c.functionDef.ParameterType;
 import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
+import ast.c.preprocessor.commands.macro.MacroCall;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
+import ast.preprocessor.PreStatementBase;
 import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
@@ -545,6 +547,14 @@ public class ModuleBuildersTest {
 		assertEquals(0, codeItem.getParameterList().size());
 	}
 	
+	@Test
+	public void testMacroCallOnModuleLevel() {
+		String input = "MACRO(A);";
+		List<ASTNode> codeItems = parseInput(input);
+		PreStatementBase codeItem = (PreStatementBase) codeItems.get(0);
+		MacroCall codeItem2 = (MacroCall) codeItem.getChild(0);
+		assertEquals("MACRO ( A )", codeItem2.getEscapedCodeStr());
+	}
 	
 	@Test
 	public void preprocessorModuleBuilderASTAndVariabilityNestingTest() {

@@ -19,6 +19,8 @@ import ast.ASTNode;
 import ast.Comment;
 import ast.c.preprocessor.blockstarter.PreEndIfStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
+import ast.c.preprocessor.commands.macro.MacroCall;
+import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.custom.CustomNode;
 import ast.declarations.IdentifierDecl;
 import ast.logical.statements.CompoundStatement;
@@ -151,10 +153,22 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		try {
 			fDriver.parseAndWalkString(text);
 			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
-			thisItem = (PreStatementBase) fb.getItem().getChild(0);
-			//#elif/#else/#endif are not on the builderStack and therefore null, we get them via a separate attribute
-			if (thisItem == null)
-				thisItem = (PreStatementBase) fb.currentItem;
+			
+			//Handling of PreStatements (everything appearing here but MacroCalls)
+			if(!(fb.getItem().getChild(0) instanceof MacroCall)) {				
+				thisItem = (PreStatementBase) fb.getItem().getChild(0);
+				//#elif/#else/#endif are not on the builderStack and therefore null, we get them via a separate attribute
+				if (thisItem == null)
+					thisItem = (PreStatementBase) fb.currentItem;
+			
+			//Handling of other statement types that do not extend from PreStatementBase (currently only MacroCalls are planned to appear here)	
+			} else {
+				//Manually add a MacroCall as child to the PreStatement
+				MacroCall macro = new MacroCall();
+				ASTNodeFactory.initializeFromContext(macro, ctx);
+				thisItem.addChild(macro);
+			}
+			
 		} catch (Exception e) {
 			System.err.println("Cannot create PreStatement " + text + " in ModuleParser");
 			e.printStackTrace();

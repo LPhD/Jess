@@ -39,7 +39,7 @@ pre_command: pre_define
             | pre_include_next
             | pre_line
             | pre_pragma
-            | macroCall;
+            | macroCall;    //This is a little problematic, as macroCalls can be (part of) Expressions as well as pre_commands when on module level
 
 pre_define: PRE_DEFINE pre_macro_identifier pre_macro 
             | PRE_DEFINE pre_macro_identifier;     
