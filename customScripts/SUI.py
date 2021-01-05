@@ -1567,7 +1567,7 @@ def countNodes():
         
     # Count nodes of whole project that are visible (query is a little more complex because some nodes have visible types but are contained in other visible parent nodes)
     query = """g.V().has('type', within(%s))
-    .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', 'ForInit'))
+    .not(__.repeat(__.in(AST_EDGE)).emit().has('type', within('ForInit','StructUnionEnum')))
     .dedup().count()""" % (visibleStatementTypes) 
     statResult = db.runGremlinQuery(query) 
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
@@ -1581,7 +1581,7 @@ def countNodes():
     
     # Count nodes of SU that are visible
     query = """idListToNodes(%s).has('type', within(%s))
-    .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', 'ForInit'))
+    .not(__.repeat(__.in(AST_EDGE)).emit().has('type', within('ForInit','StructUnionEnum')))
     .dedup().count()""" % (list(semanticUnit), visibleStatementTypes) 
     statResult = db.runGremlinQuery(query) 
     print(str(statResult[0])+" of them are visible and directly appear as lines of code (top nodes).")
@@ -1933,7 +1933,7 @@ def getVisibleASTNodes():
     global semanticUnit 
     # Remove unneeded nodes
     query = """idListToNodes(%s).has('type', within(%s))
-        .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', 'ForInit'))
+        .not(__.repeat(__.in(AST_EDGE)).emit().has('type', within('ForInit','StructUnionEnum')))
         .dedup().id()""" % (list(semanticUnit), visibleStatementTypes)  
     result = db.runGremlinQuery(query)
     # Update SU so that only the ids of the relevant nodes are inside (needed for getEdges and fileOutput)

@@ -23,7 +23,8 @@ def getProjectPath (projectName):
     'PV_Current.tar.gz':'/C/src/',
     'sample':'/Example/',
     'DonorProject':'/DonorProjectCode/src/',
-    'Ag':'/the_silver_searcher/src'} 
+    'Ag':'/the_silver_searcher/src',
+    'grep':'/home/lea/Downloads/grep'} 
 
     #Assemble path 
     return projectNameAndPath[projectName]
@@ -38,7 +39,7 @@ def getVisibleNodes(projectName):
     
     # Remove unneeded nodes (we need to exclude IdentifierDeclStatement that have a ForInit or StructUnionEnum as parent)
     query = """g.V().has('type', within(%s))
-                .not(has('type', 'IdentifierDeclStatement').in(AST_EDGE).has('type', within('ForInit','StructUnionEnum')))
+                .not(__.repeat(__.in(AST_EDGE)).emit().has('type', within('ForInit','StructUnionEnum')))
                 .id()""" % (visibleStatementTypes) 
     result = db.runGremlinQuery(query)
             
@@ -95,6 +96,6 @@ def evaluateProject (projectName, workingdir, projectPath):
 
 
 # When called via console, fill these out and add your project path to getProjectPath function
-#projectName = "Ag"
+#projectName = "grep"
 #projectName = input("Please type in the name of the project")
 #evaluateProject(projectName, os.getcwd(), getProjectPath(projectName))
