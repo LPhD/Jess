@@ -31,15 +31,17 @@ public abstract class DeclStmtExporter extends ASTNodeExporter {
 
 	private void addDeclarations(ASTNode node) {
 		IdentifierDeclStatement stmt = (IdentifierDeclStatement) node;
-		List<ASTNode> identifierDeclList = stmt.getIdentifierDeclList();
-		Iterator<ASTNode> it = identifierDeclList.iterator();
-		while (it.hasNext()) {
-			ASTNode decl = it.next();
-			decl.setPath(curFile.getPath());
-			declImporter.addToDatabaseSafe(decl);			
-			
-			long declId = decl.getNodeId();
-			addLinkFromStmtToDecl(mainNodeId, declId);
+		if(stmt.getIdentifierDeclList() != null) {
+			List<ASTNode> identifierDeclList = stmt.getIdentifierDeclList();
+			Iterator<ASTNode> it = identifierDeclList.iterator();
+			while (it.hasNext()) {
+				ASTNode decl = it.next();
+				decl.setPath(curFile.getPath());
+				declImporter.addToDatabaseSafe(decl);			
+				
+				long declId = decl.getNodeId();
+				addLinkFromStmtToDecl(mainNodeId, declId);
+			}
 		}
 	}
 	
