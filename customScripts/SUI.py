@@ -1436,8 +1436,11 @@ def addGlobalDeclaresForSUFiles():
     global semanticUnit, SUFilesSet
     # For all files that are part of the SU, get declarations of global variables
     
-    # First all StructUnionEnum and FunctionPointerDeclares, as they are easy to get
-    query = """idListToNodes(%s).out().has('type', within('StructUnionEnum','FunctionPointerDeclare')).id()""" % (list(SUFilesSet))  
+    # First all NullExpressions (appear as DeclStmt), StructUnionEnums and FunctionPointerDeclares, as they are easy to get
+    query = """idListToNodes(%s).out().union(
+        has('type', within('StructUnionEnum','FunctionPointerDeclare')),
+        has('type', 'DeclStmt').has('code',';')
+        ).id()""" % (list(SUFilesSet))  
     aResult = db.runGremlinQuery(query)   
     semanticUnit.update(aResult) 
     
@@ -1461,7 +1464,10 @@ def addGlobalDeclares():
     global semanticUnit
     
     # First all global StructUnionEnum and FunctionPointerDeclares, as they are easy to get
-    query = """g.V().has('type', 'File').out().has('type', within('StructUnionEnum','FunctionPointerDeclare')).id()"""  
+    query = """g.V().has('type', 'File').out().union(
+        has('type', within('StructUnionEnum','FunctionPointerDeclare')),
+        has('type', 'DeclStmt').has('code',';')
+        ).id()"""  
     aResult = db.runGremlinQuery(query)   
     semanticUnit.update(aResult) 
     
