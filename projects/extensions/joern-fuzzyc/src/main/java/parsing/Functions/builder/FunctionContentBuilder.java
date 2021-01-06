@@ -417,14 +417,24 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	// ----------------------------------Preprocessor command handling--------------------------------------------------------------
 
 	/**
-	 * Pushes the item on the stack
+	 * Caution: MacroCall extends from Expression, therefore handling is different
 	 * 
 	 * @param ctx
 	 */
 	public void enterMacroCall(MacroCallContext ctx) {
-		replaceTopOfStack(new MacroCall(), ctx);
+		MacroCall expr = new MacroCall();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);
+		//No variability check here, as there will be a parent expression node
 	}
 	
+	/**
+	 * Macro call has always a parent, either an ExpressionStatement or another expression node
+	 * @param ctx
+	 */
+	public void exitMacroCall(MacroCallContext ctx) {
+		nesting.consolidateSubExpression(ctx);
+	}
 	
 	/**
 	 * Pushes the item on the stack

@@ -152,18 +152,19 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		// Try to reuse the function parser rules for parsing the preprocessor statement
 		try {
 			fDriver.parseAndWalkString(text);
-			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();
+			FunctionContentBuilder fb = (FunctionContentBuilder) fDriver.builderStack.pop();			
 			
-			//Handling of PreStatements (everything appearing here but MacroCalls)
-			if(!(fb.getItem().getChild(0) instanceof MacroCall)) {				
+			try {
+				//Handling of PreStatements (everything appearing here but MacroCalls)						
 				thisItem = (PreStatementBase) fb.getItem().getChild(0);
 				//#elif/#else/#endif are not on the builderStack and therefore null, we get them via a separate attribute
-				if (thisItem == null)
-					thisItem = (PreStatementBase) fb.currentItem;
-			
+				if (thisItem == null) {
+					System.out.println("Null");
+					thisItem = (PreStatementBase) fb.currentItem;	
+				}
 			//Handling of other statement types that do not extend from PreStatementBase (currently only solo MacroCalls are planned to appear here)	
-			} else {
-				//Workaround, as after preprocessing the call will be replaced with the preDefine, therefore we need simlir handling during SUI
+			} catch (ClassCastException e) {
+				//Workaround, as after preprocessing the call will be replaced with the preDefine, therefore we need simlar handling during SUI
 				thisItem = (PreStatementBase) new PreDefine();
 				//Manually add a MacroCall as child to the PreStatement
 				MacroCall macro = new MacroCall();

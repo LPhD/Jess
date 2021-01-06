@@ -343,10 +343,10 @@ public class PreprocessorTests {
 	}	
 	
 	@Test
-	public void testMacroCall() {
+	public void testMacroCallOnFunctionLevel() {
 		String input = "CHECK_AND_RETURN(ptr)";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("MacroCall", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("MacroCall", contentItem.getStatement(0).getChild(0).getTypeAsString());
 	}
 	
 	@Test
