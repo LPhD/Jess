@@ -65,7 +65,7 @@ entryIdentifiers = ['invert_regexes','invert_regexes_len']
 entryStrings = list()
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
-visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
+visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'Statement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
 
 # Initialize the needed variables and runs the desired process (interactive console, predefined evaluation mode via workflow.py, or automated process with predefined db and entry points)
 def initializeSUI(EVALUATION, entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType):
@@ -340,7 +340,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
 
     # Get the AST children if current vertice is an expression, identifierDecl statement or PreDefine (they could contain callExpressions)
-    if (type[0] in ["ExpressionStatement", "IdentifierDeclStatement", "PreDefine"]):                       
+    if (type[0] in ["ExpressionStatement", "Statement", "IdentifierDeclStatement", "PreDefine"]):                       
         result = set(getASTChildren(currentNode))
         # Get related elements of the AST children
         analysisList.extend(result)          
@@ -1406,7 +1406,7 @@ def addUsedGlobalDeclares():
             declIdAndNameList[line['id']] = line['name'] 
    
     # We look for uses of the declared variables in the selected visible statements. These exclude no real uses, e.g. by comments
-    checkedStatementTypes = ['CustomNode', 'FunctionDef', 'DeclStmt', 'StructUnionEnum', 'IfStatement', 'SwitchStatement', 'ForStatement', 'WhileStatement',  'GotoStatement', 'Label', 'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreDefine', 'MacroCall', 'UsingDirective']
+    checkedStatementTypes = ['CustomNode', 'FunctionDef', 'Statement', 'DeclStmt', 'StructUnionEnum', 'IfStatement', 'SwitchStatement', 'ForStatement', 'WhileStatement',  'GotoStatement', 'Label', 'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreDefine', 'MacroCall', 'UsingDirective']
 
     #Get the code of all identifier nodes of the SU
     query = """idListToNodes(%s).has('type', within(%s)).values('code').dedup()""" % (list(semanticUnit), checkedStatementTypes)  
