@@ -8,6 +8,7 @@ import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.logical.statements.CompoundStatement;
+import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 
 public class PreprocessorTests {
@@ -346,7 +347,9 @@ public class PreprocessorTests {
 	public void testMacroCallOnFunctionLevel() {
 		String input = "CHECK_AND_RETURN(ptr)";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("MacroCall", contentItem.getStatement(0).getChild(0).getTypeAsString());
+		Statement stmt = (Statement) contentItem.getStatement(0);
+		assertEquals("Statement", stmt.getTypeAsString());
+		assertEquals("MacroCall", stmt.getChild(0).getTypeAsString());
 	}
 	
 	@Test
