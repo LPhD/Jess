@@ -159,7 +159,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 				thisItem = (PreStatementBase) fb.getItem().getChild(0);
 				//#elif/#else/#endif are not on the builderStack and therefore null, we get them via a separate attribute
 				if (thisItem == null) {
-					System.out.println("Null");
 					thisItem = (PreStatementBase) fb.currentItem;	
 				}
 			//Handling of other statement types that do not extend from PreStatementBase (currently only solo MacroCalls are planned to appear here)	
