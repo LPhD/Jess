@@ -346,6 +346,16 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testFuncSignatureWithMacroCallAndType() {
+		String input = "SAPI_API SAPI_POST_READER_FUNC(sapi_read_standard_form_data)\n" + 
+				"{}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
+		
+		assertEquals("SAPI_API SAPI_POST_READER_FUNC ( sapi_read_standard_form_data ) \n ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testCompleteFuncSignatureWithMacroCall() {
 		String input = "PHP_FUNCTION(header_register_callback)\n" + 
 				"{}";
