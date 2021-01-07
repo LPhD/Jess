@@ -345,6 +345,16 @@ public class ModuleBuildersTest {
 		assertEquals("macro ( type ) foo ( int x , char * * ptr ) ", codeItem.getEscapedCodeStr());
 	}
 	
+	@Test
+	public void testCompleteFuncSignatureWithMacroCall() {
+		String input = "PHP_FUNCTION(header_register_callback)\n" + 
+				"{}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
+		
+		assertEquals("PHP_FUNCTION ( header_register_callback ) \n ", codeItem.getEscapedCodeStr());
+	}
+	
 
 	@Test
 	public void testStaticFuncDeclaration() {
