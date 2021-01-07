@@ -1,6 +1,7 @@
 package ast.c.functionDef;
 
 import ast.ASTNode;
+import ast.c.preprocessor.commands.macro.MacroCall;
 import ast.c.preprocessor.commands.macro.PreMacroIdentifier;
 import ast.expressions.Identifier;
 import ast.functionDef.FunctionDefBase;
@@ -43,8 +44,8 @@ public class FunctionDef extends FunctionDefBase {
 			setParameterList((ParameterList) node);
 		else if (node instanceof Identifier)
 			setIdentifier((Identifier) node);
-		else if (node instanceof PreMacroIdentifier)	//If the function header is defined by a macro
-			setIdentifier((PreMacroIdentifier) node);
+		else if (node instanceof MacroCall)	//If the function header is defined by a macro
+			setIdentifier((PreMacroIdentifier) node.getChild(0));
 		else
 			super.addChild(node);
 	}
