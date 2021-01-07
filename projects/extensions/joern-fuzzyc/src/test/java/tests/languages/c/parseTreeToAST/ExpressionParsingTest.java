@@ -27,6 +27,7 @@ import ast.logical.statements.BlockStarter;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
+import ast.logical.statements.Statement;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 
@@ -299,6 +300,15 @@ public class ExpressionParsingTest {
 		IdentifierDeclStatement stmt = (IdentifierDeclStatement) contentItem.getStatements().get(0);
 		assertEquals("TCase * volatile tc ;", stmt.getEscapedCodeStr());
 	}
+	
+	@Test
+	public void ptrDeclAndInit() {
+		String input = "void (*post_reader_func)(void) = NULL;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		Statement expr = (Statement) contentItem.getStatements().get(0);
+		assertEquals("void ( * post_reader_func ) ( void ) = NULL ;", expr.getEscapedCodeStr());
+	}
+	
 
 	@Test
 	public void funCall() {

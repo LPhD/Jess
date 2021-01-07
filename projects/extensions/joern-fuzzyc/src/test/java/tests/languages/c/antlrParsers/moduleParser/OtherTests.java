@@ -29,7 +29,7 @@ public class OtherTests extends FunctionDefinitionTests {
 		String output = parser.function_def().toStringTree(parser);
 		assertEquals("(function_def (macroCall (pre_macro_identifier (identifier PHP_FUNCTION)) ( (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier header_register_callback))))))))))))))))))) )) (compound_statement { \\n RETURN_TRUE ; \\n }))",output);
 	}
-	
+
 	@Test
 	public void testDecl() {
 		String input = "static int blogic_diskparam(struct scsi_device *sdev);";

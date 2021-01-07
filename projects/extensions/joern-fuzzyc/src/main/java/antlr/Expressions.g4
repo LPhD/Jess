@@ -95,7 +95,9 @@ postfix_expression: postfix_expression NEWLINE? COMMENT? NEWLINE? '[' expr? ']' 
                   
 initializer_expression:  OPENING_CURLY NEWLINE? (COMMENT NEWLINE?)* argument_list? NEWLINE? (COMMENT NEWLINE?)* CLOSING_CURLY;   //Can be an empty list
 
-argument_list: (NEWLINE? COMMENT? NEWLINE? argument)? NEWLINE? COMMENT? NEWLINE? (','?  NEWLINE? (COMMENT NEWLINE?)* argument)* ','?;       // Allows empty arguments after a comma           
+argument_list: (NEWLINE? COMMENT? NEWLINE? argument)? NEWLINE? COMMENT? NEWLINE? (','?  NEWLINE? (COMMENT NEWLINE?)* argument)* ','?  // Allows empty arguments after a comma   
+                | VOID //Argument can be only void
+                ;              
 
 argument: assign_expr;
 

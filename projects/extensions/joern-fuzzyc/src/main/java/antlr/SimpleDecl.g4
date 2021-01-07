@@ -5,7 +5,7 @@ simple_decl : var_decl;
 
 var_decl : template_decl_start? class_def  init_declarator_list? #declByClass
          | (TYPEDEF NEWLINE?)?  template_decl_start? type_name  init_declarator_list #declByType
-         | (TYPEDEF NEWLINE?)?  type_name '(' callingConvention? ptr_operator identifier ')' param_type_list NEWLINE? pre_other? ';' #FunctionPointerDeclare
+         | (TYPEDEF NEWLINE?)?  type_name '(' callingConvention? ptr_operator identifier ')' param_type_list NEWLINE? pre_other? ('=' NEWLINE? argument)? ';' #FunctionPointerDeclare
          | (CV_QUALIFIER NEWLINE?)? (function_decl_specifiers NEWLINE?)? (TYPEDEF NEWLINE?)? special_datatype NEWLINE? init_declarator_list? ';'? #StructUnionEnum
          ;
 
