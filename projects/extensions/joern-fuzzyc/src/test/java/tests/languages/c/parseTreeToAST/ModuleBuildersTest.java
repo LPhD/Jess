@@ -493,7 +493,7 @@ public class ModuleBuildersTest {
 		String input = "int foo(int x){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		assertEquals(4, codeItem.getChildCount());
+		assertEquals(3, codeItem.getChildCount());
 	}
 
 	@Test
@@ -546,7 +546,7 @@ public class ModuleBuildersTest {
 		String input = "int foo(){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		assertEquals(4, codeItem.getChildCount());
+		assertEquals(3, codeItem.getChildCount());
 		assertEquals("", codeItem.getParameterList().getEscapedCodeStr());
 	}
 	
@@ -555,7 +555,7 @@ public class ModuleBuildersTest {
 		String input = "int foo(void){}";
 		List<ASTNode> codeItems = parseInput(input);
 		FunctionDefBase codeItem = (FunctionDefBase) codeItems.get(0);
-		assertEquals(4, codeItem.getChildCount());
+		assertEquals(3, codeItem.getChildCount());
 		assertEquals("void", codeItem.getParameterList().getEscapedCodeStr());
 	}
 

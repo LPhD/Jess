@@ -1,6 +1,7 @@
 package ast.c.functionDef;
 
 import ast.ASTNode;
+import ast.c.preprocessor.commands.macro.PreMacroIdentifier;
 import ast.expressions.Identifier;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterList;
@@ -9,7 +10,6 @@ import ast.walking.ASTNodeVisitor;
 
 public class FunctionDef extends FunctionDefBase {
 	private Identifier identifier = null;
-	private String rType = "void";
 
 	public Identifier getIdentifier() {
 		return this.identifier;
@@ -20,9 +20,6 @@ public class FunctionDef extends FunctionDefBase {
 		super.addChild(identifier);
 	}
 	
-	public void setrType(String rType) {
-		this.rType = rType;
-	}
 
 	@Override
 	public String getName() {
@@ -46,6 +43,8 @@ public class FunctionDef extends FunctionDefBase {
 			setParameterList((ParameterList) node);
 		else if (node instanceof Identifier)
 			setIdentifier((Identifier) node);
+		else if (node instanceof PreMacroIdentifier)	//If the function header is defined by a macro
+			setIdentifier((PreMacroIdentifier) node);
 		else
 			super.addChild(node);
 	}

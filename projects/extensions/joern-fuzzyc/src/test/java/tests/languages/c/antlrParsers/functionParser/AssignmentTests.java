@@ -59,4 +59,15 @@ public class AssignmentTests extends FunctionParserTestBase {
 		assertEquals(expected, output);
 	}	
 	
+	@Test
+	public void testCastToAnonymousVoidFunctionPointer() {
+		String input = "(void (*)(void *)) sapi_free_header;";
+		FunctionParser functionParser = createFunctionParser();
+		ParseTree tree = functionParser.parseString(input);
+		String output = tree.toStringTree(functionParser.getAntlrParser());
+		String expected = "(statements (statement (expr_statement (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression ( (cast_target (type_name (base_type void)) (function_pointer_use_expression ( (ptr_operator *) ) ( (argument_list void (ptr_operator *)) ))) ) (cast_expression (unary_expression (postfix_expression (primary_expression (identifier sapi_free_header)))))))))))))))))))) ;)))";
+		assertEquals(expected, output);
+	}
+	
+
 }

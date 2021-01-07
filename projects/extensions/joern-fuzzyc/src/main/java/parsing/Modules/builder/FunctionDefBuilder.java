@@ -7,14 +7,11 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import antlr.ModuleParser.Function_nameContext;
 import antlr.ModuleParser.Function_param_listContext;
 import antlr.ModuleParser.Parameter_declContext;
-import antlr.ModuleParser.Return_typeContext;
 import ast.ASTNodeBuilder;
 import ast.c.functionDef.FunctionDef;
 import ast.expressions.Identifier;
-import ast.functionDef.ReturnType;
 import ast.logical.statements.CompoundStatement;
 import parsing.ASTNodeFactory;
-import parsing.ParseTreeUtils;
 import parsing.Functions.builder.ParameterListBuilder;
 
 public class FunctionDefBuilder extends ASTNodeBuilder {
@@ -32,15 +29,6 @@ public class FunctionDefBuilder extends ASTNodeBuilder {
 	public void setName(Function_nameContext ctx, Stack<ASTNodeBuilder> itemStack) {
 		thisItem.addChild(new Identifier());
 		ASTNodeFactory.initializeFromContext(thisItem.getIdentifier(), ctx);
-	}
-
-	public void setReturnType(Return_typeContext ctx, Stack<ASTNodeBuilder> itemStack) {
-		ReturnType returnType = new ReturnType();
-		ASTNodeFactory.initializeFromContext(returnType, ctx);
-		returnType.setBaseType(ParseTreeUtils.childTokenString(ctx.type_name()));
-		returnType.setCompleteType(ParseTreeUtils.childTokenString(ctx));
-		thisItem.addChild(returnType);
-		thisItem.setrType(returnType.getEscapedCodeStr());
 	}
 
 	public void setParameterList(Function_param_listContext ctx, Stack<ASTNodeBuilder> itemStack) {

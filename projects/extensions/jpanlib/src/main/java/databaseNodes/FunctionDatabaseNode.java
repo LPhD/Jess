@@ -56,7 +56,12 @@ public class FunctionDatabaseNode extends DatabaseNode {
 	}
 
 	public String getName() {
-		return astRoot.getName();
+		if (astRoot.getName() != null) {
+			return astRoot.getName();
+		} else {
+			return "<name_unknown>";
+		}
+		
 	}
 
 	public ASTNode getASTRoot() {

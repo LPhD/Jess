@@ -33,7 +33,7 @@ multiplicative_expression: function_pointer_use_expression (NEWLINE? COMMENT? NE
 
 //Technically, cast operations can contain pointers (e.g. when cast to a void pointer), but we are more interested in function pointer usages and do not analyse casts in detail
 //Therefore, it is okay if we misclassify a pointer cast as a function pointer usage (as long as we get all function pointer usages)
-function_pointer_use_expression: '(' ptr_operator identifier ')' '(' argument_list ')'
+function_pointer_use_expression: '(' ptr_operator identifier? ')' '(' argument_list ')'
                | cast_expression
                 ;
                 
@@ -43,7 +43,9 @@ cast_expression: ('(' cast_target ')' cast_expression)
                | unary_expression
                 ;
 
-cast_target: type_name;
+cast_target: type_name
+            | type_name function_pointer_use_expression //This is for casts to function pointers
+            ;
 
 
 
@@ -96,7 +98,7 @@ postfix_expression: postfix_expression NEWLINE? COMMENT? NEWLINE? '[' expr? ']' 
 initializer_expression:  OPENING_CURLY NEWLINE? (COMMENT NEWLINE?)* argument_list? NEWLINE? (COMMENT NEWLINE?)* CLOSING_CURLY;   //Can be an empty list
 
 argument_list: (NEWLINE? COMMENT? NEWLINE? argument)? NEWLINE? COMMENT? NEWLINE? (','?  NEWLINE? (COMMENT NEWLINE?)* argument)* ','?  // Allows empty arguments after a comma   
-                | VOID //Argument can be only void
+                | VOID ptr_operator? //Argument can be only void or void ptr
                 ;              
 
 argument: assign_expr;

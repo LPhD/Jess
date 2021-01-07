@@ -398,6 +398,21 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void funCallWithComplexArguments() {
+		String input = "zend_llist_init(&SG(sapi_headers).headers, sizeof(sapi_header_struct),\n" + 
+				"			(void (*)(void *)) sapi_free_header, 0);";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		CallExpression expr = (CallExpression) contentItem.getChild(0).getChild(0);
+		assertEquals("zend_llist_init", expr.getTargetFunc().getEscapedCodeStr());
+		assertEquals("SG", expr.getArgumentList().getChild(0).getEscapedCodeStr());
+		assertEquals("( sapi_headers ) . headers", expr.getArgumentList().getChild(1).getEscapedCodeStr()); //This is a little strange
+		assertEquals("sizeof ( sapi_header_struct )", expr.getArgumentList().getChild(2).getEscapedCodeStr());
+		assertEquals("( void ( * ) ( void * ) ) sapi_free_header", expr.getArgumentList().getChild(3).getEscapedCodeStr());
+		assertEquals("0", expr.getArgumentList().getChild(4).getEscapedCodeStr());
+	}
+	
+	
+	@Test
 	public void commentInSameLineAsStatement() {
 		String input = "x = 5; /*x is set to 5*/";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);

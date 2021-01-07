@@ -425,7 +425,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 	@Override
 	public void enterReturn_type(ModuleParser.Return_typeContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
-		builder.setReturnType(ctx, p.builderStack);
 	}
 
 	@Override
