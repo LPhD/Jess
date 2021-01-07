@@ -6,9 +6,11 @@ import org.antlr.v4.runtime.ParserRuleContext;
 
 import antlr.ModuleParser.Function_nameContext;
 import antlr.ModuleParser.Function_param_listContext;
+import antlr.ModuleParser.MacroCall_asFunctionHeaderContext;
 import antlr.ModuleParser.Parameter_declContext;
 import ast.ASTNodeBuilder;
 import ast.c.functionDef.FunctionDef;
+import ast.c.preprocessor.commands.macro.MacroCall;
 import ast.expressions.Identifier;
 import ast.logical.statements.CompoundStatement;
 import parsing.ASTNodeFactory;
@@ -28,6 +30,11 @@ public class FunctionDefBuilder extends ASTNodeBuilder {
 
 	public void setName(Function_nameContext ctx, Stack<ASTNodeBuilder> itemStack) {
 		thisItem.addChild(new Identifier());
+		ASTNodeFactory.initializeFromContext(thisItem.getIdentifier(), ctx);
+	}
+	
+	public void setAlternativeName(MacroCall_asFunctionHeaderContext ctx, Stack<ASTNodeBuilder> itemStack) {
+		thisItem.addChild(new MacroCall());
 		ASTNodeFactory.initializeFromContext(thisItem.getIdentifier(), ctx);
 	}
 

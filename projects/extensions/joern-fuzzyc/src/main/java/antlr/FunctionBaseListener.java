@@ -958,6 +958,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMacroCall_asFunctionHeader(FunctionParser.MacroCall_asFunctionHeaderContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMacroCall_asFunctionHeader(FunctionParser.MacroCall_asFunctionHeaderContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterReturn_type(FunctionParser.Return_typeContext ctx) { }
 	/**
 	 * {@inheritDoc}

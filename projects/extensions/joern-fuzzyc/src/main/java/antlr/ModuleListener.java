@@ -604,6 +604,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitFunction_def(ModuleParser.Function_defContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#macroCall_asFunctionHeader}.
+	 * @param ctx the parse tree
+	 */
+	void enterMacroCall_asFunctionHeader(ModuleParser.MacroCall_asFunctionHeaderContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#macroCall_asFunctionHeader}.
+	 * @param ctx the parse tree
+	 */
+	void exitMacroCall_asFunctionHeader(ModuleParser.MacroCall_asFunctionHeaderContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#return_type}.
 	 * @param ctx the parse tree
 	 */

@@ -730,6 +730,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMacroCall_asFunctionHeader(ModuleParser.MacroCall_asFunctionHeaderContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMacroCall_asFunctionHeader(ModuleParser.MacroCall_asFunctionHeaderContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterReturn_type(ModuleParser.Return_typeContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -14,6 +14,7 @@ import antlr.ModuleParser;
 import antlr.ModuleParser.Class_defContext;
 import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
+import antlr.ModuleParser.MacroCall_asFunctionHeaderContext;
 import antlr.ModuleParser.Type_nameContext;
 import ast.ASTNode;
 import ast.Comment;
@@ -422,15 +423,18 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		checkIfCommented(fdef);
 	}
 
-	@Override
-	public void enterReturn_type(ModuleParser.Return_typeContext ctx) {
-		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
-	}
 
 	@Override
 	public void enterFunction_name(ModuleParser.Function_nameContext ctx) {
 		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
 		builder.setName(ctx, p.builderStack);
+	}
+	
+	//When the header is replaced by a macro call
+	@Override
+	public void enterMacroCall_asFunctionHeader(MacroCall_asFunctionHeaderContext ctx) {
+		FunctionDefBuilder builder = (FunctionDefBuilder) p.builderStack.peek();
+		builder.setAlternativeName(ctx, p.builderStack);
 	}
 
 	@Override
