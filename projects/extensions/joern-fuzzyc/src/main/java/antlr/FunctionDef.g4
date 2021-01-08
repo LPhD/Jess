@@ -3,7 +3,7 @@ import ModuleLex, Preprocessor, SimpleDecl, Expressions, Common;
 
 function_def : 
                 template_decl_start? return_type? (pre_other NEWLINE?)? function_name NEWLINE? function_param_list ctor_list? NEWLINE? COMMENT? NEWLINE? compound_statement
-                | return_type? macroCall_asFunctionHeader NEWLINE? compound_statement //This is for macros that replace the function header
+                | return_type? macroCall_asFunctionHeader NEWLINE? COMMENT? NEWLINE? compound_statement //This is for macros that replace the function header
                 ; 
 
 macroCall_asFunctionHeader: macroCall;
