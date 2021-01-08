@@ -82,6 +82,18 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 		assertTrue(output.startsWith("(function_def"));
 	}
 	
+	@Test
+	public void testParamDeclOutsideOfParantheses() {
+		String input = "pointer\n" + 
+				"alloca (size)\n" + 
+				"     size_t size;\n" + 
+				"{ return size;}";
+
+		ModuleParser parser = createParser(input);
+		String output = parser.function_def().toStringTree(parser);
+		assertEquals("(function_def (return_type (type_name (base_type pointer \\n))) (function_name (identifier alloca)) (function_param_list ( (parameter_name (identifier size)) ) \\n (type_name (base_type size_t)) (parameter_id (parameter_name (identifier size))) ; \\n) (compound_statement { return size ; }))",output);
+	}
+	
 	
 	@Test
 	public void testFunctionWithNewlines() {

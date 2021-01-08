@@ -99,6 +99,15 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 		assertEquals(1, useDefGraph.keySet().size());
 	}
 	
+	@Test
+	public void testFunctionWithDeclOutsideOfParantheses_UDG() {
+		UseDefGraph useDefGraph = createUDGForCode("pointer\n" + 
+				"alloca (size)\n" + 
+				"     size_t size;\n" + 
+				"{return size;}");
+		assertEquals(1, useDefGraph.keySet().size());
+	}
+	
 
 	private UseDefGraph createUDGForCode(String code) {
 		CFG cfg = getCFGForCode(code);
