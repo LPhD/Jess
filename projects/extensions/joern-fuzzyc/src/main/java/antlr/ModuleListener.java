@@ -1246,6 +1246,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitInc_dec(ModuleParser.Inc_decContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#asmCall}.
+	 * @param ctx the parse tree
+	 */
+	void enterAsmCall(ModuleParser.AsmCallContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#asmCall}.
+	 * @param ctx the parse tree
+	 */
+	void exitAsmCall(ModuleParser.AsmCallContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code memberAccess}
 	 * labeled alternative in {@link ModuleParser#postfix_expression}.
 	 * @param ctx the parse tree

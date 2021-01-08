@@ -1462,6 +1462,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitInc_dec(FunctionParser.Inc_decContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#asmCall}.
+	 * @param ctx the parse tree
+	 */
+	void enterAsmCall(FunctionParser.AsmCallContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#asmCall}.
+	 * @param ctx the parse tree
+	 */
+	void exitAsmCall(FunctionParser.AsmCallContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code memberAccess}
 	 * labeled alternative in {@link FunctionParser#postfix_expression}.
 	 * @param ctx the parse tree

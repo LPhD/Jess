@@ -58,6 +58,7 @@ unary_expression: address_of_expression
                 | postfix_expression
                 | defined_expression
                 | macroCall
+                | asmCall
                 ;
 
 address_of_expression: '&' identifier;
@@ -80,6 +81,15 @@ sizeof_operand: type_name (NEWLINE? COMMENT? NEWLINE? ptr_operator)*;
 sizeof_operand2: unary_expression;
 
 inc_dec: ('--' | '++');
+
+asmCall: ASM (CV_QUALIFIER | GOTO)* NEWLINE? '(' NEWLINE? (STRING NEWLINE?)+ 
+            ( (':' | '::' | ':::')          //Does not work otherwise if there are no spaces between the dots
+                ( 
+                    (STRING NEWLINE?) 
+                    ( '(' identifier (',' identifier)* ')' )?
+                )?
+            )* 
+            ')' ;
 
 // this is a bit misleading. We're just allowing access_specifiers
 // here because C programs can use 'public', 'protected' or 'private'

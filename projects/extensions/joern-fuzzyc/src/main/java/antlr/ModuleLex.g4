@@ -25,8 +25,9 @@ STATIC: 'static';
 VOID: 'void'; 
 UNSIGNED: 'unsigned'; 
 SIGNED: 'signed';
-CV_QUALIFIER:  ('const' | '__const' | '__const__' |'volatile' | '__volatile__' | '__volatile' | '__thread' | '_Atomic' | 'restrict' | '__restrict' | '__restrict__');
+CV_QUALIFIER:  ('__const' | '__const__' | 'const'  | '__volatile__' | '__volatile' | 'volatile'| '__thread' | '_Atomic'  | '__restrict' | '__restrict__'| 'restrict');
 EXTERN: 'extern';
+ASM: ('__asm__' | 'asm');
 
 // Keywords shared among C++/Java
 
@@ -98,8 +99,6 @@ COMMENT: '/*' ( ~('*') | ('*' ~('/')) )*  '*/'
 CHAR:  WideCharTypeSuffix?  '\'' ( EscapeSequence | ~('\''|'\\') ) '\'';
 
 STRING:  WideCharTypeSuffix? '"' ( EscapeSequence | ~('\\'|'"') )* '"';
-
-
 
 fragment
 IntegerTypeSuffix

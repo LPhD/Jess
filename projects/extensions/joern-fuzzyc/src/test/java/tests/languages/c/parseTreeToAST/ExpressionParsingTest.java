@@ -512,5 +512,13 @@ public class ExpressionParsingTest {
 		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
 		assertEquals(";", statementItem.getEscapedCodeStr());
 	}
+	
+	@Test
+	public void asmExpression() {
+		String input = "asm __volatile__(\"\" :: \"r\"(dst) : \"memory\");";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		assertEquals("asm __volatile__ ( \"\" :: \"r\" ( dst ) : \"memory\" ) ;", statementItem.getEscapedCodeStr());
+	}
 
 }
