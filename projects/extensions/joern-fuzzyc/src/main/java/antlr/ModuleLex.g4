@@ -25,7 +25,7 @@ STATIC: 'static';
 VOID: 'void'; 
 UNSIGNED: 'unsigned'; 
 SIGNED: 'signed';
-CV_QUALIFIER:  ('const' | 'volatile' | '__thread' );
+CV_QUALIFIER:  ('const' | '__const' | '__const__' |'volatile' | '__volatile__' | '__volatile' | '__thread' | '_Atomic' | 'restrict' | '__restrict' | '__restrict__');
 EXTERN: 'extern';
 
 // Keywords shared among C++/Java
@@ -87,10 +87,10 @@ FLOATING_POINT_LITERAL
     |   '.' ('0'..'9')+ Exponent? FloatTypeSuffix?
     |   ('0'..'9')+ Exponent FloatTypeSuffix?
     |   ('0'..'9')+ Exponent? FloatTypeSuffix
-	;
-	
-	 
-	
+    ;
+    
+     
+    
 COMMENT: '/*' ( ~('*') | ('*' ~('/')) )*  '*/'
     | '//'  ~('\n'|'\r')* '\r'? '\n'
  ;
@@ -103,9 +103,9 @@ STRING:  WideCharTypeSuffix? '"' ( EscapeSequence | ~('\\'|'"') )* '"';
 
 fragment
 IntegerTypeSuffix
-	:	('u'|'U')? ('l'|'L')
-	|	('u'|'U')  ('l'|'L')?
-	;
+    :   ('u'|'U')? ('l'|'L')
+    |   ('u'|'U')  ('l'|'L')?
+    ;
 
 fragment
 Exponent : ('e'|'E') ('+'|'-')? ('0'..'9')+;
