@@ -69,5 +69,17 @@ public class AssignmentTests extends FunctionParserTestBase {
 		assertEquals(expected, output);
 	}
 	
+	//This behaves a little different than normal declares, as it has no declarator (per grammar), but instead an identifier with a parameter list. 
+	//Therefore a special handling during UDG generation is necessary (as there are fewer parent contexts than normal)
+	@Test
+	public void testFunctionPointerDeclarateAndInit() {
+		String input = "void (*post_reader_func)(void) = NULL;";
+		FunctionParser functionParser = createFunctionParser();
+		ParseTree tree = functionParser.parseString(input);
+		String output = tree.toStringTree(functionParser.getAntlrParser());
+		String expected = "(statements (statement (simple_decl (var_decl (type_name (base_type void)) ( (ptr_operator *) (identifier post_reader_func) ) (param_type_list ( void )) = (argument (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier NULL))))))))))))))))))) ;))))";
+		assertEquals(expected, output);
+	}
+	
 
 }

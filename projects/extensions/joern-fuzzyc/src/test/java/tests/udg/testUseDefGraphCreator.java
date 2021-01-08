@@ -92,10 +92,11 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 	
 	@Test
 	public void testFunctionWithVoidParameter_UDG() {
-		UseDefGraph useDefGraph = createUDGForCode("static void sapi_read_post_data(void)\n" + 
-				"{ }");
-		//No uses or defines
-		assertEquals(0, useDefGraph.keySet().size());
+		UseDefGraph useDefGraph = createUDGForCode("int test() { "
+				+ "int something = 0;"
+				+ "void (*post_reader_func)(void) = NULL;}");
+		//Just one define (from the first statement), as the second one is a functionPointer
+		assertEquals(1, useDefGraph.keySet().size());
 	}
 	
 

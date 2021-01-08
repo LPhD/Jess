@@ -1,6 +1,7 @@
 package ast.expressions;
 
 import ast.ASTNode;
+import ast.walking.ASTNodeVisitor;
 
 public class FunctionPointerUseExpression extends Expression {
 
@@ -33,5 +34,9 @@ public class FunctionPointerUseExpression extends Expression {
 	public void setArgumentList(ArgumentList argumentList) {
 		this.argumentList = argumentList;
 		super.addChild(argumentList);
+	}
+	
+	public void accept(ASTNodeVisitor visitor) {
+		visitor.visit(this);
 	}
 }

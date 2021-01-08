@@ -111,7 +111,6 @@ public abstract class ASTNodeVisitor {
 		defaultHandler(expression);
 	}
 
-
 	public void visit(Condition expression) {
 		defaultHandler(expression);
 	}
