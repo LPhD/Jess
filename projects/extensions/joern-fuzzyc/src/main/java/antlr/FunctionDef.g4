@@ -17,7 +17,7 @@ function_param_list : '(' parameter_decl_clause? ')' '*'? (CV_QUALIFIER NEWLINE?
 parameter_decl_clause: (parameter_decl (',' NEWLINE? parameter_decl)* ) (',' NEWLINE? '...' )?;
                      
 parameter_decl : VOID 
-                | param_decl_specifiers parameter_id;
+                | type_name parameter_id;
 
 parameter_id: ptrs? ('(' parameter_id ')' | parameter_name) type_suffix?;
 

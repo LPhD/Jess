@@ -1108,16 +1108,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitBase_type(FunctionParser.Base_typeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#param_decl_specifiers}.
-	 * @param ctx the parse tree
-	 */
-	void enterParam_decl_specifiers(FunctionParser.Param_decl_specifiersContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#param_decl_specifiers}.
-	 * @param ctx the parse tree
-	 */
-	void exitParam_decl_specifiers(FunctionParser.Param_decl_specifiersContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link FunctionParser#parameter_name}.
 	 * @param ctx the parse tree
 	 */

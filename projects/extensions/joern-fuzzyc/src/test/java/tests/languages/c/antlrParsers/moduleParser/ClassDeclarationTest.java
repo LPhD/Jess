@@ -26,7 +26,7 @@ public class ClassDeclarationTest {
 		String output = parser.simple_decl().toStringTree(parser);
 		assertEquals("(simple_decl (var_decl (type_name (base_type int)) "
 				+ "(init_declarator_list (init_declarator (declarator (identifier foo)"
-				+ " (type_suffix (param_type_list ( (param_type (param_decl_specifiers (type_name (base_type int x)))"
+				+ " (type_suffix (param_type_list ( (param_type (type_name (base_type int x))"
 				+ " param_type_id) ))))) ;)))", output);
 	}
 

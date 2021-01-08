@@ -1294,18 +1294,6 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParam_decl_specifiers(FunctionParser.Param_decl_specifiersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitParam_decl_specifiers(FunctionParser.Param_decl_specifiersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterParameter_name(FunctionParser.Parameter_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}

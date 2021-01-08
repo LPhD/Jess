@@ -27,20 +27,14 @@ base_classes: ':' base_class (',' base_class)*;
 base_class: (VIRTUAL NEWLINE?)? access_specifier? identifier;
 
 
-//type_name : (EXTERN NEWLINE?)?  (function_decl_specifiers | CV_QUALIFIER NEWLINE? | UNSIGNED NEWLINE?  | SIGNED NEWLINE?  | ptr_operator  | base_type)+               
-//            ('<' template_param_list '>' )? 
-//            ('::' base_type  ('<' template_param_list '>')?  )*
-//            (function_decl_specifiers | CV_QUALIFIER NEWLINE?  | UNSIGNED NEWLINE?  | SIGNED NEWLINE?  | ptr_operator)* 
-//          | macroCall
-//          ;
-
-
 type_name: (
           EXTERN NEWLINE?
           | function_decl_specifiers NEWLINE?
           | CV_QUALIFIER NEWLINE?
           | UNSIGNED NEWLINE?
           | SIGNED NEWLINE?
+          | AUTO NEWLINE?
+          | REGISTER NEWLINE?
           | ptr_operator NEWLINE?
           | base_type 
           | ( ('<' template_param_list '>' ) ('::' base_type  ('<' template_param_list '>')?  )* ) 
@@ -51,8 +45,6 @@ base_type: (VOID NEWLINE? | 'long' NEWLINE? | 'char' NEWLINE? | 'int' NEWLINE? |
 
 // Parameters
 
-param_decl_specifiers : (AUTO NEWLINE? | REGISTER NEWLINE? )? type_name;
-
 // this is a bit misleading. We're just allowing access_specifiers
 // here because C programs can use 'public', 'protected' or 'private'
 // as variable names.
@@ -62,7 +54,7 @@ parameter_name: identifier NEWLINE? ;
 param_type_list: '(' VOID ')'
                | '('  (param_type (',' NEWLINE? param_type)*)? ')';
 
-param_type: param_decl_specifiers NEWLINE?  param_type_id
+param_type: type_name NEWLINE? param_type_id
                 | '...' ;
                 
 param_type_id: ptrs? ( '('  param_type_id ')' | parameter_name?) type_suffix?;

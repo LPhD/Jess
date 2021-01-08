@@ -892,16 +892,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitBase_type(ModuleParser.Base_typeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#param_decl_specifiers}.
-	 * @param ctx the parse tree
-	 */
-	void enterParam_decl_specifiers(ModuleParser.Param_decl_specifiersContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#param_decl_specifiers}.
-	 * @param ctx the parse tree
-	 */
-	void exitParam_decl_specifiers(ModuleParser.Param_decl_specifiersContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link ModuleParser#parameter_name}.
 	 * @param ctx the parse tree
 	 */

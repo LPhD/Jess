@@ -38,9 +38,9 @@ public class OtherTests extends FunctionDefinitionTests {
 		String output = parser.simple_decl().toStringTree(parser);
 		assertEquals("(simple_decl (var_decl (type_name (function_decl_specifiers static) (base_type int)) "
 				+ "(init_declarator_list (init_declarator (declarator (identifier blogic_diskparam) "
-				+ "(type_suffix (param_type_list ( (param_type (param_decl_specifiers (type_name (base_type struct scsi_device) "
+				+ "(type_suffix (param_type_list ( (param_type (type_name (base_type struct scsi_device) "
 				+ "(ptr_operator *) "
-				+ "(base_type sdev))) param_type_id) "
+				+ "(base_type sdev)) param_type_id) "
 				+ "))))) ;)))", output);
 	}
 	
@@ -53,7 +53,7 @@ public class OtherTests extends FunctionDefinitionTests {
 		String output = parser.simple_decl().toStringTree(parser);
 		assertEquals("(simple_decl (var_decl (type_name (base_type void)) "
 				+ "(init_declarator_list (init_declarator (declarator (identifier log_debug) "
-				+ "(type_suffix (param_type_list ( (param_type (param_decl_specifiers (type_name const (base_type char) (ptr_operator *) (base_type fmt))) param_type_id) "
+				+ "(type_suffix (param_type_list ( (param_type (type_name const (base_type char) (ptr_operator *) (base_type fmt)) param_type_id) "
 				+ ", (param_type ...) ))))) ;)))", output);
 	}
 	
@@ -65,7 +65,7 @@ public class OtherTests extends FunctionDefinitionTests {
 
 		ModuleParser parser = createParser(input);
 		String output = parser.simple_decl().toStringTree(parser);
-		assertEquals("(simple_decl (var_decl (type_name extern (base_type ptrdiff_t)) (init_declarator_list (init_declarator (declarator (identifier kwsexec) (type_suffix (param_type_list ( (param_type (param_decl_specifiers (type_name (base_type kwset_t))) param_type_id) , (param_type (param_decl_specifiers (type_name (base_type char) const (ptr_operator *))) param_type_id) , (param_type (param_decl_specifiers (type_name (base_type ptrdiff_t))) param_type_id) , \\n (param_type (param_decl_specifiers (type_name (base_type struct kwsmatch) (ptr_operator *))) param_type_id) , (param_type (param_decl_specifiers (type_name (base_type bool))) param_type_id) )))) \\n) (pre_other _GL_ARG_NONNULL ( ( (attributeList (attribute (constant 4))) ) )) ;)))", output);
+		assertEquals("(simple_decl (var_decl (type_name extern (base_type ptrdiff_t)) (init_declarator_list (init_declarator (declarator (identifier kwsexec) (type_suffix (param_type_list ( (param_type (type_name (base_type kwset_t)) param_type_id) , (param_type (type_name (base_type char) const (ptr_operator *)) param_type_id) , (param_type (type_name (base_type ptrdiff_t)) param_type_id) , \\n (param_type (type_name (base_type struct kwsmatch) (ptr_operator *)) param_type_id) , (param_type (type_name (base_type bool)) param_type_id) )))) \\n) (pre_other _GL_ARG_NONNULL ( ( (attributeList (attribute (constant 4))) ) )) ;)))", output);
 	}
 	
 	@Test

@@ -1066,18 +1066,6 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParam_decl_specifiers(ModuleParser.Param_decl_specifiersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitParam_decl_specifiers(ModuleParser.Param_decl_specifiersContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterParameter_name(ModuleParser.Parameter_nameContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -38,7 +38,7 @@ public class ParameterListBuilder extends ASTNodeBuilder {
 			completeType = "void";
 		} else {		
 			param = ASTNodeFactory.create(ctx);
-			baseType = ParseTreeUtils.childTokenString(ctx.param_decl_specifiers());
+			baseType = ParseTreeUtils.childTokenString(ctx.type_name());
 			completeType = determineCompleteType(parameter_id, baseType);
 		}
 		
