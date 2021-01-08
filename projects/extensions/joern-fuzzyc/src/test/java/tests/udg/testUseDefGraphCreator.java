@@ -90,6 +90,14 @@ public class testUseDefGraphCreator extends TestDBTestsBatchInserter {
 		assertEquals(8, useDefGraph.getUsesAndDefsForSymbol("i").size());
 	}
 	
+	@Test
+	public void testFunctionWithVoidParameter_UDG() {
+		UseDefGraph useDefGraph = createUDGForCode("static void sapi_read_post_data(void)\n" + 
+				"{ }");
+		//No uses or defines
+		assertEquals(0, useDefGraph.keySet().size());
+	}
+	
 
 	private UseDefGraph createUDGForCode(String code) {
 		CFG cfg = getCFGForCode(code);

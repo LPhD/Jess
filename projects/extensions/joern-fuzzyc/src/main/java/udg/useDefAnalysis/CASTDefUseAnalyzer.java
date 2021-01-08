@@ -59,6 +59,8 @@ public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer {
 			return createCallEnvironment(astProvider);
 
 		case "Argument":
+			System.out.println("Argument: "+astProvider.getEscapedCodeStr());
+			try {
 			UseDefEnvironment env = environmentStack.get(environmentStack.size() - 2);
 			
 			//Parent environment can either be a function call
@@ -68,6 +70,11 @@ public class CASTDefUseAnalyzer extends ASTDefUseAnalyzer {
 			} else {
 				return new UseDefEnvironment();
 			}
+			
+			} catch (ArrayIndexOutOfBoundsException e) {
+				System.out.println("Error: "+environmentStack.toString());
+			}
+			
 							
 
 		case "PtrMemberAccess":
