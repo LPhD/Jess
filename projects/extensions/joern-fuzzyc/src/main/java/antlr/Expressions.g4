@@ -103,7 +103,7 @@ argument_list: (NEWLINE? COMMENT? NEWLINE? argument)? NEWLINE? COMMENT? NEWLINE?
 
 argument: assign_expr;
 
-primary_expression: ('.'? identifier) | constant | '(' expr ')';
+primary_expression: ('.'? identifier) | ptr_operator | constant | '(' expr ')';
 
 null_expression: ';' ;  //Empty expression aka null expression
 

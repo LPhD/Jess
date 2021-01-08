@@ -27,13 +27,25 @@ base_classes: ':' base_class (',' base_class)*;
 base_class: (VIRTUAL NEWLINE?)? access_specifier? identifier;
 
 
-type_name : (EXTERN NEWLINE?)?  (function_decl_specifiers | CV_QUALIFIER NEWLINE? | UNSIGNED NEWLINE?  | SIGNED NEWLINE?  | ptr_operator  | base_type)+               
-            ('<' template_param_list '>' )? 
-            ('::' base_type  ('<' template_param_list '>')?  )*
-            (function_decl_specifiers | CV_QUALIFIER NEWLINE?  | UNSIGNED NEWLINE?  | SIGNED NEWLINE?  | ptr_operator)* 
-          | macroCall
-          ;
+//type_name : (EXTERN NEWLINE?)?  (function_decl_specifiers | CV_QUALIFIER NEWLINE? | UNSIGNED NEWLINE?  | SIGNED NEWLINE?  | ptr_operator  | base_type)+               
+//            ('<' template_param_list '>' )? 
+//            ('::' base_type  ('<' template_param_list '>')?  )*
+//            (function_decl_specifiers | CV_QUALIFIER NEWLINE?  | UNSIGNED NEWLINE?  | SIGNED NEWLINE?  | ptr_operator)* 
+//          | macroCall
+//          ;
 
+
+type_name: (
+          EXTERN NEWLINE?
+          | function_decl_specifiers NEWLINE?
+          | CV_QUALIFIER NEWLINE?
+          | UNSIGNED NEWLINE?
+          | SIGNED NEWLINE?
+          | ptr_operator NEWLINE?
+          | base_type 
+          | ( ('<' template_param_list '>' ) ('::' base_type  ('<' template_param_list '>')?  )* ) 
+          | macroCall
+            )+ ;
 
 base_type: (VOID NEWLINE? | 'long' NEWLINE? | 'char' NEWLINE? | 'int' NEWLINE? | SPECIAL_DATA NEWLINE? | CLASS_KEY NEWLINE? | ALPHA_NUMERIC NEWLINE? )+;
 

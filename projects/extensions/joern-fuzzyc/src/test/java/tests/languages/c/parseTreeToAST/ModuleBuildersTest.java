@@ -273,6 +273,16 @@ public class ModuleBuildersTest {
 		assertEquals("XML_ProcessFile", identifierDecl.getName().getEscapedCodeStr());
 	}
 	
+	@Test
+	public void testDeclWithComplexDataType() {
+		String input = "SAPI_API extern int sapi_globals_id;";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("SAPI_API extern int sapi_globals_id ;", codeItem.getEscapedCodeStr());
+		IdentifierDecl identifierDecl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+		assertEquals("sapi_globals_id", identifierDecl.getName().getEscapedCodeStr());
+	}
+	
 		
 	@Test
 	public void testStaticConstUnsignedArrayInitializatio() {

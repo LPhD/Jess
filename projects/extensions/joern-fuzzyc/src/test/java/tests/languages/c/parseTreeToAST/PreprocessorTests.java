@@ -344,6 +344,18 @@ public class PreprocessorTests {
 	}	
 	
 	@Test
+	public void testPreDefineMacroCallsAnotherMacroWithComplexParameters() {
+		String input = "# define SG(v) ZEND_TSRMG_FAST(sapi_globals_offset, sapi_globals_struct *, v)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);	
+		PreDefine statement = (PreDefine) contentItem.getStatement(0);
+		assertEquals("PreDefine", statement.getTypeAsString());
+		assertEquals("# define SG( v ) ZEND_TSRMG_FAST ( sapi_globals_offset , sapi_globals_struct * , v )", statement.getEscapedCodeStr());
+		assertEquals("SG ( v )", statement.getChild(0).getEscapedCodeStr());
+		assertEquals("ZEND_TSRMG_FAST ( sapi_globals_offset , sapi_globals_struct * , v )", statement.getChild(1).getChild(0).getEscapedCodeStr());
+		assertEquals("CallExpression", statement.getChild(1).getChild(0).getTypeAsString());
+	}
+	
+	@Test
 	public void testMacroCallOnFunctionLevel() {
 		String input = "CHECK_AND_RETURN(ptr)";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
