@@ -46,7 +46,7 @@ pre_define: PRE_DEFINE pre_macro_identifier pre_macro
 
 pre_undef: PRE_UNDEF pre_macro_identifier;
 
-pre_macro_identifier: identifier ('(' pre_macro_parameters ')')? | keyword | END_TEST | 'START_TEST' ('(' pre_macro_parameters ')')?;
+pre_macro_identifier: identifier ('(' pre_macro_parameters ')')? | keyword | END_TEST | 'START_TEST' ('(' pre_macro_parameters ')')? | pre_other;
 
 //Macros can redefine keywords
 keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' | 'static' | 'unsigned' | 'signed' | 'long' | 'virtual' | 'operator' | 'class' | TRY | CATCH;
@@ -57,7 +57,7 @@ pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
 pre_macro: expr 
             | { preProcFindMacroEnd(); };
                   
-macroCall:  pre_macro_identifier '(' 
+macroCall: pre_macro_identifier? pre_macro_identifier '(' 
         (  ( (expr | type_name | relational_operator | equality_operator)?  NEWLINE?) (','  NEWLINE? (expr | type_name | relational_operator | equality_operator))* ','?
             | VOID
         ) ')'; //This is for macro calls
@@ -68,10 +68,8 @@ pre_diagnostic: PRE_DIAGNOSTIC STRING
 
 pre_other: PRE_OTHER STRING? 
            |PRE_ATTRIBUTE '(' '(' attributeList? ')' ')'
-           | '_GL_ATTRIBUTE_PURE'
-           | '_GL_INLINE_HEADER_BEGIN'
-           | '_GL_INLINE_HEADER_END'
-           | '_GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD' '(' attributeList? ')'
+           | PRE_ATTRIBUTE '(' attributeList? ')'
+           | PRE_ATTRIBUTE
            ;   
 
 attributeList:  attribute (',' attribute)* ;

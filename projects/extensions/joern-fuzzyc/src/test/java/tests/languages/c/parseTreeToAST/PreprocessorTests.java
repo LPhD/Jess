@@ -356,12 +356,31 @@ public class PreprocessorTests {
 	}
 	
 	@Test
+	public void testPreDefineOfAttribute() {
+		String input = "#define PHPAPI __declspec(dllimport)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		PreDefine stmt = (PreDefine) contentItem.getStatement(0);
+		assertEquals("PreDefine", stmt.getTypeAsString());
+		assertEquals("#define PHPAPI __declspec ( dllimport )", stmt.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testMacroCallOnFunctionLevel() {
 		String input = "CHECK_AND_RETURN(ptr)";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		Statement stmt = (Statement) contentItem.getStatement(0);
 		assertEquals("Statement", stmt.getTypeAsString());
 		assertEquals("MacroCall", stmt.getChild(0).getTypeAsString());
+	}
+	
+	@Test
+	public void testMacroCallWithMacroAttribute() {
+		String input = "PHPAPI ZEND_DECLARE_MODULE_GLOBALS(output)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		Statement stmt = (Statement) contentItem.getStatement(0);
+		assertEquals("Statement", stmt.getTypeAsString());
+		assertEquals("MacroCall", stmt.getChild(0).getTypeAsString());
+		assertEquals("PHPAPI ZEND_DECLARE_MODULE_GLOBALS ( output )", stmt.getChild(0).getEscapedCodeStr());
 	}
 	
 	@Test
@@ -403,21 +422,21 @@ public class PreprocessorTests {
 	public void testPreOtherIdent() {
 		String input = "#ident  \"This is a test ident\"";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreOther", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("Statement", contentItem.getStatement(0).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreOtherSccs() {
 		String input = "#sccs  \"This is a test sccs\"";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreOther", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("Statement", contentItem.getStatement(0).getTypeAsString());
 	}
 	
 	@Test
 	public void testPreOtherAttribute() {
 		String input = "__attribute__((format(printf, 1, 2)))";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreOther", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("Statement", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("__attribute__ ( ( format ( printf , 1 , 2 ) ) )", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 	
@@ -425,7 +444,7 @@ public class PreprocessorTests {
 	public void testPreOtherAttributeWithString() {
 		String input = "__attribute__((visibility(\"default\")))";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("PreOther", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("Statement", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("__attribute__ ( ( visibility ( \"default\" ) ) )", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 	

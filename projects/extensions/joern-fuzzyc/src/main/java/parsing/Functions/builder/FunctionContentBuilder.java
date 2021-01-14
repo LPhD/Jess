@@ -473,14 +473,27 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterPreLine(Pre_lineContext ctx) {
 		replaceTopOfStack(new PreLine(), ctx);
 	}
-
+	
 	/**
 	 * Pushes the item on the stack
 	 * 
 	 * @param ctx
 	 */
 	public void enterPreOther(Pre_otherContext ctx) {
-		replaceTopOfStack(new PreOther(), ctx);
+		PreOther expr = new PreOther();
+		nodeToRuleContext.put(expr, ctx);
+		stack.push(expr);
+	}
+
+	/**
+	 * Pops the item from the stack and adds it to its parents
+	 * 
+	 * @param ctx
+	 */
+	public void exitPreOther(Pre_otherContext ctx) {
+		PreOther expr = (PreOther) stack.pop();
+		ASTNodeFactory.initializeFromContext(expr, ctx);
+		nesting.addItemToParent(expr);
 	}
 
 	/**
