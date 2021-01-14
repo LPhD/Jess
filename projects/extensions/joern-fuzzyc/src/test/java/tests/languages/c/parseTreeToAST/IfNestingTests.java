@@ -90,8 +90,16 @@ public class IfNestingTests {
 		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) item.getStatements().get(0);
 		Expression condition = ((Condition) starter.getCondition()).getExpression();
-//		assertTrue(condition.getEscapedCodeStr().equals("foo"));
 		assertEquals("foo", condition.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void conditionWithCall() {
+		String input = "if (!timercmp(&time_now, &limit_time, <)){}";
+		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		BlockStarter starter = (BlockStarter) item.getStatements().get(0);
+		Expression condition = ((Condition) starter.getCondition()).getExpression();
+		assertEquals("! timercmp ( & time_now , & limit_time , < )", condition.getEscapedCodeStr());
 	}
 	
 

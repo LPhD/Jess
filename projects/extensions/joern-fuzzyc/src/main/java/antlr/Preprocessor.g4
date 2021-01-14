@@ -58,7 +58,7 @@ pre_macro: expr
             | { preProcFindMacroEnd(); };
                   
 macroCall:  pre_macro_identifier '(' 
-        (  ( (expr | type_name)?  NEWLINE?) (','  NEWLINE? (expr | type_name))* ','?
+        (  ( (expr | type_name | relational_operator | equality_operator)?  NEWLINE?) (','  NEWLINE? (expr | type_name | relational_operator | equality_operator))* ','?
             | VOID
         ) ')'; //This is for macro calls
 
