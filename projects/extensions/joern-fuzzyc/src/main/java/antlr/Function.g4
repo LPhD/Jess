@@ -29,7 +29,7 @@ closing_curly: CLOSING_CURLY;
 block_starter: selection_or_iteration;
 
 selection_or_iteration: TRY                      #Try_statement
-                      | CATCH '(' (param_type | ELLIPSIS) NEWLINE? ')' #Catch_statement
+                      | CATCH ( '(' (param_type | ELLIPSIS) NEWLINE? ')' )? #Catch_statement
                       | IF '(' NEWLINE?  condition NEWLINE? ')'     #If_statement
                       | ELSE                     #Else_statement
                       | SWITCH '(' NEWLINE? condition NEWLINE? ')' #Switch_statement
