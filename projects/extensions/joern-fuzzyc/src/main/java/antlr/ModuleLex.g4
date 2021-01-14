@@ -32,8 +32,8 @@ ASM: ('__asm__' | 'asm');
 // Keywords shared among C++/Java
 
 VIRTUAL: 'virtual';
-TRY: 'try'; 
-CATCH: 'catch'; 
+TRY: 'try' | 'zend_try' | 'zend_first_try';    //Custom extention for zend/php project
+CATCH: 'catch' | 'zend_catch';      //Custom extention for zend/php project
 THROW: 'throw';
 USING: 'using';
 NAMESPACE: 'namespace'; 

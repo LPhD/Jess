@@ -132,7 +132,7 @@ public class ModuleParser extends Parser {
 		"'defined'", "':::'", "'.'", null, "'\\'", "'...'", "'if'", "'else'", 
 		"'for'", "'while'", "'break'", "'case'", "'continue'", "'switch'", "'do'", 
 		"'goto'", "'return'", "'typedef'", "'static'", "'void'", "'unsigned'", 
-		"'signed'", null, "'extern'", null, "'virtual'", "'try'", "'catch'", "'throw'", 
+		"'signed'", null, "'extern'", null, "'virtual'", null, null, "'throw'", 
 		"'using'", "'namespace'", "'auto'", "'register'", null, "'operator'", 
 		"'template'", "'class'", "'new'", null, null, null, null, null, null, 
 		null, null, null, null, null, null, "'GCC'", null, null, null, "'END_TEST'", 
@@ -631,6 +631,8 @@ public class ModuleParser extends Parser {
 			case UNSIGNED:
 			case SIGNED:
 			case VIRTUAL:
+			case TRY:
+			case CATCH:
 			case OPERATOR:
 			case CLASS_KEY:
 			case NEW:
@@ -1190,6 +1192,8 @@ public class ModuleParser extends Parser {
 			case UNSIGNED:
 			case SIGNED:
 			case VIRTUAL:
+			case TRY:
+			case CATCH:
 			case OPERATOR:
 			case CLASS_KEY:
 			case NEW:
@@ -1423,6 +1427,8 @@ public class ModuleParser extends Parser {
 	}
 
 	public static class KeywordContext extends ParserRuleContext {
+		public TerminalNode TRY() { return getToken(ModuleParser.TRY, 0); }
+		public TerminalNode CATCH() { return getToken(ModuleParser.CATCH, 0); }
 		public KeywordContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1446,7 +1452,7 @@ public class ModuleParser extends Parser {
 			{
 			setState(370);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (VIRTUAL - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (VIRTUAL - 81)) | (1L << (TRY - 81)) | (1L << (CATCH - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			} else {
 				consume();
@@ -1883,7 +1889,7 @@ public class ModuleParser extends Parser {
 				match(T__1);
 				setState(433);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (VIRTUAL - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)) | (1L << (HEX_LITERAL - 81)) | (1L << (DECIMAL_LITERAL - 81)) | (1L << (OCTAL_LITERAL - 81)) | (1L << (FLOATING_POINT_LITERAL - 81)) | (1L << (CHAR - 81)) | (1L << (STRING - 81)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (VIRTUAL - 81)) | (1L << (TRY - 81)) | (1L << (CATCH - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)) | (1L << (HEX_LITERAL - 81)) | (1L << (DECIMAL_LITERAL - 81)) | (1L << (OCTAL_LITERAL - 81)) | (1L << (FLOATING_POINT_LITERAL - 81)) | (1L << (CHAR - 81)) | (1L << (STRING - 81)))) != 0)) {
 					{
 					setState(432);
 					attributeList();
@@ -1926,7 +1932,7 @@ public class ModuleParser extends Parser {
 				match(T__1);
 				setState(443);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (VIRTUAL - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)) | (1L << (HEX_LITERAL - 81)) | (1L << (DECIMAL_LITERAL - 81)) | (1L << (OCTAL_LITERAL - 81)) | (1L << (FLOATING_POINT_LITERAL - 81)) | (1L << (CHAR - 81)) | (1L << (STRING - 81)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (VIRTUAL - 81)) | (1L << (TRY - 81)) | (1L << (CATCH - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)) | (1L << (HEX_LITERAL - 81)) | (1L << (DECIMAL_LITERAL - 81)) | (1L << (OCTAL_LITERAL - 81)) | (1L << (FLOATING_POINT_LITERAL - 81)) | (1L << (CHAR - 81)) | (1L << (STRING - 81)))) != 0)) {
 					{
 					setState(442);
 					attributeList();
@@ -2094,7 +2100,7 @@ public class ModuleParser extends Parser {
 				match(T__1);
 				setState(472);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (TRY - 65)) | (1L << (CATCH - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
 					{
 					setState(471);
 					expr();
@@ -4950,7 +4956,7 @@ public class ModuleParser extends Parser {
 				}
 				setState(799);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__23) | (1L << T__57) | (1L << T__58))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (VOID - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (CV_QUALIFIER - 81)) | (1L << (EXTERN - 81)) | (1L << (VIRTUAL - 81)) | (1L << (AUTO - 81)) | (1L << (REGISTER - 81)) | (1L << (SPECIAL_DATA - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__23) | (1L << T__57) | (1L << T__58))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (VOID - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (CV_QUALIFIER - 81)) | (1L << (EXTERN - 81)) | (1L << (VIRTUAL - 81)) | (1L << (TRY - 81)) | (1L << (CATCH - 81)) | (1L << (AUTO - 81)) | (1L << (REGISTER - 81)) | (1L << (SPECIAL_DATA - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)))) != 0)) {
 					{
 					setState(798);
 					parameter_decl_clause();
@@ -5145,7 +5151,7 @@ public class ModuleParser extends Parser {
 					setState(866); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__23) | (1L << T__57) | (1L << T__58))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (VOID - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (CV_QUALIFIER - 81)) | (1L << (EXTERN - 81)) | (1L << (VIRTUAL - 81)) | (1L << (AUTO - 81)) | (1L << (REGISTER - 81)) | (1L << (SPECIAL_DATA - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)))) != 0) );
+				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__23) | (1L << T__57) | (1L << T__58))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (VOID - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (CV_QUALIFIER - 81)) | (1L << (EXTERN - 81)) | (1L << (VIRTUAL - 81)) | (1L << (TRY - 81)) | (1L << (CATCH - 81)) | (1L << (AUTO - 81)) | (1L << (REGISTER - 81)) | (1L << (SPECIAL_DATA - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)))) != 0) );
 				}
 				break;
 			}
@@ -5628,7 +5634,7 @@ public class ModuleParser extends Parser {
 			match(T__1);
 			setState(929);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (TRY - 65)) | (1L << (CATCH - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
 				{
 				setState(928);
 				expr();
@@ -6182,6 +6188,8 @@ public class ModuleParser extends Parser {
 				case UNSIGNED:
 				case SIGNED:
 				case VIRTUAL:
+				case TRY:
+				case CATCH:
 				case OPERATOR:
 				case CLASS_KEY:
 				case NEW:
@@ -7528,7 +7536,7 @@ public class ModuleParser extends Parser {
 				match(T__1);
 				setState(1268);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__23) | (1L << T__57) | (1L << T__58))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (ELLIPSIS - 68)) | (1L << (STATIC - 68)) | (1L << (VOID - 68)) | (1L << (UNSIGNED - 68)) | (1L << (SIGNED - 68)) | (1L << (CV_QUALIFIER - 68)) | (1L << (EXTERN - 68)) | (1L << (VIRTUAL - 68)) | (1L << (AUTO - 68)) | (1L << (REGISTER - 68)) | (1L << (SPECIAL_DATA - 68)) | (1L << (OPERATOR - 68)) | (1L << (CLASS_KEY - 68)) | (1L << (NEW - 68)) | (1L << (PRE_PRAGMA_KEYWORDS - 68)) | (1L << (END_TEST - 68)) | (1L << (ALPHA_NUMERIC - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__23) | (1L << T__57) | (1L << T__58))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (ELLIPSIS - 68)) | (1L << (STATIC - 68)) | (1L << (VOID - 68)) | (1L << (UNSIGNED - 68)) | (1L << (SIGNED - 68)) | (1L << (CV_QUALIFIER - 68)) | (1L << (EXTERN - 68)) | (1L << (VIRTUAL - 68)) | (1L << (TRY - 68)) | (1L << (CATCH - 68)) | (1L << (AUTO - 68)) | (1L << (REGISTER - 68)) | (1L << (SPECIAL_DATA - 68)) | (1L << (OPERATOR - 68)) | (1L << (CLASS_KEY - 68)) | (1L << (NEW - 68)) | (1L << (PRE_PRAGMA_KEYWORDS - 68)) | (1L << (END_TEST - 68)) | (1L << (ALPHA_NUMERIC - 68)))) != 0)) {
 					{
 					setState(1257);
 					param_type();
@@ -7626,6 +7634,8 @@ public class ModuleParser extends Parser {
 			case CV_QUALIFIER:
 			case EXTERN:
 			case VIRTUAL:
+			case TRY:
+			case CATCH:
 			case AUTO:
 			case REGISTER:
 			case SPECIAL_DATA:
@@ -10193,7 +10203,7 @@ public class ModuleParser extends Parser {
 				match(T__28);
 				setState(1725);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (TRY - 65)) | (1L << (CATCH - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
 					{
 					setState(1724);
 					conditional_expression();
@@ -10280,7 +10290,7 @@ public class ModuleParser extends Parser {
 				match(T__1);
 				setState(1754);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (TRY - 65)) | (1L << (CATCH - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
 					{
 					setState(1753);
 					expr();
@@ -11228,7 +11238,7 @@ public class ModuleParser extends Parser {
 
 				setState(1900);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__23) | (1L << T__57) | (1L << T__58))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (VOID - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (CV_QUALIFIER - 81)) | (1L << (EXTERN - 81)) | (1L << (VIRTUAL - 81)) | (1L << (AUTO - 81)) | (1L << (REGISTER - 81)) | (1L << (SPECIAL_DATA - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__23) | (1L << T__57) | (1L << T__58))) != 0) || ((((_la - 81)) & ~0x3f) == 0 && ((1L << (_la - 81)) & ((1L << (STATIC - 81)) | (1L << (VOID - 81)) | (1L << (UNSIGNED - 81)) | (1L << (SIGNED - 81)) | (1L << (CV_QUALIFIER - 81)) | (1L << (EXTERN - 81)) | (1L << (VIRTUAL - 81)) | (1L << (TRY - 81)) | (1L << (CATCH - 81)) | (1L << (AUTO - 81)) | (1L << (REGISTER - 81)) | (1L << (SPECIAL_DATA - 81)) | (1L << (OPERATOR - 81)) | (1L << (CLASS_KEY - 81)) | (1L << (NEW - 81)) | (1L << (PRE_PRAGMA_KEYWORDS - 81)) | (1L << (END_TEST - 81)) | (1L << (ALPHA_NUMERIC - 81)))) != 0)) {
 					{
 					setState(1899);
 					type_name();
@@ -11357,7 +11367,7 @@ public class ModuleParser extends Parser {
 						match(T__28);
 						setState(1936);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (TRY - 65)) | (1L << (CATCH - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
 							{
 							setState(1935);
 							expr();
@@ -12143,7 +12153,7 @@ public class ModuleParser extends Parser {
 				match(T__1);
 				setState(2102);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__5) | (1L << T__6) | (1L << T__7) | (1L << T__8) | (1L << T__9) | (1L << T__10) | (1L << T__11) | (1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__50) | (1L << T__51) | (1L << T__56) | (1L << T__57) | (1L << T__58) | (1L << T__61) | (1L << T__62))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (T__64 - 65)) | (1L << (STATIC - 65)) | (1L << (VOID - 65)) | (1L << (UNSIGNED - 65)) | (1L << (SIGNED - 65)) | (1L << (CV_QUALIFIER - 65)) | (1L << (EXTERN - 65)) | (1L << (ASM - 65)) | (1L << (VIRTUAL - 65)) | (1L << (TRY - 65)) | (1L << (CATCH - 65)) | (1L << (AUTO - 65)) | (1L << (REGISTER - 65)) | (1L << (SPECIAL_DATA - 65)) | (1L << (OPERATOR - 65)) | (1L << (CLASS_KEY - 65)) | (1L << (NEW - 65)) | (1L << (PRE_PRAGMA_KEYWORDS - 65)) | (1L << (END_TEST - 65)) | (1L << (ALPHA_NUMERIC - 65)) | (1L << (OPENING_CURLY - 65)) | (1L << (HEX_LITERAL - 65)) | (1L << (DECIMAL_LITERAL - 65)) | (1L << (OCTAL_LITERAL - 65)) | (1L << (FLOATING_POINT_LITERAL - 65)) | (1L << (CHAR - 65)) | (1L << (STRING - 65)))) != 0)) {
 					{
 					setState(2101);
 					expr();
@@ -12847,12 +12857,12 @@ public class ModuleParser extends Parser {
 		"\u00ba\u00bc\u00be\u00c0\u00c2\u00c4\u00c6\u00c8\u00ca\u00cc\u00ce\u00d0"+
 		"\u00d2\u00d4\u00d6\u00d8\u00da\u00dc\u00de\u00e0\u00e2\u00e4\u00e6\u00e8"+
 		"\u00ea\u00ec\u00ee\u00f0\u00f2\u00f4\u00f6\u00f8\u00fa\u00fc\u00fe\u0100"+
-		"\u0102\u0104\u0106\2\33\b\2\b\16SSUVZZccee\3\2\24\31\3\2\32\35\5\2\b\n"+
-		"SSZZ\3\2\24\25\3\2\13\r\4\2\36\36ff\5\2\6\6%,/\60\3\2\61\62\3\2\4\5\5"+
-		"\2\4\5\37 yz\3\2\3\5\4\2\4\5\32\33\3\2yz\3\2\37 \4\2\3\3\37 \4\2\3\3\17"+
-		"\17\6\2\3\5\17\17\37 yz\3\2{}\3\2-.\3\2\26\27\4\2\25\25!\"\3\2\65\66\4"+
-		"\2PPWW\4\2:;BB\u0a2c\2\u0112\3\2\2\2\4\u0115\3\2\2\2\6\u011c\3\2\2\2\b"+
-		"\u0122\3\2\2\2\n\u0124\3\2\2\2\f\u0128\3\2\2\2\16\u012c\3\2\2\2\20\u012e"+
+		"\u0102\u0104\u0106\2\33\b\2\b\16SSUVZ\\ccee\3\2\24\31\3\2\32\35\5\2\b"+
+		"\nSSZZ\3\2\24\25\3\2\13\r\4\2\36\36ff\5\2\6\6%,/\60\3\2\61\62\3\2\4\5"+
+		"\5\2\4\5\37 yz\3\2\3\5\4\2\4\5\32\33\3\2yz\3\2\37 \4\2\3\3\37 \4\2\3\3"+
+		"\17\17\6\2\3\5\17\17\37 yz\3\2{}\3\2-.\3\2\26\27\4\2\25\25!\"\3\2\65\66"+
+		"\4\2PPWW\4\2:;BB\u0a2c\2\u0112\3\2\2\2\4\u0115\3\2\2\2\6\u011c\3\2\2\2"+
+		"\b\u0122\3\2\2\2\n\u0124\3\2\2\2\f\u0128\3\2\2\2\16\u012c\3\2\2\2\20\u012e"+
 		"\3\2\2\2\22\u0136\3\2\2\2\24\u014a\3\2\2\2\26\u0155\3\2\2\2\30\u015d\3"+
 		"\2\2\2\32\u015f\3\2\2\2\34\u0172\3\2\2\2\36\u0174\3\2\2\2 \u0178\3\2\2"+
 		"\2\"\u0186\3\2\2\2$\u0188\3\2\2\2&\u01a9\3\2\2\2(\u01c0\3\2\2\2*\u01c2"+
