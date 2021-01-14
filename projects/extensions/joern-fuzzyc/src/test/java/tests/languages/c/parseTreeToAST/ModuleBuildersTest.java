@@ -471,6 +471,28 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testStaticFuncDeclarationWithNewlines2() {
+		String input = "void dummy_invalid_parameter_handler(\n" + 
+				"		const wchar_t *expression,\n" + 
+				"		const wchar_t *function,\n" + 
+				"		const wchar_t *file,\n" + 
+				"		unsigned int   line,\n" + 
+				"		uintptr_t      pEwserved)\n" + 
+				"{}";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
+		
+		assertEquals("FunctionDef", codeItem.getTypeAsString());
+		assertEquals("dummy_invalid_parameter_handler", codeItem.getName());
+		assertEquals("void dummy_invalid_parameter_handler ( \n" + 
+				" const wchar_t * expression , \n" + 
+				" const wchar_t * function , \n" + 
+				" const wchar_t * file , \n" + 
+				" unsigned int line , \n" + 
+				" uintptr_t pEwserved ) \n ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testThreadFuncDeclaration() {
 		String input = "__thread int threadFunc() {}";
 		List<ASTNode> codeItems = parseInput(input);

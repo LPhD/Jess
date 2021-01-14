@@ -12,8 +12,8 @@ return_type : ((function_decl_specifiers  NEWLINE?)* type_name) (ptr_operator NE
 				| macroCall NEWLINE?
 				;
 
-function_param_list : '(' parameter_decl_clause? ')' '*'? (CV_QUALIFIER NEWLINE?)*  exception_specification?
-                    | '(' parameter_name (',' NEWLINE? parameter_name)* ')' NEWLINE? (type_name parameter_id (',' NEWLINE? parameter_id)* ';'  NEWLINE? COMMENT? NEWLINE?)+  //For the rare case where the parameters are declared outside of the parantheses
+function_param_list : '(' NEWLINE? parameter_decl_clause? NEWLINE? ')' '*'? (CV_QUALIFIER NEWLINE?)*  exception_specification?
+                    | '(' NEWLINE? parameter_name (',' NEWLINE? parameter_name)* NEWLINE? ')' NEWLINE? (type_name parameter_id (',' NEWLINE? parameter_id)* ';'  NEWLINE? COMMENT? NEWLINE?)+  //For the rare case where the parameters are declared outside of the parantheses
                     ;
 
 parameter_decl_clause: (parameter_decl (',' NEWLINE? parameter_decl)* ) (',' NEWLINE? '...' )?;
