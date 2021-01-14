@@ -262,6 +262,14 @@ public class ModuleBuildersTest {
 		assertEquals("myFuncDef", codeItem.getChild(0).getEscapedCodeStr());
 	}
 
+	@Test
+	public void testFunctionPointerDeclWithTypedefAndMacroCall() {
+		String input = "typedef void (*fcgi_logger)(int type, const char *fmt, ...) ZEND_ATTRIBUTE_FORMAT(printf, 2, 3);";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionPointerDeclare codeItem = (FunctionPointerDeclare) codeItems.get(0);
+		assertEquals("typedef void ( * fcgi_logger ) ( int type , const char * fmt , ... ) ZEND_ATTRIBUTE_FORMAT ( printf , 2 , 3 ) ;", codeItem.getEscapedCodeStr());
+		assertEquals("fcgi_logger", codeItem.getChild(0).getEscapedCodeStr());
+	}
 	
 	@Test
 	public void testDeclWithExternKeyword() {
