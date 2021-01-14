@@ -18,6 +18,7 @@ public class FunctionParserTest extends FunctionParserTestBase {
 		assertTrue(output.contains("(selection_or_iteration if"));
 	}
 	
+	
 	@Test
 	public void testDeclStmt() {
 		String input = "int a = 5; \n";

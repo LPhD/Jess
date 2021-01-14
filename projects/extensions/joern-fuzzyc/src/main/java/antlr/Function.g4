@@ -29,13 +29,13 @@ closing_curly: CLOSING_CURLY;
 block_starter: selection_or_iteration;
 
 selection_or_iteration: TRY                      #Try_statement
-                      | CATCH '(' (param_type | ELLIPSIS) ')' #Catch_statement
-                      | IF '(' condition ')'     #If_statement
+                      | CATCH '(' (param_type | ELLIPSIS) NEWLINE? ')' #Catch_statement
+                      | IF '(' NEWLINE?  condition NEWLINE? ')'     #If_statement
                       | ELSE                     #Else_statement
-                      | SWITCH '(' condition ')' #Switch_statement
-                      | FOR '(' (for_init_statement | ';') NEWLINE? condition? ';' NEWLINE?  expr? ')' ';'? #For_statement
+                      | SWITCH '(' NEWLINE? condition NEWLINE? ')' #Switch_statement
+                      | FOR '(' NEWLINE?  (for_init_statement | ';') NEWLINE? condition? ';' NEWLINE?  expr? NEWLINE?  ')' ';'? #For_statement
                       | DO                          #Do_statement
-                      | WHILE '(' condition ')' ';'?  #While_statement 
+                      | WHILE '(' NEWLINE? condition NEWLINE? ')' ';'?  #While_statement 
 //We need here something that comes after the while, otherwise it is just popped from the stack (when it's the last statement)
 //Therefore the ; may not appear in the grammar rule for this. It should be a statement that triggers the exitStatements function
 ;
