@@ -16,7 +16,7 @@ function_param_list : '(' NEWLINE? parameter_decl_clause? NEWLINE? ')' '*'? (CV_
                     | '(' NEWLINE? parameter_name (',' NEWLINE? parameter_name)* NEWLINE? ')' NEWLINE? (type_name parameter_id (',' NEWLINE? parameter_id)* ';'  NEWLINE? COMMENT? NEWLINE?)+  //For the rare case where the parameters are declared outside of the parantheses
                     ;
 
-parameter_decl_clause: (parameter_decl (',' NEWLINE? parameter_decl)* ) (',' NEWLINE? '...' )?;
+parameter_decl_clause: ( COMMENT? NEWLINE? parameter_decl (',' NEWLINE? COMMENT? NEWLINE? parameter_decl)* ) (',' NEWLINE? COMMENT? NEWLINE? '...' )?;
                      
 parameter_decl : VOID 
                 | type_name parameter_id;
