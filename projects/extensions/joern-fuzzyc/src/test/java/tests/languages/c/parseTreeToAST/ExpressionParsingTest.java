@@ -30,6 +30,7 @@ import ast.logical.statements.Label;
 import ast.logical.statements.Statement;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
+import ast.statements.StructUnionEnum;
 
 public class ExpressionParsingTest {
 
@@ -67,6 +68,35 @@ public class ExpressionParsingTest {
 				" = ( struct patloc ) { . lineno = n_patterns , \n" + 
 				" . filename = filename , \n" + 
 				" . fileline = fileline } ;", statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testComplexAssignExprWithStaticStruct() {
+		String input = "static const struct {\n" + 
+				"        const char *binary;\n" + 
+				"        const char *command;\n" + 
+				"    }  pkg_managers[] = {\n" + 
+				"        {\"apt\", \"apt install adb\"},\n" + 
+				"        {\"apt-get\", \"apt-get install adb\"},\n" + 
+				"        {\"brew\", \"brew cask install android-platform-tools\"},\n" + 
+				"        {\"dnf\", \"dnf install android-tools\"},\n" + 
+				"        {\"emerge\", \"emerge dev-util/android-tools\"},\n" + 
+				"        {\"pacman\", \"pacman -S android-tools\"},\n" + 
+				"    };";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		StructUnionEnum statementItem = (StructUnionEnum) contentItem.getStatements().get(0);
+		assertEquals("static const struct { \n" + 
+				" const char * binary ; \n" + 
+				" const char * command ; \n" + 
+				" } pkg_managers [ ] = { \n" + 
+				" { \"apt\" , \"apt install adb\" } , \n" + 
+				" { \"apt-get\" , \"apt-get install adb\" } , \n" + 
+				" { \"brew\" , \"brew cask install android-platform-tools\" } , \n" + 
+				" { \"dnf\" , \"dnf install android-tools\" } , \n" + 
+				" { \"emerge\" , \"emerge dev-util/android-tools\" } , \n" + 
+				" { \"pacman\" , \"pacman -S android-tools\" } , \n" + 
+				" } ;", statementItem.getEscapedCodeStr());
+		assertEquals("pkg_managers", statementItem.getChild(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	
