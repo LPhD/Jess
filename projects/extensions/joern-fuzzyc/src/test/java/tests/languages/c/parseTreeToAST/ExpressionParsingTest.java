@@ -180,13 +180,14 @@ public class ExpressionParsingTest {
 	
 	@Test
 	public void testConditionalExpr() {
-		String input = "foo = cond? x : y;";
+		String input = "foo = cond ? x : y;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
 		AssignmentExpression expr = (AssignmentExpression) statementItem.getExpression();
 		ConditionalExpression right = (ConditionalExpression) expr.getRight();
 		assertEquals("cond",right.getChild(0).getEscapedCodeStr());
 	}
+	
 
 	@Test
 	public void testOrExpr() {

@@ -54,8 +54,8 @@ keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' |
 //Maybe needs more possibilites
 pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
 
-pre_macro: expr 
-            | { preProcFindMacroEnd(); };
+pre_macro: (expr | '\\' NEWLINE )+ (NEWLINE | EOF)  //Macros end always with a newline (without a backslash beforhead) or the end of file
+            | { preProcFindMacroEnd(); };   //Backup
                   
 macroCall: pre_macro_identifier? pre_macro_identifier '(' 
         (  ( (expr | type_name | relational_operator | equality_operator)?  NEWLINE?) (','  NEWLINE? (expr | type_name | relational_operator | equality_operator))* ','?

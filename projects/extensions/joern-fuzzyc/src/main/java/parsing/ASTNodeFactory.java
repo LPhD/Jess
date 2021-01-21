@@ -30,9 +30,11 @@ public class ASTNodeFactory {
 		if (!(node instanceof PreDefine)) {			
 			node.setCodeStr(ParseTreeUtils.childTokenString(ctx));
 			
-		//Separate function for #defines to remove false whitespaces
+		//Separate function for #defines to remove false whitespaces and EOF
 		} else {
 			String code = ParseTreeUtils.childTokenString(ctx);
+			//Remove EOF
+			code  = code.replace(" <EOF>", "");
 			//Remove whitespaces around string concatenations
 			code  = code.replace(" ## ", "##");
 			code  = code.replace(" # ", "#");

@@ -42,7 +42,7 @@ public class PreprocessorTests {
 		PreBlockstarter secondIf = (PreBlockstarter) firstIf.getVariableStatement(0);
 		PreBlockstarter thirdIf = (PreBlockstarter) secondIf.getVariableStatement(0);
 		PreDefine preDef = (PreDefine) thirdIf.getVariableStatement(0);
-		assertEquals("#      define inline __inline", preDef.getEscapedCodeStr());
+		assertEquals("#      define inline __inline \n", preDef.getEscapedCodeStr());
 	}
 	
 	@Test
@@ -301,7 +301,7 @@ public class PreprocessorTests {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("XML_FMT_INT_MOD", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
-		assertEquals("\"ll\"", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
+		assertEquals("\"ll\" <EOF>", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test
@@ -328,6 +328,14 @@ public class PreprocessorTests {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("#define size( a ) a + 3", contentItem.getStatement(0).getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testPreDefineMacroWithCondExpression() {
+		String input = "#define MIN(X,Y) (X) < (Y) ? (X) : (Y)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
+		assertEquals("#define MIN( X , Y ) ( X ) < ( Y ) ? ( X ) : ( Y )", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 
 	

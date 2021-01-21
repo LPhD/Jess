@@ -7,6 +7,26 @@ import org.junit.Test;
 import antlr.ModuleParser;
 
 public class PreprocessorTests extends FunctionDefinitionTests {
+	
+	
+	@Test
+	public void testPreDefineWithSpace() {
+		String input = "# define foo";
+		ModuleParser parser = createParser(input);
+		String output = parser.code().toStringTree(parser);
+		String outputExpected = "(code (pre_statement (pre_command (pre_define # define (pre_macro_identifier (identifier foo)) pre_macro))))";
+		assertEquals(outputExpected, output);
+	}
+	
+	@Test
+	public void testDefiningOfKeywords() {
+		String input = "#      define inline __inline";
+		ModuleParser parser = createParser(input);
+		String output = parser.pre_define().toStringTree(parser);
+		String outputExpected = "(pre_define #      define (pre_macro_identifier (keyword inline)) (pre_macro (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier __inline))))))))))))))))))) <EOF>))";
+		assertEquals(outputExpected, output);
+	}
+	
 
 	@Test
 	public void testPreprocessorIfs() {
@@ -18,15 +38,6 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		assertEquals(outputExpected, output);
 	}
 	
-	@Test
-	public void testDefiningOfKeywords() {
-		String input = "#      define inline __inline";
-		ModuleParser parser = createParser(input);
-		String output = parser.pre_define().toStringTree(parser);
-		String outputExpected = "(pre_define #      define (pre_macro_identifier (keyword inline)) (pre_macro (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier __inline)))))))))))))))))))))";
-		assertEquals(outputExpected, output);
-	}
-
 	@Test
 	public void testNestedPreprocessorIfs() {
 		String input = "int foo(){ #if bar \n #if bar2 \n #endif #endif}";
@@ -94,15 +105,6 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 				+ "(primary_expression (identifier A)))))))))))))))))))))))) "
 				+ "(comment /*Checks for A*/) "
 				+ "(water \\n))";
-		assertEquals(outputExpected, output);
-	}
-	
-	@Test
-	public void testPreProcWithSpace() {
-		String input = "# define foo";
-		ModuleParser parser = createParser(input);
-		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_command (pre_define # define (pre_macro_identifier (identifier foo)) pre_macro))))";
 		assertEquals(outputExpected, output);
 	}
 	
