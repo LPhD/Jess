@@ -99,6 +99,13 @@ public class ExpressionParsingTest {
 		assertEquals("pkg_managers", statementItem.getChild(0).getChild(1).getEscapedCodeStr());
 	}
 	
+	@Test
+	public void testAssignWithFloats() {
+		String input = "uint32_t u = f * 0x1p16f;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("uint32_t u = f * 0x1p16f ;",statementItem.getEscapedCodeStr());
+	}
 	
 	@Test
 	public void testNormalCase() {

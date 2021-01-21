@@ -79,9 +79,10 @@ ALPHA_NUMERIC: [a-zA-Z_~][a-zA-Z0-9_]*;
 OPENING_CURLY: '{';
 CLOSING_CURLY: '}';
 
-HEX_LITERAL : '0' ('x'|'X') HexDigit+ IntegerTypeSuffix? ;
+HEX_LITERAL : '0' ('x'|'X') HexDigit+ IntegerTypeSuffix?;
 DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) IntegerTypeSuffix? ;
 OCTAL_LITERAL : '0' ('0'..'7')+ IntegerTypeSuffix? ;
+HEX_FLOAT: '0' ('x'|'X') HexDigit+ '.'? HexDigit* 'p' ('+'|'-')? ('0'..'9')+ 'f'?;  //Hexadecimal floating point format
 
 FLOATING_POINT_LITERAL
     :   ('0'..'9')+ '.' ('0'..'9')* Exponent? FloatTypeSuffix?

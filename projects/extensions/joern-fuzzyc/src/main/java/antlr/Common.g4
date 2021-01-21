@@ -202,6 +202,7 @@ constant
 	|	(STRING NEWLINE* COMMENT* NEWLINE*)+ //Comment should be comment, but currently parser cannot handle this
     |   CHAR
     |   FLOATING_POINT_LITERAL
+    |   HEX_FLOAT
     ;
 
 // keywords & operators

@@ -69,6 +69,7 @@ identifier : (ALPHA_NUMERIC  ('::'  ALPHA_NUMERIC  )*)
 number: HEX_LITERAL 
         | DECIMAL_LITERAL 
         | OCTAL_LITERAL 
+        | HEX_FLOAT
         ;
 
 ptrs: (ptr_operator 'restrict'? )+;
