@@ -14,9 +14,10 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "# define foo";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_command (pre_define # define (pre_macro_identifier (identifier foo)) pre_macro))))";
+		String outputExpected = "(code (pre_statement (pre_command (pre_define # define (pre_macro_identifier (identifier foo)) <EOF>))))";
 		assertEquals(outputExpected, output);
 	}
+	
 	
 	@Test
 	public void testDefiningOfKeywords() {

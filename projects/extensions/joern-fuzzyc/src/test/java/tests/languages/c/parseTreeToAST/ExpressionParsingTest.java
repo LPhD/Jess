@@ -100,7 +100,7 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
-	public void testAssignWithFloats() {
+	public void testAssignWithHexadecimalFloat() {
 		String input = "uint32_t u = f * 0x1p16f;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);

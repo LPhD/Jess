@@ -41,8 +41,8 @@ pre_command: pre_define
             | pre_pragma
             | macroCall;    //This is a little problematic, as macroCalls can be (part of) Expressions as well as pre_commands when on module level
 
-pre_define: PRE_DEFINE pre_macro_identifier pre_macro 
-            | PRE_DEFINE pre_macro_identifier;     
+pre_define: PRE_DEFINE pre_macro_identifier (NEWLINE | EOF) //PreDefines end always with a newline (without a backslash beforhead) or the end of file
+            | PRE_DEFINE pre_macro_identifier pre_macro;     
 
 pre_undef: PRE_UNDEF pre_macro_identifier;
 

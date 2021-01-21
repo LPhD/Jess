@@ -68,7 +68,7 @@ public class PreprocessorTests {
 		//First #else has 1 variable statement
 		PreBlockstarter secondIf = (PreBlockstarter) preElse.getVariableStatement(0);
 		PreDefine preDef2 = (PreDefine) secondIf.getVariableStatement(0);
-		assertEquals("#    define inline", preDef2.getEscapedCodeStr());
+		assertEquals("#    define inline \n", preDef2.getEscapedCodeStr());
 		
 	}
 	
@@ -321,6 +321,13 @@ public class PreprocessorTests {
 		assertEquals("#define fnmatch( x , y , z ) ( ! PathMatchSpec ( y , x ) )", contentItem.getStatement(0).getEscapedCodeStr());
 	}
 		
+	
+	@Test
+	public void testPreDefineMacroWithoutContent() {
+		String input = "#define HASH_BLOOM_MAKE(tbl)";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);		
+		assertEquals("#define HASH_BLOOM_MAKE( tbl )", contentItem.getStatement(0).getEscapedCodeStr());
+	}
 	
 	@Test
 	public void testPreDefineMacro() {
