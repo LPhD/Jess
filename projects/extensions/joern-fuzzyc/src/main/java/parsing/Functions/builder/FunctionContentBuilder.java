@@ -2,6 +2,7 @@ package parsing.Functions.builder;
 
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -75,6 +76,7 @@ import antlr.FunctionParser.Pre_macro_parametersContext;
 import antlr.FunctionParser.Pre_otherContext;
 import antlr.FunctionParser.Pre_pragmaContext;
 import antlr.FunctionParser.Pre_undefContext;
+import antlr.FunctionParser.Preprocessor_fragmentContext;
 import antlr.FunctionParser.Primary_expressionContext;
 import antlr.FunctionParser.PtrMemberAccessContext;
 import antlr.FunctionParser.Relational_expressionContext;
@@ -149,6 +151,7 @@ import ast.expressions.MultiplicativeExpression;
 import ast.expressions.NullExpression;
 import ast.expressions.OrExpression;
 import ast.expressions.PostIncDecOperationExpression;
+import ast.expressions.PreFragment;
 import ast.expressions.PreIncDecOperationExpression;
 import ast.expressions.PrimaryExpression;
 import ast.expressions.PtrMemberAccess;
@@ -166,6 +169,7 @@ import ast.logical.statements.Condition;
 import ast.logical.statements.Label;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
+import ast.preprocessor.PreStatementBase;
 import ast.statements.ExpressionStatement;
 import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
@@ -212,6 +216,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 */
 	private Stack<ASTNode> preASTItemStack = new Stack<ASTNode>();	
 	/**
+	 * This is the top level expression statement, we need this to add preprocessorFragements as its children when they appear
+	 */
+	private ExpressionStatement currentExpression= null;
+	/**
 	 * This stack contains Comments
 	 */
 	private Stack<Comment> commentStack = new Stack<Comment>();
@@ -252,6 +260,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void exitStatements(StatementsContext ctx) {
+		System.out.println("Exit stmts");
 		if (stack.size() != 1) {
 			try {
 				while (stack.size() != 1) {
@@ -284,7 +293,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	
 
 	// For all statements, begin by pushing a Statement Object onto the stack.
-	public void enterStatement(StatementContext ctx) {		
+	public void enterStatement(StatementContext ctx) {	
+		System.out.println("Enter stmt");
 		ASTNode statementItem = ASTNodeFactory.create(ctx);
 		nodeToRuleContext.put(statementItem, ctx);
 		stack.push(statementItem);
@@ -305,7 +315,10 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	public void enterExprStatement(Expr_statementContext ctx) {
-		replaceTopOfStack(new ExpressionStatement(), ctx);
+		System.out.println("Enter exprStmt");
+		ExpressionStatement exprStmt = new ExpressionStatement();
+		replaceTopOfStack(exprStmt , ctx);
+		currentExpression = exprStmt;
 	}
 
 	public void enterIf(If_statementContext ctx) {
@@ -559,7 +572,38 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreIf(Pre_if_statementContext ctx) {
-		replaceTopOfStack(new PreIfStatement(), ctx);
+		System.out.println("Enter preIf");
+		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
+		if (!(stack.peek() instanceof PreFragment)) {
+			replaceTopOfStack(new PreIfStatement(), ctx);
+		} else {
+			System.out.println("Added preFragment to parent ExpressionStatement");
+			PreFragment expression = new PreFragment();
+			ASTNodeFactory.initializeFromContext(expression, ctx);
+			currentExpression.addChild( (PreFragment) stack.pop()); //Remove the fragment			
+		}
+	}
+	
+	/**
+	 * These fragments are handled as subexpressions
+	 * 
+	 * @param ctx
+	 */
+	public void enterPreFragment(Preprocessor_fragmentContext ctx) {
+		System.out.println("Enter preFragment");
+
+		PreFragment expression = new PreFragment();
+		ASTNodeFactory.initializeFromContext(expression, ctx);
+		stack.push(expression);	//We need to put this item to the stack, as otherwise the following preStatement would replace the topOfStack
+	}
+	
+
+	public void exitPreFragment(Preprocessor_fragmentContext ctx) {
+		System.out.println("Exit preFragment");
+//		ASTNode preStmt = stack.pop(); //Remove the fragment
+//		ASTNodeFactory.initializeFromContext(preStmt, ctx);
+//		System.out.println("Removed: "+preStmt.getEscapedCodeStr());
+//		nesting.consolidateSubExpression(ctx);
 	}
 
 	/**
@@ -570,8 +614,16 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreElse(Pre_else_statementContext ctx) {
-		replaceTopOfStack(new PreElseStatement(), ctx);
-		currentItem = stack.peek();
+		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
+		if (!(stack.peek() instanceof PreFragment)) {
+			replaceTopOfStack(new PreElseStatement(), ctx);
+			currentItem = stack.peek();
+		} else {
+			System.out.println("Added preFragment to parent ExpressionStatement");
+			PreFragment expression = new PreFragment();
+			ASTNodeFactory.initializeFromContext(expression, ctx);
+			currentExpression.addChild( (PreFragment) stack.pop()); //Remove the fragment			
+		}
 	}
 
 	/**
@@ -582,8 +634,16 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreElIf(Pre_elif_statementContext ctx) {
-		replaceTopOfStack(new PreElIfStatement(), ctx);
-		currentItem = stack.peek();
+		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
+		if (!(stack.peek() instanceof PreFragment)) {
+			replaceTopOfStack(new PreElIfStatement(), ctx);
+			currentItem = stack.peek();
+		} else {
+			System.out.println("Added preFragment to parent ExpressionStatement");
+			PreFragment expression = new PreFragment();
+			ASTNodeFactory.initializeFromContext(expression, ctx);
+			currentExpression.addChild( (PreFragment) stack.pop()); //Remove the fragment			
+		}
 	}
 
 	/**
@@ -594,8 +654,17 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreEndIf(Pre_endif_statementContext ctx) {
-		replaceTopOfStack(new PreEndIfStatement(), ctx);
-		currentItem = stack.peek();
+		System.out.println("Enter endif");
+		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
+		if (!(stack.peek() instanceof PreFragment)) {
+			replaceTopOfStack(new PreEndIfStatement(), ctx);
+			currentItem = stack.peek();
+		} else {
+			System.out.println("Added preFragment to parent ExpressionStatement");
+			PreFragment expression = new PreFragment();
+			ASTNodeFactory.initializeFromContext(expression, ctx);
+			currentExpression.addChild( (PreFragment) stack.pop()); //Remove the fragment			
+		}
 	}
 
 	/**
@@ -627,6 +696,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @return True if itemToRemove needs to be consolidated, false otherwise
 	 */
 	private Boolean preprocessorHandling(ASTNode itemToRemove) {
+		System.out.println("Pre handling");
+		
 		// If the current item is an #endif
 		if (itemToRemove instanceof PreEndIfStatement) {
 			// #endifs are only collected on the AST stack, not the variability stack
@@ -889,12 +960,14 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	// Expression handling
 	public void enterExpression(ExprContext ctx) {
+		System.out.println("Enter expr");
 		Expression expression = new Expression();
 		nodeToRuleContext.put(expression, ctx);
 		stack.push(expression);
 	}
 
 	public void exitExpression(ExprContext ctx) {
+		System.out.println("Exit expr");
 		nesting.consolidateSubExpression(ctx);
 	}
 
@@ -1001,12 +1074,14 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	}
 
 	public void enterAdditiveExpression(Additive_expressionContext ctx) {
+		System.out.println("Enter ADD");
 		AdditiveExpression expr = new AdditiveExpression();
 		nodeToRuleContext.put(expr, ctx);
 		stack.push(expr);
 	}
 
 	public void exitAdditiveExpression(Additive_expressionContext ctx) {
+		System.out.println("Leave ADD");
 		nesting.consolidateSubExpression(ctx);
 	}
 

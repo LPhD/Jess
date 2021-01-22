@@ -1,12 +1,13 @@
 package tests.languages.c.antlrParsers.functionParser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 
-import ast.logical.statements.CompoundStatement;
 import parsing.FunctionParser;
-import tests.languages.c.parseTreeToAST.FunctionContentTestUtil;
 
 public class AssignmentTests extends FunctionParserTestBase {
 
@@ -93,6 +94,19 @@ public class AssignmentTests extends FunctionParserTestBase {
 		String output = tree.toStringTree(functionParser.getAntlrParser());
 		String expected = "(statements (statement (simple_decl (var_decl (type_name (base_type void)) ( (ptr_operator *) (identifier post_reader_func) ) (param_type_list ( void )) = (argument (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier NULL))))))))))))))))))) ;))))";
 		assertEquals(expected, output);
+	}
+	
+	@Test
+	public void testIfdefInExpression() {
+		String input = "a = 5 + \n"
+				+ "#ifdef x \n"
+				+ "x + \n"
+				+ "#endif \n"
+				+ "1;";
+		FunctionParser functionParser = createFunctionParser();
+		ParseTree tree = functionParser.parseString(input);
+		String output = tree.toStringTree(functionParser.getAntlrParser());
+		assertTrue("Expected no water, but preprocessor_fragment and expr_statement, but got instead: "+output, !output.contains("water") && output.contains("preprocessor_fragment") && output.contains("expr_statement") );
 	}
 	
 

@@ -7,6 +7,8 @@ import org.junit.Test;
 import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.preprocessor.commands.macro.PreDefine;
+import ast.c.statements.blockstarters.IfStatement;
+import ast.expressions.AssignmentExpression;
 import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
@@ -182,6 +184,45 @@ public class PreprocessorTests {
 		assertEquals(2, contentItem.getStatements().size());
 		assertEquals("( MAKRO ( 7 ) > 7 ) && ( IS_ENABLED ( BUBBLE ) && ENABLED ( BUBBLE ) )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
 	}
+	
+	@Test
+	public void testPreIfInsideExpression() {
+		String input = "a = 5 + \n"
+				+ "#ifdef x \n"
+				+ "x + \n"
+				+ "#endif \n"
+				+ "1;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		AssignmentExpression expr = (AssignmentExpression) contentItem.getStatement(0);
+		assertEquals("", expr.getEscapedCodeStr());
+	}
+	
+//	@Test
+//	public void testPreIfInsideComplexExpression() {
+//		String input = "if ((listen_socket = socket(sa.sa.sa_family, SOCK_STREAM, 0)) < 0 ||\n" + 
+//				"\n" + 
+//				"#ifdef SO_REUSEADDR\n" + 
+//				"\n" + 
+//				"setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse)) < 0 ||\n" + 
+//				"\n" + 
+//				"#endif\n" + 
+//				"\n" + 
+//				"bind(listen_socket, (struct sockaddr *) &sa, sock_len) < 0 ||\n" + 
+//				"\n" + 
+//				"listen(listen_socket, backlog) < 0) {\n" + 
+//				"\n" + 
+//				"close(listen_socket);\n" + 
+//				"\n" + 
+//				"fcgi_log(FCGI_ERROR, \"Cannot bind/listen socket - [%d] %s.\\n\",errno, strerror(errno));\n" + 
+//				"\n" + 
+//				"return -1;\n" + 
+//				"\n" + 
+//				"}\n" + 
+//				"";
+//		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+//		IfStatement ifItem = (IfStatement) contentItem.getStatement(0);
+//		assertEquals("", ifItem.getEscapedCodeStr());
+//	}
 		
 	
 	@Test
