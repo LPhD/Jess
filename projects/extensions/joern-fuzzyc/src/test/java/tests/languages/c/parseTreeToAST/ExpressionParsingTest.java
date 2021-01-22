@@ -468,10 +468,9 @@ public class ExpressionParsingTest {
 				"\"\\r\\000\\n\\000\\r\\000\\n\\000\"; /* epilog */";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
-		assertEquals("char text [ ] = \"\\xFF\\xFE\" /* BOM */ \n" + 
-				" \"<\\000e\\000/\\000>\\000\" /* document element */ \n" + 
+		assertEquals("char text [ ] = \"\\xFF\\xFE\" /* BOM */\n" + 
+				" \"<\\000e\\000/\\000>\\000\" /* document element */\n" + 
 				" \"\\r\\000\\n\\000\\r\\000\\n\\000\" ;", statementItem.getEscapedCodeStr());
-		//TODO Handle comment in parsers, when they appear within a statement
 	}
 	
 	@Test
@@ -484,9 +483,8 @@ public class ExpressionParsingTest {
 		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
 		assertEquals("const char * text \n" + 
 				" = \"<?xml version='1.0' encoding='utf-8'?>\\n\" \n" + 
-				" /* 0xf0 0x90 0x80 0x80 = U+10000, the first Linear B character */ \n" + 
+				" /* 0xf0 0x90 0x80 0x80 = U+10000, the first Linear B character */\n" + 
 				" \"<do\\xf0\\x90\\x80\\x80/>\" ;", statementItem.getEscapedCodeStr());
-		//TODO Handle comment in parsers, when they appear within a statement
 	}
 	
 	
@@ -502,9 +500,8 @@ public class ExpressionParsingTest {
 		assertEquals("ExtTest test_data \n" + 
 				" = { /* This text says it's an unsupported encoding, but it's really\n" + 
 				" UTF-8, which we tell Expat using XML_SetEncoding().\n" + 
-				" */ \n" + 
+				" */\n" + 
 				" \"<?xml encoding='iso-8859-3'?>\\xC3\\xA9\" , XCS ( \"utf-8\" ) , NULL } ;", statementItem.getEscapedCodeStr());
-		//TODO Handle comment in parsers, when they appear within a statement
 	}
 	
 	@Test
@@ -522,12 +519,11 @@ public class ExpressionParsingTest {
 		assertEquals("const ExtFaults faults [ ] \n" + 
 				" = { { \"<\" , \"Incomplete element declaration not faulted\" , NULL , \n" + 
 				" XML_ERROR_UNCLOSED_TOKEN } , \n" + 
-				" { \"<\\xe2\\x82\" , /* First two bytes of a three-byte char */ \n" + 
+				" { \"<\\xe2\\x82\" , /* First two bytes of a three-byte char */\n" + 
 				" \"Incomplete character not faulted\" , NULL , XML_ERROR_PARTIAL_CHAR } , \n" + 
 				" { \"<tag>\\xe2\\x82\" , \"Incomplete character in CDATA not faulted\" , NULL , \n" + 
 				" XML_ERROR_PARTIAL_CHAR } , \n" + 
 				" { NULL , NULL , NULL , XML_ERROR_NONE } } ;", statementItem.getEscapedCodeStr());
-		//TODO Handle comment in parsers, when they appear within a statement
 	}
 	
 	@Test
@@ -540,7 +536,7 @@ public class ExpressionParsingTest {
 		Comment comment = (Comment) contentItem.getStatements().get(1);
 		assertEquals("i ++ ;", statementItem.getEscapedCodeStr());
 		assertEquals("/* skip remaining characters if truncation width exceeded, needs to be done\n" + 
-				" * before highlight opening */", comment.getEscapedCodeStr());
+				" * before highlight opening */\n", comment.getEscapedCodeStr());
 	}
 	
 	@Test

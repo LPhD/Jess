@@ -170,7 +170,7 @@ public class ModuleBuildersTest {
 		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
 		assertEquals("struct dfa_comp \n" + 
 				" { \n" + 
-				" /* Regex compiled regexps. */ \n" + 
+				" /* Regex compiled regexps. */\n" + 
 				" struct re_pattern_buffer * patterns ; \n" + 
 				" size_t pcount ; \n" + 
 				" struct re_registers regs ; \n" + 
@@ -724,9 +724,9 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		Comment comment1 = (Comment) codeItems.get(2);
 		assertEquals("Comment", comment1.getTypeAsString());
-		assertEquals("/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */", comment1.getEscapedCodeStr());
+		assertEquals("/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */\n", comment1.getEscapedCodeStr());
 		Comment comment2 = (Comment) codeItems.get(1);
-		assertEquals("/* Bit 7 */", comment2.getEscapedCodeStr());
+		assertEquals("/* Bit 7 */\n", comment2.getEscapedCodeStr());
 	}
 	
 	@Test

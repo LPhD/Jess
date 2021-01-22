@@ -1870,6 +1870,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPreprocessor_fragment(FunctionParser.Preprocessor_fragmentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPreprocessor_fragment(FunctionParser.Preprocessor_fragmentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterInitDeclWithCall(FunctionParser.InitDeclWithCallContext ctx) { }
 	/**
 	 * {@inheritDoc}

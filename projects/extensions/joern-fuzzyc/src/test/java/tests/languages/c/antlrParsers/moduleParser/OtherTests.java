@@ -107,7 +107,7 @@ public class OtherTests extends FunctionDefinitionTests {
 
 		ModuleParser parser = createParser(input);
 		String output = parser.comment().toStringTree(parser);
-		assertEquals("(comment /* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */)", output);
+		assertEquals("(comment /* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */\\n)", output);
 	}
 		
 	@Test

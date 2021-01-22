@@ -1390,6 +1390,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitNull_expression(ModuleParser.Null_expressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#preprocessor_fragment}.
+	 * @param ctx the parse tree
+	 */
+	void enterPreprocessor_fragment(ModuleParser.Preprocessor_fragmentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#preprocessor_fragment}.
+	 * @param ctx the parse tree
+	 */
+	void exitPreprocessor_fragment(ModuleParser.Preprocessor_fragmentContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#init_declarator}.
 	 * @param ctx the parse tree
 	 */

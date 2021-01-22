@@ -1642,6 +1642,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPreprocessor_fragment(ModuleParser.Preprocessor_fragmentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPreprocessor_fragment(ModuleParser.Preprocessor_fragmentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterInit_declarator(ModuleParser.Init_declaratorContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -3,7 +3,10 @@ package tests.languages.c.antlrParsers.functionParser;
 import static org.junit.Assert.assertEquals;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
+
+import ast.logical.statements.CompoundStatement;
 import parsing.FunctionParser;
+import tests.languages.c.parseTreeToAST.FunctionContentTestUtil;
 
 public class AssignmentTests extends FunctionParserTestBase {
 
@@ -44,6 +47,7 @@ public class AssignmentTests extends FunctionParserTestBase {
 		assertEquals(expected, output);
 	}
 
+	
 	@Test
 	public void testPrivateInName() {
 		String input = "struct acpi_battery *battery = m->private;";
