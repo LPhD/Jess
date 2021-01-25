@@ -107,11 +107,11 @@ postfix_expression: postfix_expression (NEWLINE | COMMENT | preprocessor_fragmen
                   
 initializer_expression:  OPENING_CURLY (NEWLINE | COMMENT | preprocessor_fragment)* argument_list? (NEWLINE | COMMENT | preprocessor_fragment)* CLOSING_CURLY;   //Can be an empty list
 
-argument_list: ((NEWLINE | COMMENT | preprocessor_fragment)* argument)? (NEWLINE | COMMENT | preprocessor_fragment)* (','?  NEWLINE? COMMENT* argument)* ','?  // Allows empty arguments after a comma   
+argument_list:  argument?  (','?  argument)* ','?  // Allows empty arguments after a comma   
                 | VOID ptr_operator? //Argument can be only void or void ptr
                 ;              
 
-argument: assign_expr;
+argument: (NEWLINE | COMMENT | preprocessor_fragment)*  assign_expr (NEWLINE | COMMENT | preprocessor_fragment)* ;
 
 primary_expression: ('.'? identifier) | ptr_operator | constant | '(' expr ')';
 

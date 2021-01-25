@@ -108,6 +108,18 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void testAssignWithCommentsAlongArguments() {
+		String input = "bool supports_mipmaps =\n" + 
+				"                sc_opengl_version_at_least(gl, 3, 0, /* OpenGL 3.0+ */\n" + 
+				"                                               2, 0  /* OpenGL ES 2.0+ */);";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("bool supports_mipmaps = \n" + 
+				" sc_opengl_version_at_least ( gl , 3 , 0 , /* OpenGL 3.0+ */\n" + 
+				" 2 , 0 /* OpenGL ES 2.0+ */ ) ;",statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testNormalCase() {
 		String input = "case 'm':";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
