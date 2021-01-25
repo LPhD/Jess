@@ -42,7 +42,7 @@ public class FunctionParserTest extends FunctionParserTestBase {
 		String output = tree.toStringTree(functionParser.getAntlrParser());
 		assertEquals("(statements (statement (block_starter (selection_or_iteration if ( "
 				+ "(condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo)))))))))) "
-				+ "(equality_operator ==) \\n "
+				+ "(equality_operator ==) (expression_fragment \\n) "
 				+ "(equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier bar))))))))))))))))))))) )))) "
 				+ "(statement (opening_curly {)) "
 				+ "(statement (closing_curly })))"

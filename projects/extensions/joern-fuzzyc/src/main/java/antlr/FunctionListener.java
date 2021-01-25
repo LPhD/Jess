@@ -1616,6 +1616,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPreprocessor_fragment(FunctionParser.Preprocessor_fragmentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#expression_fragment}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpression_fragment(FunctionParser.Expression_fragmentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#expression_fragment}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpression_fragment(FunctionParser.Expression_fragmentContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code initDeclWithCall}
 	 * labeled alternative in {@link FunctionParser#init_declarator}.
 	 * @param ctx the parse tree

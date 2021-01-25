@@ -186,6 +186,19 @@ public class PreprocessorTests {
 	}
 	
 	@Test
+	public void testPreIfWithCommentsInsideCondition() {
+		String input = "#if    (LIBAVFORMAT_VERSION_MICRO >= 100 /* FFmpeg */ && \\\n" + 
+				"        LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(57, 33, 100)) \\\n" + 
+				"    || (LIBAVFORMAT_VERSION_MICRO < 100 && /* Libav */ \\\n" + 
+				"        LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(57, 5, 0))";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("( LIBAVFORMAT_VERSION_MICRO >= 100 /* FFmpeg */ && \\ \n" + 
+				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 33 , 100 ) ) \\ \n" + 
+				" || ( LIBAVFORMAT_VERSION_MICRO < 100 && /* Libav */ \\ \n" + 
+				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 5 , 0 ) )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testPreIfInsideExpression() {
 		String input = "a = 5 + \n"
 				+ "#ifdef x \n"

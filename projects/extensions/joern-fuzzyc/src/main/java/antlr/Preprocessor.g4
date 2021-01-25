@@ -13,7 +13,7 @@ pre_blockstarter: pre_if_statement
                       | pre_else_statement
                       | pre_endif_statement;           
 														
-pre_if_statement: PRE_IF pre_if_condition { preProcFindConditionEnd(); };   
+pre_if_statement: PRE_IF pre_if_condition { preProcFindConditionEnd(); };   //Statement ends with a newline without a previous backslash 
                 
 pre_elif_statement: PRE_ELIF pre_if_condition { preProcFindConditionEnd(); };
                 
