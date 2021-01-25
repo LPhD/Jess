@@ -30,9 +30,10 @@ public class BinaryExpression extends Expression {
 			setLeft((Expression) item);
 		else if (getRight() == null)
 			setRight((Expression) item);
-		else
+		else {
 //			throw new RuntimeException("Error: attempting to add third child to binary expression");
-			System.out.println("Added third child: "+item.getEscapedCodeStr());
-			super.addChild(item);
+			//This can happen if we have preprocessor fragments inside of expressions
+			System.out.println("Do not add third child: "+item.getEscapedCodeStr());
+		}
 	}
 }
