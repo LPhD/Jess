@@ -21,6 +21,7 @@ import ast.expressions.FunctionPointerUseExpression;
 import ast.expressions.InclusiveOrExpression;
 import ast.expressions.MultiplicativeExpression;
 import ast.expressions.OrExpression;
+import ast.expressions.PreFragment;
 import ast.expressions.RelationalExpression;
 import ast.expressions.ShiftExpression;
 import ast.logical.statements.BlockStarter;
@@ -117,6 +118,33 @@ public class ExpressionParsingTest {
 		assertEquals("bool supports_mipmaps = \n" + 
 				" sc_opengl_version_at_least ( gl , 3 , 0 , /* OpenGL 3.0+ */\n" + 
 				" 2 , 0 /* OpenGL ES 2.0+ */ ) ;",statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testAssignWithIfDefAndDefinesInsideArguments() {
+		String input = "const char *const cmd[] = {\n" + 
+				"        \"shell\",\n" + 
+				"        \"CLASSPATH=\" DEVICE_SERVER_PATH,\n" + 
+				"        \"app_process\",\n" + 
+				"#ifdef SERVER_DEBUGGER\n" + 
+
+				"# ifdef SERVER_DEBUGGER_METHOD_NEW\n" + 
+				"        /* Android 9 and above */\n" + 
+				"        \"-XjdwpProvider:internal -XjdwpOptions:transport=dt_socket,suspend=y,server=y,address=\"\n" + 
+				"# else\n" + 
+				"        /* Android 8 and below */\n" + 
+				"        \"-agentlib:jdwp=transport=dt_socket,suspend=y,server=y,address=\"\n" + 
+				"# endif\n" + 
+				"            SERVER_DEBUGGER_PORT,\n" + 
+				"#endif\n" + 
+				"        \"/\", // unused\n" + 
+				"        \"com.genymobile.scrcpy.Server\",\n" + 
+				"        SCRCPY_VERSION,\n" + 
+				"    };";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(5); //If we have preFragments, they are the first childs of the compound
+		PreFragment fragment = (PreFragment) contentItem.getStatements().get(0);		
+		assertEquals("  ;",statementItem.getEscapedCodeStr());
 	}
 	
 	@Test

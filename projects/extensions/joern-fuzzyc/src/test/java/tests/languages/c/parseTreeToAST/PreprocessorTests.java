@@ -206,7 +206,7 @@ public class PreprocessorTests {
 				+ "#endif \n"
 				+ "1;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		ExpressionStatement expr = (ExpressionStatement) contentItem.getStatement(0);
+		ExpressionStatement expr = (ExpressionStatement) contentItem.getStatement(2);	//0 + 1 are ifdef + endif
 		assertEquals("a = 5 + \n"
 				+ " #ifdef x \n"
 				+ " x + \n"
@@ -230,7 +230,7 @@ public class PreprocessorTests {
 				"return -1;\n" + 
 				"}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		IfStatement ifItem = (IfStatement) contentItem.getStatement(0);
+		IfStatement ifItem = (IfStatement) contentItem.getStatement(2); //0 + 1 are ifdef + endif
 		assertEquals("if ( ( listen_socket = socket ( sa . sa . sa_family , SOCK_STREAM , 0 ) ) < 0 || \n" + 
 				" \n" + 
 				" #ifdef SO_REUSEADDR \n" + 
