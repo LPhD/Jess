@@ -571,7 +571,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreIf(Pre_if_statementContext ctx) {
-		System.out.println("Enter preIf");
+//		System.out.println("Enter preIf");
 		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
 		if (!(stack.peek() instanceof PreFragment)) {
 			replaceTopOfStack(new PreIfStatement(), ctx);
@@ -589,7 +589,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreFragment(Preprocessor_fragmentContext ctx) {
-		System.out.println("Enter preFragment");
+//		System.out.println("Enter preFragment");
 
 		PreFragment expression = new PreFragment();
 		ASTNodeFactory.initializeFromContext(expression, ctx);
@@ -949,7 +949,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	// Expression handling
 	public void enterExpression(ExprContext ctx) {
-		System.out.println("Enter expr");
+//		System.out.println("Enter expr");
 		Expression expression = new Expression();
 		nodeToRuleContext.put(expression, ctx);
 		stack.push(expression);
