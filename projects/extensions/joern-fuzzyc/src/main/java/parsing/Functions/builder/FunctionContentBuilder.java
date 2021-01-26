@@ -73,6 +73,7 @@ import antlr.FunctionParser.Pre_macroContext;
 import antlr.FunctionParser.Pre_macro_identifierContext;
 import antlr.FunctionParser.Pre_macro_parametersContext;
 import antlr.FunctionParser.Pre_otherContext;
+import antlr.FunctionParser.Pre_placeholderContext;
 import antlr.FunctionParser.Pre_pragmaContext;
 import antlr.FunctionParser.Pre_undefContext;
 import antlr.FunctionParser.Preprocessor_fragmentContext;
@@ -339,16 +340,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreDefine(Pre_defineContext ctx) {
-		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreDefineStatement in this case
-		if (!(stack.peek() instanceof PreFragment)) {
 			replaceTopOfStack(new PreDefine(), ctx);
 			currentItem = stack.peek();
-		} else {
-			System.out.println("Added preFragment to root CompoundStatement");
-			PreFragment expression = new PreFragment();
-			ASTNodeFactory.initializeFromContext(expression, ctx);
-			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
-		}
 	}
 
 	/**
@@ -577,25 +570,9 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			replaceTopOfStack(new PreIfStatement(), ctx);
 		} else {
 			System.out.println("Added preFragment to root CompoundStatement");
-			PreFragment expression = new PreFragment();
-			ASTNodeFactory.initializeFromContext(expression, ctx);
 			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound			
 		}
-	}
-	
-	/**
-	 * These fragments are handled as subexpressions
-	 * 
-	 * @param ctx
-	 */
-	public void enterPreFragment(Preprocessor_fragmentContext ctx) {
-//		System.out.println("Enter preFragment");
-
-		PreFragment expression = new PreFragment();
-		ASTNodeFactory.initializeFromContext(expression, ctx);
-		stack.push(expression);	//We need to put this item to the stack, as otherwise the following preStatement would replace the topOfStack
-	}
-	
+	}	
 
 	/**
 	 * Replace top of stack with the current item, as the parent item is only a
@@ -611,8 +588,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			currentItem = stack.peek();
 		} else {
 			System.out.println("Added preFragment to root CompoundStatement");
-			PreFragment expression = new PreFragment();
-			ASTNodeFactory.initializeFromContext(expression, ctx);
 			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
 		}
 	}
@@ -631,8 +606,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			currentItem = stack.peek();
 		} else {
 			System.out.println("Added preFragment to root CompoundStatement");
-			PreFragment expression = new PreFragment();
-			ASTNodeFactory.initializeFromContext(expression, ctx);
 			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
 		}
 	}
@@ -652,8 +625,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			currentItem = stack.peek();
 		} else {
 			System.out.println("Added preFragment to root CompoundStatement");
-			PreFragment expression = new PreFragment();
-			ASTNodeFactory.initializeFromContext(expression, ctx);
 			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
 		}
 	}
@@ -789,6 +760,33 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		}
 	}
 
+	
+	/**
+	 * These fragments are handled as subexpressions
+	 * 
+	 * @param ctx
+	 */
+	public void enterPreFragment(Preprocessor_fragmentContext ctx) {
+//		System.out.println("Enter preFragment");
+
+		PreFragment expression = new PreFragment();
+		ASTNodeFactory.initializeFromContext(expression, ctx);
+		stack.push(expression);	//We need to put this item to the stack, as otherwise the following preStatement would replace the topOfStack
+	}
+	
+	
+	
+	/**
+	 * Subexpression placeholder for otherwise not parseable statements like preDefines
+	 * 
+	 * @param ctx
+	 */
+	public void enterPrePlaceholder(Pre_placeholderContext ctx) {
+		System.out.println("Enter placeholder");
+		//Remove the fragment from stack and add it to the toplevel compound	
+		rootCompound.addChild( (PreFragment) stack.pop()); 			
+	}
+	
 	// ----------------------------------Preprocessor handling end-------------------------------------------------------------
 	// ----------------------------------Comment handling ---------------------------------------------------------------------
 	

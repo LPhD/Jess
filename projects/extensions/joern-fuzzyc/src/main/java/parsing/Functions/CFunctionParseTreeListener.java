@@ -236,13 +236,6 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.enterPreElIf(ctx);
 	}
-
-	// Preprocessor if handling
-	@Override
-	public void enterPreprocessor_fragment(FunctionParser.Preprocessor_fragmentContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterPreFragment(ctx);
-	}
 	
 	// Preprocessor if handling
 	@Override
@@ -268,6 +261,23 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 	public void exitPre_if_condition(FunctionParser.Pre_if_conditionContext ctx) {
 		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
 		builder.exitPreIfConditionn(ctx);
+	}
+	
+//--------------------------------------Preprocessor Fragments------------------------------------------------------------------------
+	
+
+	// Preprocessor fragment handling
+	@Override
+	public void enterPreprocessor_fragment(FunctionParser.Preprocessor_fragmentContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPreFragment(ctx);
+	}
+	
+	// Preprocessor fragment handling
+	@Override
+	public void enterPre_placeholder(FunctionParser.Pre_placeholderContext ctx) {
+		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
+		builder.enterPrePlaceholder(ctx);
 	}
 //--------------------------------------Comments------------------------------------------------------------------------
 	@Override

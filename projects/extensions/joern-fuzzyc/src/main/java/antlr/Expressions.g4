@@ -123,7 +123,9 @@ preprocessor_fragment: pre_if_statement
                         | pre_elif_statement
                         | pre_else_statement
                         | pre_endif_statement
-                        | pre_define
+                        | pre_placeholder
                         ;
+
+pre_placeholder: PRE_DEFINE pre_macro_identifier expr+ (NEWLINE | EOF) ; //This is for everything else that is currently not further analyzed                        
 
 expression_fragment: (ESCAPE? NEWLINE | COMMENT | preprocessor_fragment); //Placeholder to improve readability. Escape is for multiline preprocessor statements
