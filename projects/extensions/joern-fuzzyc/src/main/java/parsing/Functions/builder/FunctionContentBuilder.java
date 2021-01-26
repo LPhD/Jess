@@ -564,12 +564,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreIf(Pre_if_statementContext ctx) {
-//		System.out.println("Enter preIf");
 		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
 		if (!(stack.peek() instanceof PreFragment)) {
 			replaceTopOfStack(new PreIfStatement(), ctx);
 		} else {
-			System.out.println("Added preFragment to root CompoundStatement");
+			logger.debug("Added preFragment to root CompoundStatement");
 			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound			
 		}
 	}	
@@ -587,7 +586,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			replaceTopOfStack(new PreElseStatement(), ctx);
 			currentItem = stack.peek();
 		} else {
-			System.out.println("Added preFragment to root CompoundStatement");
+			logger.debug("Added preFragment to root CompoundStatement");
 			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
 		}
 	}
@@ -605,7 +604,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			replaceTopOfStack(new PreElIfStatement(), ctx);
 			currentItem = stack.peek();
 		} else {
-			System.out.println("Added preFragment to root CompoundStatement");
+			logger.debug("Added preFragment to root CompoundStatement");
 			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
 		}
 	}
@@ -618,13 +617,12 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreEndIf(Pre_endif_statementContext ctx) {
-//		System.out.println("Enter endif");
 		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
 		if (!(stack.peek() instanceof PreFragment)) {
 			replaceTopOfStack(new PreEndIfStatement(), ctx);
 			currentItem = stack.peek();
 		} else {
-			System.out.println("Added preFragment to root CompoundStatement");
+			logger.debug("Added preFragment to root CompoundStatement");
 			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
 		}
 	}
@@ -767,8 +765,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreFragment(Preprocessor_fragmentContext ctx) {
-//		System.out.println("Enter preFragment");
-
 		PreFragment expression = new PreFragment();
 		ASTNodeFactory.initializeFromContext(expression, ctx);
 		stack.push(expression);	//We need to put this item to the stack, as otherwise the following preStatement would replace the topOfStack
@@ -782,7 +778,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPrePlaceholder(Pre_placeholderContext ctx) {
-		System.out.println("Enter placeholder");
 		//Remove the fragment from stack and add it to the toplevel compound	
 		rootCompound.addChild( (PreFragment) stack.pop()); 			
 	}
@@ -947,7 +942,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 
 	// Expression handling
 	public void enterExpression(ExprContext ctx) {
-//		System.out.println("Enter expr");
 		Expression expression = new Expression();
 		nodeToRuleContext.put(expression, ctx);
 		stack.push(expression);
