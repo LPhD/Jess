@@ -273,12 +273,7 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		builder.enterPreFragment(ctx);
 	}
 	
-	// Preprocessor fragment handling
-	@Override
-	public void enterPre_placeholder(FunctionParser.Pre_placeholderContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterPrePlaceholder(ctx);
-	}
+
 //--------------------------------------Comments------------------------------------------------------------------------
 	@Override
 	public void enterComment(FunctionParser.CommentContext ctx) {

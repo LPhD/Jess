@@ -1882,18 +1882,6 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPre_placeholder(FunctionParser.Pre_placeholderContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_placeholder(FunctionParser.Pre_placeholderContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterExpression_fragment(FunctionParser.Expression_fragmentContext ctx) { }
 	/**
 	 * {@inheritDoc}

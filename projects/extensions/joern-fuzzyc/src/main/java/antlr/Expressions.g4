@@ -118,14 +118,12 @@ primary_expression: ('.'? identifier) | ptr_operator | constant | '(' expr ')';
 null_expression: ';' ;  //Empty expression aka null expression
 
 
-//We need this as ifdefs can be inside expressions
-preprocessor_fragment: pre_if_statement 
-                        | pre_elif_statement
-                        | pre_else_statement
-                        | pre_endif_statement
-                        | pre_placeholder
-                        ;
-
-pre_placeholder: PRE_DEFINE pre_macro_identifier expr+ (NEWLINE | EOF) ; //This is for everything else that is currently not further analyzed                        
-
+//We need this as ifdefs can be inside expressions. This is currently not further analyzed (e.g. not put on the stack, just directly added to parent compound)
+preprocessor_fragment: PRE_DEFINE pre_macro_identifier expr+ (NEWLINE | EOF) //Currently, multiline pre statements are not supported
+                | PRE_IF pre_if_condition (NEWLINE | EOF) 
+                | PRE_ELIF pre_if_condition (NEWLINE | EOF) 
+                | PRE_ELSE
+                | PRE_ENDIF; 
+                        
+                       
 expression_fragment: (ESCAPE? NEWLINE | COMMENT | preprocessor_fragment); //Placeholder to improve readability. Escape is for multiline preprocessor statements

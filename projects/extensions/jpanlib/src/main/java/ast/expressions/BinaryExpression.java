@@ -33,7 +33,7 @@ public class BinaryExpression extends Expression {
 		else {
 //			throw new RuntimeException("Error: attempting to add third child to binary expression");
 			//This can happen if we have preprocessor fragments inside of expressions
-			System.out.println("Do not add third child: "+item.getEscapedCodeStr());
+			System.out.println("Do not add third child: "+item.getEscapedCodeStr()+" with type: "+item.getTypeAsString());
 		}
 	}
 }

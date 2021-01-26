@@ -73,7 +73,6 @@ import antlr.FunctionParser.Pre_macroContext;
 import antlr.FunctionParser.Pre_macro_identifierContext;
 import antlr.FunctionParser.Pre_macro_parametersContext;
 import antlr.FunctionParser.Pre_otherContext;
-import antlr.FunctionParser.Pre_placeholderContext;
 import antlr.FunctionParser.Pre_pragmaContext;
 import antlr.FunctionParser.Pre_undefContext;
 import antlr.FunctionParser.Preprocessor_fragmentContext;
@@ -564,13 +563,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreIf(Pre_if_statementContext ctx) {
-		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
-		if (!(stack.peek() instanceof PreFragment)) {
-			replaceTopOfStack(new PreIfStatement(), ctx);
-		} else {
-			logger.debug("Added preFragment to root CompoundStatement");
-			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound			
-		}
+		replaceTopOfStack(new PreIfStatement(), ctx);
 	}	
 
 	/**
@@ -581,14 +574,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreElse(Pre_else_statementContext ctx) {
-		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
-		if (!(stack.peek() instanceof PreFragment)) {
-			replaceTopOfStack(new PreElseStatement(), ctx);
-			currentItem = stack.peek();
-		} else {
-			logger.debug("Added preFragment to root CompoundStatement");
-			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
-		}
+		replaceTopOfStack(new PreElseStatement(), ctx);
+		currentItem = stack.peek();
 	}
 
 	/**
@@ -599,14 +586,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreElIf(Pre_elif_statementContext ctx) {
-		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
-		if (!(stack.peek() instanceof PreFragment)) {
-			replaceTopOfStack(new PreElIfStatement(), ctx);
-			currentItem = stack.peek();
-		} else {
-			logger.debug("Added preFragment to root CompoundStatement");
-			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
-		}
+		replaceTopOfStack(new PreElIfStatement(), ctx);
+		currentItem = stack.peek();
 	}
 
 	/**
@@ -617,14 +598,8 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @param ctx
 	 */
 	public void enterPreEndIf(Pre_endif_statementContext ctx) {
-		//Only replace the top statement if it's not a PreFragment, as this needs separate handling (we currently need no PreIfStatement in this case
-		if (!(stack.peek() instanceof PreFragment)) {
-			replaceTopOfStack(new PreEndIfStatement(), ctx);
-			currentItem = stack.peek();
-		} else {
-			logger.debug("Added preFragment to root CompoundStatement");
-			rootCompound.addChild( (PreFragment) stack.pop()); //Remove the fragment from stack and add it to the toplevel compound				
-		}
+		replaceTopOfStack(new PreEndIfStatement(), ctx);
+		currentItem = stack.peek();
 	}
 
 	/**
@@ -767,20 +742,11 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	public void enterPreFragment(Preprocessor_fragmentContext ctx) {
 		PreFragment expression = new PreFragment();
 		ASTNodeFactory.initializeFromContext(expression, ctx);
-		stack.push(expression);	//We need to put this item to the stack, as otherwise the following preStatement would replace the topOfStack
+		rootCompound.addChild(expression); 
+//		stack.push(expression);	//We need to put this item to the stack, as otherwise the following preStatement would replace the topOfStack
 	}
 	
 	
-	
-	/**
-	 * Subexpression placeholder for otherwise not parseable statements like preDefines
-	 * 
-	 * @param ctx
-	 */
-	public void enterPrePlaceholder(Pre_placeholderContext ctx) {
-		//Remove the fragment from stack and add it to the toplevel compound	
-		rootCompound.addChild( (PreFragment) stack.pop()); 			
-	}
 	
 	// ----------------------------------Preprocessor handling end-------------------------------------------------------------
 	// ----------------------------------Comment handling ---------------------------------------------------------------------

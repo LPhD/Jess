@@ -1400,16 +1400,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPreprocessor_fragment(ModuleParser.Preprocessor_fragmentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#pre_placeholder}.
-	 * @param ctx the parse tree
-	 */
-	void enterPre_placeholder(ModuleParser.Pre_placeholderContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#pre_placeholder}.
-	 * @param ctx the parse tree
-	 */
-	void exitPre_placeholder(ModuleParser.Pre_placeholderContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link ModuleParser#expression_fragment}.
 	 * @param ctx the parse tree
 	 */

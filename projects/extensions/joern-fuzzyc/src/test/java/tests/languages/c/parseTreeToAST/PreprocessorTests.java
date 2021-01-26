@@ -244,6 +244,19 @@ public class PreprocessorTests {
 				" listen ( listen_socket , backlog ) < 0 )", ifItem.getEscapedCodeStr());
 	}
 		
+	//This is here to test preFragments, as previously this was detected as preFragment
+	@Test
+	public void testPreIfWithDefines() {
+		String input = "#ifndef FALLTHROUGH\n" + 
+				"# if __GNUC__ < 7\n" + 
+				"#  define FALLTHROUGH ((void) 0)\n" + 
+				"# else\n" + 
+				"#  define FALLTHROUGH __attribute__ ((__fallthrough__))\n" + 
+				"# endif\n" + 
+				"#endif";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("#ifndef FALLTHROUGH \n", contentItem.getStatement(0).getEscapedCodeStr());
+	}
 	
 	@Test
 	public void testPreIncludeStatementWithBrackets() {

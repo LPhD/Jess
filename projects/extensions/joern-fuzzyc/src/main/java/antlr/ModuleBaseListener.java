@@ -1654,18 +1654,6 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPre_placeholder(ModuleParser.Pre_placeholderContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPre_placeholder(ModuleParser.Pre_placeholderContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterExpression_fragment(ModuleParser.Expression_fragmentContext ctx) { }
 	/**
 	 * {@inheritDoc}
