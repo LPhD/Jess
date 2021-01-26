@@ -123,6 +123,7 @@ preprocessor_fragment: pre_if_statement
                         | pre_elif_statement
                         | pre_else_statement
                         | pre_endif_statement
+                        | pre_define
                         ;
 
 expression_fragment: (ESCAPE? NEWLINE | COMMENT | preprocessor_fragment); //Placeholder to improve readability. Escape is for multiline preprocessor statements

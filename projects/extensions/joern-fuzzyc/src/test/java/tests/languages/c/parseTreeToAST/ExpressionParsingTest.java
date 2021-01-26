@@ -122,12 +122,12 @@ public class ExpressionParsingTest {
 	
 	@Test
 	public void testAssignWithIfDefAndDefinesInsideArguments() {
-		String input = "const char *const cmd[] = {\n" + 
+		String input = "    const char *const cmd[] = {\n" + 
 				"        \"shell\",\n" + 
 				"        \"CLASSPATH=\" DEVICE_SERVER_PATH,\n" + 
 				"        \"app_process\",\n" + 
 				"#ifdef SERVER_DEBUGGER\n" + 
-
+				"# define SERVER_DEBUGGER_PORT \"5005\"\n" + 
 				"# ifdef SERVER_DEBUGGER_METHOD_NEW\n" + 
 				"        /* Android 9 and above */\n" + 
 				"        \"-XjdwpProvider:internal -XjdwpOptions:transport=dt_socket,suspend=y,server=y,address=\"\n" + 
@@ -140,11 +140,56 @@ public class ExpressionParsingTest {
 				"        \"/\", // unused\n" + 
 				"        \"com.genymobile.scrcpy.Server\",\n" + 
 				"        SCRCPY_VERSION,\n" + 
+				"        log_level_to_server_string(params->log_level),\n" + 
+				"        max_size_string,\n" + 
+				"        bit_rate_string,\n" + 
+				"        max_fps_string,\n" + 
+				"        lock_video_orientation_string,\n" + 
+				"        server->tunnel_forward ? \"true\" : \"false\",\n" + 
+				"        params->crop ? params->crop : \"-\",\n" + 
+				"        \"true\", // always send frame meta (packet boundaries + timestamp)\n" + 
+				"        params->control ? \"true\" : \"false\",\n" + 
+				"        display_id_string,\n" + 
+				"        params->show_touches ? \"true\" : \"false\",\n" + 
+				"        params->stay_awake ? \"true\" : \"false\",\n" + 
+				"        params->codec_options ? params->codec_options : \"-\",\n" + 
+				"        params->encoder_name ? params->encoder_name : \"-\",\n" + 
 				"    };";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(5); //If we have preFragments, they are the first childs of the compound
-		PreFragment fragment = (PreFragment) contentItem.getStatements().get(0);		
-		assertEquals("  ;",statementItem.getEscapedCodeStr());
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(6); //If we have preFragments, they are the first childs of the compound		
+		assertEquals("const char * const cmd [ ] = { \n" + 
+				" \"shell\" , \n" + 
+				" \"CLASSPATH=\" DEVICE_SERVER_PATH , \n" + 
+				" \"app_process\" , \n" + 
+				" #ifdef SERVER_DEBUGGER \n" + 
+				" # define SERVER_DEBUGGER_PORT \"5005\" \n" + 
+				" # ifdef SERVER_DEBUGGER_METHOD_NEW \n" + 
+				" /* Android 9 and above */\n" + 
+				" \"-XjdwpProvider:internal -XjdwpOptions:transport=dt_socket,suspend=y,server=y,address=\" \n" + 
+				" # else \n" + 
+				" /* Android 8 and below */\n" + 
+				" \"-agentlib:jdwp=transport=dt_socket,suspend=y,server=y,address=\" \n" + 
+				" # endif \n" + 
+				" SERVER_DEBUGGER_PORT , \n" + 
+				" #endif \n" + 
+				" \"/\" , // unused\n" + 
+				" \"com.genymobile.scrcpy.Server\" , \n" + 
+				" SCRCPY_VERSION , \n" + 
+				" log_level_to_server_string ( params -> log_level ) , \n" + 
+				" max_size_string , \n" + 
+				" bit_rate_string , \n" + 
+				" max_fps_string , \n" + 
+				" lock_video_orientation_string , \n" + 
+				" server -> tunnel_forward ? \"true\" : \"false\" , \n" + 
+				" params -> crop ? params -> crop : \"-\" , \n" + 
+				" \"true\" , // always send frame meta (packet boundaries + timestamp)\n" + 
+				" params -> control ? \"true\" : \"false\" , \n" + 
+				" display_id_string , \n" + 
+				" params -> show_touches ? \"true\" : \"false\" , \n" + 
+				" params -> stay_awake ? \"true\" : \"false\" , \n" + 
+				" params -> codec_options ? params -> codec_options : \"-\" , \n" + 
+				" params -> encoder_name ? params -> encoder_name : \"-\" , \n" + 
+				" } ;",statementItem.getEscapedCodeStr());
 	}
 	
 	@Test
