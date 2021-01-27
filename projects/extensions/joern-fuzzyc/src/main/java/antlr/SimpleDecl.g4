@@ -3,9 +3,9 @@ import ModuleLex, Expressions, Preprocessor, Common;
 
 simple_decl : var_decl;
 
-var_decl : template_decl_start? class_def  init_declarator_list? (pre_other | macroCall)? #declByClass
-         | (TYPEDEF expression_fragment*)?  template_decl_start? type_name init_declarator_list  #declByType
-         | (TYPEDEF expression_fragment*)?  type_name '(' callingConvention? ptr_operator identifier? ')' param_type_list expression_fragment* (pre_other | macroCall)? ('=' expression_fragment* argument)? ';' #FunctionPointerDeclare
+var_decl : template_decl_start? class_def expression_fragment* init_declarator_list? (pre_other | macroCall)? #declByClass
+         | (TYPEDEF expression_fragment*)?  (template_decl_start expression_fragment*)? type_name expression_fragment* init_declarator_list  #declByType
+         | (TYPEDEF expression_fragment*)?  type_name expression_fragment* '(' expression_fragment* callingConvention? expression_fragment* ptr_operator expression_fragment* identifier? ')' expression_fragment* param_type_list expression_fragment* (pre_other | macroCall)? ('=' expression_fragment* argument)? ';' #FunctionPointerDeclare
          | ((CV_QUALIFIER | function_decl_specifiers | TYPEDEF)+ expression_fragment*)?  special_datatype expression_fragment* init_declarator_list? ';'? #StructUnionEnum
          ;
 
@@ -28,20 +28,20 @@ base_class: (VIRTUAL expression_fragment*)? access_specifier? identifier;
 
 
 type_name: (
-          EXTERN NEWLINE?
-          | function_decl_specifiers NEWLINE?
-          | CV_QUALIFIER NEWLINE?
-          | UNSIGNED NEWLINE?
-          | SIGNED NEWLINE?
-          | AUTO NEWLINE?
-          | REGISTER NEWLINE?
-          | ptr_operator NEWLINE?
+          EXTERN expression_fragment*
+          | function_decl_specifiers 
+          | CV_QUALIFIER expression_fragment*
+          | UNSIGNED expression_fragment*
+          | SIGNED expression_fragment*
+          | AUTO expression_fragment*
+          | REGISTER expression_fragment*
+          | ptr_operator expression_fragment*
           | base_type 
           | ( ('<' template_param_list '>' ) ('::' base_type  ('<' template_param_list '>')?  )* ) 
-          | macroCall
+          | macroCall         
             )+ ;
 
-base_type: (VOID NEWLINE? | 'long' NEWLINE? | 'char' NEWLINE? | 'int' NEWLINE? | SPECIAL_DATA NEWLINE? | CLASS_KEY NEWLINE? | ALPHA_NUMERIC NEWLINE? )+;
+base_type: (VOID expression_fragment* | 'long' expression_fragment* | 'char' expression_fragment* | 'int' expression_fragment* | SPECIAL_DATA expression_fragment* | CLASS_KEY expression_fragment* | ALPHA_NUMERIC expression_fragment* )+;
 
 // Parameters
 

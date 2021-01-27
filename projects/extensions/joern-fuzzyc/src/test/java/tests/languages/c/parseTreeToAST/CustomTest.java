@@ -9,9 +9,9 @@ import org.junit.Test;
 
 import antlr.ModuleLexer;
 import ast.ASTNode;
-import ast.c.functionDef.FunctionDef;
 import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.custom.CustomNode;
+import ast.statements.IdentifierDeclStatement;
 import parsing.TokenSubStream;
 import parsing.Modules.ANTLRCModuleParserDriver;
 
@@ -68,7 +68,7 @@ public class CustomTest {
 				"XML_ATTR_ALLOC_SIZE(3)\n" + 
 				"XML_MemRealloc(XML_Parser parser, void *ptr, size_t size);";
 		List<ASTNode> codeItems = parseInput(input);
-		CustomNode codeItem = (CustomNode) codeItems.get(0);		
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);		
 		assertEquals("XMLPARSEAPI ( void * ) \n" + 
 				" XML_ATTR_ALLOC_SIZE ( 3 ) \n" + 
 				" XML_MemRealloc ( XML_Parser parser , void * ptr , size_t size ) ;", codeItem.getEscapedCodeStr());

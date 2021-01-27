@@ -579,6 +579,14 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void commentBeforeIdentifierInDeclaration() {
+		String input = "PHPAPI extern /*const*/ php_stream_wrapper php_plain_files_wrapper;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		IdentifierDeclStatement statementItem = (IdentifierDeclStatement) contentItem.getStatements().get(0);
+		assertEquals("PHPAPI extern /*const*/ php_stream_wrapper php_plain_files_wrapper ;", statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void commentInSameLineAsStatement2() {
 		String input = "char text[] = \"\\xFF\\xFE\"  /* BOM */\n" + 
 				"\"<\\000e\\000/\\000>\\000\"  /* document element */\n" + 
