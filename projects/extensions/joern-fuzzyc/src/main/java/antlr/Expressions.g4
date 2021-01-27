@@ -119,9 +119,9 @@ null_expression: ';' ;  //Empty expression aka null expression
 
 
 //We need this as ifdefs can be inside expressions. This is currently not further analyzed (e.g. not put on the stack, just directly added to parent compound)
-preprocessor_fragment: PRE_DEFINE pre_macro_identifier expr+ (NEWLINE | EOF) //Currently, multiline pre statements are not supported
-                | PRE_IF pre_if_condition (NEWLINE | EOF) 
-                | PRE_ELIF pre_if_condition (NEWLINE | EOF) 
+preprocessor_fragment: PRE_DEFINE pre_macro_identifier (ALPHA_NUMERIC | '(' | ')' | STRING )* (NEWLINE | EOF) //Currently, multiline pre statements are not supported
+                | PRE_IF (ALPHA_NUMERIC | '(' | ')' | STRING )* (NEWLINE | EOF) 
+                | PRE_ELIF (ALPHA_NUMERIC | '(' | ')' | STRING )* (NEWLINE | EOF) 
                 | PRE_ELSE
                 | PRE_ENDIF; 
                         

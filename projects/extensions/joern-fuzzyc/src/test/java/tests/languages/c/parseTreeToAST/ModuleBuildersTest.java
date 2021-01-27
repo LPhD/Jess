@@ -15,6 +15,7 @@ import ast.c.functionDef.ParameterType;
 import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.preprocessor.commands.macro.MacroCall;
+import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
@@ -170,7 +171,7 @@ public class ModuleBuildersTest {
 		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
 		assertEquals("struct dfa_comp \n" + 
 				" { \n" + 
-				" /* Regex compiled regexps. */\n" + 
+				" /* Regex compiled regexps. */ \n" + 
 				" struct re_pattern_buffer * patterns ; \n" + 
 				" size_t pcount ; \n" + 
 				" struct re_registers regs ; \n" + 
@@ -715,6 +716,33 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testNoEndlessLoop() {
+		//This input caused an endless parsing loop, because of nesting expression and preprocessor rules
+		String input = 
+				"#ifndef uthash_fatal\n" + 
+				"#define uthash_fatal(msg) exit(-1) /* fatal error (out of memory,etc) */\n" + 
+				"#endif\n" +				
+				"#ifndef uthash_malloc\n" + 
+				"#define uthash_malloc(sz) malloc(sz) /* malloc fcn                      */\n" + 
+				"#endif\n" +				
+				"#ifndef uthash_free\n" + 
+				"#define uthash_free(ptr, sz) free(ptr) /* free fcn                        */\n" + 
+				"#endif\n" +			
+				"#ifndef uthash_noexpand_fyi\n" + 
+				"#define uthash_noexpand_fyi(tbl) /* can be defined to log noexpand  */\n" + 
+				"#endif\n" +				
+				"#ifndef uthash_expand_fyi\n" + 
+				"#define uthash_expand_fyi(tbl) /* can be defined to log expands   */\n" + 
+				"#endif\n" +
+				"/* calculate the element whose hash handle address is hhe */\n" + 
+				"#define ELMT_FROM_HH(tbl, hhp) ((void *)(((char *)(hhp)) - ((tbl)->hho)))\n"; 
+		List<ASTNode> codeItems = parseInput(input);
+		PreDefine preDef = (PreDefine) codeItems.get(0);
+		//This must contain just the define with its comment, no other statements
+		assertEquals("#define uthash_fatal( msg ) exit ( - 1 ) /* fatal error (out of memory,etc) */", preDef.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testTwoCommentsAfterEachOther() {
 		//This test is for non-greedy lexer behavior
 		String input = "/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */\n" + 
@@ -724,9 +752,9 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		Comment comment1 = (Comment) codeItems.get(2);
 		assertEquals("Comment", comment1.getTypeAsString());
-		assertEquals("/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */\n", comment1.getEscapedCodeStr());
+		assertEquals("/* This file contains examples from https://github.com/torvalds/linux/drivers/scsi/BusLogic.h */", comment1.getEscapedCodeStr());
 		Comment comment2 = (Comment) codeItems.get(1);
-		assertEquals("/* Bit 7 */\n", comment2.getEscapedCodeStr());
+		assertEquals("/* Bit 7 */", comment2.getEscapedCodeStr());
 	}
 	
 	@Test
