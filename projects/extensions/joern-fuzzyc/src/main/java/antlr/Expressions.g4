@@ -113,7 +113,7 @@ argument_list:  argument?  (','?  argument)* ','?  // Allows empty arguments aft
 
 argument: expression_fragment*  assign_expr expression_fragment* ;
 
-primary_expression: ('.'? identifier) | ptr_operator | constant | '(' expr ')';
+primary_expression: ('.'? identifier) | ptr_operator | constant | '(' expression_fragment* expr expression_fragment* ')';
 
 null_expression: ';' ;  //Empty expression aka null expression
 

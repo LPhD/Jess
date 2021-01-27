@@ -21,7 +21,6 @@ import ast.expressions.FunctionPointerUseExpression;
 import ast.expressions.InclusiveOrExpression;
 import ast.expressions.MultiplicativeExpression;
 import ast.expressions.OrExpression;
-import ast.expressions.PreFragment;
 import ast.expressions.RelationalExpression;
 import ast.expressions.ShiftExpression;
 import ast.logical.statements.BlockStarter;
@@ -32,6 +31,7 @@ import ast.logical.statements.Statement;
 import ast.statements.ExpressionStatement;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
+import ast.statements.jump.ReturnStatement;
 
 public class ExpressionParsingTest {
 
@@ -532,6 +532,22 @@ public class ExpressionParsingTest {
 		assertEquals("sizeof ( sapi_header_struct )", expr.getArgumentList().getChild(2).getEscapedCodeStr());
 		assertEquals("( void ( * ) ( void * ) ) sapi_free_header", expr.getArgumentList().getChild(3).getEscapedCodeStr());
 		assertEquals("0", expr.getArgumentList().getChild(4).getEscapedCodeStr());
+	}
+	
+	@Test
+	public void returnWithBitfilter() {
+		String input = "return (\n" + 
+				"		OG(flags)\n" + 
+				"		|	(OG(active) ? PHP_OUTPUT_ACTIVE : 0)\n" + 
+				"		|	(OG(running)? PHP_OUTPUT_LOCKED : 0)\n" + 
+				"	) & 0xff;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ReturnStatement statementItem = (ReturnStatement) contentItem.getStatements().get(0);
+		assertEquals("return ( \n" + 
+				" OG ( flags ) \n" + 
+				" | ( OG ( active ) ? PHP_OUTPUT_ACTIVE : 0 ) \n" + 
+				" | ( OG ( running ) ? PHP_OUTPUT_LOCKED : 0 ) \n" + 
+				" ) & 0xff ;", statementItem.getEscapedCodeStr());
 	}
 	
 	
