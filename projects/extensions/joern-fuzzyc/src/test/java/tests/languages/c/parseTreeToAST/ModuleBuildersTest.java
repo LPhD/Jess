@@ -283,6 +283,15 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testFunctionDeclWithMacroCall() {
+		String input = "PHPAPI int ap_php_slprintf(char *buf, size_t len, const char *format,...) ZEND_ATTRIBUTE_FORMAT(printf, 3, 4);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("PHPAPI int ap_php_slprintf ( char * buf , size_t len , const char * format , ... ) ZEND_ATTRIBUTE_FORMAT ( printf , 3 , 4 ) ;", codeItem.getEscapedCodeStr());
+		assertEquals("ap_php_slprintf ( char * buf , size_t len , const char * format , ... )", codeItem.getChild(0).getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testFunctionDeclWithNewlinesAndComments() {
 		String input = "PHPAPI void php_network_populate_name_from_sockaddr(\n" + 
 				"		/* input address */\n" + 

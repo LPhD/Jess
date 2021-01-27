@@ -3,8 +3,8 @@ import ModuleLex, Expressions, Preprocessor, Common;
 
 simple_decl : var_decl;
 
-var_decl : template_decl_start? class_def  init_declarator_list? #declByClass
-         | (TYPEDEF expression_fragment*)?  template_decl_start? type_name  init_declarator_list #declByType
+var_decl : template_decl_start? class_def  init_declarator_list? (pre_other | macroCall)? #declByClass
+         | (TYPEDEF expression_fragment*)?  template_decl_start? type_name init_declarator_list  #declByType
          | (TYPEDEF expression_fragment*)?  type_name '(' callingConvention? ptr_operator identifier? ')' param_type_list expression_fragment* (pre_other | macroCall)? ('=' expression_fragment* argument)? ';' #FunctionPointerDeclare
          | ((CV_QUALIFIER | function_decl_specifiers | TYPEDEF)+ expression_fragment*)?  special_datatype expression_fragment* init_declarator_list? ';'? #StructUnionEnum
          ;
@@ -12,13 +12,13 @@ var_decl : template_decl_start? class_def  init_declarator_list? #declByClass
 //Can be done by a macro or directly (something like __cdecl)
 callingConvention: ALPHA_NUMERIC+ ;   
          
-special_datatype: SPECIAL_DATA expression_fragment* pre_other? (identifier NEWLINE?)? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
+special_datatype: SPECIAL_DATA expression_fragment* pre_other? (identifier expression_fragment*)? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
         | SPECIAL_DATA expression_fragment* pre_other? identifier expression_fragment* ptrs? identifier ptrs? '=' {skipToEndOfObject(); }         //Designated initializer
         | SPECIAL_DATA expression_fragment* pre_other? identifier  //Short declaration
         ;
 
         
-init_declarator_list: init_declarator (expression_fragment* ',' expression_fragment* init_declarator)* expression_fragment* pre_other? ';';
+init_declarator_list: init_declarator (expression_fragment* ',' expression_fragment* init_declarator)* expression_fragment* (pre_other | macroCall)? ';';
 
 
 class_def: CLASS_KEY expression_fragment* class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;
