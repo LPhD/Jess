@@ -33,7 +33,7 @@ multiplicative_expression: function_pointer_use_expression (expression_fragment*
 
 //Technically, cast operations can contain pointers (e.g. when cast to a void pointer), but we are more interested in function pointer usages and do not analyse casts in detail
 //Therefore, it is okay if we misclassify a pointer cast as a function pointer usage (as long as we get all function pointer usages)
-function_pointer_use_expression: '(' ptr_operator identifier? ')' '(' argument_list ')'
+function_pointer_use_expression: '(' ptr_operator identifier? ')' '(' argument_list? ')'
                | cast_expression
                 ;
                 
@@ -96,7 +96,7 @@ asmCall: ASM (CV_QUALIFIER | GOTO)* NEWLINE? '(' NEWLINE? (STRING NEWLINE?)+
 // as variable names.
 
 postfix_expression: postfix_expression expression_fragment* '[' expr? ']' #arrayIndexing
-                  | postfix_expression expression_fragment* '(' argument_list ')' #funcCall
+                  | postfix_expression expression_fragment* '(' argument_list? ')' #funcCall
                   | postfix_expression '.' expression_fragment* TEMPLATE? (identifier) #memberAccess
                   | postfix_expression '->' expression_fragment* TEMPLATE? (identifier) #ptrMemberAccess
                   | postfix_expression expression_fragment* inc_dec #incDecOp
@@ -107,11 +107,11 @@ postfix_expression: postfix_expression expression_fragment* '[' expr? ']' #array
                   
 initializer_expression:  OPENING_CURLY expression_fragment* argument_list? expression_fragment* CLOSING_CURLY;   //Can be an empty list
 
-argument_list:  argument?  (','?  argument)* ','?  // Allows empty arguments after a comma   
-                | VOID ptr_operator? //Argument can be only void or void ptr
-                ;              
-
-argument: expression_fragment*  assign_expr expression_fragment* ;
+argument_list:  argument  (','?  argument)* ','? ; // Allows empty arguments after a comma   
+                              
+argument: expression_fragment*  assign_expr expression_fragment* 
+        | CV_QUALIFIER? VOID ptr_operator? //Argument can be only void or void ptr
+        ;
 
 primary_expression: ('.'? identifier) | ptr_operator | constant | '(' expression_fragment* expr expression_fragment* ')';
 

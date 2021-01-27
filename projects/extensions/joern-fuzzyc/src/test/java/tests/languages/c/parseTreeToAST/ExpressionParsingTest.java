@@ -438,7 +438,7 @@ public class ExpressionParsingTest {
 		String input = "if(foo()){}";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		BlockStarter starter = (BlockStarter) contentItem.getStatements().get(0);
-		Callee expr = (Callee) ((Condition) starter.getCondition()).getExpression().getChild(0);
+		Callee expr = (Callee) ((Condition) starter.getCondition()).getExpression();
 		assertEquals("foo", expr.getEscapedCodeStr());
 	}
 	
@@ -448,8 +448,8 @@ public class ExpressionParsingTest {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		ExpressionStatement expr = (ExpressionStatement) contentItem.getStatements().get(0);
 		assertEquals("foo ( ) ;", expr.getEscapedCodeStr());
-		CallExpression callEx = (CallExpression) expr.getChild(0);
-		assertEquals("foo", callEx.getTargetFunc().getEscapedCodeStr());
+		Callee callEx = (Callee) expr.getChild(0);
+		assertEquals("foo", callEx.getEscapedCodeStr());
 	}
 	
 	@Test
@@ -548,6 +548,14 @@ public class ExpressionParsingTest {
 				" | ( OG ( active ) ? PHP_OUTPUT_ACTIVE : 0 ) \n" + 
 				" | ( OG ( running ) ? PHP_OUTPUT_LOCKED : 0 ) \n" + 
 				" ) & 0xff ;", statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void funcCallWithFunctionPointerCastArgument() {
+		String input = "qsort (*namelist, nfiles, sizeof(struct dirent *), (int (*) (const void *, const void *)) compare);";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		assertEquals("qsort ( * namelist , nfiles , sizeof ( struct dirent * ) , ( int ( * ) ( const void * , const void * ) ) compare ) ;", statementItem.getEscapedCodeStr());
 	}
 	
 	
