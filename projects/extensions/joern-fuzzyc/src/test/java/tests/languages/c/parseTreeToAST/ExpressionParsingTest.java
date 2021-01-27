@@ -571,6 +571,14 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void commentBeforeSemicolon() {
+		String input = "vlen = (semi ? (size_t)(semi - sep) : (mlen - plen)) - 1 /* '=' */;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		assertEquals("vlen = ( semi ? ( size_t ) ( semi - sep ) : ( mlen - plen ) ) - 1 /* '=' */ ;", statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void commentInSameLineAsStatement2() {
 		String input = "char text[] = \"\\xFF\\xFE\"  /* BOM */\n" + 
 				"\"<\\000e\\000/\\000>\\000\"  /* document element */\n" + 

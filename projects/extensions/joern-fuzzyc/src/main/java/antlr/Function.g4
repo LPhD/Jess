@@ -29,32 +29,32 @@ closing_curly: CLOSING_CURLY;
 block_starter: selection_or_iteration;
 
 selection_or_iteration: TRY                      #Try_statement
-                      | CATCH ( '(' (param_type | ELLIPSIS) NEWLINE? ')' )? #Catch_statement
-                      | IF '(' NEWLINE?  condition NEWLINE? ')'     #If_statement
+                      | CATCH ( expression_fragment* '(' expression_fragment* (param_type | ELLIPSIS) expression_fragment* ')' )? #Catch_statement
+                      | IF expression_fragment* '(' expression_fragment* condition expression_fragment* ')'     #If_statement
                       | ELSE                     #Else_statement
-                      | SWITCH '(' NEWLINE? condition NEWLINE? ')' #Switch_statement
-                      | FOR '(' NEWLINE?  (for_init_statement | ';') NEWLINE? condition? ';' NEWLINE?  expr? NEWLINE?  ')' ';'? #For_statement
+                      | SWITCH expression_fragment* '(' expression_fragment* condition expression_fragment* ')' #Switch_statement
+                      | FOR expression_fragment* '(' expression_fragment*  (for_init_statement | ';') expression_fragment* condition? ';' expression_fragment* expr? expression_fragment* ')' ';'? #For_statement
                       | DO                          #Do_statement
-                      | WHILE '(' NEWLINE? condition NEWLINE? ')' ';'?  #While_statement 
+                      | WHILE expression_fragment* '(' expression_fragment* condition expression_fragment* ')' ';'?  #While_statement 
 //We need here something that comes after the while, otherwise it is just popped from the stack (when it's the last statement)
 //Therefore the ; may not appear in the grammar rule for this. It should be a statement that triggers the exitStatements function
 ;
 
 
 for_init_statement : simple_decl
-                   | expr ';'
+                   | expr expression_fragment* ';'
                    ;
 
-jump_statement: BREAK ';'		#breakStatement
-              | CONTINUE ';' 		#continueStatement
-              | GOTO identifier ';'	#gotoStatement
-              | RETURN expr? ';'	#returnStatement
-              | THROW expr?  ';'	#throwStatement
+jump_statement: BREAK expression_fragment* ';'		#breakStatement
+              | CONTINUE expression_fragment* ';' 		#continueStatement
+              | GOTO identifier expression_fragment* ';'	#gotoStatement
+              | RETURN expression_fragment* expr? expression_fragment* ';'	#returnStatement
+              | THROW expression_fragment* expr? expression_fragment*  ';'	#throwStatement
               ;
 
 //Allow casts in labels
-label: CASE? (identifier | number | CHAR | cast_expression) ':' ;
+label: CASE? (identifier | number | CHAR | cast_expression) expression_fragment* ':' ;
 
-expr_statement: expr ';' | null_expression;
+expr_statement: expr expression_fragment* ';' | null_expression;
 
 condition: expr;
