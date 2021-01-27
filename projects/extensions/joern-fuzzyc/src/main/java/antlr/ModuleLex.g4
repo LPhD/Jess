@@ -68,7 +68,7 @@ PRE_PRAGMA: '#' [ \t\u000C]* 'pragma';
 PRE_GCC: 'GCC';
 PRE_PRAGMA_KEYWORDS: ('dependency' | 'poison' | 'error' | 'warning' | 'once' | 'system_header' | 'warning');
 PRE_STR: ('##' | '#');
-PRE_ATTRIBUTE: '__attribute__' | '_GL_ARG_NONNULL' | '__declspec' | '_GL_ATTRIBUTE_PURE' | '_GL_INLINE_HEADER_BEGIN' | '_GL_INLINE_HEADER_END' | '_GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD';
+PRE_ATTRIBUTE: '__attribute__' | 'PHP_ATTRIBUTE_FORMAT' |'_GL_ARG_NONNULL' | '__declspec' | '_GL_ATTRIBUTE_PURE' | '_GL_INLINE_HEADER_BEGIN' | '_GL_INLINE_HEADER_END' | '_GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD';
 END_TEST : 'END_TEST'; //Custom
 //PRE_PROC: '#' ~[\r\n]* '\r'? '\n';
 

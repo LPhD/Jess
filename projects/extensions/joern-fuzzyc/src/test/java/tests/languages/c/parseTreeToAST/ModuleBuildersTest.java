@@ -270,6 +270,16 @@ public class ModuleBuildersTest {
 		FunctionPointerDeclare codeItem = (FunctionPointerDeclare) codeItems.get(0);
 		assertEquals("typedef void ( * fcgi_logger ) ( int type , const char * fmt , ... ) ZEND_ATTRIBUTE_FORMAT ( printf , 2 , 3 ) ;", codeItem.getEscapedCodeStr());
 		assertEquals("fcgi_logger", codeItem.getChild(0).getEscapedCodeStr());
+		assertEquals("MacroCall", codeItem.getChild(1).getTypeAsString());
+	}
+	
+	@Test
+	public void testFunctionDeclWithPHPAttribute() {
+		String input = "PHPAPI size_t php_printf(const char *format, ...) PHP_ATTRIBUTE_FORMAT(printf, 1, 2);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("PHPAPI size_t php_printf ( const char * format , ... ) PHP_ATTRIBUTE_FORMAT ( printf , 1 , 2 ) ;", codeItem.getEscapedCodeStr());
+		assertEquals("php_printf ( const char * format , ... )", codeItem.getChild(0).getEscapedCodeStr());
 	}
 	
 	@Test
