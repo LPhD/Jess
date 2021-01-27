@@ -70,6 +70,22 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testTypedefFunctionPointerWithStrangeBrackets() {
+		String input = "typedef php_stream *(php_stream_transport_factory_func)(const char *proto, size_t protolen,\n" + 
+				"		const char *resourcename, size_t resourcenamelen,\n" + 
+				"		const char *persistent_id, int options, int flags,\n" + 
+				"		struct timeval *timeout,\n" + 
+				"		php_stream_context *context STREAMS_DC);";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionPointerDeclare codeItem = (FunctionPointerDeclare) codeItems.get(0);
+		assertEquals("typedef php_stream * ( php_stream_transport_factory_func ) ( const char * proto , size_t protolen , \n" + 
+				" const char * resourcename , size_t resourcenamelen , \n" + 
+				" const char * persistent_id , int options , int flags , \n" + 
+				" struct timeval * timeout , \n" + 
+				" php_stream_context * context STREAMS_DC ) ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testUnnamedStruct() {
 		String input = "struct {int x; } a;";
 		List<ASTNode> codeItems = parseInput(input);

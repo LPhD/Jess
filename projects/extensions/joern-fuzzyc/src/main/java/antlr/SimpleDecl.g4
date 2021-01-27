@@ -5,7 +5,7 @@ simple_decl : var_decl;
 
 var_decl : template_decl_start? class_def expression_fragment* init_declarator_list? (pre_other | macroCall)? #declByClass
          | (TYPEDEF expression_fragment*)?  (template_decl_start expression_fragment*)? type_name expression_fragment* init_declarator_list  #declByType
-         | (TYPEDEF expression_fragment*)?  type_name expression_fragment* '(' expression_fragment* callingConvention? expression_fragment* ptr_operator expression_fragment* identifier? ')' expression_fragment* param_type_list expression_fragment* (pre_other | macroCall)? ('=' expression_fragment* argument)? ';' #FunctionPointerDeclare
+         | (TYPEDEF expression_fragment*)?  type_name expression_fragment* '('? expression_fragment* callingConvention? expression_fragment* ptr_operator '('? expression_fragment* identifier? ')' expression_fragment* param_type_list expression_fragment* (pre_other | macroCall)? ('=' expression_fragment* argument)? ';' #FunctionPointerDeclare
          | ((CV_QUALIFIER | function_decl_specifiers | TYPEDEF)+ expression_fragment*)?  special_datatype expression_fragment* init_declarator_list? ';'? #StructUnionEnum
          ;
 
