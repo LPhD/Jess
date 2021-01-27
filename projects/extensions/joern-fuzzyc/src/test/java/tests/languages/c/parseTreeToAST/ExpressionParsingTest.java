@@ -193,6 +193,33 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void testReturnWithIfdef() {
+		String input = "\n" + 
+				"	return (php_stream_xport_register(\"tcp\", php_stream_generic_socket_factory) == SUCCESS\n" + 
+				"			&&\n" + 
+				"			php_stream_xport_register(\"udp\", php_stream_generic_socket_factory) == SUCCESS\n" + 
+				"#if defined  AF_UNIX  \n" + 
+				"			&&\n" + 
+				"			php_stream_xport_register(\"unix\", php_stream_generic_socket_factory) == SUCCESS\n" + 
+				"			&&\n" + 
+				"			php_stream_xport_register(\"udg\", php_stream_generic_socket_factory) == SUCCESS\n" + 
+				"#endif\n" + 
+				"		) ? SUCCESS : FAILURE;";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ReturnStatement statementItem = (ReturnStatement) contentItem.getStatements().get(2); // 0 + 1 are the preFragments
+		assertEquals("return ( php_stream_xport_register ( \"tcp\" , php_stream_generic_socket_factory ) == SUCCESS \n" + 
+				" && \n" + 
+				" php_stream_xport_register ( \"udp\" , php_stream_generic_socket_factory ) == SUCCESS \n" + 
+				" #if defined AF_UNIX \n" + 
+				" && \n" + 
+				" php_stream_xport_register ( \"unix\" , php_stream_generic_socket_factory ) == SUCCESS \n" + 
+				" && \n" + 
+				" php_stream_xport_register ( \"udg\" , php_stream_generic_socket_factory ) == SUCCESS \n" + 
+				" #endif \n" + 
+				" ) ? SUCCESS : FAILURE ;",statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testNormalCase() {
 		String input = "case 'm':";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);

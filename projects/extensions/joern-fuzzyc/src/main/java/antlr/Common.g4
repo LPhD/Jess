@@ -165,7 +165,7 @@ import ModuleLex;
          return true;
      }
      
-         //Find the end of a preprocessor macro
+         //Find the end of a preprocessor condition
      public boolean skipComments()  {
          int t = _input.LA(1);
          System.out.println("Scan: "+t);          

@@ -358,7 +358,7 @@ public class ModuleParser extends Parser {
 	         return true;
 	     }
 	     
-	         //Find the end of a preprocessor macro
+	         //Find the end of a preprocessor condition
 	     public boolean skipComments()  {
 	         int t = _input.LA(1);
 	         System.out.println("Scan: "+t);          
@@ -12009,14 +12009,6 @@ public class ModuleParser extends Parser {
 		}
 		public TerminalNode NEWLINE() { return getToken(ModuleParser.NEWLINE, 0); }
 		public TerminalNode EOF() { return getToken(ModuleParser.EOF, 0); }
-		public List<TerminalNode> ALPHA_NUMERIC() { return getTokens(ModuleParser.ALPHA_NUMERIC); }
-		public TerminalNode ALPHA_NUMERIC(int i) {
-			return getToken(ModuleParser.ALPHA_NUMERIC, i);
-		}
-		public List<TerminalNode> STRING() { return getTokens(ModuleParser.STRING); }
-		public TerminalNode STRING(int i) {
-			return getToken(ModuleParser.STRING, i);
-		}
 		public TerminalNode PRE_IF() { return getToken(ModuleParser.PRE_IF, 0); }
 		public TerminalNode PRE_ELIF() { return getToken(ModuleParser.PRE_ELIF, 0); }
 		public TerminalNode PRE_ELSE() { return getToken(ModuleParser.PRE_ELSE, 0); }
@@ -12040,6 +12032,7 @@ public class ModuleParser extends Parser {
 		enterRule(_localctx, 250, RULE_preprocessor_fragment);
 		int _la;
 		try {
+			int _alt;
 			setState(2206);
 			switch (_input.LA(1)) {
 			case PRE_DEFINE:
@@ -12051,22 +12044,19 @@ public class ModuleParser extends Parser {
 				pre_macro_identifier();
 				setState(2183);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while (_la==T__1 || _la==T__2 || _la==ALPHA_NUMERIC || _la==STRING) {
-					{
-					{
-					setState(2180);
-					_la = _input.LA(1);
-					if ( !(_la==T__1 || _la==T__2 || _la==ALPHA_NUMERIC || _la==STRING) ) {
-					_errHandler.recoverInline(this);
-					} else {
-						consume();
-					}
-					}
+				_alt = getInterpreter().adaptivePredict(_input,315,_ctx);
+				while ( _alt!=1 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+					if ( _alt==1+1 ) {
+						{
+						{
+						setState(2180);
+						matchWildcard();
+						}
+						} 
 					}
 					setState(2185);
 					_errHandler.sync(this);
-					_la = _input.LA(1);
+					_alt = getInterpreter().adaptivePredict(_input,315,_ctx);
 				}
 				setState(2186);
 				_la = _input.LA(1);
@@ -12084,22 +12074,19 @@ public class ModuleParser extends Parser {
 				match(PRE_IF);
 				setState(2192);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while (_la==T__1 || _la==T__2 || _la==ALPHA_NUMERIC || _la==STRING) {
-					{
-					{
-					setState(2189);
-					_la = _input.LA(1);
-					if ( !(_la==T__1 || _la==T__2 || _la==ALPHA_NUMERIC || _la==STRING) ) {
-					_errHandler.recoverInline(this);
-					} else {
-						consume();
-					}
-					}
+				_alt = getInterpreter().adaptivePredict(_input,316,_ctx);
+				while ( _alt!=1 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+					if ( _alt==1+1 ) {
+						{
+						{
+						setState(2189);
+						matchWildcard();
+						}
+						} 
 					}
 					setState(2194);
 					_errHandler.sync(this);
-					_la = _input.LA(1);
+					_alt = getInterpreter().adaptivePredict(_input,316,_ctx);
 				}
 				setState(2195);
 				_la = _input.LA(1);
@@ -12117,22 +12104,19 @@ public class ModuleParser extends Parser {
 				match(PRE_ELIF);
 				setState(2200);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while (_la==T__1 || _la==T__2 || _la==ALPHA_NUMERIC || _la==STRING) {
-					{
-					{
-					setState(2197);
-					_la = _input.LA(1);
-					if ( !(_la==T__1 || _la==T__2 || _la==ALPHA_NUMERIC || _la==STRING) ) {
-					_errHandler.recoverInline(this);
-					} else {
-						consume();
-					}
-					}
+				_alt = getInterpreter().adaptivePredict(_input,317,_ctx);
+				while ( _alt!=1 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+					if ( _alt==1+1 ) {
+						{
+						{
+						setState(2197);
+						matchWildcard();
+						}
+						} 
 					}
 					setState(2202);
 					_errHandler.sync(this);
-					_la = _input.LA(1);
+					_alt = getInterpreter().adaptivePredict(_input,317,_ctx);
 				}
 				setState(2203);
 				_la = _input.LA(1);
@@ -13048,19 +13032,19 @@ public class ModuleParser extends Parser {
 		"\7\u0085\u0902\n\u0085\f\u0085\16\u0085\u0905\13\u0085\3\u0086\7\u0086"+
 		"\u0908\n\u0086\f\u0086\16\u0086\u090b\13\u0086\3\u0086\3\u0086\3\u0086"+
 		"\3\u0086\7\u0086\u0911\n\u0086\f\u0086\16\u0086\u0914\13\u0086\7\u0086"+
-		"\u0916\n\u0086\f\u0086\16\u0086\u0919\13\u0086\3\u0086\2\3\u00f0\u0087"+
-		"\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFH"+
-		"JLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080\u0082\u0084\u0086\u0088\u008a\u008c"+
-		"\u008e\u0090\u0092\u0094\u0096\u0098\u009a\u009c\u009e\u00a0\u00a2\u00a4"+
-		"\u00a6\u00a8\u00aa\u00ac\u00ae\u00b0\u00b2\u00b4\u00b6\u00b8\u00ba\u00bc"+
-		"\u00be\u00c0\u00c2\u00c4\u00c6\u00c8\u00ca\u00cc\u00ce\u00d0\u00d2\u00d4"+
-		"\u00d6\u00d8\u00da\u00dc\u00de\u00e0\u00e2\u00e4\u00e6\u00e8\u00ea\u00ec"+
-		"\u00ee\u00f0\u00f2\u00f4\u00f6\u00f8\u00fa\u00fc\u00fe\u0100\u0102\u0104"+
-		"\u0106\u0108\u010a\2\35\3\3@@\b\2\b\16OOQRVX__aa\3\2\20\25\3\2\26\31\5"+
-		"\2\b\nOOVV\3\2\20\21\3\2\13\r\4\2\32\32bb\5\2\6\6!(+,\3\2-.\3\2\4\5\5"+
-		"\2\4\5\33\34uv\3\2\3\5\4\2\4\5\26\27\3\2uv\3\2\33\34\4\2\3\3\33\34\4\2"+
-		"\3\3\17\17\6\2\3\5\17\17\33\34uv\3\2wz\3\2)*\3\2\22\23\4\2\21\21\35\36"+
-		"\3\2\61\62\4\2LLSS\4\2\66\67>>\5\2\4\5tt~~\u0a62\2\u0116\3\2\2\2\4\u0119"+
+		"\u0916\n\u0086\f\u0086\16\u0086\u0919\13\u0086\3\u0086\5\u0889\u0892\u089a"+
+		"\3\u00f0\u0087\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64"+
+		"\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080\u0082\u0084\u0086\u0088"+
+		"\u008a\u008c\u008e\u0090\u0092\u0094\u0096\u0098\u009a\u009c\u009e\u00a0"+
+		"\u00a2\u00a4\u00a6\u00a8\u00aa\u00ac\u00ae\u00b0\u00b2\u00b4\u00b6\u00b8"+
+		"\u00ba\u00bc\u00be\u00c0\u00c2\u00c4\u00c6\u00c8\u00ca\u00cc\u00ce\u00d0"+
+		"\u00d2\u00d4\u00d6\u00d8\u00da\u00dc\u00de\u00e0\u00e2\u00e4\u00e6\u00e8"+
+		"\u00ea\u00ec\u00ee\u00f0\u00f2\u00f4\u00f6\u00f8\u00fa\u00fc\u00fe\u0100"+
+		"\u0102\u0104\u0106\u0108\u010a\2\34\3\3@@\b\2\b\16OOQRVX__aa\3\2\20\25"+
+		"\3\2\26\31\5\2\b\nOOVV\3\2\20\21\3\2\13\r\4\2\32\32bb\5\2\6\6!(+,\3\2"+
+		"-.\3\2\4\5\5\2\4\5\33\34uv\3\2\3\5\4\2\4\5\26\27\3\2uv\3\2\33\34\4\2\3"+
+		"\3\33\34\4\2\3\3\17\17\6\2\3\5\17\17\33\34uv\3\2wz\3\2)*\3\2\22\23\4\2"+
+		"\21\21\35\36\3\2\61\62\4\2LLSS\4\2\66\67>>\u0a62\2\u0116\3\2\2\2\4\u0119"+
 		"\3\2\2\2\6\u0120\3\2\2\2\b\u0126\3\2\2\2\n\u0128\3\2\2\2\f\u012c\3\2\2"+
 		"\2\16\u0130\3\2\2\2\20\u0132\3\2\2\2\22\u013a\3\2\2\2\24\u014e\3\2\2\2"+
 		"\26\u0159\3\2\2\2\30\u0163\3\2\2\2\32\u0165\3\2\2\2\34\u0179\3\2\2\2\36"+
@@ -13768,14 +13752,14 @@ public class ModuleParser extends Parser {
 		"\2\2\u087c\u087e\3\2\2\2\u087d\u087b\3\2\2\2\u087e\u087f\7\5\2\2\u087f"+
 		"\u0881\3\2\2\2\u0880\u086b\3\2\2\2\u0880\u086e\3\2\2\2\u0880\u086f\3\2"+
 		"\2\2\u0880\u0870\3\2\2\2\u0881\u00f9\3\2\2\2\u0882\u0883\7\3\2\2\u0883"+
-		"\u00fb\3\2\2\2\u0884\u0885\7g\2\2\u0885\u0889\5\34\17\2\u0886\u0888\t"+
-		"\34\2\2\u0887\u0886\3\2\2\2\u0888\u088b\3\2\2\2\u0889\u0887\3\2\2\2\u0889"+
-		"\u088a\3\2\2\2\u088a\u088c\3\2\2\2\u088b\u0889\3\2\2\2\u088c\u088d\t\2"+
-		"\2\2\u088d\u08a1\3\2\2\2\u088e\u0892\7c\2\2\u088f\u0891\t\34\2\2\u0890"+
-		"\u088f\3\2\2\2\u0891\u0894\3\2\2\2\u0892\u0890\3\2\2\2\u0892\u0893\3\2"+
+		"\u00fb\3\2\2\2\u0884\u0885\7g\2\2\u0885\u0889\5\34\17\2\u0886\u0888\13"+
+		"\2\2\2\u0887\u0886\3\2\2\2\u0888\u088b\3\2\2\2\u0889\u088a\3\2\2\2\u0889"+
+		"\u0887\3\2\2\2\u088a\u088c\3\2\2\2\u088b\u0889\3\2\2\2\u088c\u088d\t\2"+
+		"\2\2\u088d\u08a1\3\2\2\2\u088e\u0892\7c\2\2\u088f\u0891\13\2\2\2\u0890"+
+		"\u088f\3\2\2\2\u0891\u0894\3\2\2\2\u0892\u0893\3\2\2\2\u0892\u0890\3\2"+
 		"\2\2\u0893\u0895\3\2\2\2\u0894\u0892\3\2\2\2\u0895\u08a1\t\2\2\2\u0896"+
-		"\u089a\7d\2\2\u0897\u0899\t\34\2\2\u0898\u0897\3\2\2\2\u0899\u089c\3\2"+
-		"\2\2\u089a\u0898\3\2\2\2\u089a\u089b\3\2\2\2\u089b\u089d\3\2\2\2\u089c"+
+		"\u089a\7d\2\2\u0897\u0899\13\2\2\2\u0898\u0897\3\2\2\2\u0899\u089c\3\2"+
+		"\2\2\u089a\u089b\3\2\2\2\u089a\u0898\3\2\2\2\u089b\u089d\3\2\2\2\u089c"+
 		"\u089a\3\2\2\2\u089d\u08a1\t\2\2\2\u089e\u08a1\7e\2\2\u089f\u08a1\7f\2"+
 		"\2\u08a0\u0884\3\2\2\2\u08a0\u088e\3\2\2\2\u08a0\u0896\3\2\2\2\u08a0\u089e"+
 		"\3\2\2\2\u08a0\u089f\3\2\2\2\u08a1\u00fd\3\2\2\2\u08a2\u08a4\7A\2\2\u08a3"+
