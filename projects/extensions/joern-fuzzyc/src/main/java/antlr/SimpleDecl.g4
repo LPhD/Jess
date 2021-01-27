@@ -4,27 +4,27 @@ import ModuleLex, Expressions, Preprocessor, Common;
 simple_decl : var_decl;
 
 var_decl : template_decl_start? class_def  init_declarator_list? #declByClass
-         | (TYPEDEF NEWLINE?)?  template_decl_start? type_name  init_declarator_list #declByType
-         | (TYPEDEF NEWLINE?)?  type_name '(' callingConvention? ptr_operator identifier? ')' param_type_list NEWLINE? (pre_other | macroCall)? ('=' NEWLINE? argument)? ';' #FunctionPointerDeclare
-         | ((CV_QUALIFIER | function_decl_specifiers | TYPEDEF)+ NEWLINE?)?  special_datatype NEWLINE? init_declarator_list? ';'? #StructUnionEnum
+         | (TYPEDEF expression_fragment*)?  template_decl_start? type_name  init_declarator_list #declByType
+         | (TYPEDEF expression_fragment*)?  type_name '(' callingConvention? ptr_operator identifier? ')' param_type_list expression_fragment* (pre_other | macroCall)? ('=' expression_fragment* argument)? ';' #FunctionPointerDeclare
+         | ((CV_QUALIFIER | function_decl_specifiers | TYPEDEF)+ expression_fragment*)?  special_datatype expression_fragment* init_declarator_list? ';'? #StructUnionEnum
          ;
 
 //Can be done by a macro or directly (something like __cdecl)
 callingConvention: ALPHA_NUMERIC+ ;   
          
-special_datatype: SPECIAL_DATA NEWLINE? pre_other? (identifier NEWLINE?)? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
-        | SPECIAL_DATA NEWLINE?  pre_other? identifier NEWLINE? ptrs? identifier ptrs? '=' {skipToEndOfObject(); }         //Designated initializer
-        | SPECIAL_DATA NEWLINE?  pre_other? identifier  //Short declaration
+special_datatype: SPECIAL_DATA expression_fragment* pre_other? (identifier NEWLINE?)? pre_other? OPENING_CURLY {skipToEndOfObject(); }  //Long declaration
+        | SPECIAL_DATA expression_fragment* pre_other? identifier expression_fragment* ptrs? identifier ptrs? '=' {skipToEndOfObject(); }         //Designated initializer
+        | SPECIAL_DATA expression_fragment* pre_other? identifier  //Short declaration
         ;
 
         
-init_declarator_list: init_declarator (NEWLINE? ',' NEWLINE? init_declarator)* NEWLINE? pre_other? ';';
+init_declarator_list: init_declarator (expression_fragment* ',' expression_fragment* init_declarator)* expression_fragment* pre_other? ';';
 
 
-class_def: CLASS_KEY NEWLINE? class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;
+class_def: CLASS_KEY expression_fragment* class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;
 class_name: identifier;
 base_classes: ':' base_class (',' base_class)*;
-base_class: (VIRTUAL NEWLINE?)? access_specifier? identifier;
+base_class: (VIRTUAL expression_fragment*)? access_specifier? identifier;
 
 
 type_name: (
@@ -51,10 +51,10 @@ base_type: (VOID NEWLINE? | 'long' NEWLINE? | 'char' NEWLINE? | 'int' NEWLINE? |
 
 parameter_name: identifier NEWLINE? ;
 
-param_type_list: '(' VOID ')'
-               | '('  (param_type (',' NEWLINE? param_type)*)? ')';
+param_type_list: '(' expression_fragment* VOID expression_fragment* ')'
+               | '(' expression_fragment*  (param_type (expression_fragment* ',' expression_fragment* param_type)*)? expression_fragment* ')';
 
-param_type: type_name NEWLINE? param_type_id
+param_type: type_name expression_fragment* param_type_id
                 | '...' ;
                 
 param_type_id: ptrs? ( '('  param_type_id ')' | parameter_name?) type_suffix?;

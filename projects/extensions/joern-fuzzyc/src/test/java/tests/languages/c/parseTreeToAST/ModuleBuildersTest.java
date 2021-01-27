@@ -284,19 +284,23 @@ public class ModuleBuildersTest {
 	
 	@Test
 	public void testFunctionDeclWithNewlinesAndComments() {
-		String input = "PHPAPI void php_network_populate_name_from_sockaddr(" + 
-				
+		String input = "PHPAPI void php_network_populate_name_from_sockaddr(\n" + 
+				"		/* input address */\n" + 
 				"		struct sockaddr *sa, socklen_t sl,\n" + 
-				
+				"		/* output readable address */\n" + 
 				"		zend_string **textaddr,\n" + 
-			
+				"		/* output address */\n" + 
 				"		struct sockaddr **addr,\n" + 
 				"		socklen_t *addrlen\n" + 
 				"		);";
 		List<ASTNode> codeItems = parseInput(input);
 		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
-		assertEquals("PHPAPI void php_network_populate_name_from_sockaddr ( struct sockaddr * sa , socklen_t sl , \n" + 
+		assertEquals("PHPAPI void php_network_populate_name_from_sockaddr ( \n" + 
+				" /* input address */ \n" + 
+				" struct sockaddr * sa , socklen_t sl , \n" + 
+				" /* output readable address */ \n" + 
 				" zend_string * * textaddr , \n" + 
+				" /* output address */ \n" + 
 				" struct sockaddr * * addr , \n" + 
 				" socklen_t * addrlen \n" + 
 				" ) ;", codeItem.getEscapedCodeStr());
