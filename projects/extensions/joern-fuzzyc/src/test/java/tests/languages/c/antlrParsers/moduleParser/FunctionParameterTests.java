@@ -47,7 +47,7 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 				+ "(parameter_decl_clause "
 				+ "(parameter_decl (type_name (base_type int)) (parameter_id (parameter_name (identifier a3)))) , "
 				+ "(parameter_decl (type_name (base_type int)) (parameter_id (parameter_name (identifier b3)))) , "
-				+ "\\n "
+				+ "(expression_fragment \\n) "
 				+ "(parameter_decl (type_name (base_type int)) (parameter_id (parameter_name (identifier c3)))) , "
 				+ "(parameter_decl (type_name (base_type int)) (parameter_id (parameter_name (identifier d3))))) "
 				+ ")) "
@@ -91,7 +91,7 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
-		assertEquals("(function_def (return_type (type_name (base_type pointer \\n))) (function_name (identifier alloca)) (function_param_list ( (parameter_name (identifier size)) ) \\n (type_name (base_type size_t)) (parameter_id (parameter_name (identifier size))) ; \\n) (compound_statement { return size ; }))",output);
+		assertEquals("(function_def (return_type (type_name (base_type pointer \\n))) (function_name (identifier alloca)) (function_param_list ( (parameter_name (identifier size)) ) (expression_fragment \\n) (type_name (base_type size_t)) (parameter_id (parameter_name (identifier size))) ; (expression_fragment \\n)) (compound_statement { return size ; }))",output);
 	}
 	
 	
@@ -106,7 +106,7 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
 
-		assertEquals("(function_def (return_type (type_name (base_type int \\n))) (function_name (identifier main)) (function_param_list ( (parameter_decl_clause (parameter_decl (type_name (base_type int)) (parameter_id (parameter_name (identifier argc)))) , (parameter_decl (type_name (base_type char) (ptr_operator *)) (parameter_id (parameter_name (identifier argv)) (type_suffix [ constant_expr_w_ ])))) )) \\n (compound_statement { \\n return windows_main ( argc , argv ) ; \\n }))", output);
+		assertEquals("(function_def (return_type (type_name (base_type int \\n))) (function_name (identifier main)) (function_param_list ( (parameter_decl_clause (parameter_decl (type_name (base_type int)) (parameter_id (parameter_name (identifier argc)))) , (parameter_decl (type_name (base_type char) (ptr_operator *)) (parameter_id (parameter_name (identifier argv)) (type_suffix [ constant_expr_w_ ])))) )) (expression_fragment \\n) (compound_statement { \\n return windows_main ( argc , argv ) ; \\n }))", output);
 	}
 	
 	@Test
@@ -117,6 +117,6 @@ public class FunctionParameterTests extends FunctionDefinitionTests {
 		ModuleParser parser = createParser(input);
 		String output = parser.function_def().toStringTree(parser);
 
-		assertEquals("(function_def (return_type (type_name (base_type size_t \\n))) (function_name (identifier wordchar_prev)) (function_param_list ( (parameter_decl_clause (parameter_decl (type_name (base_type char) const (ptr_operator *)) (parameter_id (parameter_name (identifier buf)))) , (parameter_decl (type_name (base_type char) const (ptr_operator *)) (parameter_id (parameter_name (identifier cur)))) , (parameter_decl (type_name (base_type char) const (ptr_operator *)) (parameter_id (parameter_name (identifier end))))) )) \\n (compound_statement { }))", output);
+		assertEquals("(function_def (return_type (type_name (base_type size_t \\n))) (function_name (identifier wordchar_prev)) (function_param_list ( (parameter_decl_clause (parameter_decl (type_name (base_type char) const (ptr_operator *)) (parameter_id (parameter_name (identifier buf)))) , (parameter_decl (type_name (base_type char) const (ptr_operator *)) (parameter_id (parameter_name (identifier cur)))) , (parameter_decl (type_name (base_type char) const (ptr_operator *)) (parameter_id (parameter_name (identifier end))))) )) (expression_fragment \\n) (compound_statement { }))", output);
 	}
 }

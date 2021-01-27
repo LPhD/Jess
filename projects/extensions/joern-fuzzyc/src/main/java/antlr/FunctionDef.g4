@@ -2,21 +2,21 @@ grammar FunctionDef;
 import ModuleLex, Preprocessor, SimpleDecl, Expressions, Common;
 
 function_def : 
-                template_decl_start? return_type? (pre_other NEWLINE?)? function_name NEWLINE? function_param_list ctor_list? NEWLINE? COMMENT? NEWLINE? compound_statement
-                | return_type? macroCall_asFunctionHeader NEWLINE? COMMENT? NEWLINE? compound_statement //This is for macros that replace the function header
+                template_decl_start? return_type? (pre_other expression_fragment*)? function_name expression_fragment* function_param_list ctor_list? expression_fragment* compound_statement
+                | return_type? macroCall_asFunctionHeader expression_fragment* compound_statement //This is for macros that replace the function header
                 ; 
 
 macroCall_asFunctionHeader: macroCall;
 
-return_type : ((function_decl_specifiers  NEWLINE?)* type_name) (ptr_operator NEWLINE?)*
-				| macroCall NEWLINE?
+return_type : ((function_decl_specifiers  expression_fragment*)* type_name) (ptr_operator expression_fragment*)*
+				| macroCall expression_fragment*
 				;
 
-function_param_list : '(' NEWLINE? parameter_decl_clause? NEWLINE? ')' '*'? (CV_QUALIFIER NEWLINE?)*  exception_specification?
-                    | '(' NEWLINE? parameter_name (',' NEWLINE? parameter_name)* NEWLINE? ')' NEWLINE? (type_name parameter_id (',' NEWLINE? parameter_id)* ';'  NEWLINE? COMMENT? NEWLINE?)+  //For the rare case where the parameters are declared outside of the parantheses
+function_param_list : '(' expression_fragment* parameter_decl_clause? expression_fragment* ')' '*'? (CV_QUALIFIER expression_fragment*)*  exception_specification?
+                    | '(' expression_fragment* parameter_name (',' expression_fragment* parameter_name)* expression_fragment* ')' expression_fragment* (type_name parameter_id (',' expression_fragment* parameter_id)* ';'  expression_fragment*)+  //For the rare case where the parameters are declared outside of the parantheses
                     ;
 
-parameter_decl_clause: ( COMMENT? NEWLINE? parameter_decl (',' NEWLINE? COMMENT? NEWLINE? parameter_decl)* ) (',' NEWLINE? COMMENT? NEWLINE? '...' )?;
+parameter_decl_clause: ( expression_fragment* parameter_decl (expression_fragment* ',' expression_fragment* parameter_decl )* ) (expression_fragment* ',' expression_fragment* '...' )?;
                      
 parameter_decl : VOID 
                 | type_name parameter_id;

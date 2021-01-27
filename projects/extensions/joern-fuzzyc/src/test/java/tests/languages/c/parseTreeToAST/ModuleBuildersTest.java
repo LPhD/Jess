@@ -283,6 +283,26 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testFunctionDeclWithNewlinesAndComments() {
+		String input = "PHPAPI void php_network_populate_name_from_sockaddr(" + 
+				
+				"		struct sockaddr *sa, socklen_t sl,\n" + 
+				
+				"		zend_string **textaddr,\n" + 
+			
+				"		struct sockaddr **addr,\n" + 
+				"		socklen_t *addrlen\n" + 
+				"		);";
+		List<ASTNode> codeItems = parseInput(input);
+		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(0);
+		assertEquals("PHPAPI void php_network_populate_name_from_sockaddr ( struct sockaddr * sa , socklen_t sl , \n" + 
+				" zend_string * * textaddr , \n" + 
+				" struct sockaddr * * addr , \n" + 
+				" socklen_t * addrlen \n" + 
+				" ) ;", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testDeclWithExternKeyword() {
 		String input = "extern int XML_ProcessFile(XML_Parser parser, const XML_Char *filename);";
 		List<ASTNode> codeItems = parseInput(input);
