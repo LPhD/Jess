@@ -1,6 +1,7 @@
 package tests.languages.c.antlrParsers.moduleParser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -27,45 +28,21 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String outputExpected = "(pre_define #      define (pre_macro_identifier (keyword inline)) (pre_macro (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier __inline))))))))))))))))))) <EOF>))";
 		assertEquals(outputExpected, output);
 	}
-	
-
-	@Test
-	public void testPreprocessorIfs() {
-		String input = "int foo(){ #if bar \n int i; #endif}";
-
-		ModuleParser parser = createParser(input);
-		String output = parser.function_def().toStringTree(parser);
-		String outputExpected = "(function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #if bar \\n int i ; #endif }))";
-		assertEquals(outputExpected, output);
-	}
-	
-	@Test
-	public void testNestedPreprocessorIfs() {
-		String input = "int foo(){ #if bar \n #if bar2 \n #endif #endif}";
-
-		ModuleParser parser = createParser(input);
-		String output = parser.function_def().toStringTree(parser);
-		String outputExpected = "(function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #if bar \\n #if bar2 \\n #endif #endif }))";
-		assertEquals(outputExpected, output);
-	}
 
 	@Test
 	public void testPreprocIfBeforeFunc() {
-		String input = "#ifdef foo \n int foo(){ #if x \n foo(); #else #endif } abc #endif";
+		String input = "#ifdef foo \n int foo(){ #if x \n foo(); #else #endif } #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))))) \\n))) "
-				+ "(function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #if x \\n foo ( ) ; #else #endif })) (water abc) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
-		assertEquals(outputExpected, output);
+		assertTrue("Expected no water and no pre_else_statement, but pre_if_statement #ifdef, function_def, and pre_endif_statement #endif, but got instead: "+output, !output.contains("water") && !output.contains("pre_else_statement") &&  output.contains("pre_if_statement #ifdef") &&  output.contains("function_def") && output.contains("pre_endif_statement #endif"));			
 	}
 
 	@Test
 	public void testPreprocIfNesting() {
-		String input = "int foo(){ #ifdef x \n #ifdef y \n #else #endif #endif abc(); } foo();";
+		String input = "#ifdef x \n #if y \n #else  #endif  #endif;";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #ifdef x \\n #ifdef y \\n #else #endif #endif abc ( ) ; })) (pre_statement (pre_command (macroCall (pre_macro_identifier (identifier foo)) ( )))) (null_expression ;))";
-		assertEquals(outputExpected, output);
+		assertTrue("Expected no water, but pre_if_statement #ifdef, pre_if_statement #if, pre_else_statement #else, and pre_endif_statement #endif, but got instead: "+output, !output.contains("water") && output.contains("pre_if_statement #ifdef") && output.contains("pre_if_statement #if") && output.contains("pre_else_statement #else") && output.contains("pre_endif_statement #endif"));			
 	}
 
 	@Test
@@ -73,18 +50,15 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "#ifdef x \n int i;  #else int x; #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier x))))))))))))))))))))) \\n))) "
-				+ "(simple_decl (var_decl (type_name (base_type int)) (init_declarator_list (init_declarator (declarator (identifier i))) ;))) (pre_statement (pre_blockstarter (pre_else_statement #else))) (simple_decl (var_decl (type_name (base_type int)) (init_declarator_list (init_declarator (declarator (identifier x))) ;))) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
-		assertEquals(outputExpected, output);
+		assertTrue("Expected no water, but pre_if_statement #ifdef, pre_else_statement #else, identifier i, identifier x, and simple_decl, but got instead: "+output, !output.contains("water") && output.contains("pre_if_statement #ifdef") && output.contains("pre_else_statement #else") && output.contains("identifier i") && output.contains("identifier x") && output.contains("simple_decl"));			
 	}
 
 	@Test
-	public void testPreprocIfInElse() {
-		String input = "foo(){ #ifdef x \n #else #ifdef y \n #endif #endif abc(); } foo();";
+	public void testPreprocInsideAndOutsideOfFunction() {
+		String input = "foo(){ #ifdef x \n #else #ifdef y \n #endif #endif abc(); } foo()";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (function_def (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #ifdef x \\n #else #ifdef y \\n #endif #endif abc ( ) ; })) (pre_statement (pre_command (macroCall (pre_macro_identifier (identifier foo)) ( )))) (null_expression ;))";
-		assertEquals(outputExpected, output);
+		assertTrue("Expected no water and no pre_if_statement, but function_def and macroCall, but got instead: "+output, !output.contains("water") && !output.contains("pre_if_statement") && output.contains("function_def") && output.contains("macroCall"));					
 	}
 
 	@Test
@@ -92,21 +66,16 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "#ifdef foo \n int foo(){ #else { #endif } abc #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #ifdef (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier foo))))))))))))))))))))) \\n))) "
-				+ "(function_def (return_type (type_name (base_type int))) (function_name (identifier foo)) (function_param_list ( )) (compound_statement { #else { #endif })) (water abc) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
-		assertEquals(outputExpected, output);
+		assertTrue("Expected water abc, pre_if_statement #ifdef, no pre_else_statement #else, pre_endif_statement #endif, but got instead: "+output, output.contains("water abc") && output.contains("pre_if_statement #ifdef") && !output.contains("pre_else_statement #else") && output.contains("pre_endif_statement #endif"));					
 	}
 	
+	//Currently, comments are parsed as part of the preStatement, but do not get an own object
 	@Test
 	public void testPreIFWithComment() {
 		String input = "#if A /*Checks for A*/ \n";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #if (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression "
-				+ "(primary_expression (identifier A)))))))))))))))))))))))) "
-				+ "(comment /*Checks for A*/) "
-				+ "(water \\n))";
-		assertEquals(outputExpected, output);
+		assertTrue("Expected no water and no comment, but a pre_if_statement #if, but got instead: "+output, !output.contains("water") && output.contains("pre_if_statement #if") && !output.contains("comment"));							
 	}
 	
 	@Test
@@ -114,8 +83,7 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		String input = "#if !defined(_TRACE_KVM_H) || defined(TRACE_HEADER_MULTI_READ) \n #endif";
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
-		String outputExpected = "(code (pre_statement (pre_blockstarter (pre_if_statement #if (pre_if_condition (condition (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (unary_op_and_cast_expr (unary_operator !) (cast_expression (unary_expression (defined_expression defined ( (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier _TRACE_KVM_H))))))))))))))))))) ))))))))))))))))) || (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (defined_expression defined ( (expr (assign_expr (conditional_expression (or_expression (and_expression (inclusive_or_expression (exclusive_or_expression (bit_and_expression (equality_expression (relational_expression (shift_expression (additive_expression (multiplicative_expression (function_pointer_use_expression (cast_expression (unary_expression (postfix_expression (primary_expression (identifier TRACE_HEADER_MULTI_READ))))))))))))))))))) ))))))))))))))))))))) \\n))) (pre_statement (pre_blockstarter (pre_endif_statement #endif))))";
-		assertEquals(outputExpected, output);
+		assertTrue("Expected no water, but pre_if_statement #if, but got instead: "+output, !output.contains("water") && output.contains("pre_if_statement #if"));	
 	}
 	
 	@Test
