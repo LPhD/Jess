@@ -210,7 +210,7 @@ public class ExpressionParsingTest {
 		assertEquals("return ( php_stream_xport_register ( \"tcp\" , php_stream_generic_socket_factory ) == SUCCESS \n" + 
 				" && \n" + 
 				" php_stream_xport_register ( \"udp\" , php_stream_generic_socket_factory ) == SUCCESS \n" + 
-				" #if defined AF_UNIX \n" + 
+				" #if defined ( AF_UNIX ) && ! ( defined ( PHP_WIN32 ) || defined ( __riscos__ ) ) \n" +  
 				" && \n" + 
 				" php_stream_xport_register ( \"unix\" , php_stream_generic_socket_factory ) == SUCCESS \n" + 
 				" && \n" + 
