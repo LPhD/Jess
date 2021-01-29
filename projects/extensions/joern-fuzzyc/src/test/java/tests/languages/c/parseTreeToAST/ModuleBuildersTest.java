@@ -800,7 +800,7 @@ public class ModuleBuildersTest {
 		List<ASTNode> codeItems = parseInput(input);
 		PreDefine preDef = (PreDefine) codeItems.get(0);
 		//This must contain just the define with its comment, no other statements
-		assertEquals("#define uthash_fatal( msg ) exit ( - 1 ) /* fatal error (out of memory,etc) */", preDef.getEscapedCodeStr());
+		assertEquals("#define uthash_fatal( msg ) exit ( - 1 ) /* fatal error (out of memory,etc) */ \n", preDef.getEscapedCodeStr());
 	}
 	
 	@Test

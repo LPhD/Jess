@@ -63,7 +63,7 @@ public class PreprocessorTests {
 		assertEquals("#ifdef __cplusplus \n", firstIf.getEscapedCodeStr());
 		//First define is variable
 		PreDefine preDef = (PreDefine) firstIf.getVariableStatement(0);
-		assertEquals("#  define inline inline", preDef.getEscapedCodeStr());
+		assertEquals("#  define inline inline \n", preDef.getEscapedCodeStr());
 		
 		PreElseStatement preElse = (PreElseStatement) firstIf.getChild(1);
 		assertEquals("First #else has 1 child (#endif)", 1, preElse.getChildCount());
@@ -388,7 +388,7 @@ public class PreprocessorTests {
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals("PreDefine", contentItem.getStatement(0).getTypeAsString());
 		assertEquals("XML_FMT_INT_MOD", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
-		assertEquals("\"ll\" <EOF>", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
+		assertEquals("\"ll\"", contentItem.getStatement(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test
@@ -441,8 +441,8 @@ public class PreprocessorTests {
 		assertEquals("PreDefine", statement.getTypeAsString());
 		assertEquals("#define size( a ) calculateSize ( a , a )", statement.getEscapedCodeStr());
 		assertEquals("size ( a )", statement.getChild(0).getEscapedCodeStr());
-		assertEquals("calculateSize ( a , a )", statement.getChild(1).getChild(0).getEscapedCodeStr());
-		assertEquals("CallExpression", statement.getChild(1).getChild(0).getTypeAsString());
+		assertEquals("calculateSize", statement.getChild(1).getChild(0).getEscapedCodeStr());
+		assertEquals("Identifier", statement.getChild(1).getChild(0).getTypeAsString());
 	}	
 	
 	@Test
@@ -453,8 +453,8 @@ public class PreprocessorTests {
 		assertEquals("PreDefine", statement.getTypeAsString());
 		assertEquals("# define SG( v ) ZEND_TSRMG_FAST ( sapi_globals_offset , sapi_globals_struct * , v )", statement.getEscapedCodeStr());
 		assertEquals("SG ( v )", statement.getChild(0).getEscapedCodeStr());
-		assertEquals("ZEND_TSRMG_FAST ( sapi_globals_offset , sapi_globals_struct * , v )", statement.getChild(1).getChild(0).getEscapedCodeStr());
-		assertEquals("CallExpression", statement.getChild(1).getChild(0).getTypeAsString());
+		assertEquals("ZEND_TSRMG_FAST", statement.getChild(1).getChild(0).getEscapedCodeStr());
+		assertEquals("Identifier", statement.getChild(1).getChild(0).getTypeAsString());
 	}
 	
 	@Test
