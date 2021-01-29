@@ -19,7 +19,6 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		assertEquals(outputExpected, output);
 	}
 	
-	
 	@Test
 	public void testDefiningOfKeywords() {
 		String input = "#      define inline __inline";
@@ -43,6 +42,15 @@ public class PreprocessorTests extends FunctionDefinitionTests {
 		ModuleParser parser = createParser(input);
 		String output = parser.code().toStringTree(parser);
 		assertTrue("Expected no water, but pre_if_statement #ifdef, pre_if_statement #if, pre_else_statement #else, and pre_endif_statement #endif, but got instead: "+output, !output.contains("water") && output.contains("pre_if_statement #ifdef") && output.contains("pre_if_statement #if") && output.contains("pre_else_statement #else") && output.contains("pre_endif_statement #endif"));			
+	}
+	
+	@Test
+	public void testPreIfWithNestedCalls() {
+		String input = "#if (CALL1(7) > 7) && CALL2(CALL3(BUBBLE)) && CALL4(BUBBLE - (1 + 5 ) )  && CALL5(BUBBLE)  \n int i;  #endif";
+		ModuleParser parser = createParser(input);
+		String output = parser.code().toStringTree(parser);
+		assertTrue("Expected no water, but pre_if_statement #if, 5 x call_in_preStatement, and identifiers with CALL1-5, but got instead: "+output, !output.contains("water") && output.contains("pre_if_statement #if") && (output.split("call_in_preStatement", -1).length -1 == 5) 
+				&& output.contains("identifier CALL1") && output.contains("identifier CALL2") && output.contains("identifier CALL3") && output.contains("identifier CALL4") && output.contains("identifier CALL5") );			
 	}
 
 	@Test

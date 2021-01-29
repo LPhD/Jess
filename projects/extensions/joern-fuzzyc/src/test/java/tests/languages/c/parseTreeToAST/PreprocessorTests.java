@@ -174,16 +174,23 @@ public class PreprocessorTests {
 	public void testPreIfWithNestedCondition() {
 		String input = "#if (foo < 5 && ( x < 1 || x > 5 )) \n  int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		PreIfStatement preIf = (PreIfStatement) contentItem.getStatement(0);
+		//#if and int i (#endif is child of #if)
 		assertEquals(2, contentItem.getStatements().size());
-		assertEquals("foo < 5 && ( x < 1 || x > 5 )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
+		assertEquals("#if ( foo < 5 && ( x < 1 || x > 5 ) ) \n", preIf.getEscapedCodeStr());
 	}
 	
 	@Test
 	public void testPreIfWithEvenMoreNestedCondition() {
 		String input = "#if (MAKRO(7) > 7) && (IS_ENABLED(BUBBLE) && ENABLED(BUBBLE)) \n int i;  #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		PreIfStatement preIf = (PreIfStatement) contentItem.getStatement(0);
+		//#if and int i (#endif is child of #if)
 		assertEquals(2, contentItem.getStatements().size());
-		assertEquals("( MAKRO ( 7 ) > 7 ) && ( IS_ENABLED ( BUBBLE ) && ENABLED ( BUBBLE ) )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
+		assertEquals("#if ( MAKRO ( 7 ) > 7 ) && ( IS_ENABLED ( BUBBLE ) && ENABLED ( BUBBLE ) ) \n", preIf.getEscapedCodeStr());
+		assertEquals("MAKRO", preIf.getChild(0).getChild(0).getEscapedCodeStr());
+		assertEquals("IS_ENABLED", preIf.getChild(0).getChild(1).getEscapedCodeStr());
+		assertEquals("ENABLED", preIf.getChild(0).getChild(2).getEscapedCodeStr());
 	}
 	
 	@Test
@@ -198,8 +205,10 @@ public class PreprocessorTests {
 				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 33 , 100 ) ) \\\n" + 
 				" || ( LIBAVFORMAT_VERSION_MICRO < 100 && /* Libav */ \\\n" + 
 				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 5 , 0 ) ) <EOF>",preIf.getEscapedCodeStr());
-		//2 calls to AV_VERSION_INT are exected here
-		assertEquals("", preIf.getChild(0).getEscapedCodeStr());
+		//2 calls to AV_VERSION_INT are expected here, the preIfCondition contains only the name of the first (why?), its 2 children are the 2 identifiers of the 2 calls
+		assertEquals("AV_VERSION_INT", preIf.getChild(0).getEscapedCodeStr()); //This one here is strange
+		assertEquals("AV_VERSION_INT", preIf.getChild(0).getChild(0).getEscapedCodeStr());
+		assertEquals("AV_VERSION_INT", preIf.getChild(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test

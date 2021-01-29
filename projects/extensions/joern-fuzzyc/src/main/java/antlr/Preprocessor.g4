@@ -21,10 +21,10 @@ pre_else_statement: PRE_ELSE;
 
 pre_endif_statement: PRE_ENDIF;
 
-pre_if_condition:  ( call_in_preStatement | ~(NEWLINE) )*? ;  //No comments, as this would cause problems. Greedy, because it should terminate at first match
+pre_if_condition:  ( call_in_preStatement | ~(NEWLINE) )*? ;  //No comments, as this would cause problems. Greedy, because it should terminate at first matching newline
  
- 
-call_in_preStatement: identifier '(' ( call_in_preStatement | ~(NEWLINE))* ')';   //We are only interested in calls to other macros or functions. Currently, no further analysis of functionPointerUses
+//Currently, this rule has no visitors and therefore no own java object / db node. But this is okay, as we are only interested in the identifiers anyway 
+call_in_preStatement: identifier '(' ( call_in_preStatement | ~(NEWLINE) )*? ')';   //We are only interested in calls to other macros or functions. Currently, no further analysis of functionPointerUses
 
   
                              
