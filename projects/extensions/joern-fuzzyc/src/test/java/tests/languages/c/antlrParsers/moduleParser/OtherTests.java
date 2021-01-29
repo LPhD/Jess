@@ -18,6 +18,7 @@ public class OtherTests extends FunctionDefinitionTests {
 		assertTrue(output.startsWith("(function_def "));
 	}
 	
+	
 	@Test
 	public void testMacroCallReplacingFunctionHeader() {
 		String input = "PHP_FUNCTION(header_register_callback)" + 

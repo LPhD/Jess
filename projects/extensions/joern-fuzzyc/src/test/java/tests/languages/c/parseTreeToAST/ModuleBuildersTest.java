@@ -20,12 +20,15 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
+import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.preprocessor.PreStatementBase;
 import ast.statements.FunctionPointerDeclare;
 import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
+import ast.statements.blockstarters.ForStatement;
+import ast.statements.blockstarters.WhileStatement;
 import parsing.TokenSubStream;
 import parsing.Modules.ANTLRCModuleParserDriver;
 
@@ -801,6 +804,59 @@ public class ModuleBuildersTest {
 		PreDefine preDef = (PreDefine) codeItems.get(0);
 		//This must contain just the define with its comment, no other statements
 		assertEquals("#define uthash_fatal( msg ) exit ( - 1 ) /* fatal error (out of memory,etc) */ \n", preDef.getEscapedCodeStr());
+	}
+	
+	
+	@Test
+	public void testVariableStatements2() {
+		String input = "/* If compiling with GCC 2, this file's not needed.  */\n" + 
+				"#if !defined (__GNUC__) || __GNUC__ < 2\n" + 
+				"\n" + 
+				"/* If someone has defined alloca as a macro,\n" + 
+				"   there must be some other way alloca is supposed to work.  */\n" + 
+				"#ifndef alloca\n" + 
+				"\n" + 
+				"#ifdef emacs\n" + 
+				"#ifdef static\n" + 
+				"/* actually, only want this if static is defined as \"\"\n" + 
+				"   -- this is for usg, in which emacs must undefine static\n" + 
+				"   in order to make unexec workable\n" + 
+				"   */\n" + 
+				"#ifndef STACK_DIRECTION\n"
+				+ "you\n" + 
+				"lose\n" + 
+				"-- must know STACK_DIRECTION at compile-time" +
+
+				"#endif /* STACK_DIRECTION undefined */\n" + 
+				"#endif /* static */\n" + 
+				"#endif /* emacs */\n" + 
+				"#endif /* no alloca */\n" + 
+				"#endif /* not GCC version 2 */\n";
+		List<ASTNode> codeItems = parseInput(input);
+		PreBlockstarter bs = (PreBlockstarter) codeItems.get(0);
+		assertEquals("", bs.getEscapedCodeStr());
+	}
+	
+	//This problem does not occur in the functionParser variant of this test. It checks a rare case where a singleline while is the last statement
+	@Test
+	public void testSingleLineWhile() {
+		String input = "PHPAPI void php_output_end_all(void) {\n" + 
+				"	while (OG(active) && php_output_stack_pop(PHP_OUTPUT_POP_FORCE));\n" + 
+				"}";
+		List<ASTNode> codeItems = parseInput(input);
+		WhileStatement wStmt = (WhileStatement) codeItems.get(0).getChild(0).getChild(0);
+		assertEquals("while ( OG ( active ) && php_output_stack_pop ( PHP_OUTPUT_POP_FORCE ) ) ;", wStmt.getEscapedCodeStr());
+	}
+	
+	//Same as above, but for forStatements
+	@Test
+	public void testSingleLineFor() {
+		String input = "PHPAPI void php_output_end_all(void) {\n" + 
+				"	for(;;);\n" + 
+				"}";
+		List<ASTNode> codeItems = parseInput(input);
+		ForStatement fStmt = (ForStatement) codeItems.get(0).getChild(0).getChild(0);
+		assertEquals("for ( ; ; ) ;", fStmt.getEscapedCodeStr());
 	}
 	
 	@Test

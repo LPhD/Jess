@@ -863,7 +863,23 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 			//Check if the BlockCloser is the last item on the stack
 			if(stack.size() == 2) {
 				closeParentCompountStatement();
-			} else {
+			//This can happen in the rare case where we have a singleline WhileStatement as last statement	
+			} else if (stack.size() == 3 ){
+				itemToRemove = stack.pop();
+				//Check if we really have a while or for in between
+				if (stack.peek() instanceof WhileStatement || stack.peek() instanceof ForStatement ) {
+					//Add the while/for to the root compound
+					BlockStarter bStmt = (BlockStarter) stack.pop();
+					stack.peek().addChild(bStmt);
+					//Then close the parent/root compound
+					stack.push(itemToRemove);
+					closeParentCompountStatement();
+				} else {
+					//If we dont have a while in between, continue as normal (e.g. when we have an if without compound in between)
+					stack.push(itemToRemove);
+					closeCompoundStatement();
+				}
+			} else {	
 				closeCompoundStatement();
 			}
 			return;

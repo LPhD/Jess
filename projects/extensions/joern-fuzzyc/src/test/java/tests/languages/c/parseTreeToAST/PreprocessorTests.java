@@ -88,6 +88,7 @@ public class PreprocessorTests {
 		assertEquals("i ++ ;", bs.getVariableStatement(1).getEscapedCodeStr());
 	}
 
+
 	@Test
 	public void testPreElseStatement() {
 		String input = "#if foo \n  bar(); #else  foo(); foo(); #endif";

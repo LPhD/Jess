@@ -137,6 +137,7 @@ public class ASTNode {
 		if (nodeId == null) {
 			System.err.println("Trying to retrieve node ID for node " + super.toString() + ", but none is set " + "(type = "
 							+ getTypeAsString() + ", path = "+ path + ", line = " + line + ", code = " + getCodeStr() + ")");
+			new Exception().printStackTrace();
 			id = -1l;
 		} else {
 			id = this.nodeId;
