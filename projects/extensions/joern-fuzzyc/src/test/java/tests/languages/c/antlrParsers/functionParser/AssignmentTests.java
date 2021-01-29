@@ -109,5 +109,24 @@ public class AssignmentTests extends FunctionParserTestBase {
 		assertTrue("Expected no water, but preprocessor_fragment and expr_statement, but got instead: "+output, !output.contains("water") && output.contains("preprocessor_fragment") && output.contains("expr_statement") );
 	}
 	
+	@Test
+	public void testMoreComplexIfdefInMoreComplecExpression() {
+		String input = "\n" + 
+				"	return (php_stream_xport_register(\"tcp\", php_stream_generic_socket_factory) == SUCCESS\n" + 
+				"			&&\n" + 
+				"			php_stream_xport_register(\"udp\", php_stream_generic_socket_factory) == SUCCESS\n" + 
+				"#if defined(AF_UNIX) && !(defined(PHP_WIN32) || defined(__riscos__)) \n" + 
+				"			&&\n" + 
+				"			php_stream_xport_register(\"unix\", php_stream_generic_socket_factory) == SUCCESS\n" + 
+				"			&&\n" + 
+				"			php_stream_xport_register(\"udg\", php_stream_generic_socket_factory) == SUCCESS\n" + 
+				"#endif\n" + 
+				"		) ? SUCCESS : FAILURE;";
+		FunctionParser functionParser = createFunctionParser();
+		ParseTree tree = functionParser.parseString(input);
+		String output = tree.toStringTree(functionParser.getAntlrParser());
+		assertTrue("Expected no water, but preprocessor_fragment and return_statement, but got instead: "+output, !output.contains("water") && output.contains("preprocessor_fragment") && output.contains("jump_statement") );
+	}
+	
 
 }

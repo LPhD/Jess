@@ -198,7 +198,7 @@ public class ExpressionParsingTest {
 				"	return (php_stream_xport_register(\"tcp\", php_stream_generic_socket_factory) == SUCCESS\n" + 
 				"			&&\n" + 
 				"			php_stream_xport_register(\"udp\", php_stream_generic_socket_factory) == SUCCESS\n" + 
-				"#if defined(AF_UNIX) && !(defined(PHP_WIN32) || defined(__riscos__))  \n" + 
+				"#if defined(AF_UNIX) && !(defined(PHP_WIN32) || defined(__riscos__)) \n" + 
 				"			&&\n" + 
 				"			php_stream_xport_register(\"unix\", php_stream_generic_socket_factory) == SUCCESS\n" + 
 				"			&&\n" + 
@@ -206,6 +206,8 @@ public class ExpressionParsingTest {
 				"#endif\n" + 
 				"		) ? SUCCESS : FAILURE;";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		assertEquals("PreFragment",  contentItem.getStatements().get(0).getTypeAsString());
+		assertEquals("#if defined ( AF_UNIX ) && ! ( defined ( PHP_WIN32 ) || defined ( __riscos__ ) ) \n",  contentItem.getStatements().get(0).getEscapedCodeStr());
 		ReturnStatement statementItem = (ReturnStatement) contentItem.getStatements().get(2); // 0 + 1 are the preFragments
 		assertEquals("return ( php_stream_xport_register ( \"tcp\" , php_stream_generic_socket_factory ) == SUCCESS \n" + 
 				" && \n" + 

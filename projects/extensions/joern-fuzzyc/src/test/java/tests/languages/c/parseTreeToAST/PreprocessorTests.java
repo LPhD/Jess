@@ -159,7 +159,8 @@ public class PreprocessorTests {
 		String input = "#if (foo < 5) \n int i; #endif";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
 		assertEquals(2, contentItem.getStatements().size());
-		assertEquals("foo < 5", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
+		//No relevant childs, therefore empty
+		assertEquals("", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
 	}
 	
 	@Test
@@ -192,10 +193,13 @@ public class PreprocessorTests {
 				"    || (LIBAVFORMAT_VERSION_MICRO < 100 && /* Libav */ \\\n" + 
 				"        LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(57, 5, 0))";
 		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
-		assertEquals("( LIBAVFORMAT_VERSION_MICRO >= 100 /* FFmpeg */ && \\ \n" + 
-				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 33 , 100 ) ) \\ \n" + 
-				" || ( LIBAVFORMAT_VERSION_MICRO < 100 && /* Libav */ \\ \n" + 
-				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 5 , 0 ) )", contentItem.getStatement(0).getChild(0).getEscapedCodeStr());
+		PreIfStatement preIf = (PreIfStatement) contentItem.getStatement(0);
+		assertEquals("#if ( LIBAVFORMAT_VERSION_MICRO >= 100 /* FFmpeg */ && \\\n" + 
+				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 33 , 100 ) ) \\\n" + 
+				" || ( LIBAVFORMAT_VERSION_MICRO < 100 && /* Libav */ \\\n" + 
+				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 5 , 0 ) ) <EOF>",preIf.getEscapedCodeStr());
+		//2 calls to AV_VERSION_INT are exected here
+		assertEquals("", preIf.getChild(0).getEscapedCodeStr());
 	}
 	
 	@Test

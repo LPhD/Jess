@@ -13,20 +13,23 @@ pre_blockstarter: pre_if_statement
                       | pre_else_statement
                       | pre_endif_statement;           
 														
-pre_if_statement: PRE_IF pre_if_condition { preProcFindConditionEnd(); };   //Statement ends with a newline without a previous backslash 
+pre_if_statement: PRE_IF pre_if_condition (NEWLINE | EOF);   //Statement ends with a newline (or end of file) without a previous backslash 
                 
-pre_elif_statement: PRE_ELIF pre_if_condition { preProcFindConditionEnd(); };
+pre_elif_statement: PRE_ELIF pre_if_condition (NEWLINE | EOF);
                 
 pre_else_statement: PRE_ELSE;
 
 pre_endif_statement: PRE_ENDIF;
 
-pre_if_condition: condition
-				| '(' condition ')'
-				| keyword; //If a macro is redefining a keyword
+pre_if_condition:  ( call_in_preStatement | ~(NEWLINE) )*? ;  //No comments, as this would cause problems. Greedy, because it should terminate at first match
+ 
+ 
+call_in_preStatement: identifier '(' ( call_in_preStatement | ~(NEWLINE))* ')';   //We are only interested in calls to other macros or functions. Currently, no further analysis of functionPointerUses
+
+  
                              
-condition: expr
-     | type_name declarator NEWLINE* '=' NEWLINE* assign_expr;
+//condition: expr
+//     | type_name declarator NEWLINE* '=' NEWLINE* assign_expr;
      
 //_______________________PRE BLOCKSTARTER END_________________________   
 
@@ -56,7 +59,10 @@ pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
 
 pre_macro: (expr | '\\' NEWLINE )+ (NEWLINE | EOF)  //Macros end always with a newline (without a backslash beforhead) or the end of file
             | { preProcFindMacroEnd(); };   //Backup
-                  
+            
+ 
+ 
+              
 macroCall: pre_macro_identifier? pre_macro_identifier '(' 
         (  ( (expr | type_name | relational_operator | equality_operator)?  NEWLINE?) (','  NEWLINE? (expr | type_name | relational_operator | equality_operator))* ','?
             | VOID

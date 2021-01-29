@@ -370,6 +370,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCall_in_preStatement(FunctionParser.Call_in_preStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCall_in_preStatement(FunctionParser.Call_in_preStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPre_command(FunctionParser.Pre_commandContext ctx) { }
 	/**
 	 * {@inheritDoc}

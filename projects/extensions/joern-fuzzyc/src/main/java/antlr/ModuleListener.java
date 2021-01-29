@@ -104,15 +104,15 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitPre_if_condition(ModuleParser.Pre_if_conditionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#condition}.
+	 * Enter a parse tree produced by {@link ModuleParser#call_in_preStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterCondition(ModuleParser.ConditionContext ctx);
+	void enterCall_in_preStatement(ModuleParser.Call_in_preStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ModuleParser#condition}.
+	 * Exit a parse tree produced by {@link ModuleParser#call_in_preStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitCondition(ModuleParser.ConditionContext ctx);
+	void exitCall_in_preStatement(ModuleParser.Call_in_preStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_command}.
 	 * @param ctx the parse tree

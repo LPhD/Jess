@@ -330,6 +330,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitPre_if_condition(FunctionParser.Pre_if_conditionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#call_in_preStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterCall_in_preStatement(FunctionParser.Call_in_preStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#call_in_preStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitCall_in_preStatement(FunctionParser.Call_in_preStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#pre_command}.
 	 * @param ctx the parse tree
 	 */

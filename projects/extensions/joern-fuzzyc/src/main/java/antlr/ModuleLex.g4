@@ -1,5 +1,6 @@
 lexer grammar ModuleLex;
 
+ESCAPED_NEWLINE: '\\' [ \t\u000C]* '\r'? '\n';//For preprocessor
 NEWLINE: '\r'? '\n';
 ESCAPE: '\\';
 ELLIPSIS : '...';
