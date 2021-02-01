@@ -820,6 +820,16 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitTestEnd(FunctionParser.TestEndContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FunctionParser#phpErrorMessage}.
+	 * @param ctx the parse tree
+	 */
+	void enterPhpErrorMessage(FunctionParser.PhpErrorMessageContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FunctionParser#phpErrorMessage}.
+	 * @param ctx the parse tree
+	 */
+	void exitPhpErrorMessage(FunctionParser.PhpErrorMessageContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FunctionParser#function_def}.
 	 * @param ctx the parse tree
 	 */

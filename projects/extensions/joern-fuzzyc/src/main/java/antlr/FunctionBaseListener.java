@@ -958,6 +958,18 @@ public class FunctionBaseListener implements FunctionListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPhpErrorMessage(FunctionParser.PhpErrorMessageContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPhpErrorMessage(FunctionParser.PhpErrorMessageContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunction_def(FunctionParser.Function_defContext ctx) { }
 	/**
 	 * {@inheritDoc}

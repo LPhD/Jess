@@ -718,6 +718,18 @@ public class ModuleBaseListener implements ModuleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPhpErrorMessage(ModuleParser.PhpErrorMessageContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPhpErrorMessage(ModuleParser.PhpErrorMessageContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFunction_def(ModuleParser.Function_defContext ctx) { }
 	/**
 	 * {@inheritDoc}

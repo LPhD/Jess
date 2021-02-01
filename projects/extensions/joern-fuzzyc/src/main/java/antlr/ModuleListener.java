@@ -594,6 +594,16 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitTestEnd(ModuleParser.TestEndContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ModuleParser#phpErrorMessage}.
+	 * @param ctx the parse tree
+	 */
+	void enterPhpErrorMessage(ModuleParser.PhpErrorMessageContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ModuleParser#phpErrorMessage}.
+	 * @param ctx the parse tree
+	 */
+	void exitPhpErrorMessage(ModuleParser.PhpErrorMessageContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ModuleParser#function_def}.
 	 * @param ctx the parse tree
 	 */

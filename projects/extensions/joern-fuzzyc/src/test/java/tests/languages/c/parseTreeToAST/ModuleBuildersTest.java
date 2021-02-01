@@ -16,6 +16,7 @@ import ast.c.preprocessor.blockstarter.PreElseStatement;
 import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.preprocessor.commands.macro.MacroCall;
 import ast.c.preprocessor.commands.macro.PreDefine;
+import ast.custom.CustomNode;
 import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
@@ -808,7 +809,7 @@ public class ModuleBuildersTest {
 	
 	
 	@Test
-	public void testVariableStatements2() {
+	public void testSpecificPHPWater() {
 		String input = "/* If compiling with GCC 2, this file's not needed.  */\n" + 
 				"#if !defined (__GNUC__) || __GNUC__ < 2\n" + 
 				"\n" + 
@@ -826,15 +827,34 @@ public class ModuleBuildersTest {
 				+ "you\n" + 
 				"lose\n" + 
 				"-- must know STACK_DIRECTION at compile-time" +
-
 				"#endif /* STACK_DIRECTION undefined */\n" + 
 				"#endif /* static */\n" + 
-				"#endif /* emacs */\n" + 
+				"#endif /* emacs */\n" +
+				"/* If your stack is a linked list of frames, you have to\n" + 
+				"   provide an \"address metric\" ADDRESS_FUNCTION macro.  */\n" + 
+				"\n" + 
+				"#if defined (CRAY) && defined (CRAY_STACKSEG_END)\n" + 
+				"long i00afunc ();\n" + 
+				"#define ADDRESS_FUNCTION(arg) (char *) i00afunc (&(arg))\n" + 
+				"#else\n" + 
+				"#define ADDRESS_FUNCTION(arg) &(arg)\n" + 
+				"#endif" + 
 				"#endif /* no alloca */\n" + 
 				"#endif /* not GCC version 2 */\n";
 		List<ASTNode> codeItems = parseInput(input);
-		PreBlockstarter bs = (PreBlockstarter) codeItems.get(0);
-		assertEquals("", bs.getEscapedCodeStr());
+		//Custom rule for this specific error "message", as otherwise we would get unintended parser behavior
+		CustomNode customNode = (CustomNode) codeItems.get(0);
+		assertEquals("you \n" + 
+				" lose \n" + 
+				" -- must know STACK_DIRECTION at compile-time", customNode.getEscapedCodeStr());
+		PreIfStatement pNode = (PreIfStatement) codeItems.get(1);
+		assertEquals("#ifndef STACK_DIRECTION \n", pNode.getEscapedCodeStr());
+		IdentifierDeclStatement iNode = (IdentifierDeclStatement) codeItems.get(4);
+		assertEquals("long i00afunc ( ) ;", iNode.getEscapedCodeStr());
+		PreDefine dNode = (PreDefine) codeItems.get(5);
+		assertEquals("#define ADDRESS_FUNCTION( arg ) ( char * ) i00afunc ( & ( arg ) ) \n", dNode.getEscapedCodeStr());
+		Comment cNode = (Comment) codeItems.get(10);
+		assertEquals("/* If compiling with GCC 2, this file's not needed.  */", cNode.getEscapedCodeStr());
 	}
 	
 	//This problem does not occur in the functionParser variant of this test. It checks a rare case where a singleline while is the last statement
