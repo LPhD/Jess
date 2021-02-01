@@ -119,4 +119,5 @@ public class OtherTests extends FunctionDefinitionTests {
 		String output = parser.comment().toStringTree(parser);
 		assertEquals("(comment /* This is a \\n multiple-line comment */)", output);
 	}
+	
 }

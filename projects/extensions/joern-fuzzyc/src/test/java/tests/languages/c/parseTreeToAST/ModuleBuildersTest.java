@@ -903,6 +903,15 @@ public class ModuleBuildersTest {
 		assertEquals("/* Bit 7 */", comment.getEscapedCodeStr());
 	}
 	
+	
+	@Test
+	public void testCommentWithTwoStars() {
+		String input = "/* This is a special comment **/ \n";
+		List<ASTNode> codeItems = parseInput(input);
+		Comment comment = (Comment) codeItems.get(0);
+		assertEquals("/* This is a special comment **/", comment.getEscapedCodeStr());
+	}
+	
 	@Test
 	public void testNullExpressionStatement() {
 		String input = ";";
