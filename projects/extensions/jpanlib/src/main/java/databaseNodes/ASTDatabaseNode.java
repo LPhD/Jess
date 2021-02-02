@@ -46,12 +46,7 @@ public class ASTDatabaseNode extends DatabaseNode {
 		// if(astNode.getChildCount() > 1){
 		String childNumStr = Integer.toString(astNode.getChildNumber());
 		properties.put(NodeKeys.CHILD_NUMBER, childNumStr);
-		// }
-		
-		if(astNode.getPath() == "0") {
-			System.out.println("# # # # Why is this happening? # # # # ");
-			
-		}
+		// }		
 
 		return properties;
 	}

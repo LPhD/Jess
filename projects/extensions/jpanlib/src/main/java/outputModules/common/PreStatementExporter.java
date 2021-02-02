@@ -39,9 +39,6 @@ public abstract class PreStatementExporter extends ASTNodeExporter{
 			if (astNode instanceof PreBlockstarter)
 				addVariableStatements((PreBlockstarter) astNode);
 			
-			if(astNode.getPath() == "0") {
-				System.out.println("# # # # # But why? # # # # ");
-			}
 				
 		} catch (RuntimeException ex)	{
 			ex.printStackTrace();
