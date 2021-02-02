@@ -27,8 +27,9 @@ public class ASTNodeFactory {
 		node.setLine(ctx.start.getLine());
 		node.setCharAtLine(ctx.start.getCharPositionInLine());
 				
-		if (!(node instanceof PreDefine)) {			
-			node.setCodeStr(ParseTreeUtils.childTokenString(ctx));
+		if (!(node instanceof PreDefine)) {		
+			//Set code but whithout tabs (as this would cause problems with the csv files)
+			node.setCodeStr(ParseTreeUtils.childTokenString(ctx).replace("\t", "   "));
 			
 		//Separate function for #defines to remove false whitespaces and EOF
 		} else {
@@ -40,6 +41,8 @@ public class ASTNodeFactory {
 			code  = code.replace(" # ", "#");
 			//Remove whitespaces before linebreaks
 			code  = code.replace("\\ \n", "\\\n");
+			//Remove tabs (as this would cause problems with the csv files)
+			code  = code.replace("\t", "   ");			
 			//Remove whitespaces before opening brackets only for the macro identifier (child0)
 			code = code.replace(node.getChild(0).getEscapedCodeStr(), node.getChild(0).getEscapedCodeStr().replace(" (", "("));
 
