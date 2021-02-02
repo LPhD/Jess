@@ -913,6 +913,16 @@ public class ModuleBuildersTest {
 	}
 	
 	@Test
+	public void testCommentWithCurlyBrackets() {
+		String input = "static int format_converter(register buffy * odp, const char *fmt, va_list ap) /* {{{ */ \n { }";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef func = (FunctionDef) codeItems.get(0);
+//		Comment comment = (Comment) codeItems.get(1);
+//		assertEquals("/* {{{ **/", comment.getEscapedCodeStr());
+		assertEquals("static int format_converter ( register buffy * odp , const char * fmt , va_list ap ) /* {{{ */ \n ", func.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testNullExpressionStatement() {
 		String input = ";";
 

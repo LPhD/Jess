@@ -32,8 +32,47 @@ public class FunctionDef extends FunctionDefBase {
 	 * Removes the content of the function from the code property (returns only the function's signature)
 	 */
 	public String getFunctionSignature() {
-		String retval = this.getProperty("code").split("\\{",2)[0];;
-		return retval;
+		//Get the index of the first opening curly bracket
+		int i = getIndexOfOpeningBracket();
+		
+		//If there is one, make a substring
+		if (i > 0) {
+			return this.getProperty("code").substring(0, i);
+		//If not, just return the code as it is	
+		} else {
+			return this.getProperty("code");
+		}				
+
+	}
+	
+	/**
+	 * Get the index of the first real opening curly bracket to isolate a function's signature
+	 * @return index of the first real opening curly bracket
+	 */
+	private int getIndexOfOpeningBracket() {
+		char[] code = this.getProperty("code").toCharArray();
+		
+		//Check every char of the code
+		for (int i = 0;i < code.length; i++) {
+			
+			//We have reached the end of the function signature if we get to the first real opening curly bracket
+			if(code[i] == '{') {
+				//Stop here, as we do not have to look further
+				return i;
+			}
+			
+			//If we reach the beginning of a comment
+			if(code[i] == '/' && i + 1 < code.length && code[i+1] == '*') {
+				//Skip the two chars for the beginning of the comment
+				i+=2;
+				//Skip until we reach the end of the comment
+				while(i+1 < code.length && !(code[i] == '*') && !(code[i+1] == '/')) {
+					i++;
+				}
+			}											
+		}
+		//This should only be reached if we do not have any curly brackets (currently for example in test cases)
+		return -1;
 	}
 
 	@Override
