@@ -246,7 +246,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		ASTNodeFactory.initializeFromContext(item, ctx);
 		nodeToRuleContext.put(rootItem, ctx);
 		stack.push(rootItem);
-		rootCompound = rootItem;
+		rootCompound = rootItem;	
 	}
 
 	/**

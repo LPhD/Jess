@@ -417,9 +417,9 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		//Set previous statement
 		previousStatement = fdef;
 		
-		// Connect to parent blockstarters if they exist
+		// Connect to parent ifdefs if they exist
 		checkVariability(fdef);	
-		// Connect to parrent comment if existing
+		// Connect to parent comment if existing
 		checkIfCommented(fdef);
 	}
 

@@ -10,6 +10,8 @@ import ast.logical.statements.CompoundStatement;
 import parsing.Functions.ANTLRCFunctionParserDriver;
 
 public class ModuleFunctionParserInterface {
+	private static int compoundCharAtLine = 0;
+	
 	// Extracts compound statement from input stream
 	// as a string and passes that string to the
 	// function parser. The resulting 'CompoundStatement'
@@ -31,14 +33,19 @@ public class ModuleFunctionParserInterface {
 		CompoundStatement result = parser.getResult();
 		Compound_statementContext statementContext = ctx.compound_statement();
 		ASTNodeFactory.initializeFromContext(result, statementContext);
+		//Set the correct value that is based on actual position and not position inside the string
+		result.setCharAtLine(compoundCharAtLine);
+		//Reset
+		compoundCharAtLine = 0;
 		return result;
 	}
 
 	private static String getCompoundStmtAsString(ModuleParser.Function_defContext ctx) {
 		Compound_statementContext compound_statement = ctx.compound_statement();
-
 		CharStream inputStream = compound_statement.start.getInputStream();
-		int startIndex = compound_statement.start.getStopIndex();
+		int startIndex = compound_statement.start.getStopIndex();		
+		//Save the actual position for later
+		compoundCharAtLine = startIndex;		
 		int stopIndex = compound_statement.stop.getStopIndex();
 		//The last item is the closing bracket of the compound statement
 		return inputStream.getText(new Interval(startIndex + 1, stopIndex));
