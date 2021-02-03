@@ -162,8 +162,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         
         #Remove missleading newlines at the end of some statements like preDefines
         if statement[3].endswith("\n"):
-            #Remove the last two chars (the newline) from the code string
-            statement[3] = statement[3][:-2]
+            #Remove the last char (the newline) from the code string
+            statement[3] = statement[3][:-1]
 
         #Reset variables if line changed
         if (not (lastLine + additionalLines) == statement[1]):
