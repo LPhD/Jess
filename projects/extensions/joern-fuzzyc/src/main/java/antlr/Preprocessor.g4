@@ -45,7 +45,7 @@ pre_define: PRE_DEFINE pre_macro_identifier (NEWLINE | EOF | ONELINE_COMMENT) //
 
 pre_undef: PRE_UNDEF pre_macro_identifier;
 
-pre_macro_identifier: identifier ('(' pre_macro_parameters ')')? | keyword | END_TEST | 'START_TEST' ('(' pre_macro_parameters ')')? | pre_other;
+pre_macro_identifier: identifier ('(' pre_macro_parameters ')')? | keyword | END_TEST | 'START_TEST' ('(' pre_macro_parameters ')')? | PRE_ATTRIBUTE;
 
 //Macros can redefine keywords
 keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' | 'static' | 'unsigned' | 'signed' | 'long' | 'virtual' | 'operator' | 'class' | TRY | CATCH;
