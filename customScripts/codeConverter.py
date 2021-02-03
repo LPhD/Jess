@@ -32,7 +32,7 @@ def initialize():
     return [db, idList]
 
 
-def importData(db, idList, SEMANTIC):                     
+def importData(db, idList, SEMANTIC, topLevelProjectName):                     
     # List that contains the code, filename, and linenumber of each statement of the SemanticUnit
     structuredCodeList = []
     # List to slice the idList in manageable chunks
@@ -58,12 +58,9 @@ def importData(db, idList, SEMANTIC):
             if (('path' in r) and ('line' in r) and ('cLine' in r) and ('code' in r) and ('type' in r)):   
             
                 # Append internal path(0) (structure inside project), linenumber (1), cline(2), code(3) (if exists) and type(4) to the list
-                if len(r) > 4:
-                
-
-        
-                    # Get the internal structure by splitting after the last src
-                    internalPath = r['path'][0].rsplit("/src/",1)[1]
+                if len(r) > 4:                      
+                    # Get the internal structure by removing the path to the topLevelProjectFolder (the path used in jess-import)
+                    internalPath = r['path'][0].replace(topLevelProjectName, "")
                     # Assemble the list
                     structuredCodeList.append([internalPath, int(((r['line'])[0])), int(((r['cLine'])[0])), (r['code'])[0], (r['type'])[0]])                
          
@@ -74,7 +71,7 @@ def importData(db, idList, SEMANTIC):
     
     # Sort the list content by file, by line and then by cLine
     structuredCodeList = sorted(structuredCodeList, key=itemgetter(0,1,2))
-    
+       
     # # # Semantic Diff # # #
     if SEMANTIC:
         enhanceWithSemanticForIfDefBlocks(structuredCodeList)
@@ -84,6 +81,8 @@ def importData(db, idList, SEMANTIC):
     db.runGremlinQuery("quit")     
     
     return structuredCodeList
+    
+     
 
 # Writes #FunctionBlockEnder# after the end of a function
 def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk):
@@ -292,11 +291,11 @@ def writeToFile(fileName, fileContent):
     file.write("\n")
     file.close() 
 
-# Enhance output with semantics?, output relative to what dir?, output folder name?
-def convertToCode(SEMANTIC, workingdir, foldername):
+# Enhance output with semantics?, output relative to what dir?, output folder name? name of the project on disk (to get relative structure)?
+def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
     os.chdir(workingdir)
     input = initialize()    
-    output = importData(input[0], input[1], SEMANTIC)
+    output = importData(input[0], input[1], SEMANTIC, topLevelProjectName)
     
     if(len(output)==0):
         print("Error: Output is empty")
@@ -307,4 +306,4 @@ def convertToCode(SEMANTIC, workingdir, foldername):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-#convertToCode(False, os.getcwd()+"/Results", "ConvertedCode/src")    
+#convertToCode(False, os.getcwd()+"/Results", "ConvertedCode/src", "DonorProject")    
