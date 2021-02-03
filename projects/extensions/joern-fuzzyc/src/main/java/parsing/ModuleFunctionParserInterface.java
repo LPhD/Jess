@@ -33,14 +33,14 @@ public class ModuleFunctionParserInterface {
 		Compound_statementContext statementContext = ctx.compound_statement();
 		ASTNodeFactory.initializeFromContext(result, statementContext);
 		//Set the correct value that is based on actual position and not position inside the string
-		result.setCharAtLine(ctx.start.getStopIndex()+1);
+		result.setCharAtLine(ctx.start.getCharPositionInLine()+1);
 		return result;
 	}
 
 	private static String getCompoundStmtAsString(ModuleParser.Function_defContext ctx) {
 		Compound_statementContext compound_statement = ctx.compound_statement();
 		CharStream inputStream = compound_statement.start.getInputStream();
-		//This would be the actual position of the compound in its line
+		// ctx.start.getCharPositionInLine() This would be the actual position of the compound in its line
 		int startIndex = compound_statement.start.getStopIndex();						
 		int stopIndex = compound_statement.stop.getStopIndex();
 		//The last item is the closing bracket of the compound statement

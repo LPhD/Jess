@@ -21,7 +21,6 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
-import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.preprocessor.PreStatementBase;
@@ -516,6 +515,19 @@ public class ModuleBuildersTest {
 		assertEquals("void * \n" + 
 				" GEAcompile ( char * pattern , size_t size , reg_syntax_t syntax_bits , \n" + 
 				" bool exact ) \n ", codeItem.getEscapedCodeStr());
+	}
+	
+	@Test
+	public void testFuncDefWithEmptyCompound() {
+		String input = "static void clear_asan_poison ( void ) { }";
+		List<ASTNode> codeItems = parseInput(input);
+		FunctionDef codeItem = (FunctionDef) codeItems.get(0);
+		//FunctionDef starts at 0
+		assertEquals(0, codeItem.getCharAtLine());
+		//Compound should start at 0+1
+		assertEquals(1, codeItem.getContent().getCharAtLine());
+		//BlockCloser also is at 1 (as this is relative to the beginning of the Compound)
+		assertEquals(1, codeItem.getContent().getChild(0).getCharAtLine());				
 	}
 	
 	@Test
