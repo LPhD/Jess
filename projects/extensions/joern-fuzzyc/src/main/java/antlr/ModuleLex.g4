@@ -96,9 +96,8 @@ FLOATING_POINT_LITERAL
 fragment
 COMMENT_END: '*/';  
     
-COMMENT: '/*' (.)*?  COMMENT_END
-    | '//'  ~('\n'|'\r')* '\r'? '\n'
- ;
+MULTILINE_COMMENT: '/*' (.)*?  COMMENT_END;
+ONELINE_COMMENT:    | '//'  ~('\n'|'\r')* '\r'? '\n';
  
 CHAR:  WideCharTypeSuffix?  '\'' ( EscapeSequence | ~('\''|'\\') ) '\'';
 

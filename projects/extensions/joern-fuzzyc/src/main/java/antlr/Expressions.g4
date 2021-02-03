@@ -126,4 +126,4 @@ preprocessor_fragment: PRE_DEFINE pre_macro_identifier ( call_in_preStatement | 
                 | PRE_ENDIF; 
                         
                        
-expression_fragment: (NEWLINE | COMMENT | preprocessor_fragment); //Placeholder to improve readability
+expression_fragment: (NEWLINE | MULTILINE_COMMENT | ONELINE_COMMENT | preprocessor_fragment); //Placeholder to improve readability

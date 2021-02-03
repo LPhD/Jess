@@ -21,6 +21,7 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
+import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.preprocessor.PreStatementBase;
@@ -722,6 +723,21 @@ public class ModuleBuildersTest {
 		assertEquals("PreEndIfStatement", codeItem.getChild(1).getTypeAsString());
 	}
 	
+	
+	@Test
+	public void preprocessorEndingWithOnelineComment() {
+		String input = " #ifdef __APPLE__\n" + 
+				" # define _DARWIN_C_SOURCE // for strdup(), strtok_r(), memset_pattern4()\n" + 
+				" #endif";
+		List<ASTNode> codeItems = parseInput(input);
+		PreBlockstarter codeItem = (PreBlockstarter) codeItems.get(1);	
+		assertEquals("PreIfStatement", codeItem.getTypeAsString());
+		assertEquals("PreDefine", codeItem.getVariableStatement(0).getTypeAsString());
+		//Ensure that the endif is not parsed as part of the preDefine
+		assertEquals("# define _DARWIN_C_SOURCE // for strdup(), strtok_r(), memset_pattern4()\n", codeItem.getVariableStatement(0).getEscapedCodeStr());
+	}
+	
+
 	
 	@Test
 	public void preprocessorModuleBuilderTestWithNestingChildren() {

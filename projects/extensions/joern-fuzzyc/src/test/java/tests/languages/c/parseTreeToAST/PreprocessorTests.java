@@ -96,6 +96,7 @@ public class PreprocessorTests {
 		assertEquals("PreElseStatement", contentItem.getStatement(0).getChild(1).getTypeAsString());
 	}
 	
+	
 	@Test
 	public void testPreElseStatementCode() {
 		String input = "#if foo \n  bar(); #else  foo(); foo(); #endif";

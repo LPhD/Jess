@@ -13,15 +13,15 @@ pre_blockstarter: pre_if_statement
                       | pre_else_statement
                       | pre_endif_statement;           
 														
-pre_if_statement: PRE_IF pre_if_condition (NEWLINE | EOF);   //Statement ends with a newline (or end of file) without a previous backslash 
+pre_if_statement: PRE_IF pre_if_condition (NEWLINE | EOF | ONELINE_COMMENT);   //Statement ends with a newline (or end of file or oneline comment) without a previous backslash 
                 
-pre_elif_statement: PRE_ELIF pre_if_condition (NEWLINE | EOF);
+pre_elif_statement: PRE_ELIF pre_if_condition (NEWLINE | EOF | ONELINE_COMMENT);
                 
 pre_else_statement: PRE_ELSE;
 
 pre_endif_statement: PRE_ENDIF;
 
-pre_if_condition:  ( call_in_preStatement | ~(NEWLINE) )*? ;  //No comments, as this would cause problems. Greedy, because it should terminate at first matching newline
+pre_if_condition:  ( call_in_preStatement | ~(NEWLINE | EOF | ONELINE_COMMENT) )*? ;  //No comments, as this would cause problems. Greedy, because it should terminate at first matching newline
  
 //Currently, this rule has no visitors and therefore no own java object / db node. But this is okay, as we are only interested in the identifiers anyway 
 call_in_preStatement: identifier '(' ( call_in_preStatement | ~(NEWLINE) )*? ')';   //We are only interested in calls to other macros or functions. Currently, no further analysis of functionPointerUses
@@ -40,8 +40,8 @@ pre_command: pre_define
             | pre_pragma
             | macroCall;    //This is a little problematic, as macroCalls can be (part of) Expressions as well as pre_commands when on module level
 
-pre_define: PRE_DEFINE pre_macro_identifier (NEWLINE | EOF) //PreDefines end always with a newline (without a backslash beforhead) or the end of file
-            | PRE_DEFINE pre_macro_identifier pre_macro (NEWLINE | EOF) ;     
+pre_define: PRE_DEFINE pre_macro_identifier (NEWLINE | EOF | ONELINE_COMMENT) //PreDefines end always with a newline (without a backslash beforhead) or the end of file
+            | PRE_DEFINE pre_macro_identifier pre_macro (NEWLINE | EOF | ONELINE_COMMENT) ;     
 
 pre_undef: PRE_UNDEF pre_macro_identifier;
 
@@ -53,7 +53,7 @@ keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' |
 //Maybe needs more possibilites
 pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;
 
-pre_macro: ( call_in_preStatement | ~(NEWLINE) )*?;   //Same rule as pre_if_condition
+pre_macro: ( call_in_preStatement | ~(NEWLINE | EOF | ONELINE_COMMENT) )*?;   //Same rule as pre_if_condition
             
  
  
@@ -100,7 +100,8 @@ pre_line: PRE_LINE DECIMAL_LITERAL STRING
         | PRE_LINE DECIMAL_LITERAL;
         
 
-pre_pragma: PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS STRING { preProcFindMacroEnd(); }
+pre_pragma: PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS STRING ( call_in_preStatement | ~(NEWLINE) )*? (NEWLINE | EOF | ONELINE_COMMENT) 
             | PRE_PRAGMA PRE_GCC? PRE_PRAGMA_KEYWORDS identifier* 
-            | PRE_PRAGMA { preProcFindMacroEnd(); };             
+            | PRE_PRAGMA ( call_in_preStatement | ~(NEWLINE) )*? (NEWLINE | EOF | ONELINE_COMMENT) 
+            ;            
     

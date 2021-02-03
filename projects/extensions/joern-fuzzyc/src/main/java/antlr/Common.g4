@@ -74,123 +74,11 @@ import ModuleLex;
 		return true;
 	}
             
-       // this should go into FunctionGrammar but ANTLR fails
-       // to join the parser::members-section on inclusion
-       
-       //Find the closing #endif to the opening #if (and then return true), consume everything that is in between
-       public boolean preProcSkipToEnd()  {
-       		//Stack for collecting #ifs
-            Stack<Object> PreprocessorStack = new Stack<Object>();
-            //Object for the  #ifs
-            Object o = new Object();
-            //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
-            int t = _input.LA(1);
-
-				//Look for the closing #endif to the first opening #if
-                while(t != EOF && !(PreprocessorStack.empty() && t == PRE_ENDIF)){
-                        //Collect all found opening #ifs. If a #endif is found, remove one #if from stack                    
-                        if(t == PRE_IF)
-                            PreprocessorStack.push(o);
-                        else if(t == PRE_ENDIF)
-                            PreprocessorStack.pop();
-                            
-                        //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
-                        consume();
-                        t = _input.LA(1);
-                }
-                //Return and parse the closing #endif (if there is one)
-                if(t != EOF)
- 					consume();
-                return true;
-       }
-             
-       
-      //Find the end of a preprocessor macro
-     public boolean preProcFindMacroEnd()  {
-          //Stack for backslashes
-          Stack<Object> slashStack = new Stack<Object>();
-          //Object for the  slashes
-          Object o = new Object();
-          //returns the value of the current symbol in the stream (which is the next symbol to be consumed)
-          int t = _input.LA(1);
-
-            //Look for end of the macro where a newline appears without a previous backslash
-            while(t != EOF && !(slashStack.empty() && t == NEWLINE)){
-                
-                   //Count escape and newline characters                   
-                  if(t == ESCAPE){
-                        slashStack.push(o);
-                  } else if(t == NEWLINE) {
-                        slashStack.pop();
-                  } 
-                  
-                  //Consume and return the current symbol, the consumed symbol is added to the parse tree 
-                  consume();                   
-                  //Move cursor to next symbol
-                  t = _input.LA(1);
-             }                                             
-   	return true;
-	}
-	
-	 //Find the end of a preprocessor macro
-     public boolean preProcFindConditionEnd()  {
-         int t = _input.LA(1);
-         //System.out.println("Scan: "+t); 
-         
-         //Look for end of the macro where a newline appears without a previous backslash
-         while(!(t == EOF || t == NEWLINE || t == COMMENT)){
-
-             
-             //Consume and return the current symbol, move cursor to next symbol, the consumed symbol is added to the parse tree 
-             consume();
-             t = _input.LA(1); 
-//             System.out.println("New t: "+t);                 
-         }   
-         
-         //The newline or the EOF belong to the PreIfStatement's code   
-         if(t == NEWLINE || t == EOF ){
-                //System.out.println("Newline found");
-                consume();
-          } 
-          
-          //The comment does not belong to the PreIfStatement's code 
-          if(t == COMMENT){
-                //System.out.println("Comment found");
-                //exitRule();
-               // createTerminalNode(parent,t);
-              // t = EOF;
-          }              
-         
-         //Look for / \n or begin of a comment
-         return true;
-     }
-     
-         //Find the end of a preprocessor condition
-     public boolean skipComments()  {
-         int t = _input.LA(1);
-         System.out.println("Scan: "+t);          
-          
-          //The comment does not belong to the PreIfStatement's code 
-          if(t == COMMENT){
-              //Look for newline or EOF          
-              for(int i = 1; !(t == NEWLINE || t == EOF); i++){
-                  t = _input.LA(1+i); 
-              }
-              consume();
-              System.out.println("Consumed");
-                //exitRule();
-               // createTerminalNode(parent,t);
-              // t = EOF;
-          }              
-         
-         //Look for / \n or begin of a comment
-         return true;
-     }
 
 }
 
 
-comment: COMMENT;
+comment: MULTILINE_COMMENT | ONELINE_COMMENT;
 newline: NEWLINE;
 unary_operator : '&' | '*' | '+'| '-' | '~' | '!';
 relational_operator: ('<'|'>'|'<='|'>=');
@@ -199,7 +87,7 @@ constant
     :   HEX_LITERAL
     |   OCTAL_LITERAL
     |   DECIMAL_LITERAL
-	|	(STRING NEWLINE? COMMENT* NEWLINE?)+ //Comment should be comment, but currently parser cannot handle this
+	|	(STRING NEWLINE? MULTILINE_COMMENT* NEWLINE?)+ //Comment should be comment, but currently parser cannot handle this
     |   CHAR
     |   FLOATING_POINT_LITERAL
     |   HEX_FLOAT
