@@ -16,15 +16,17 @@ def getProjectPath (projectName):
     'Marlin':'/Marlin-1.1.9/', 
     'Revamp':'/home/lea/Downloads/Joern_Advanced/testProjects/', 
     'SPLC':'/Joern_Advanced/testProjects/SPLC/src/', 
-    'TestCommit':'/src/',
+    'TestCommit':'/src',
     'expat':'/libexpat/',
-    'Origin.tar.gz':'/C/src/',
-    'PL_Current.tar.gz':'/C/src/',
-    'PV_Current.tar.gz':'/C/src/',
+    'Origin.tar.gz':'/C/src',
+    'PL_Current.tar.gz':'/C/src',
+    'PV_Current.tar.gz':'/C/src',
     'sample':'/Example/',
-    'DonorProject':'/DonorProjectCode/src/',
-    'Ag':'/the_silver_searcher/src',
-    'grep':'/home/lea/Downloads/grep'} 
+    'DonorProject':'/DonorProjectCode/src',
+    'ag':'/home/lea/Downloads/the_silver_searcher/src',
+    'grep':'/home/lea/Downloads/grep/src',
+    'scrcpy':'/home/lea/Downloads/scrcpy/app',
+    'php':'/home/lea/Downloads/php-src/main'} 
 
     #Assemble path 
     return projectNameAndPath[projectName]
@@ -61,7 +63,7 @@ def evaluateProject (projectName, workingdir, projectPath):
           
     print("Convert project back to source code...")
     codeFoldername = "CodeToEvaluate"
-    convertToCode(False, workingdir, codeFoldername)
+    convertToCode(False, workingdir, codeFoldername, projectPath)
 
     print("Compare with original source code...")
     #Make new empty temp dir
@@ -81,7 +83,7 @@ def evaluateProject (projectName, workingdir, projectPath):
     
     #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder preserving their folder structure
     #(necessary because git diff --no-index does not allow for filtering of filetypes
-    os.chdir(projectPath+"/src")    
+    os.chdir(projectPath)    
     os.system("find -iname '*.[c|h]' -exec cp --parent  '{}' "+workingdir+"/"+foldername+"/ \;")
     
     # Go back to the current dir
@@ -96,6 +98,6 @@ def evaluateProject (projectName, workingdir, projectPath):
 
 
 # When called via console, fill these out and add your project path to getProjectPath function
-#projectName = "grep"
+projectName = "ag"
 #projectName = input("Please type in the name of the project")
-#evaluateProject(projectName, os.getcwd(), getProjectPath(projectName))
+evaluateProject(projectName, os.getcwd(), getProjectPath(projectName))
