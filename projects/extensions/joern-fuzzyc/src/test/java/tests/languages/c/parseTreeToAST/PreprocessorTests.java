@@ -448,6 +448,7 @@ public class PreprocessorTests {
 		assertEquals("#define size( a ) calculateSize ( a , a )", statement.getEscapedCodeStr());
 		assertEquals("size ( a )", statement.getChild(0).getEscapedCodeStr());
 		//The only relevant child is the identifier of the called macro/function
+		assertEquals("PreMacro", statement.getChild(1).getTypeAsString());
 		assertEquals("calculateSize", statement.getChild(1).getChild(0).getEscapedCodeStr());
 		assertEquals("Identifier", statement.getChild(1).getChild(0).getTypeAsString());
 	}	
