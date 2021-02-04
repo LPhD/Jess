@@ -485,6 +485,8 @@ public class PreprocessorTests {
 		assertEquals("Statement", stmt.getTypeAsString());
 		assertEquals("MacroCall", stmt.getChild(0).getTypeAsString());
 		assertEquals("PHPAPI ZEND_DECLARE_MODULE_GLOBALS ( output )", stmt.getChild(0).getEscapedCodeStr());
+		assertEquals("PHPAPI", stmt.getChild(0).getChild(0).getEscapedCodeStr());
+		assertEquals("ZEND_DECLARE_MODULE_GLOBALS", stmt.getChild(0).getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test
