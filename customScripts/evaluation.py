@@ -70,15 +70,7 @@ def evaluateProject (projectName, workingdir, projectPath):
     foldername = "Temp"
     if os.path.exists(foldername):
         shutil.rmtree(foldername)
-        
-    # TODO: Caution, working directory can change, paths are hardcoded here    
-    #basePath = os.getcwd().replace("/customScripts", "/projects/octopus/data/projects/"+projectName+"/src")
-    #basePath = basePath.replace("/Results","")
-
-    #pathToOriginalProject = basePath+projectPath   
-    #Currently the customScripts/Results folder
-    #pathToOriginalProject = os.getcwd()+"/"+projectName+"Code"    
-
+          
     os.makedirs(foldername)
     
     #Finds all files in the original directory that end with .c or .h and copies them in the temporary folder preserving their folder structure
@@ -98,6 +90,6 @@ def evaluateProject (projectName, workingdir, projectPath):
 
 
 # When called via console, fill these out and add your project path to getProjectPath function
-projectName = "ag"
+#projectName = "php"
 #projectName = input("Please type in the name of the project")
-evaluateProject(projectName, os.getcwd(), getProjectPath(projectName))
+#evaluateProject(projectName, os.getcwd(), getProjectPath(projectName))
