@@ -21,7 +21,6 @@ import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
-import ast.logical.statements.CompoundStatement;
 import ast.logical.statements.Statement;
 import ast.preprocessor.PreBlockstarter;
 import ast.preprocessor.PreStatementBase;
@@ -291,6 +290,7 @@ public class ModuleBuildersTest {
 		assertEquals("typedef void ( * fcgi_logger ) ( int type , const char * fmt , ... ) ZEND_ATTRIBUTE_FORMAT ( printf , 2 , 3 ) ;", codeItem.getEscapedCodeStr());
 		assertEquals("fcgi_logger", codeItem.getChild(0).getEscapedCodeStr());
 		assertEquals("MacroCall", codeItem.getChild(1).getTypeAsString());
+		assertEquals("ZEND_ATTRIBUTE_FORMAT ( printf , 2 , 3 )", codeItem.getChild(1).getEscapedCodeStr());
 	}
 	
 	@Test

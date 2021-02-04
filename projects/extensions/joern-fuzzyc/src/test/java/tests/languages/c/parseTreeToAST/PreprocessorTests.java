@@ -209,8 +209,12 @@ public class PreprocessorTests {
 				" LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT ( 57 , 5 , 0 ) ) <EOF>",preIf.getEscapedCodeStr());
 		//2 calls to AV_VERSION_INT are expected here, the preIfCondition contains only the name of the first (why?), its 2 children are the 2 identifiers of the 2 calls
 		assertEquals("AV_VERSION_INT", preIf.getChild(0).getEscapedCodeStr()); //This one here is strange
+		assertEquals("PreIfCondition", preIf.getChild(0).getTypeAsString());
+		assertEquals(2, preIf.getChild(0).getChildCount()); 
 		assertEquals("AV_VERSION_INT", preIf.getChild(0).getChild(0).getEscapedCodeStr());
+		assertEquals("Identifier", preIf.getChild(0).getChild(0).getTypeAsString());
 		assertEquals("AV_VERSION_INT", preIf.getChild(0).getChild(1).getEscapedCodeStr());
+		assertEquals("Identifier", preIf.getChild(0).getChild(1).getTypeAsString());
 	}
 	
 	@Test
@@ -443,6 +447,7 @@ public class PreprocessorTests {
 		assertEquals("PreDefine", statement.getTypeAsString());
 		assertEquals("#define size( a ) calculateSize ( a , a )", statement.getEscapedCodeStr());
 		assertEquals("size ( a )", statement.getChild(0).getEscapedCodeStr());
+		//The only relevant child is the identifier of the called macro/function
 		assertEquals("calculateSize", statement.getChild(1).getChild(0).getEscapedCodeStr());
 		assertEquals("Identifier", statement.getChild(1).getChild(0).getTypeAsString());
 	}	
