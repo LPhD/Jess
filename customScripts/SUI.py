@@ -49,7 +49,7 @@ plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = False
+DEBUG = True
 showStatistics = True
 ##########################################################################################
 
@@ -61,8 +61,8 @@ showStatistics = True
 projectName = 'DonorProject'
 entryPointIds = list()
 entryFeatureNames = list()
-entryIdentifiers = ['column']
-entryStrings = list()
+entryIdentifiers = list()
+entryStrings = ['HASH_FIND_INT']
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'Statement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
@@ -115,21 +115,21 @@ def identifySemanticUnits ():
     # Check if a feature is selected as entry point
     if (len(entryFeatureNames) > 0):        
         result = getNodeParents(entryFeatureNames, "feature")
-        if (len(result) > 1):
+        if (len(result) > 0):
             print("Found feature as entry point, updated entry points: "+str(result)+"\n") 
             entryPointIds.extend(result)
         
     # Check if any identifier is selected as entry point
     if (len(entryIdentifiers) > 0):        
         result = getNodeParents(entryIdentifiers, "identifier")
-        if (len(result) > 1):
+        if (len(result) > 0):
             print("Found generic identifier as entry point, updated entry points: "+str(result)+"\n") 
             entryPointIds.extend(result)        
 
     # Check if any generic string is selected as entry point
     if (len(entryStrings) > 0):        
         result = getNodeParents(entryStrings, "string")
-        if (len(result) > 1):
+        if (len(result) > 0):
             print("Found generic string as entry point, updated entry points: "+str(result)+"\n") 
             entryPointIds.extend(result) 
             
@@ -369,6 +369,16 @@ def analyzeNode (currentNode):
          # Print result
         if (DEBUG): print("Result call relation for a macroCall: "+str(result)+"\n")   
         DEBUG = False
+        
+    #These nodes can contain calls to macros or functions (TDB 'preprocessor_fragment', prePragma? )    
+    if (type[0] in ('PreIfCondition', 'PreMacro')):
+        print("PreCall")
+        result = set(getCalledFunctionDefOrMacro(currentNode, type[0]))  
+        # Add FunctionDef to the Semantic Unit and get related elements
+        analysisList.extend(result)
+         # Print result
+        if (DEBUG): print("Result call relation for a Callee in PreIfCondition or PreMacro: "+str(result)+"\n")
+           
         
     # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (lookForAllFunctionCalls == True)): 
@@ -762,6 +772,7 @@ def getCalledFunctionDefOrMacro (verticeId, type):
     
     if(len(functionName) < 2): 
         print("Warning: Cannot get name or path of function: "+str(verticeId))
+        print("But type is: "+type+" so that's no problem")
         return ""
     
     if functionName[0] in externalFunctionsSet:
@@ -1050,6 +1061,7 @@ def getNodeParents (nodes, type):
         # Check if we got any results
         if (len(result) == 0):
             print("##### Warning! No nodes found containing the string: "+currentNode+" #### \n") 
+      
     
     # If we have found all initial nodes, pre-analyze them and add the results to the initial analysis set   
     if (len(result) > 0):    
@@ -1072,7 +1084,8 @@ def getNodeParents (nodes, type):
         # For all entry points, add declaration of local variables if existing and if we wont get them otherways 
         if (not includeLocalDataflows) and (not followDataflows) and (not includeParentFunction) and (not includeBackwardSlice):  
             result.update(set(addLocalDeclares(list(result)))) 
-            
+         
+          
     return result 
 
 
