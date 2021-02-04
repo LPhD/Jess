@@ -55,8 +55,7 @@ semanticBlockPattern = re.compile("(###.*?###)|(#\*#.*?#\*#)")
 def main():
     #### Begin of the workflow #### 
     print(" ### Welcome to the interactive code migration workflow ### ")
-    print(" ### Prerequisite 1: Version control with Git ### ")
-    print(" ### Prerequisite 2: The top level folder for source files is called 'src' ### ")
+    print(" ### Prerequisite: Version control with Git ### ")
     print(" ### Results are stored in the *"+resultFoldername+"* folder ### ")
     
     # If in EVALUATION mode, iterate over all projects in projectList.csv and all commits in commitList.csv
@@ -88,7 +87,7 @@ def normalWorkflow():
                 
         # Imports the Donor as Code Property Graph and validates the result
         os.chdir(topLvlDir+"/"+resultFoldername)
-        importProjectasCPG("DonorProject", "/DonorProjectCode/src") 
+        importProjectasCPG("DonorProject", "/DonorProjectCode") 
   
     else:
         #Reset Target Repo (remove unversioned files)
@@ -106,7 +105,7 @@ def normalWorkflow():
          
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
-    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")   
+    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode", topLvlDir+"/"+resultFoldername+"/DonorProjectCode")   
            
     #### Initalize analyses ####
     print("Initializing...")  
@@ -238,7 +237,7 @@ def iterateThroughCommits():
     with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:
         file.write("\n"+str(datetime.datetime.now())+": The whole workflow took "+ str(time.time() - start_time) +"seconds to run")
     
-# TODO: How to handle restart of server?
+
                                                
 
 # Same as normalWorkflow, but with additional statistics and evaluation processes (installation, testing, diffing)        
@@ -294,7 +293,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNam
 
     # Imports the Donor as Code Property Graph and validates the result
     os.chdir(topLvlDir+"/"+resultFoldername)
-    importProjectasCPG("DonorProject", "/DonorProjectCode/src")
+    importProjectasCPG("DonorProject", "/DonorProjectCode")
 
     # Measure timings after CPG import
     import_and_eval_duration = time.time() - start_import
@@ -321,7 +320,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNam
     
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
-    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode/src")   
+    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode", topLvlDir+"/"+resultFoldername+"/DonorProjectCode")   
 
     #Measure Timings 
     export_duration = time.time() - start_export
@@ -541,7 +540,7 @@ def moveSilverSearcherTests(testFolder, testName):
 # Imports the "projectname" as Code Property Graph 
 def importProjectasCPG(projectname, internalPath):
     #Check if the project contains code files, do not import it as CPG if so
-    if not os.listdir(projectname+"Code/src"):
+    if not os.listdir(projectname+"Code"):
         print("There are no source files in "+projectname)
         # Copy files from SU to Target if the SU contains only new files
         if projectname == "TargetProjectSlice":
@@ -573,7 +572,7 @@ def importProjectasCPG(projectname, internalPath):
 # Setup for the analysis (copy files to the right place to get list of changed files)
 def initializeAnalysis():
     global mergeResult, newFiles 
-    affectedTargetCodeFolder = "TargetProjectSliceCode/src"
+    affectedTargetCodeFolder = "TargetProjectSliceCode"
     
     # Delete old results
     os.chdir(topLvlDir+"/"+resultFoldername)
@@ -582,10 +581,10 @@ def initializeAnalysis():
     os.makedirs(affectedTargetCodeFolder)
  
     #Get filenames from Target    
-    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
     targetFiles = glob.glob('**/*.[c|h]', recursive=True)
     #Get filenames from SUCode 
-    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
+    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
     SUFiles = glob.glob('**/*.[c|h]', recursive=True)    
 
     for fileName in SUFiles:
@@ -600,7 +599,7 @@ def initializeAnalysis():
     if DEBUG: print("Files exclusive to the SU: "+str(newFiles))  
  
     #Copy only affected files from TargetCode to affectedTargetCodeFolder 
-    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+    os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
     print("Copy differing files from Target")
     for filename in list(mergeResult.keys()):
         os.system("cp --parent -v -r "+filename+" "+topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder)
@@ -613,7 +612,7 @@ def initializeAnalysis():
     shutil.rmtree(affectedTargetCodeFolder) 
     
     #Export target to code with semantic enhancement
-    convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder) 
+    convertToCode(True, topLvlDir+"/"+resultFoldername, affectedTargetCodeFolder, topLvlDir+"/"+resultFoldername+"/"+affectedTargetCodeFolder) 
 
 
 
@@ -637,8 +636,8 @@ def getDiffs():
         if DEBUG: print("Current filename: "+filename)
        
         #Open Target and SU file pair (do this nested, as otherwise the readeability of one line is bad)
-        with codecs.open("SUCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as SUFile:
-            with codecs.open("TargetProjectSliceCode/src/"+filename, 'r', encoding='utf-8', errors='ignore') as targetFile:
+        with codecs.open("SUCode/"+filename, 'r', encoding='utf-8', errors='ignore') as SUFile:
+            with codecs.open("TargetProjectSliceCode/"+filename, 'r', encoding='utf-8', errors='ignore') as targetFile:
                 with codecs.open(diffFoldername+diffFileName, 'w', encoding='utf-8', errors='ignore') as diffFile:
                     #Get the content of SU
                     SUFileContent = SUFile.readlines()                    
@@ -737,11 +736,11 @@ def createCompletelyNewFiles(fileList):
     if DEBUG: print("List of completely new files: "+str(fileList))
     
     # Go to SU directory (not Donor, as the completely new files are still slices)
-    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode/src")
+    os.chdir(topLvlDir+"/"+resultFoldername+"/SUCode")
     # Iterate through all completely new files
     for fileName in fileList:
         #Copy file from SU to Target
-        os.system("cp --parent -v -r "+fileName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src")
+        os.system("cp --parent -v -r "+fileName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
         
         #Soround the SU code with an ifdef block if this option is enabled
 #TODO We could/should add an include statement for a configuarion file here?        
@@ -749,14 +748,14 @@ def createCompletelyNewFiles(fileList):
         else: fileContent = []
         
         #Read current file content (with semantic enhancement)
-        with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+fileName, 'r') as file:
+        with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+fileName, 'r') as file:
             fileContent += file.readlines()
         
         #End the ifdef block of the SU
         if addIfdefAroundSU: fileContent += ["#endif\n"]
         
         #Remove semantic enhancement   
-        with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+fileName, 'w') as file:    
+        with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+fileName, 'w') as file:    
             for line in fileContent:
                 line = re.sub(semanticBlockPattern, '', line)
                 file.write(line)
@@ -770,7 +769,7 @@ def assembleFiles(filePath):
     global mergeResult
     
     # Write assembled content to file
-    with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/src/"+filePath, 'w') as file:
+    with open(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+filePath, 'w') as file:
         for line in mergeResult[filePath]:
             line = re.sub(semanticBlockPattern, '', line)
             file.write(line)
