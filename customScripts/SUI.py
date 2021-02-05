@@ -49,7 +49,7 @@ plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 showStatistics = True
 ##########################################################################################
 
@@ -359,8 +359,7 @@ def analyzeNode (currentNode):
         # Get related elements of the called function
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")    
-        DEBUG = False    
+        if (DEBUG): print("Result call relation for a Callee: "+str(result)+"\n")       
 
     # Get "called" function-like macro if current vertice is a macroCall (e.g. funcCall without ;)
     if (type[0] == "MacroCall"):     
@@ -369,18 +368,14 @@ def analyzeNode (currentNode):
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result call relation for a macroCall: "+str(result)+"\n")   
-        DEBUG = False
-        
+       
     #These nodes can contain calls to macros or functions (TDB 'preprocessor_fragment', prePragma? )    
     if (type[0] in ('PreIfCondition', 'PreMacro')):
-        print("PreCall")
         result = set(getCalledFunctionDefOrMacro(currentNode, type[0]))  
         # Add FunctionDef to the Semantic Unit and get related elements
         analysisList.extend(result)
          # Print result
-        if (DEBUG): print("Result call relation for a Callee in PreIfCondition or PreMacro: "+str(result)+"\n")
-        DEBUG = False
-           
+        if (DEBUG): print("Result call relation for a Callee in PreIfCondition or PreMacro: "+str(result)+"\n")          
         
     # For a given function name, return all possible callees    
     if ((type[0] == "FunctionDef") and (lookForAllFunctionCalls == True)): 
@@ -674,10 +669,9 @@ def getASTChildren (verticeId):
 
 # Return the id of the declaration of the called macro, including needed include statements
 def getCalledMacroDef (verticeId, type):
-    global DEBUG
+    #Collects the results to return them in bulk
     collectedDefs = []
-    DEBUG = True
-    print("getCalledMacroDef")
+
     # Get the name of the called macro. Note: Here the PreMacroIdentifier only contains the identifier and no brackets. This is due to the macroCall rule
     query = """g.V(%s).out().has('type', 'PreMacroIdentifier').valueMap('code', 'path')""" % (verticeId)
     calledMacros = db.runGremlinQuery(query)
@@ -768,24 +762,21 @@ def getCalledMacroDef (verticeId, type):
     
 # Return the id of the declaration of the called function, including needed include statements
 def getCalledFunctionDefOrMacro (verticeId, type):
-    global DEBUG
+    #Collects the results to return them in bulk
     collectedDefs = []
-    DEBUG = True
-    print("getCalledFunctionDefOrMacro")
     
     # Get the name of the called function
     query = """g.V(%s).out().has('type', 'Identifier').valueMap('code', 'path')""" % (verticeId)
     functionNames = db.runGremlinQuery(query)
     
     #Check here for arguments that could lead to a function?
-
-    
+   
     if(len(functionNames) < 1): 
-        print("Warning: Cannot get name or path of function: "+str(verticeId))
-        print("But type is: "+type+" so that's no problem")
+        if(type == 'Callee' or type == 'AddressOfExpression'):
+            #Only problematic for callee or addressOf nodes
+            print("Warning: Cannot get name or path of function: "+str(verticeId))
         return ""
-        
-    print("Found name: "+str(functionNames))   
+         
 
     # Some statements can contain several calls
     for functionName in functionNames:    
@@ -817,13 +808,11 @@ def getCalledFunctionDefOrMacro (verticeId, type):
         # Get the parent file of the current node (Callee)
         query = """g.V(%s).until(has('type', 'File')).repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).id()""" % (verticeId)  
         parentFileId = db.runGremlinQuery(query)
-       
-        print("Got parent file: "+str(parentFileId))   
+         
         #Check if parent file is not empty (which is normally impossible)?
     
         # For real function/macro calls
         if (type == 'Callee' or type == 'PreIfCondition' or type == 'PreMacro'):
-            print("Look for def in same file")
             # Look in its AST children for a functionDef or macro with the given name (take care that the result is a visible statement)
             # TODO: Check if we really need the next part
             # ,__.out().has('type', 'Function').out().out().has('type', 'PreDefine').out().has('type', 'PreMacroIdentifier').out().has('type', 'Identifier').has('code', '%s').in().in()    functionName['code'][0],

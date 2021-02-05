@@ -306,4 +306,4 @@ def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-convertToCode(False, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
+#convertToCode(False, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
