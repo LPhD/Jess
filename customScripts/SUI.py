@@ -2059,4 +2059,4 @@ def output(G):
 
 # Un-comment to run the script via console
 # Evaluation mode? (if False: the other parameters have no effect), "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
-initializeSUI(False, "Location", ["src/options.c"], "427", "ExpressionStatement")    
+#initializeSUI(False, "Location", ["src/options.c"], "427", "ExpressionStatement")    

@@ -66,7 +66,7 @@ def importData(db, idList, SEMANTIC, topLevelProjectName):
          
         # # # Semantic Diff # # #
         if SEMANTIC:    
-            enhanceWithSemanticForFunctionBlocks(db,structuredCodeList, chunk)
+            enhanceWithSemanticForFunctionBlocks(db,structuredCodeList, chunk, topLevelProjectName)
         # # # Semantic Diff End # # #
     
     # Sort the list content by file, by line and then by cLine
@@ -85,7 +85,7 @@ def importData(db, idList, SEMANTIC, topLevelProjectName):
      
 
 # Writes #FunctionBlockEnder# after the end of a function
-def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk):
+def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk, topLevelProjectName):
     # Get block enders (FunctionDef etc) for semantic diff
     query = """idListToNodes(%s)
         .has('type', 'FunctionDef').out(AST_EDGE)
