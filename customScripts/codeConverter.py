@@ -99,7 +99,7 @@ def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk):
     # Add results to the code list
     for r in result:
         if len(r) > 1:
-            structuredCodeList.append([r['path'][0].rsplit("/src/",1)[1], int(((r['line'])[0])), 0, " ###FunctionBlockEnder### ", "FunctionBlockEnder"])
+            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int(((r['line'])[0])), 0, " ###FunctionBlockEnder### ", "FunctionBlockEnder"])
     #We do not need to return the list here, as it is a mutable object   
 
 
@@ -306,4 +306,4 @@ def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-#convertToCode(False, os.getcwd()+"/Results", "ConvertedCode/src", "DonorProject")    
+convertToCode(False, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
