@@ -321,10 +321,7 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
     
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
-    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode", topLvlDir+"/"+resultFoldername+"/DonorProjectCode")   
-    
-    print("Stop here")
-    exit()
+    convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode", topLvlDir+"/"+resultFoldername+"/DonorProjectCode")       
 
     #Measure Timings 
     export_duration = time.time() - start_export
@@ -393,11 +390,19 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
     # Measure timings
     start_final_installation = time.time()
     
-    # Install Target, move (from Donor to Target), run, and document tests  
-################################# silver_searcher #############################################################################   
-    moveTests(testFolder, testName)
-    installSilverSearcher("Target")
-################################# silver_searcher end #########################################################################
+    # Install Target, move tests (from Donor to Target), run, and document tests     
+    if(projectName == "Silver Searcher"):  
+        moveTests(testFolder, testName)
+        installSilverSearcher("Target")
+        
+    elif(projectName == "scrcpy"):
+        # No moving of tests necessary here, as the tests are the entry points and therefore part of the SU
+        installScrcpy("Target")
+        
+    else:
+        print("Project specific implementation for: "+projectName+" is missing here")
+        exit()
+
 
     # Measure timings 
     final_installation_duration = time.time() - start_final_installation
@@ -418,8 +423,7 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
         
     #### Finish workflow ####
     print(" ### Code transplantation finished sucessfull! ### ")
-    print("This iteration took "+ str(time.time() - start_iteration) +"seconds to run")
-    print(" ### Please compile the code to check for duplicate identifiers ### ")    
+    print("This iteration took "+ str(time.time() - start_iteration) +"seconds to run")    
  
         
 #TODO Scan for occurences of re-defined strings? Locally and in the whole project? This has to be done after SU and Target were merged! 
