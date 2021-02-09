@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class SourceFileWalker {
-	protected final String DEFAULT_FILENAME_FILTER = "*.{c,cpp,h,cc,hpp,java}";
+	protected final String DEFAULT_FILENAME_FILTER = "*.{c,cpp,h,cc,hpp}";
 
 	public abstract void setFilenameFilter(String filter);
 
