@@ -230,7 +230,7 @@ def iterateThroughCommits():
                             entryPointList.append(commit[4])
                                                   
                         # Pass the relevant information for the selected commit to the workflow                          
-                        evaluationWorkflow(commit[1],commit[2],commit[3],entryPointList,commit[5],commit[6],commit[7],commit[8])
+                        evaluationWorkflow(commit[0], commit[1],commit[2],commit[3],entryPointList,commit[5],commit[6],commit[7],commit[8])
     
     # Final time measures
     print ("The whole workflow took "+ str(time.time() - start_time) +"seconds to run")  
@@ -241,7 +241,7 @@ def iterateThroughCommits():
                                                
 
 # Same as normalWorkflow, but with additional statistics and evaluation processes (installation, testing, diffing)        
-def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNameOrIdentifierOrString, entryLine, entryNodeType, testFolder, testName):      
+def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, entryPathOrNameOrIdentifierOrString, entryLine, entryNodeType, testFolder, testName):      
     global mergeResult, newFiles
     
     start_iteration = time.time()
@@ -255,6 +255,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNam
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
     os.system("git reset --hard")
     os.system("git clean -fd")  
+    print("Reset Donor directory")
     os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
     os.system("git reset --hard")
     os.system("git clean -fd")     
@@ -281,7 +282,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNam
     measureSizes()
             
     # Perform additional actions required for evaluation (installation, run tests, etc.)
-    setupProjectsForEvaluation(testFolder, testName)
+    setupProjectsForEvaluation(projectName, testFolder, testName)
     
     # Measure timings of installation and test processes separately   
     installAndTest_duration = time.time() - installAndTest_start    
@@ -321,6 +322,9 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNam
     #### SU to code (into folder Code) using the SEMANTIC option (enhances code with additional semantic information) ####
     print(" ### Convert SU back to source code ### ")    
     convertToCode(True, topLvlDir+"/"+resultFoldername, "SUCode", topLvlDir+"/"+resultFoldername+"/DonorProjectCode")   
+    
+    print("Stop here")
+    exit()
 
     #Measure Timings 
     export_duration = time.time() - start_export
@@ -391,7 +395,7 @@ def evaluationWorkflow(donorCommit, targetCommit, entryPointType, entryPathOrNam
     
     # Install Target, move (from Donor to Target), run, and document tests  
 ################################# silver_searcher #############################################################################   
-    moveSilverSearcherTests(testFolder, testName)
+    moveTests(testFolder, testName)
     installSilverSearcher("Target")
 ################################# silver_searcher end #########################################################################
 
@@ -505,15 +509,22 @@ def measureSizes():
 
 
 # Installs projects, runs their tests and measures results 
-# TODO automate based on projectList
-def setupProjectsForEvaluation(testFolder, testName):      
-################################# silver_searcher #############################################################################   
+def setupProjectsForEvaluation(projectName, testFolder, testName):   
     # Also add the new test to Target to see if it initially fails
-    moveSilverSearcherTests(testFolder, testName)
-    installSilverSearcher("Donor")
-    installSilverSearcher("Target")
-################################# silver_searcher end #########################################################################
-    
+    moveTests(testFolder, testName)
+        
+    #Variable installation process for each project
+    if(projectName == "Silver Searcher"):  
+        installSilverSearcher("Donor")
+        installSilverSearcher("Target")
+        
+    elif(projectName == "scrcpy"):
+        installScrcpy("Donor")
+        installScrcpy("Target")
+        
+    else:
+        print("Project: "+projectName+" has no implemented functions. No further actions taken")
+        exit()
 
 
 # Installation and test process for the_silver_searcher
@@ -532,9 +543,36 @@ def installSilverSearcher(DonorOrTarget):
         file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
 
 
+
+# Installation and test process for scrcpy
+def installScrcpy(DonorOrTarget):
+    # Build DonorOrTarget
+    os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
+    os.system("meson x --buildtype debug --strip -Db_lto=true -Dcompile_server=false")
+    # Save the compiler results, as we sometimes have new tests that make compilation fail (for this file)
+    tests = os.popen("ninja -Cx").read()
+    # Run DonorOrTarget's tests
+    print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
+    # Go into dir that contains the compiled tests
+    os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode/x/app")
+    # TODO: This is bad, testnames are hardcoded here
+    tests += os.popen("./test_buffer_util").read()
+    tests += os.popen("./test_cbuf").read()
+    tests += os.popen("./test_cli").read()
+    tests += os.popen("./test_control_event_serialize").read()
+    tests += os.popen("./test_device_event_deserialize").read()
+    tests += os.popen("./test_queue").read()
+    tests += os.popen("./test_strutil").read()
+    # Store test results on disk
+    os.chdir(topLvlDir)
+    with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
+
+
 #Copy SilverSearcher's test(s) from Donor to Target
-def moveSilverSearcherTests(testFolder, testName): 
+def moveTests(testFolder, testName): 
     os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testFolder+testName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+testFolder)
+
 
  
 # Imports the "projectname" as Code Property Graph 
