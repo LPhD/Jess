@@ -396,6 +396,8 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
         installSilverSearcher("Target")
         
     elif(projectName == "scrcpy"):
+        # Copy the build file, as this cannot be detected by SUI process
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/app/meson.build "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/app/")
         # No moving of tests necessary here, as the tests are the entry points and therefore part of the SU
         installScrcpy("Target")
         
@@ -524,6 +526,8 @@ def setupProjectsForEvaluation(projectName, testFolder, testName):
         
     elif(projectName == "scrcpy"):
         installScrcpy("Donor")
+        # Use Donor's build files that include the new files
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/app/meson.build "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/app/")
         installScrcpy("Target")
         
     else:
@@ -552,11 +556,13 @@ def installSilverSearcher(DonorOrTarget):
 def installScrcpy(DonorOrTarget):
     # Build DonorOrTarget
     os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
-    os.system("meson x --buildtype debug --strip -Db_lto=true -Dcompile_server=false")
+    # build_server changed at some point to compile_server
+    os.system("meson x --buildtype debug --strip -Db_lto=true -Dcompile_server=false -Dbuild_server=false")
     # Save the compiler results, as we sometimes have new tests that make compilation fail (for this file)
     tests = os.popen("ninja -Cx").read()
     # Run DonorOrTarget's tests
     print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
+    print("* * * It's okay if some tests are not found, this means they are just not present in this version. * * * ")
     # Go into dir that contains the compiled tests
     os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode/x/app")
     # TODO: This is bad, testnames are hardcoded here
@@ -565,6 +571,8 @@ def installScrcpy(DonorOrTarget):
     tests += os.popen("./test_cli").read()
     tests += os.popen("./test_control_event_serialize").read()
     tests += os.popen("./test_device_event_deserialize").read()
+    tests += os.popen("./test_control_msg_serialize").read()
+    tests += os.popen("./test_device_msg_deserialize").read()
     tests += os.popen("./test_queue").read()
     tests += os.popen("./test_strutil").read()
     # Store test results on disk
