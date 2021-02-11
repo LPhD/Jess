@@ -223,19 +223,35 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         # # # Semantic Diff # # #
         if SEMANTIC:
             
-            # Experimental: Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
-            # TODO: Systematically add all possible types (array? (not necessary as this is one while statement?) struct? preDefine?)
+            # Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
             if (statement[4] in typeList):
                 if DEBUG: print("Found block starter: "+statement[3])
                 # As we found a blockStarter, we are currently inBlock             
                 inBlock = True
             
-                #Build the block name cumulatively, so that it contains the names of all surrounding blocks    
+                #Build the block name comulatively, so that it contains the names of all surrounding blocks    
                 if (statement[4] == 'FunctionDef'):
-                    #Use only the function name for function blocks
-                    currentBlockName = statement[3].rpartition("(")[0]  
+                    # Slightly different handling for multiline definitions
+                    if("\n" in statement[3]):
+                        #Remove newline from blockname
+                        #Use only the function name for function blocks
+                        currentBlockName = statement[3].replace("\n","").rpartition("(")[0] 
+                    else:    
+                        #Use only the function name for function blocks
+                        currentBlockName = statement[3].rpartition("(")[0] 
+                        
+                    # Set the lineContent directly     
+                    lineContent = "###Block " +str(currentBlockName)+ "### " +  lineContent
+                    
+                                        
+
+                    print("currentBlockName: "+currentBlockName)
+                    print("lineContent: "+lineContent)
+                                                   
                     #Clear blockname (as a FunctionDef always starts a new block and currently there are no blocks outside of functions)
                     blockStarterStack = [] 
+
+                        
                     
                 #else blocks get the code of its "if" plus an additional "else" to separate between "if" and "else" content
                 #elif (statement[4] == 'ElseStatement'):                    
@@ -269,12 +285,13 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 inBlock = False
                 if DEBUG: print("Found block ender line: "+str(statement[1]))   
         
-        # Build the line content for relevant inBlock lines (no Compounds or normal blockEnders, as they need a slightly different handling)
-        if inBlock and not(statement[4] == 'CompoundStatement') and not (statement[3] == "}") and not (statement[4] == "FunctionBlockEnder"):
-            # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
-            lineContent = re.sub("###.*?###", '', lineContent) 
-            # Then add prefix for statements that are inside a block 
-            lineContent = "###Block " +str(blockStarterStack)+ "### " +  lineContent 
+        
+            # Finally build the line content for relevant inBlock lines (no Compounds, FunctionDefs or normal blockEnders, as they need a slightly different handling)
+            if inBlock and not(statement[4] == 'CompoundStatement') and not (statement[3] == "}") and not (statement[4] == "FunctionBlockEnder") and not statement[4] == 'FunctionDef':
+                # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
+                lineContent = re.sub("###.*?###", '', lineContent) 
+                # Then add prefix for statements that are inside a block 
+                lineContent = "###Block " +str(blockStarterStack)+ "### " +  lineContent 
                  
         # # # Semantic Diff End # # #
     
@@ -306,4 +323,4 @@ def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-#convertToCode(False, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
+convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
