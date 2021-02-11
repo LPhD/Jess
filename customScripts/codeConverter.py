@@ -241,33 +241,23 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                         currentBlockName = statement[3].rpartition("(")[0] 
                         
                     # Set the lineContent directly     
-                    lineContent = "###Block " +str(currentBlockName)+ "### " +  lineContent
-                    
-                                        
-
-                    print("currentBlockName: "+currentBlockName)
-                    print("lineContent: "+lineContent)
-                                                   
-                    #Clear blockname (as a FunctionDef always starts a new block and currently there are no blocks outside of functions)
+                    lineContent = "###Block " +str(currentBlockName)+ "### " +  lineContent                                                                      
+                    # Clear blockname (as a FunctionDef always starts a new block and currently there are no blocks outside of functions)
                     blockStarterStack = [] 
-
-                        
-                    
-                #else blocks get the code of its "if" plus an additional "else" to separate between "if" and "else" content
-                #elif (statement[4] == 'ElseStatement'):                    
-                    #currentBlockName = "else " + lastIf
+                    # Go on with the next statement
+                    continue
+                                           
 
                 # Collect the block starter names individually, but only if they really start a block (indicated through the opening bracket)
                 elif (statement[4] == 'CompoundStatement'):    
                     if DEBUG: print("Collected blockstarter: "+currentBlockName)                    
                     blockStarterStack.append(currentBlockName)
+                    # Go on with the next statement
+                    continue
                     
                 #Use the whole blockstarter for other blocks (and replace any line breaks that could cause problems otherwise) 
                 else:                           
                     currentBlockName = statement[3].replace("\n","")
-                    #Save the if header separately for possible later else statements 
-                    #if (statement[4] == 'IfStatement'):
-                        #lastIf = currentBlockName
                                                         
                                                                    
             #Look for closing brackets of blocks but not functionBlocks
@@ -277,17 +267,22 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent                 
                 #Remove the closed blockstarter from the stack
                 lastBlockstarter = blockStarterStack.pop()
+                # Go on with the next statement
+                continue
                 
             # Here we finally handly FunctionBlockEnders and reset the inBlock trigger
             elif (statement[4] == "FunctionBlockEnder"):
                 #Insert the block name to the statement (we do this here, as we set inBlock to false before we reach the next if)
                 lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
                 inBlock = False
-                if DEBUG: print("Found block ender line: "+str(statement[1]))   
+                if DEBUG: print("Found block ender line: "+str(statement[1])) 
+                # Go on with the next statement
+                continue                
+                
         
         
             # Finally build the line content for relevant inBlock lines (no Compounds, FunctionDefs or normal blockEnders, as they need a slightly different handling)
-            if inBlock and not(statement[4] == 'CompoundStatement') and not (statement[3] == "}") and not (statement[4] == "FunctionBlockEnder") and not statement[4] == 'FunctionDef':
+            if inBlock:
                 # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
                 lineContent = re.sub("###.*?###", '', lineContent) 
                 # Then add prefix for statements that are inside a block 
@@ -323,4 +318,4 @@ def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
+#convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
