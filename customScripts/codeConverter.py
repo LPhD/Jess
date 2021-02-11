@@ -277,16 +277,27 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 inBlock = False
                 if DEBUG: print("Found block ender line: "+str(statement[1])) 
                 # Go on with the next statement
-                continue                
-                
+                continue                                            
         
         
             # Finally build the line content for relevant inBlock lines (no Compounds, FunctionDefs or normal blockEnders, as they need a slightly different handling)
+            # ToDo: Check if it's really ok to not enhance blockstarters
             if inBlock:
                 # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
                 lineContent = re.sub("###.*?###", '', lineContent) 
                 # Then add prefix for statements that are inside a block 
                 lineContent = "###Block " +str(blockStarterStack)+ "### " +  lineContent 
+                
+                ['DeclByClass', 'DeclByType', 'FunctionDef', 'StructUnionEnum', 'FunctionPointerDeclare',
+                'DeclStmt', 
+                'IdentifierDeclStatement',
+                ]
+            
+            # For multiline statements outside of functions     
+            if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3])):    
+                #Add block info here#
+                lineContent = "###Block "+ lineContent.replace("\n","") +"### " +  lineContent 
+                    
                  
         # # # Semantic Diff End # # #
     
@@ -318,4 +329,4 @@ def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-#convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
+convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
