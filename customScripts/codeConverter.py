@@ -294,9 +294,13 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 ]
             
             # For multiline statements outside of functions      
-            if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3])):    
-                #Add block info here, only add everything before an opening curly bracket (as content of structs etc can change)
-                lineContent = "###Block "+ lineContent.replace("\n","").rpartition("{")[0]  +"### " +  lineContent 
+            if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3])):   
+                if("{" in statement[3]):
+                    #Add block info here, only add everything before an opening curly bracket (as content of structs etc can change)
+                    lineContent = "###Block "+ lineContent.replace("\n","").rpartition("{")[0]  +"### " +  lineContent
+                else:
+                    #Add block info here
+                    lineContent = "###Block "+ lineContent.replace("\n","")  +"### " +  lineContent                    
                     
                  
         # # # Semantic Diff End # # #
