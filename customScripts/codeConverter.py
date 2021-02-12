@@ -293,10 +293,10 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 'IdentifierDeclStatement',
                 ]
             
-            # For multiline statements outside of functions     
+            # For multiline statements outside of functions      
             if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3])):    
-                #Add block info here#
-                lineContent = "###Block "+ lineContent.replace("\n","") +"### " +  lineContent 
+                #Add block info here, only add everything before an opening curly bracket (as content of structs etc can change)
+                lineContent = "###Block "+ lineContent.replace("\n","").rpartition("{")[0]  +"### " +  lineContent 
                     
                  
         # # # Semantic Diff End # # #
@@ -329,4 +329,4 @@ def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
+#convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
