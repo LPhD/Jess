@@ -244,6 +244,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     lineContent = "###Block " +str(currentBlockName)+ "### " +  lineContent                                                                      
                     # Clear blockname (as a FunctionDef always starts a new block and currently there are no blocks outside of functions)
                     blockStarterStack = [] 
+                    # Also clear label
+                    currentLabel = ""
                     # Go on with the next statement
                     continue
                                            
@@ -263,29 +265,41 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             #Look for closing brackets of blocks but not functionBlocks
             elif inBlock and (statement[3] == "}") and not (statement[4] == "FunctionBlockEnder"):     
                 if DEBUG: print("Found blockEnder of non-function block: "+statement[3])   
-                # Build the line content with the name of the current block before removing it
-                lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent                 
+                # Build the line content with the name of the current block (and label if existing) before removing it
+                lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent                 
                 #Remove the closed blockstarter from the stack
                 lastBlockstarter = blockStarterStack.pop()
+                
+                # If we leave a switch block
+                if ("switch" in lastBlockstarter):
+                    print("Switch ends here")
+                    # Reset label
+                    currentLabel = ""
+                    
                 # Go on with the next statement
                 continue
+                
+            # For handling different cases of switch statements
+            elif (statement[4] == "Label"):  
+                print("Found label: "+statement[3])
+                currentLabel = statement[3]                
                 
             # Here we finally handly FunctionBlockEnders and reset the inBlock trigger
             elif (statement[4] == "FunctionBlockEnder"):
                 #Insert the block name to the statement (we do this here, as we set inBlock to false before we reach the next if)
-                lineContent = "###Block " +str(blockStarterStack)+ "### " + lineContent  
+                lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent  
                 inBlock = False
                 if DEBUG: print("Found block ender line: "+str(statement[1])) 
                 # Go on with the next statement
-                continue                                            
-        
+                continue  
+                    
         
             # Finally build the line content for relevant inBlock lines (no Compounds, FunctionDefs or normal blockEnders, as they need a slightly different handling)
             if inBlock:
                 # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
                 lineContent = re.sub("###.*?###", '', lineContent) 
                 # Then add prefix for statements that are inside a block 
-                lineContent = "###Block " +str(blockStarterStack)+ "### " +  lineContent 
+                lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " +  lineContent 
                 
             
             # For multiline statements outside of functions      
