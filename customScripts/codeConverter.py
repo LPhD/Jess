@@ -157,7 +157,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         
         # Check if the current statement is inside a folder structure
         if ("/" in statement[0]):
-            #Make the folder structure inside of foldername folder
+            #Make the folder structure inside of foldername folder (rpartition searches for the last occurence of "/")
             pathlib.Path(foldername+"/"+statement[0].rpartition("/")[0]).mkdir(parents=True, exist_ok=True) 
         
         #Remove missleading newlines at the end of some statements like preDefines
@@ -234,11 +234,11 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     # Slightly different handling for multiline definitions
                     if("\n" in statement[3]):
                         #Remove newline from blockname
-                        #Use only the function name for function blocks
-                        currentBlockName = statement[3].replace("\n","").rpartition("(")[0] 
+                        #Use only the function name for function blocks (search for first occurence of "(" )
+                        currentBlockName = statement[3].replace("\n","").partition("(")[0] 
                     else:    
                         #Use only the function name for function blocks
-                        currentBlockName = statement[3].rpartition("(")[0] 
+                        currentBlockName = statement[3].partition("(")[0] 
                         
                     # Set the lineContent directly     
                     lineContent = "###Block " +str(currentBlockName)+ "### " +  lineContent                                                                      
@@ -288,16 +288,12 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 # Then add prefix for statements that are inside a block 
                 lineContent = "###Block " +str(blockStarterStack)+ "### " +  lineContent 
                 
-                ['DeclByClass', 'DeclByType', 'FunctionDef', 'StructUnionEnum', 'FunctionPointerDeclare',
-                'DeclStmt', 
-                'IdentifierDeclStatement',
-                ]
             
             # For multiline statements outside of functions      
             if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3])):   
                 if("{" in statement[3]):
                     #Add block info here, only add everything before an opening curly bracket (as content of structs etc can change)
-                    lineContent = "###Block "+ lineContent.replace("\n","").rpartition("{")[0]  +"### " +  lineContent
+                    lineContent = "###Block "+ lineContent.replace("\n","").partition("{")[0]  +"### " +  lineContent
                 else:
                     #Add block info here
                     lineContent = "###Block "+ lineContent.replace("\n","")  +"### " +  lineContent                    
