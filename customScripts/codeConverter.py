@@ -281,7 +281,6 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         
         
             # Finally build the line content for relevant inBlock lines (no Compounds, FunctionDefs or normal blockEnders, as they need a slightly different handling)
-            # ToDo: Check if it's really ok to not enhance blockstarters
             if inBlock:
                 # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
                 lineContent = re.sub("###.*?###", '', lineContent) 
@@ -290,13 +289,19 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 
             
             # For multiline statements outside of functions      
-            if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3])):   
+            if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3])):
+                # Build the unique identifier for the block
                 if("{" in statement[3]):
-                    #Add block info here, only add everything before an opening curly bracket (as content of structs etc can change)
-                    lineContent = "###Block "+ lineContent.replace("\n","").partition("{")[0]  +"### " +  lineContent
+                    # Only add everything before an opening curly bracket (as content of structs etc can change) and without newlines
+                    blockIdentifier = lineContent.partition("{")[0].replace("\n","")
                 else:
-                    #Add block info here
-                    lineContent = "###Block "+ lineContent.replace("\n","")  +"### " +  lineContent                    
+                    # Just remove newlines
+                    blockIdentifier = lineContent.replace("\n","")
+                
+                # Add the block information at every line of the statement (add the identifier after each linebreak and at the beginning of the first line)
+                lineContent = "###Block "+blockIdentifier+"### " + lineContent.replace("\n","\n ###Block "+blockIdentifier+"### ")  
+
+                #print("Line content: "+lineContent)    
                     
                  
         # # # Semantic Diff End # # #
