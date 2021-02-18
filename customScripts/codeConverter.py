@@ -297,7 +297,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 continue
                 
             # For handling different cases of switch statements (not goto labels)
-            elif ((statement[4] == "Label") and (statement[3].startswith("case"))):  
+            elif ((statement[4] == "Label") and (statement[3].startswith("case") or statement[3].startswith("default") )):  
                 if DEBUG: print("Found label: "+statement[3])
                 currentLabel = statement[3] 
             
