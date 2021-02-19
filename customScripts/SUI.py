@@ -62,7 +62,7 @@ projectName = 'DonorProject'
 entryPointIds = list()
 entryFeatureNames = list()
 entryIdentifiers = list()
-entryStrings = ['HASH_FIND_INT']
+entryStrings = ['clipboard']
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'Statement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
@@ -442,7 +442,7 @@ def analyzeNode (currentNode):
         analysisList.extend(result)
          # Print result
         if (DEBUG): print("Result call relation for an AddressOfExpression: "+str(result)+"\n")
-        DEBUG = False    
+   
         
 ##################################################################################################################
 ##################################### Data Flow ##################################################################   
@@ -1106,14 +1106,22 @@ def getParent (verticeId):
 
 # Return parent function of a given set of node ids (can be empty)
 def addParentFunctions (nodes):
-    global SemanticUnit
+    global SemanticUnit    
     
     if (DEBUG) : print("Checking for parent functionDefs ...")    
 
-    # Find the parent function (if existing), its CompoundStatement and its BlockCloser (without dupes)
-    query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).until(has('type', 'FunctionDef')).dedup().as('result').out('IS_AST_PARENT').has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type','BlockCloser').as('result').select('result').unfold().id()"""  % (nodes)                
+    # Find the parent function (if existing), its CompoundStatement and its BlockCloser (with union, so that we also get results if one of the branches is empty)
+    query = """idListToNodes(%s).union(
+    __.repeat(__.in('IS_AST_PARENT').dedup()).until(has('type', 'FunctionDef')).dedup(),
+    __.repeat(__.in('IS_AST_PARENT').dedup()).until(has('type', 'FunctionDef')).dedup().out('IS_AST_PARENT').has('type', 'CompoundStatement').dedup(),
+    __.repeat(__.in('IS_AST_PARENT').dedup()).until(has('type', 'FunctionDef')).dedup().out('IS_AST_PARENT').has('type', 'CompoundStatement').dedup().out('IS_AST_PARENT').has('type','BlockCloser').dedup()
+    ).dedup().id()"""  % (nodes)                
+           
+    result = db.runGremlinQuery(query)       
     
-    return db.runGremlinQuery(query) 
+    if (DEBUG) : print("Found additional parent functionDef nodes: "+str(result)+"\n")
+    
+    return result 
 
 
 # Return parent blocks of a given set of node ids (can be empty)
@@ -1126,8 +1134,11 @@ def addParentBlocks (nodes):
     blockStarter = ['SwitchStatement', 'IfStatement', 'ElseStatement', 'ForStatement', 'WhileStatement', 'DoStatement']
 
     query = """idListToNodes(%s).repeat(__.in('IS_AST_PARENT')).emit().has('type', within(%s)).dedup().as('result').out('IS_AST_PARENT').has('type', 'CompoundStatement').as('result').out('IS_AST_PARENT').has('type','BlockCloser').as('result').select('result').unfold().dedup().id()"""  % (nodes, blockStarter)                
+    result = db.runGremlinQuery(query)       
     
-    return db.runGremlinQuery(query) 
+    if (DEBUG) : print("Found additional parent block nodes: "+str(result)+"\n")
+    
+    return result  
 
 
 ######################################### Local Declares (Pre-Analysis) #################################################################
@@ -1182,7 +1193,7 @@ def addLocalBackwardSlice (nodes):
         
         #Only check for data flow if we have nodes that could influence the entry point
         if (len(controlFlow) > 0):        
-            #Get all nodes that are connected via DEF/USE or (real or, not xor) AST parent edges to the initial node
+            #Get all nodes that are connected via DEF/USE or (real or, not xor) AST parent edges to the initial node (no FunctionDefs, as this can lead to inclusion of the whole function content)
             query = """g.V(%s).repeat(__.union(
                 __.out('USE','DEF').dedup().in('USE','DEF').simplePath().dedup(),
                 __.in('IS_AST_PARENT').not(has('type','FunctionDef')).simplePath().dedup()
