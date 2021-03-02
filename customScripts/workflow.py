@@ -93,8 +93,8 @@ def normalWorkflow():
         #Reset Target Repo (remove unversioned files)
         print("Reset Target directory")
         os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
-        os.system("git reset --hard")
-        os.system("git clean -fd")
+        os.system("git reset --hard -q")
+        os.system("git clean -fd -q")
 
                            
     #### Identify SU ####
@@ -185,7 +185,8 @@ def iterateThroughCommits():
             
             # Install dependencies for project
             print("* * * Installing dependencies for project * * *")
-            os.system("sudo apt-get install -y "+project[2])
+            # Quiet output
+            os.system("sudo apt-get install -y "+project[2]+" > /dev/null")
                     
             
             # Read input of the commit list (list of commits to be evaluated)     
@@ -253,12 +254,12 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
     #Reset result repos (remove unversioned files)
     print("Reset Target directory")
     os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode")
-    os.system("git reset --hard")
-    os.system("git clean -fd")  
+    os.system("git reset --hard -q")
+    os.system("git clean -fd -q")  
     print("Reset Donor directory")
     os.chdir(topLvlDir+"/"+resultFoldername+"/DonorProjectCode")
-    os.system("git reset --hard")
-    os.system("git clean -fd")     
+    os.system("git reset --hard -q")
+    os.system("git clean -fd -q")     
     os.chdir(topLvlDir)
     
     # Measure timings
@@ -294,7 +295,12 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
 
     # Imports the Donor as Code Property Graph and validates the result
     os.chdir(topLvlDir+"/"+resultFoldername)
-    importProjectasCPG("DonorProject", "/DonorProjectCode")
+    
+    if (projectName == "grep"):
+        print("Grep")
+        importProjectasCPG("DonorProject/src", "/DonorProjectCode")
+    else:
+        importProjectasCPG("DonorProject", "/DonorProjectCode")
 
     # Measure timings after CPG import
     import_and_eval_duration = time.time() - start_import
@@ -449,9 +455,9 @@ def createRepos():
     donorCommit = input("Please type in the commit id of the version of the software that contains the desired functionality (Donor) \n")    
     print("Set commit id to: "+donorCommit+".")
     
-    os.system("git clone "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
+    os.system("git clone "+repoURL+" "+resultFoldername+"/DonorProjectCode -q") 
     os.chdir(resultFoldername+"/DonorProjectCode")    
-    os.system("git checkout "+donorCommit)  
+    os.system("git checkout "+donorCommit+" -q")  
     #Get back to top level folder
     os.chdir(topLvlDir)
     
@@ -459,9 +465,9 @@ def createRepos():
     targetCommit = input("Please type in the commit id of the version of the software that you would like to merge into (Target) \n")   
     print("Set commit id to: "+targetCommit+".")
     
-    os.system("git clone "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
+    os.system("git clone "+repoURL+" "+resultFoldername+"/TargetProjectCode -q") 
     os.chdir(resultFoldername+"/TargetProjectCode")    
-    os.system("git checkout "+targetCommit)  
+    os.system("git checkout "+targetCommit+" -q")  
     os.chdir(topLvlDir)
  
 
@@ -474,10 +480,10 @@ def createReposForEvaluation(repoURL):
         file.write("\n"+str(datetime.datetime.now())+": Starting with checkout of new project...") 
     
     # Get Donor    
-    os.system("git clone "+repoURL+" "+resultFoldername+"/DonorProjectCode") 
+    os.system("git clone "+repoURL+" "+resultFoldername+"/DonorProjectCode -q") 
     
     # Get Target        
-    os.system("git clone "+repoURL+" "+resultFoldername+"/TargetProjectCode") 
+    os.system("git clone "+repoURL+" "+resultFoldername+"/TargetProjectCode -q") 
 
     # Get timings    
     checkout_duration = time.time() - start_checkout
@@ -490,13 +496,13 @@ def createReposForEvaluation(repoURL):
 def checkoutCommitsForEvaluation(donorCommit, targetCommit):       
     # Get Donor
     os.chdir(resultFoldername+"/DonorProjectCode")    
-    os.system("git checkout "+donorCommit)  
+    os.system("git checkout "+donorCommit+" -q")  
     #Get back to top level folder
     os.chdir(topLvlDir)
     
     # Get Target    
     os.chdir(resultFoldername+"/TargetProjectCode")    
-    os.system("git checkout "+targetCommit)  
+    os.system("git checkout "+targetCommit+" -q")  
     #Get back to top level folder
     os.chdir(topLvlDir)     
 
@@ -539,7 +545,7 @@ def setupProjectsForEvaluation(projectName, testFolder, testName):
     elif(projectName == "grep"):
         installGrep("Donor")
         # Use Donor's build files that include the new files
-        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/makefile.am "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/makefile.am")
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/Makefile.am "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/")
         installGrep("Target")
      
      
@@ -550,6 +556,7 @@ def setupProjectsForEvaluation(projectName, testFolder, testName):
 
 # Installation and test process for the_silver_searcher
 def installSilverSearcher(DonorOrTarget):
+    print("* * * Installing "+DonorOrTarget+"... * * *")
     # Install DonorOrTarget
     os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
     os.system("./build.sh")
@@ -562,11 +569,12 @@ def installSilverSearcher(DonorOrTarget):
     os.chdir(topLvlDir)
     with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
         file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
-
+    print("* * * Installing "+DonorOrTarget+" finished! * * *")
 
 
 # Installation and test process for scrcpy
 def installScrcpy(DonorOrTarget):
+    print("* * * Installing "+DonorOrTarget+"... * * *")
     # Build DonorOrTarget
     os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
     # build_server changed at some point to compile_server
@@ -595,23 +603,31 @@ def installScrcpy(DonorOrTarget):
     os.chdir(topLvlDir)
     with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
         file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
-
+    print("* * * Installing "+DonorOrTarget+" finished! * * *")
+    
 
 # Installation and test process for grep
 def installGrep(DonorOrTarget):
+    print("* * * Installing "+DonorOrTarget+"... * * *")
     # Install DonorOrTarget
     os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
-    os.system("./bootstrap") 
-    os.system("./configure") 
-    os.system("make -j30") 
+    # Quiet
+    os.system("./bootstrap --skip-po > /dev/null") 
+    print("Bootstrap end")
+    # Wno-error, as per default warnings are treated as erros (which we do not want)
+    os.system("./configure -q CFLAGS=\"-Wno-error\"") 
+    print("configure end")
+    # Quiet
+    os.system("make -j30 > /dev/null") 
     # Run DonorOrTarget's tests
-    os.chdir("tests/")
+    #os.chdir("tests/")
     print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
     tests = os.popen("make check").read()
     # Store test results
     os.chdir(topLvlDir)
     with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
         file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
+    print("* * * Installing "+DonorOrTarget+" finished! * * *")    
 
 
 
