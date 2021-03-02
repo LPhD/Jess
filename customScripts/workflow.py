@@ -3,7 +3,7 @@ from octopus.server.DBInterface import DBInterface
 from codeConverter import convertToCode
 from evaluation import evaluateProject
 from SUI import initializeSUI
-import subprocess
+from subprocess import PIPE, Popen
 import os
 import shutil
 import re
@@ -401,6 +401,12 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
         # No moving of tests necessary here, as the tests are the entry points and therefore part of the SU
         installScrcpy("Target")
         
+    elif(projectName == "grep"):
+        # Copy the build file, as this cannot be detected by SUI process
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/Makefile.am "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/")
+        moveTests(testFolder, testName)
+        installGrep("Target")       
+        
     else:
         print("Project specific implementation for: "+projectName+" is missing here")
         exit()
@@ -529,7 +535,14 @@ def setupProjectsForEvaluation(projectName, testFolder, testName):
         # Use Donor's build files that include the new files
         os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/app/meson.build "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/app/")
         installScrcpy("Target")
-        
+    
+    elif(projectName == "grep"):
+        installGrep("Donor")
+        # Use Donor's build files that include the new files
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/makefile.am "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/makefile.am")
+        installGrep("Target")
+     
+     
     else:
         print("Project: "+projectName+" has no implemented functions. No further actions taken")
         exit()
@@ -558,30 +571,52 @@ def installScrcpy(DonorOrTarget):
     os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
     # build_server changed at some point to compile_server
     os.system("meson x --buildtype debug --strip -Db_lto=true -Dcompile_server=false -Dbuild_server=false")
-    # Save the compiler results, as we sometimes have new tests that make compilation fail (for this file)
-    tests = os.popen("ninja -Cx").read()
+    
+    # Save the compiler results, as we sometimes have new tests that make compilation fail (for this file)   
+    out, err = Popen("ninja -Cx".split(), stdout=PIPE, stderr=PIPE, encoding='utf-8').communicate()  
+    tests = str(out)
+    tests += "Compile errors: \n"+str(err)
+    
     # Run DonorOrTarget's tests
-    print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
-    print("* * * It's okay if some tests are not found, this means they are just not present in this version. * * * ")
+    print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")   
     # Go into dir that contains the compiled tests
-    os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode/x/app")
-    # TODO: This is bad, testnames are hardcoded here
-    tests += os.popen("./test_buffer_util").read()
-    tests += os.popen("./test_cbuf").read()
-    tests += os.popen("./test_cli").read()
-    tests += os.popen("./test_control_event_serialize").read()
-    tests += os.popen("./test_device_event_deserialize").read()
-    tests += os.popen("./test_control_msg_serialize").read()
-    tests += os.popen("./test_device_msg_deserialize").read()
-    tests += os.popen("./test_queue").read()
-    tests += os.popen("./test_strutil").read()
+    testpath = topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode/x/app"
+    os.chdir(testpath)
+    tests += "\nTest errors: \n"
+    # Execute every existing test in the testfolder
+    with os.scandir(testpath) as dirs:
+        for entry in dirs:
+            # Only execute the testfiles, not folders or other files
+            if(entry.name.startswith("test") and os.path.isfile(os.path.join(testpath, entry))):
+                out, err = Popen("./"+entry.name, stdout=PIPE, stderr=PIPE, encoding='utf-8').communicate()    
+                tests += str(err)
+        
     # Store test results on disk
     os.chdir(topLvlDir)
     with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
         file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
 
 
-#Copy SilverSearcher's test(s) from Donor to Target
+# Installation and test process for grep
+def installGrep(DonorOrTarget):
+    # Install DonorOrTarget
+    os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
+    os.system("./bootstrap") 
+    os.system("./configure") 
+    os.system("make -j30") 
+    # Run DonorOrTarget's tests
+    os.chdir("tests/")
+    print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
+    tests = os.popen("make check").read()
+    # Store test results
+    os.chdir(topLvlDir)
+    with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
+
+
+
+
+#Copy test(s) from Donor to Target
 def moveTests(testFolder, testName): 
     os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testFolder+testName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+testFolder)
 
