@@ -622,7 +622,11 @@ def installGrep(DonorOrTarget):
     # Run DonorOrTarget's tests
     #os.chdir("tests/")
     print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
-    tests = os.popen("make check").read()
+    #tests = os.popen("make check").read()
+    
+    out, err = Popen("make check".split(), stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore').communicate()  
+    tests = "Info: \n"+ str(out) + "\nErrors: \n" + str(err)
+    
     # Store test results
     os.chdir(topLvlDir)
     with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
