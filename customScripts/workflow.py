@@ -87,7 +87,7 @@ def normalWorkflow():
                 
         # Imports the Donor as Code Property Graph and validates the result
         os.chdir(topLvlDir+"/"+resultFoldername)
-        importProjectasCPG("DonorProject", "/DonorProjectCode") 
+        importProjectasCPG("DonorProject", "") 
   
     else:
         #Reset Target Repo (remove unversioned files)
@@ -298,9 +298,9 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
     
     if (projectName == "grep"):
         print("Grep")
-        importProjectasCPG("DonorProject/src", "/DonorProjectCode")
+        importProjectasCPG("DonorProject", "/src")
     else:
-        importProjectasCPG("DonorProject", "/DonorProjectCode")
+        importProjectasCPG("DonorProject", "")
 
     # Measure timings after CPG import
     import_and_eval_duration = time.time() - start_import
@@ -639,9 +639,9 @@ def moveTests(testFolder, testName):
 
  
 # Imports the "projectname" as Code Property Graph 
-def importProjectasCPG(projectname, internalPath):
+def importProjectasCPG(projectname, subfolder):
     #Check if the project contains code files, do not import it as CPG if so
-    if not os.listdir(projectname+"Code"):
+    if not os.listdir(projectname+"Code"+subfolder):
         print("There are no source files in "+projectname)
         # Copy files from SU to Target if the SU contains only new files
         if projectname == "TargetProjectSlice":
@@ -656,7 +656,7 @@ def importProjectasCPG(projectname, internalPath):
 
     #ToDo only tar relevant filetypes
  
-    os.system("jess-import "+projectname+"Code "+projectname) 
+    os.system("jess-import "+projectname+"Code"+subfolder+" "+projectname) 
     
     if EVALUATION:
          with open(topLvlDir+"/Evaluation/EvaluationStatistics/timings.txt", "a") as file:    
@@ -666,7 +666,7 @@ def importProjectasCPG(projectname, internalPath):
 #TODO we could skip this step for performance. But then we need to tell the codeConverter the right projectname and ids
     print(" ### Validating CPG of "+projectname+" ### ") 
     # Project name, working directory, path to original source code
-    evaluateProject(projectname, topLvlDir+"/"+resultFoldername , topLvlDir+"/"+resultFoldername+"/"+projectname+"Code") 
+    evaluateProject(projectname, topLvlDir+"/"+resultFoldername , topLvlDir+"/"+resultFoldername+"/"+projectname+"Code"+subfolder) 
     
 
 
@@ -707,7 +707,7 @@ def initializeAnalysis():
     
     os.chdir(topLvlDir+"/"+resultFoldername)
     #Import Target as CPG 
-    importProjectasCPG("TargetProjectSlice", "/"+affectedTargetCodeFolder) 
+    importProjectasCPG("TargetProjectSlice", "") 
     
     #Remove old code results (replace the affected Target files with their semantic enhanced version)
     shutil.rmtree(affectedTargetCodeFolder) 
