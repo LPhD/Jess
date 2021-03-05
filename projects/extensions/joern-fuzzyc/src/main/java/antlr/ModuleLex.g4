@@ -33,9 +33,8 @@ ASM: ('__asm__' | 'asm');
 // Keywords shared among C++/Java
 
 
-TRY: 'try' | 'zend_try' | 'zend_first_try';    //Custom extention for zend/php project
-CATCH: 'catch' | 'zend_catch';      //Custom extention for zend/php project
-THROW: 'throw';
+TRY: 'zend_try' | 'zend_first_try';    //Custom extention for zend/php project
+CATCH: 'zend_catch';      //Custom extention for zend/php project
 
 
 // Keywords shared among C/C++

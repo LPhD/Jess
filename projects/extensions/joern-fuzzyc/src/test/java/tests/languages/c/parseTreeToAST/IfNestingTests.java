@@ -102,6 +102,33 @@ public class IfNestingTests {
 		assertEquals("! timercmp ( & time_now , & limit_time , < )", condition.getEscapedCodeStr());
 	}
 	
+	@Test
+	public void ifInForWithUnusualInitAndOtherComplexStuff() {
+		String input = "if (match_words)\n" + 
+				"        for (try = beg; ; )\n" + 
+				"          {\n" + 
+				"            if (wordchar (mb_prev_wc (buf, try, buf + size)))\n" + 
+				"              break;\n" + 
+				"            if (wordchar (mb_next_wc (try + len, buf + size)))\n" + 
+				"              {\n" + 
+				"                if (!len)\n" + 
+				"                  break;\n" + 
+				"                offset = kwsexec (kwset, beg, --len, &kwsmatch);\n" + 
+				"                if (offset == (size_t) -1)\n" + 
+				"                  break;\n" + 
+				"                try = beg + offset;\n" + 
+				"                len = kwsmatch.size[0];\n" + 
+				"              }\n" + 
+				"            else if (!start_ptr)\n" + 
+				"              goto success;\n" + 
+				"            else\n" + 
+				"              goto success_in_beg_and_len;\n" + 
+				"          } /* for (try) */";
+		CompoundStatement item = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		BlockStarter starter = (BlockStarter) item.getStatements().get(0);
+		assertEquals("if ( match_words )", starter.getEscapedCodeStr());
+	}
+	
 
 	@Test
 	public void ifElse() {
