@@ -109,6 +109,18 @@ public class ExpressionParsingTest {
 	}
 	
 	@Test
+	public void testAssignWithCondition() {
+		String input = "unibyte_c = (!locale\n" + 
+				"                       || STREQ (locale, \"C\")\n" + 
+				"                       || STREQ (locale, \"POSIX\"));";
+		CompoundStatement contentItem = (CompoundStatement) FunctionContentTestUtil.parseAndWalk(input);
+		ExpressionStatement statementItem = (ExpressionStatement) contentItem.getStatements().get(0);
+		assertEquals("unibyte_c = ( ! locale \n" + 
+				" || STREQ ( locale , \"C\" ) \n" + 
+				" || STREQ ( locale , \"POSIX\" ) ) ;",statementItem.getEscapedCodeStr());
+	}
+	
+	@Test
 	public void testAssignWithCommentsAlongArguments() {
 		String input = "bool supports_mipmaps =\n" + 
 				"                sc_opengl_version_at_least(gl, 3, 0, /* OpenGL 3.0+ */\n" + 
