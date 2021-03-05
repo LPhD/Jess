@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import antlr.ModuleBaseListener;
 import antlr.ModuleParser;
-import antlr.ModuleParser.Class_defContext;
-import antlr.ModuleParser.DeclByClassContext;
 import antlr.ModuleParser.Init_declarator_listContext;
 import antlr.ModuleParser.MacroCall_asFunctionHeaderContext;
 import antlr.ModuleParser.Type_nameContext;
@@ -32,12 +30,10 @@ import ast.statements.IdentifierDeclStatement;
 import ast.statements.StructUnionEnum;
 import parsing.ANTLRParserDriver;
 import parsing.ASTNodeFactory;
-import parsing.CompoundItemAssembler;
 import parsing.ModuleFunctionParserInterface;
 import parsing.Functions.ANTLRCFunctionParserDriver;
 import parsing.Functions.builder.FunctionContentBuilder;
 import parsing.Modules.builder.FunctionDefBuilder;
-import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
 
 // Converts Parse Trees to ASTs for Modules
@@ -611,78 +607,6 @@ public class CModuleParserTreeListener extends ModuleBaseListener {
 		checkVariability(stmt);
 		// Connect to parrent comment if existing
 		checkIfCommented(stmt);		
-	}
-
-// -------------------------------------- Decl by Class -------------------------------------------------------------------------
-
-	@Override
-	public void enterDeclByClass(ModuleParser.DeclByClassContext ctx) {
-		logger.debug("Enter enterDeclByClass");
-		ClassDefBuilder builder = new ClassDefBuilder();
-		builder.createNew(ctx);
-		p.builderStack.push(builder);
-	}
-
-	@Override
-	public void exitDeclByClass(ModuleParser.DeclByClassContext ctx) {
-		ClassDefBuilder builder = (ClassDefBuilder) p.builderStack.pop();
-
-		CompoundStatement content = parseClassContent(ctx);
-		builder.setContent(content);
-		ASTNode node = builder.getItem();
-		
-		p.notifyObserversOfItem(node);
-		emitDeclarationsForClass(ctx);
-		
-		//Set previous statement
-		previousStatement = node;
-				
-		// Connect to parrent #ifdef if existing
-		checkVariability(node);
-		//Connect to parent comment if existing
-		checkIfCommented(node);
-	}
-
-	@Override
-	public void enterClass_name(ModuleParser.Class_nameContext ctx) {
-		ClassDefBuilder builder = (ClassDefBuilder) p.builderStack.peek();
-		builder.setName(ctx);
-	}
-
-	private void emitDeclarationsForClass(DeclByClassContext ctx) {
-
-		Init_declarator_listContext decl_list = ctx.init_declarator_list();
-		if (decl_list == null)
-			return;
-
-		ParserRuleContext typeName = ctx.class_def().class_name();
-		emitDeclarations(decl_list, typeName, ctx);
-	}
-
-	private CompoundStatement parseClassContent(ModuleParser.DeclByClassContext ctx) {
-		ANTLRCModuleParserDriver shallowParser = createNewShallowParser();
-		CompoundItemAssembler generator = new CompoundItemAssembler();
-		shallowParser.addObserver(generator);
-
-		restrictStreamToClassContent(ctx);
-		shallowParser.parseAndWalkTokenStream(p.stream);
-		p.stream.resetRestriction();
-
-		return generator.getCompoundItem();
-	}
-
-	private void restrictStreamToClassContent(ModuleParser.DeclByClassContext ctx) {
-		Class_defContext class_def = ctx.class_def();
-		int startIndex = class_def.OPENING_CURLY().getSymbol().getTokenIndex();
-		int stopIndex = class_def.stop.getTokenIndex();
-
-		p.stream.restrict(startIndex + 1, stopIndex);
-	}
-
-	private ANTLRCModuleParserDriver createNewShallowParser() {
-		ANTLRCModuleParserDriver shallowParser = new ANTLRCModuleParserDriver();
-		shallowParser.setStack(p.builderStack);
-		return shallowParser;
 	}
 
 }

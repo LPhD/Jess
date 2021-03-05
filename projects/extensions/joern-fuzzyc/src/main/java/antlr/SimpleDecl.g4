@@ -3,8 +3,8 @@ import ModuleLex, Expressions, Preprocessor, Common;
 
 simple_decl : var_decl;
 
-var_decl : template_decl_start? class_def expression_fragment* init_declarator_list? (pre_other | macroCall)? #declByClass
-         | (TYPEDEF expression_fragment*)?  (template_decl_start expression_fragment*)? type_name expression_fragment* init_declarator_list  #declByType
+var_decl : 
+         (TYPEDEF expression_fragment*)?  type_name expression_fragment* init_declarator_list  #declByType
          | (TYPEDEF expression_fragment*)?  type_name expression_fragment* '('? expression_fragment* callingConvention? expression_fragment* ptr_operator '('? expression_fragment* identifier? ')' expression_fragment* param_type_list expression_fragment* (pre_other | macroCall)? ('=' expression_fragment* argument)? ';' #FunctionPointerDeclare
          | ((CV_QUALIFIER | function_decl_specifiers | TYPEDEF)+ expression_fragment*)?  special_datatype expression_fragment* init_declarator_list? ';'? #StructUnionEnum
          ;
@@ -21,12 +21,6 @@ special_datatype: SPECIAL_DATA expression_fragment* pre_other? (identifier expre
 init_declarator_list: init_declarator (expression_fragment* ',' expression_fragment* init_declarator)* expression_fragment* (pre_other | macroCall)? ';';
 
 
-class_def: CLASS_KEY expression_fragment* class_name? base_classes? OPENING_CURLY {skipToEndOfObject(); } ;
-class_name: identifier;
-base_classes: ':' base_class (',' base_class)*;
-base_class: (VIRTUAL expression_fragment*)? access_specifier? identifier;
-
-
 type_name: (
           EXTERN expression_fragment*
           | function_decl_specifiers 
@@ -37,11 +31,10 @@ type_name: (
           | REGISTER expression_fragment*
           | ptr_operator expression_fragment*
           | base_type 
-          | ( ('<' template_param_list '>' ) ('::' base_type  ('<' template_param_list '>')?  )* ) 
           | macroCall         
             )+ ;
 
-base_type: (VOID expression_fragment* | 'long' expression_fragment* | 'char' expression_fragment* | 'int' expression_fragment* | SPECIAL_DATA expression_fragment* | CLASS_KEY expression_fragment* | ALPHA_NUMERIC expression_fragment* )+;
+base_type: (VOID expression_fragment* | 'long' expression_fragment* | 'char' expression_fragment* | 'int' expression_fragment* | SPECIAL_DATA expression_fragment* | ALPHA_NUMERIC expression_fragment* )+;
 
 // Parameters
 
@@ -61,7 +54,6 @@ param_type_id: ptrs? ( '('  param_type_id ')' | parameter_name?) type_suffix?;
 
 // operator-identifiers not implemented. Do not allow newlines after identifiers here, as this leads to problems with preprocessor statements
 identifier : (ALPHA_NUMERIC  ('::'  ALPHA_NUMERIC  )*)  
-                | NEW  
                 | PRE_PRAGMA_KEYWORDS   
                 | access_specifier
                 ;

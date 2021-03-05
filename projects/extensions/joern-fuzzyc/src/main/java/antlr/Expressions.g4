@@ -54,7 +54,6 @@ cast_target: type_name
 unary_expression: address_of_expression
                 | unary_op_and_cast_expr
                 | sizeof_expression 
-                | new_expression
                 | postfix_expression
                 | defined_expression
                 | macroCall
@@ -62,10 +61,6 @@ unary_expression: address_of_expression
                 ;
 
 address_of_expression: '&' identifier;
- 
-new_expression: '::'? NEW expression_fragment* type_name expression_fragment* '[' conditional_expression? ']' 
-              | '::'? NEW expression_fragment* type_name expression_fragment* '(' expr? ')'
-              ;
 
 unary_op_and_cast_expr: unary_operator expression_fragment* cast_expression;
 
@@ -97,8 +92,8 @@ asmCall: ASM (CV_QUALIFIER | GOTO)* NEWLINE? '(' NEWLINE? (STRING NEWLINE?)+
 
 postfix_expression: postfix_expression expression_fragment* '[' expr? ']' #arrayIndexing
                   | postfix_expression expression_fragment* '(' argument_list? ')' #funcCall
-                  | postfix_expression '.' expression_fragment* TEMPLATE? (identifier) #memberAccess
-                  | postfix_expression '->' expression_fragment* TEMPLATE? (identifier) #ptrMemberAccess
+                  | postfix_expression '.' expression_fragment* (identifier) #memberAccess
+                  | postfix_expression '->' expression_fragment* (identifier) #ptrMemberAccess
                   | postfix_expression expression_fragment* inc_dec #incDecOp
                   | type_name? initializer_expression #arrayAssign // arrayName[] = {1}
                   | primary_expression # primaryOnly

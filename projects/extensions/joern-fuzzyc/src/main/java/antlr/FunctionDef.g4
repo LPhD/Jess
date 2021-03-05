@@ -2,7 +2,7 @@ grammar FunctionDef;
 import ModuleLex, Preprocessor, SimpleDecl, Expressions, Common;
 
 function_def : 
-                template_decl_start? return_type? (pre_other expression_fragment*)? function_name expression_fragment* function_param_list ctor_list? expression_fragment* compound_statement
+                return_type? (pre_other expression_fragment*)? function_name expression_fragment* function_param_list ctor_list? expression_fragment* compound_statement
                 | return_type? macroCall_asFunctionHeader expression_fragment* compound_statement //This is for macros that replace the function header
                 ; 
 
@@ -33,7 +33,7 @@ initializer_id : '::'? identifier;
 
 ctor_expr:  '(' expr? ')';
 
-function_name: identifier | '(' function_name ')' | OPERATOR operator;
+function_name: identifier | '(' function_name ')';
 
 exception_specification : THROW '(' type_id_list ')';
 

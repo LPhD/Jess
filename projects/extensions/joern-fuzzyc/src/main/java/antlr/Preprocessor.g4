@@ -48,7 +48,7 @@ pre_undef: PRE_UNDEF pre_macro_identifier;
 pre_macro_identifier: identifier ('(' pre_macro_parameters ')')? | keyword | END_TEST | 'START_TEST' ('(' pre_macro_parameters ')')? | PRE_ATTRIBUTE;
 
 //Macros can redefine keywords
-keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' | 'static' | 'unsigned' | 'signed' | 'long' | 'virtual' | 'operator' | 'class' | TRY | CATCH;
+keyword: 'inline' | 'explicit' | 'friend' | 'public' | 'private' | 'protected' | STATIC | UNSIGNED | SIGNED | 'long' | TRY | CATCH;
 
 //Maybe needs more possibilites
 pre_macro_parameters: (identifier | ELLIPSIS )? (',' (identifier | ELLIPSIS))*;

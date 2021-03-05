@@ -100,7 +100,7 @@ ptr_operator: ('*' | '&');
 
 access_specifier: ('public' | 'private' | 'protected');
 
-operator: (('new' | 'delete' ) ('[' ']')?)
+operator: (('[' ']')?)
   | '+' | '-' | '*' | '/' | '%' |'^' | '&' | '|' | '~'
   | '!' | '=' | '<' | '>' | '+=' | '-=' | '*='
   | '/=' | '%=' | '^=' | '&=' | '|=' | '>>'
@@ -112,14 +112,6 @@ operator: (('new' | 'delete' ) ('[' ']')?)
 assignment_operator: '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='; 
 equality_operator: ('=='| '!=');
 
-template_decl_start : TEMPLATE '<' template_param_list '>';
-
-
-// template water
-template_param_list : (('<' template_param_list '>') |
-                       ('(' template_param_list ')') | 
-                       no_angle_brackets_or_brackets)+
-;
 
 // water
 no_brackets: ~('(' | ')');

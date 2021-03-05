@@ -32,12 +32,11 @@ ASM: ('__asm__' | 'asm');
 
 // Keywords shared among C++/Java
 
-VIRTUAL: 'virtual';
+
 TRY: 'try' | 'zend_try' | 'zend_first_try';    //Custom extention for zend/php project
 CATCH: 'catch' | 'zend_catch';      //Custom extention for zend/php project
 THROW: 'throw';
-USING: 'using';
-NAMESPACE: 'namespace'; 
+
 
 // Keywords shared among C/C++
 
@@ -45,12 +44,6 @@ AUTO: 'auto';
 REGISTER: 'register';
 SPECIAL_DATA: ('struct' | 'union' | 'enum');
 
-// C++ keywords
-
-OPERATOR: 'operator';
-TEMPLATE: 'template';
-CLASS_KEY: 'class' ;
-NEW: 'new';
 
 // pre-processor directives: C/C++
 
@@ -97,7 +90,7 @@ fragment
 COMMENT_END: '*/';  
     
 MULTILINE_COMMENT: '/*' (.)*?  COMMENT_END;
-ONELINE_COMMENT:    | '//'  ~('\n'|'\r')* '\r'? '\n';
+ONELINE_COMMENT: '//'  ~('\n'|'\r')* '\r'? '\n';
  
 CHAR:  WideCharTypeSuffix?  '\'' ( EscapeSequence | ~('\''|'\\') ) '\'';
 

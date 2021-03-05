@@ -29,7 +29,6 @@ import antlr.FunctionParser.ConditionContext;
 import antlr.FunctionParser.Conditional_expressionContext;
 import antlr.FunctionParser.ContinueStatementContext;
 import antlr.FunctionParser.CustomContext;
-import antlr.FunctionParser.DeclByClassContext;
 import antlr.FunctionParser.Do_statementContext;
 import antlr.FunctionParser.Else_statementContext;
 import antlr.FunctionParser.Equality_expressionContext;
@@ -186,7 +185,6 @@ import ast.statements.jump.ThrowStatement;
 import parsing.ASTNodeFactory;
 import parsing.Modules.CModuleParserTreeListener;
 import parsing.Shared.InitDeclContextWrapper;
-import parsing.Shared.builders.ClassDefBuilder;
 import parsing.Shared.builders.IdentifierDeclBuilder;
 
 /**
@@ -1157,21 +1155,6 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 		nesting.addItemToParent(cond);
 	}
 
-	public void enterDeclByClass(DeclByClassContext ctx) {
-		ClassDefBuilder classDefBuilder = new ClassDefBuilder();
-		classDefBuilder.createNew(ctx);
-		classDefBuilder.setName(ctx.class_def().class_name());
-		ASTNode node = classDefBuilder.getItem();
-		replaceTopOfStack(node, ctx);
-		//Set previous statement
-		previousStatement = node;
-		checkVariability(node);
-		checkIfCommented(node);
-	}
-
-	public void exitDeclByClass() {
-		nesting.consolidate();
-	}
 
 	public void enterInitDeclSimple(InitDeclSimpleContext ctx) {
 		ASTNode identifierDecl = buildDeclarator(ctx);

@@ -1,12 +1,13 @@
 package tests.languages.c.antlrParsers.moduleParser;
 
 import static org.junit.Assert.assertEquals;
+
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
+
 import antlr.ModuleLexer;
 import antlr.ModuleParser;
-import antlr.ModuleParser.Class_defContext;
 
 
 public class ClassDeclarationTest {
@@ -30,17 +31,17 @@ public class ClassDeclarationTest {
 				+ " param_type_id) ))))) ;)))", output);
 	}
 
-	@Test
-	public void testClassContentExtraction() {
-		String input = "class foo{ foobar; }";
-
-		ModuleParser parser = createParser(input);
-		Class_defContext class_def = parser.class_def();
-
-		int startIndex = class_def.OPENING_CURLY().getSymbol().getTokenIndex();
-		int stopIndex = class_def.stop.getTokenIndex();
-		assertEquals(2, startIndex);
-		assertEquals(5, stopIndex);
-	}
+//	@Test
+//	public void testClassContentExtraction() {
+//		String input = "class foo{ foobar; }";
+//
+//		ModuleParser parser = createParser(input);
+//		Class_defContext class_def = parser.class_def();
+//
+//		int startIndex = class_def.OPENING_CURLY().getSymbol().getTokenIndex();
+//		int stopIndex = class_def.stop.getTokenIndex();
+//		assertEquals(2, startIndex);
+//		assertEquals(5, stopIndex);
+//	}
 
 }

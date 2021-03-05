@@ -24,16 +24,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitCode(ModuleParser.CodeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#using_directive}.
-	 * @param ctx the parse tree
-	 */
-	void enterUsing_directive(ModuleParser.Using_directiveContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#using_directive}.
-	 * @param ctx the parse tree
-	 */
-	void exitUsing_directive(ModuleParser.Using_directiveContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link ModuleParser#pre_statement}.
 	 * @param ctx the parse tree
 	 */
@@ -404,26 +394,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitEquality_operator(ModuleParser.Equality_operatorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ModuleParser#template_decl_start}.
-	 * @param ctx the parse tree
-	 */
-	void enterTemplate_decl_start(ModuleParser.Template_decl_startContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#template_decl_start}.
-	 * @param ctx the parse tree
-	 */
-	void exitTemplate_decl_start(ModuleParser.Template_decl_startContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#template_param_list}.
-	 * @param ctx the parse tree
-	 */
-	void enterTemplate_param_list(ModuleParser.Template_param_listContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#template_param_list}.
-	 * @param ctx the parse tree
-	 */
-	void exitTemplate_param_list(ModuleParser.Template_param_listContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link ModuleParser#no_brackets}.
 	 * @param ctx the parse tree
 	 */
@@ -764,18 +734,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 */
 	void exitSimple_decl(ModuleParser.Simple_declContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code declByClass}
-	 * labeled alternative in {@link ModuleParser#var_decl}.
-	 * @param ctx the parse tree
-	 */
-	void enterDeclByClass(ModuleParser.DeclByClassContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code declByClass}
-	 * labeled alternative in {@link ModuleParser#var_decl}.
-	 * @param ctx the parse tree
-	 */
-	void exitDeclByClass(ModuleParser.DeclByClassContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code declByType}
 	 * labeled alternative in {@link ModuleParser#var_decl}.
 	 * @param ctx the parse tree
@@ -841,46 +799,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInit_declarator_list(ModuleParser.Init_declarator_listContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#class_def}.
-	 * @param ctx the parse tree
-	 */
-	void enterClass_def(ModuleParser.Class_defContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#class_def}.
-	 * @param ctx the parse tree
-	 */
-	void exitClass_def(ModuleParser.Class_defContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#class_name}.
-	 * @param ctx the parse tree
-	 */
-	void enterClass_name(ModuleParser.Class_nameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#class_name}.
-	 * @param ctx the parse tree
-	 */
-	void exitClass_name(ModuleParser.Class_nameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#base_classes}.
-	 * @param ctx the parse tree
-	 */
-	void enterBase_classes(ModuleParser.Base_classesContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#base_classes}.
-	 * @param ctx the parse tree
-	 */
-	void exitBase_classes(ModuleParser.Base_classesContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#base_class}.
-	 * @param ctx the parse tree
-	 */
-	void enterBase_class(ModuleParser.Base_classContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#base_class}.
-	 * @param ctx the parse tree
-	 */
-	void exitBase_class(ModuleParser.Base_classContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#type_name}.
 	 * @param ctx the parse tree
@@ -1175,16 +1093,6 @@ public interface ModuleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAddress_of_expression(ModuleParser.Address_of_expressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ModuleParser#new_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNew_expression(ModuleParser.New_expressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ModuleParser#new_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNew_expression(ModuleParser.New_expressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ModuleParser#unary_op_and_cast_expr}.
 	 * @param ctx the parse tree

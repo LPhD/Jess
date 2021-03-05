@@ -69,25 +69,7 @@ public class OtherTests extends FunctionDefinitionTests {
 		assertEquals("(simple_decl (var_decl (type_name extern (base_type ptrdiff_t)) (init_declarator_list (init_declarator (declarator (identifier kwsexec) (type_suffix (param_type_list ( (param_type (type_name (base_type kwset_t)) param_type_id) , (param_type (type_name (base_type char) const (ptr_operator *)) param_type_id) , (param_type (type_name (base_type ptrdiff_t)) param_type_id) , (expression_fragment \\n) (param_type (type_name (base_type struct kwsmatch) (ptr_operator *)) param_type_id) , (param_type (type_name (base_type bool)) param_type_id) )))) (expression_fragment \\n)) (pre_other _GL_ARG_NONNULL ( ( (attributeList (attribute (constant 4))) ) )) ;)))", output);
 	}
 	
-	@Test
-	public void testOperatorOverloading() {
-		String input = "inline bool operator == (const PlMessageHeader &b) const {}";
 
-		ModuleParser parser = createParser(input);
-		String output = parser.function_def().toStringTree(parser);
-
-		assertTrue(output.startsWith("(function_def "));
-	}
-
-	@Test
-	public void testExceptionSpecificationCpp() {
-		String input = "int foo() throw(){}";
-
-		ModuleParser parser = createParser(input);
-		String output = parser.function_def().toStringTree(parser);
-
-		assertTrue(output.startsWith("(function_def "));
-	}
 	
 	@Test
 	public void testOneLineComment() {

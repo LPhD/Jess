@@ -436,17 +436,6 @@ public class CFunctionParseTreeListener extends FunctionBaseListener {
 		builder.exitFunctionPointerDeclare();
 	}
 
-	@Override
-	public void enterDeclByClass(FunctionParser.DeclByClassContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.enterDeclByClass(ctx);
-	}
-
-	@Override
-	public void exitDeclByClass(FunctionParser.DeclByClassContext ctx) {
-		FunctionContentBuilder builder = (FunctionContentBuilder) p.builderStack.peek();
-		builder.exitDeclByClass();
-	}
 
 	@Override
 	public void enterInitDeclSimple(FunctionParser.InitDeclSimpleContext ctx) {

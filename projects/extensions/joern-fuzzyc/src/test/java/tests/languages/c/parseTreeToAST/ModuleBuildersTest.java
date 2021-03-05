@@ -17,7 +17,6 @@ import ast.c.preprocessor.blockstarter.PreIfStatement;
 import ast.c.preprocessor.commands.macro.MacroCall;
 import ast.c.preprocessor.commands.macro.PreDefine;
 import ast.custom.CustomNode;
-import ast.declarations.ClassDefStatement;
 import ast.declarations.IdentifierDecl;
 import ast.functionDef.FunctionDefBase;
 import ast.functionDef.ParameterBase;
@@ -218,14 +217,14 @@ public class ModuleBuildersTest {
 				" } devices = READ_COMMAND_LINE_DEVICES ;", codeItem.getEscapedCodeStr());
 	}
 	
-	@Test
-	public void testFunctionInClass() {
-		String input = "class foo{ bar(){} }";
-		List<ASTNode> codeItems = parseInput(input);
-		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
-		FunctionDefBase funcItem = (FunctionDefBase) codeItem.content.getStatements().get(0);
-		assertEquals("bar", funcItem.getName());
-	}
+//	@Test
+//	public void testFunctionInClass() {
+//		String input = "class foo{ bar(){} }";
+//		List<ASTNode> codeItems = parseInput(input);
+//		ClassDefStatement codeItem = (ClassDefStatement) codeItems.get(0);
+//		FunctionDefBase funcItem = (FunctionDefBase) codeItem.content.getStatements().get(0);
+//		assertEquals("bar", funcItem.getName());
+//	}
 	
 	
 	@Test
@@ -376,29 +375,29 @@ public class ModuleBuildersTest {
 		assertEquals("IdentifierDeclStatement", codeItem.getTypeAsString());
 	}
 
-	@Test
-	public void testDeclListAfterClass() {
-		String input = "class foo{int x;} y;";
-		List<ASTNode> codeItems = parseInput(input);
-		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(codeItems.size() - 1);
-		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
-		
-		assertEquals("y", decl.getName().getEscapedCodeStr());
-	}
+//	@Test
+//	public void testDeclListAfterClass() {
+//		String input = "class foo{int x;} y;";
+//		List<ASTNode> codeItems = parseInput(input);
+//		IdentifierDeclStatement codeItem = (IdentifierDeclStatement) codeItems.get(codeItems.size() - 1);
+//		IdentifierDecl decl = (IdentifierDecl) codeItem.getIdentifierDeclList().get(0);
+//		
+//		assertEquals("y", decl.getName().getEscapedCodeStr());
+//	}
 
-	@Test
-	public void testClassDefBeforeContent() {
-		String input = "class foo{int x;}";
-		List<ASTNode> codeItems = parseInput(input);
-
-		ClassDefStatement classCodeItem = (ClassDefStatement) codeItems.get(0);
-		IdentifierDeclStatement identifierCodeItem = (IdentifierDeclStatement) classCodeItem.content.getStatements()
-				.get(0);
-		IdentifierDecl decl = (IdentifierDecl) identifierCodeItem.getIdentifierDeclList().get(0);
-
-		assertEquals("foo", classCodeItem.identifier.getEscapedCodeStr());
-		assertEquals("x", decl.getName().getEscapedCodeStr());
-	}
+//	@Test
+//	public void testClassDefBeforeContent() {
+//		String input = "class foo{int x;}";
+//		List<ASTNode> codeItems = parseInput(input);
+//
+//		ClassDefStatement classCodeItem = (ClassDefStatement) codeItems.get(0);
+//		IdentifierDeclStatement identifierCodeItem = (IdentifierDeclStatement) classCodeItem.content.getStatements()
+//				.get(0);
+//		IdentifierDecl decl = (IdentifierDecl) identifierCodeItem.getIdentifierDeclList().get(0);
+//
+//		assertEquals("foo", classCodeItem.identifier.getEscapedCodeStr());
+//		assertEquals("x", decl.getName().getEscapedCodeStr());
+//	}
 
 	@Test
 	public void testFuncName() {

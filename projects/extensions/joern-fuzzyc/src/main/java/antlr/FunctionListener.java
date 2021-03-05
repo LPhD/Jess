@@ -630,26 +630,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitEquality_operator(FunctionParser.Equality_operatorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FunctionParser#template_decl_start}.
-	 * @param ctx the parse tree
-	 */
-	void enterTemplate_decl_start(FunctionParser.Template_decl_startContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#template_decl_start}.
-	 * @param ctx the parse tree
-	 */
-	void exitTemplate_decl_start(FunctionParser.Template_decl_startContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#template_param_list}.
-	 * @param ctx the parse tree
-	 */
-	void enterTemplate_param_list(FunctionParser.Template_param_listContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#template_param_list}.
-	 * @param ctx the parse tree
-	 */
-	void exitTemplate_param_list(FunctionParser.Template_param_listContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link FunctionParser#no_brackets}.
 	 * @param ctx the parse tree
 	 */
@@ -990,18 +970,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 */
 	void exitSimple_decl(FunctionParser.Simple_declContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code declByClass}
-	 * labeled alternative in {@link FunctionParser#var_decl}.
-	 * @param ctx the parse tree
-	 */
-	void enterDeclByClass(FunctionParser.DeclByClassContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code declByClass}
-	 * labeled alternative in {@link FunctionParser#var_decl}.
-	 * @param ctx the parse tree
-	 */
-	void exitDeclByClass(FunctionParser.DeclByClassContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code declByType}
 	 * labeled alternative in {@link FunctionParser#var_decl}.
 	 * @param ctx the parse tree
@@ -1067,46 +1035,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInit_declarator_list(FunctionParser.Init_declarator_listContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#class_def}.
-	 * @param ctx the parse tree
-	 */
-	void enterClass_def(FunctionParser.Class_defContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#class_def}.
-	 * @param ctx the parse tree
-	 */
-	void exitClass_def(FunctionParser.Class_defContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#class_name}.
-	 * @param ctx the parse tree
-	 */
-	void enterClass_name(FunctionParser.Class_nameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#class_name}.
-	 * @param ctx the parse tree
-	 */
-	void exitClass_name(FunctionParser.Class_nameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#base_classes}.
-	 * @param ctx the parse tree
-	 */
-	void enterBase_classes(FunctionParser.Base_classesContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#base_classes}.
-	 * @param ctx the parse tree
-	 */
-	void exitBase_classes(FunctionParser.Base_classesContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#base_class}.
-	 * @param ctx the parse tree
-	 */
-	void enterBase_class(FunctionParser.Base_classContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#base_class}.
-	 * @param ctx the parse tree
-	 */
-	void exitBase_class(FunctionParser.Base_classContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#type_name}.
 	 * @param ctx the parse tree
@@ -1401,16 +1329,6 @@ public interface FunctionListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAddress_of_expression(FunctionParser.Address_of_expressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FunctionParser#new_expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNew_expression(FunctionParser.New_expressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FunctionParser#new_expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNew_expression(FunctionParser.New_expressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FunctionParser#unary_op_and_cast_expr}.
 	 * @param ctx the parse tree

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
+
 import parsing.FunctionParser;
 
 public class FunctionParserTest extends FunctionParserTestBase {
@@ -49,14 +50,14 @@ public class FunctionParserTest extends FunctionParserTestBase {
 				, output);
 	}
 
-	@Test
-	public void testClassDefinition() {
-		String input = "class foo{ int x; };";
-		FunctionParser functionParser = createFunctionParser();
-		ParseTree tree = functionParser.parseString(input);
-		String output = tree.toStringTree(functionParser.getAntlrParser());
-		assertTrue(output.contains("class_def"));
-	}
+//	@Test
+//	public void testClassDefinition() {
+//		String input = "class foo{ int x; };";
+//		FunctionParser functionParser = createFunctionParser();
+//		ParseTree tree = functionParser.parseString(input);
+//		String output = tree.toStringTree(functionParser.getAntlrParser());
+//		assertTrue(output.contains("class_def"));
+//	}
 
 
 	@Test
