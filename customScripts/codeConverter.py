@@ -259,8 +259,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                         #Use only the function name for function blocks
                         currentBlockName = statement[3].partition("(")[0] 
                         
-                    # Set the lineContent directly     
-                    lineContent = "###Block " +str(currentBlockName)+ "### " +  lineContent                                                                      
+                    # Set the lineContent directly. Also add the block info before each linebreak    
+                    lineContent = "###Block " +str(currentBlockName)+ "### " + lineContent.replace("\n","\n ###Block " +str(currentBlockName)+ "### ")                                                                      
                     # Clear blockname (as a FunctionDef always starts a new block and currently there are no blocks outside of functions)
                     blockStarterStack = [] 
                     # Also clear label
@@ -273,6 +273,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 elif (statement[4] == 'CompoundStatement'):    
                     if DEBUG: print("Collected blockstarter: "+currentBlockName)                    
                     blockStarterStack.append(currentBlockName)
+                    # Build the line content with the name of the current block (and label if existing). Also add the block info after each linebreak (at the beginning of each new line). We do this here as { can appear solo in a line (and are therefore not unique)
+                    lineContent = lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ")
                     # Go on with the next statement
                     continue
                     
@@ -284,8 +286,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             #Look for closing brackets of blocks (this does not include the special types of FunctionBlockEnder and SwitchBlockEnder)
             elif inBlock and (statement[3] == "}"):     
                 if DEBUG: print("Found blockEnder of non-function block: "+statement[3])   
-                # Build the line content with the name of the current block (and label if existing) before removing it
-                lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent   
+                # Build the line content with the name of the current block (and label if existing) before removing it. Also add the block info after each linebreak (at the beginning of each new line).
+                lineContent = lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ")  
 
                 if(len(blockStarterStack) > 0):        
                     #Remove the closed blockstarter from the stack
@@ -327,12 +329,12 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             if inBlock:
                 # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
                 lineContent = re.sub("###.*?###", '', lineContent) 
-                # Then add prefix for statements that are inside a block 
-                lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " +  lineContent 
+                # Then add prefix for statements that are inside a block. Also add the block info after each linebreak (at the beginning of each new line).
+                lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ") 
                 
             
             # For multiline statements outside of functions      
-            if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3])):
+            if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3]) and not inBlock):
                 # Build the unique identifier for the block
                 if("{" in statement[3]):
                     # Only add everything before an opening curly bracket (as content of structs etc can change) and without newlines
