@@ -62,7 +62,7 @@ projectName = 'DonorProject'
 entryPointIds = list()
 entryFeatureNames = list()
 entryIdentifiers = list()
-entryStrings = ['clipboard']
+entryStrings = ['kwset']
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
 visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'Statement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
@@ -305,7 +305,7 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
         
     # Get enclosed vertices if current vertice is a for-, while- or if-statement
-    if (type[0] in ["IfStatement","ForStatement","WhileStatement", "SwitchStatement"]) and (includeEnclosedCode == True):             
+    if (type[0] in ["IfStatement","ForStatement","WhileStatement","DoStatement","SwitchStatement"]) and (includeEnclosedCode == True):             
         result = set(getASTChildren(currentNode))
         # For each enclosed vertice, add to the Semantic Unit and get related elements
         analysisList.extend(result) 
@@ -1181,8 +1181,11 @@ def addLocalBackwardSlice (nodes):
     for node in nodes:
         if (DEBUG) : print("Look at node: "+str(node))  
 
+        #ToDo: Caution, this analysis does not handly doWhile statements correctly (as they are missing their USE/DEF and FLOWS_TO edges)
+
         #Get all nodes that appear previously in the control flow 
         #If the starting node has a condition, follow its control flow instead. if the resulting node is a condition, get its parent (bc control flows follow condition, not their visible parent statements)
+        #Choose: if, then, else
         query = """g.V(%s)
             .choose(__.out('IS_AST_PARENT').has('type','Condition'),__.out('IS_AST_PARENT').has('type','Condition'),identity())
             .repeat(__.in('FLOWS_TO').simplePath().dedup()).emit()
@@ -1190,6 +1193,7 @@ def addLocalBackwardSlice (nodes):
             .id()""" % (node)
         controlFlow = set(db.runGremlinQuery(query))
         if (DEBUG) : print("Got control flow: "+str(controlFlow))
+        print("Got control flow: "+str(controlFlow))
         
         #Only check for data flow if we have nodes that could influence the entry point
         if (len(controlFlow) > 0):        
@@ -1199,11 +1203,12 @@ def addLocalBackwardSlice (nodes):
                 __.in('IS_AST_PARENT').not(has('type','FunctionDef')).simplePath().dedup()
                 ).dedup()
             ).emit().has('type', within(%s)).id()""" % (node, visibleStatementTypes)
-            dataFlow = set(db.runGremlinQuery(query))        
+            dataFlow = set(db.runGremlinQuery(query))    
+            if (DEBUG) : print("Got data flow: "+str(dataFlow))   
         
             #Get all nodes that appear in both queries (previous control flow node and direct or indirect data flow connection) -> All nodes that can have an impact to the entry point
             result.update(controlFlow.intersection(dataFlow))    
-            if (DEBUG) : print("Updated result: "+str(result))    
+            if (DEBUG) : print("Updated result: "+str(result))      
     
     return result
    
@@ -2070,4 +2075,4 @@ def output(G):
 
 # Un-comment to run the script via console
 # Evaluation mode? (if False: the other parameters have no effect), "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
-#initializeSUI(False, "Location", ["src/options.c"], "427", "ExpressionStatement")    
+#initializeSUI(False, "Location", ["app/tests/test_control_msg_serialize.c"],"239","FunctionDef")    
