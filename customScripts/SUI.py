@@ -49,7 +49,7 @@ plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = False
+DEBUG = True
 showStatistics = True
 ##########################################################################################
 
@@ -465,6 +465,7 @@ def analyzeNode (currentNode):
         # Get all labels that were refered by this goto
         result = set(getLabels(currentNode))  
         # Just add, no further analysis (we do not need to look at the labels again, as they will result in the used gotos)
+        # ToDo: We should follow all flows to edges until the next label
         semanticUnit.update(result) 
         # Print result
         if (DEBUG): print("Result control flow relation: "+str(result)+"\n")
@@ -649,14 +650,15 @@ def getLabels (verticeId):
     # Get code of the referenced label
     query = """g.V(%s).out('IS_AST_PARENT').values('code')""" % (verticeId) 
     name = db.runGremlinQuery(query)
+    if DEBUG: print("Got label: "+str(name))
 
-    # Go to parent filenode
+    # Go to parent functionDef
     # Look in all children for the referenced label
     query = """g.V(%s)
-        .until(has('type', 'File'))
-        .repeat(__.in('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST'))
+        .until(has('type', 'FunctionDef'))
+        .repeat(__.in('IS_AST_PARENT'))
         .until(has('type', 'Label').out('IS_AST_PARENT').has('code', '%s'))
-        .repeat(__.out('IS_AST_PARENT','IS_FILE_OF','IS_FUNCTION_OF_AST')).dedup().id()
+        .repeat(__.out('IS_AST_PARENT')).dedup().id()
     """ % (verticeId, name[0]) 
     return db.runGremlinQuery(query)
  
@@ -2075,4 +2077,5 @@ def output(G):
 
 # Un-comment to run the script via console
 # Evaluation mode? (if False: the other parameters have no effect), "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
-#initializeSUI(False, "Location", ["app/tests/test_control_msg_serialize.c"],"239","FunctionDef")    
+initializeSUI(True, "Location", ["src/dfa.c"],"3602","FunctionDef")    
+
