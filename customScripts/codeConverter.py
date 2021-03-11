@@ -273,6 +273,8 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 elif (statement[4] == 'CompoundStatement'):    
                     if DEBUG: print("Collected blockstarter: "+currentBlockName)                    
                     blockStarterStack.append(currentBlockName)
+                    # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
+                    lineContent = re.sub("###.*?###", '', lineContent) 
                     # Build the line content with the name of the current block (and label if existing). Also add the block info after each linebreak (at the beginning of each new line). We do this here as { can appear solo in a line (and are therefore not unique)
                     lineContent = lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ")
                     # Go on with the next statement
@@ -286,6 +288,9 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             #Look for closing brackets of blocks (this does not include the special types of FunctionBlockEnder and SwitchBlockEnder)
             elif inBlock and (statement[3] == "}"):     
                 if DEBUG: print("Found blockEnder of non-function block: "+statement[3])   
+                # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
+                lineContent = re.sub("###.*?###", '', lineContent) 
+                
                 # Build the line content with the name of the current block (and label if existing) before removing it. Also add the block info after each linebreak (at the beginning of each new line).
                 lineContent = lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ")  
 
@@ -335,6 +340,9 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             
             # For multiline statements outside of functions      
             if( (statement[4] in ['StructUnionEnum', 'FunctionPointerDeclare', 'DeclStmt']) and ("\n" in statement[3]) and not inBlock):
+                 # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
+                lineContent = re.sub("###.*?###", '', lineContent) 
+                
                 # Build the unique identifier for the block
                 if("{" in statement[3]):
                     # Only add everything before an opening curly bracket (as content of structs etc can change) and without newlines
