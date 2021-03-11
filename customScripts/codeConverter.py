@@ -91,15 +91,15 @@ def enhanceWithSemanticForSwitchBlocks(db, structuredCodeList, chunk, topLevelPr
         .has('type', 'SwitchStatement').out(AST_EDGE)
         .has('type', 'CompoundStatement').out(AST_EDGE)
         .has('type', 'BlockCloser')
-        .valueMap('path', 'line')
+        .valueMap('path', 'line', 'cLine')
     """ % (chunk) 
     # Execute equery
     result = db.runGremlinQuery(query)
     
     # Add results to the code list
     for r in result:
-        if len(r) > 1:
-            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int(((r['line'])[0])), 0, " ###SwitchBlockEnder### ", "SwitchBlockEnder"])
+        if len(r) > 2:
+            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int((r['line'])[0]), int((r['cLine'])[0]+2), " ###SwitchBlockEnder### ", "SwitchBlockEnder"])
     #We do not need to return the list here, as it is a mutable object   
    
 
@@ -110,15 +110,15 @@ def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk, topLevel
         .has('type', 'FunctionDef').out(AST_EDGE)
         .has('type', 'CompoundStatement').out(AST_EDGE)
         .has('type', 'BlockCloser')
-        .valueMap('path', 'line')
+        .valueMap('path', 'line', 'cLine')
     """ % (chunk) 
     # Execute equery
     result = db.runGremlinQuery(query)
     
     # Add results to the code list
     for r in result:
-        if len(r) > 1:
-            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int(((r['line'])[0])), 0, " ###FunctionBlockEnder### ", "FunctionBlockEnder"])
+        if len(r) > 2:
+            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int((r['line'])[0]), int((r['cLine'])[0]+2), " ###FunctionBlockEnder### ", "FunctionBlockEnder"])
     #We do not need to return the list here, as it is a mutable object   
 
 
