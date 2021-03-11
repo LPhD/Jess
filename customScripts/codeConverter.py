@@ -99,7 +99,7 @@ def enhanceWithSemanticForSwitchBlocks(db, structuredCodeList, chunk, topLevelPr
     # Add results to the code list
     for r in result:
         if len(r) > 2:
-            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int((r['line'])[0]), str(int((r['cLine'])[0])+2), " ###SwitchBlockEnder### ", "SwitchBlockEnder"])
+            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int((r['line'])[0]), int((r['cLine'])[0])+2, " ###SwitchBlockEnder### ", "SwitchBlockEnder"])
     #We do not need to return the list here, as it is a mutable object   
    
 
@@ -118,7 +118,7 @@ def enhanceWithSemanticForFunctionBlocks(db, structuredCodeList, chunk, topLevel
     # Add results to the code list
     for r in result:
         if len(r) > 2:
-            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int((r['line'])[0]), str(int((r['cLine'])[0])+2), " ###FunctionBlockEnder### ", "FunctionBlockEnder"])
+            structuredCodeList.append([r['path'][0].replace(topLevelProjectName, ""), int((r['line'])[0]), int((r['cLine'])[0])+2, " ###FunctionBlockEnder### ", "FunctionBlockEnder"])
     #We do not need to return the list here, as it is a mutable object   
 
 
