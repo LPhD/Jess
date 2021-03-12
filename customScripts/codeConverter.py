@@ -190,9 +190,10 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 #Solve the switched brackets problem for empty function content
                 if re.search('\)..}{', lineContent):
                     lineContent = lineContent.replace("}{", "{}")
-                    print("Replaced brackets in "+lineContent)
+
                 #Write finished line to output (done after we switch lines)
                 outputFileContent.append(lineContent)
+                
             #Reset temp variables
             currentChar = 0
             lineContent = ""   
@@ -245,6 +246,17 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         
         # # # Semantic Diff # # #
         if SEMANTIC:
+        
+            #If the previous statement was an if, but the current is not blockstarter (to handle ifs without curly brackets)
+            if (lastIf):
+                # Reset switch
+                lastIf = False
+                # Exclude all blockstarters, as they are either curly brackets or unique enough (and need a special handling either way)
+                if not (statement[4] in typeList):
+                    # Build the line content with the name of the current block and the parent if. Also add the block info after each linebreak (at the beginning of each new line).
+                    lineContent = "###Block " +str(blockStarterStack)+str(currentBlockName)+ "### "+lineContent+" ### "  
+                    # Go on with the next statement
+                    continue
             
             # Add type before line for declaration blocks (multiple connected lines) (with identifier ?) for semantic diff
             if (statement[4] in typeList):
@@ -252,7 +264,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 # As we found a blockStarter, we are currently inBlock             
                 inBlock = True
             
-                #Build the block name comulatively, so that it contains the names of all surrounding blocks    
+                # Build the block name comulatively, so that it contains the names of all surrounding blocks    
                 if (statement[4] == 'FunctionDef'):
                     # Slightly different handling for multiline definitions
                     if("\n" in statement[3]):
@@ -280,13 +292,17 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     # First remove already existing enhancement (e.g. when there are multiline statements in one line). We use only the last information, to prevent duplicates
                     lineContent = re.sub("###.*?###", '', lineContent) 
                     # Build the line content with the name of the current block (and label if existing). Also add the block info after each linebreak (at the beginning of each new line). We do this here as { can appear solo in a line (and are therefore not unique)
-                    lineContent = lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ")
+                    lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ")
                     # Go on with the next statement
                     continue
                     
                 #Use the whole blockstarter for other blocks (and replace any line breaks that could cause problems otherwise) 
                 else:                           
                     currentBlockName = statement[3].replace("\n","")
+                    
+                    #This is for ifStatements without a Compound
+                    if (statement[4] == 'IfStatement'):
+                        lastIf = True
                                                         
                                                                    
             #Look for closing brackets of blocks (this does not include the special types of FunctionBlockEnder and SwitchBlockEnder)
@@ -296,7 +312,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                 lineContent = re.sub("###.*?###", '', lineContent) 
                 
                 # Build the line content with the name of the current block (and label if existing) before removing it. Also add the block info after each linebreak (at the beginning of each new line).
-                lineContent = lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ")  
+                lineContent = "###Block " +str(blockStarterStack)+str(currentLabel)+ "### " + lineContent.replace("\n","\n ###Block " +str(blockStarterStack)+str(currentLabel)+ "### ")  
 
                 if(len(blockStarterStack) > 0):        
                     #Remove the closed blockstarter from the stack
@@ -363,6 +379,10 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                  
         # # # Semantic Diff End # # #
     
+    
+    #Solve the switched brackets problem for empty function content
+    if re.search('\)..}{', lineContent):
+        lineContent = lineContent.replace("}{", "{}")
     #Finally write the current line (last of the list)
     outputFileContent.append(lineContent)
     #Finally write the current file (last of the list)
@@ -391,4 +411,4 @@ def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-#convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
+convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
