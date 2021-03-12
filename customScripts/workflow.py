@@ -186,7 +186,8 @@ def iterateThroughCommits():
             # Install dependencies for project
             print("* * * Installing dependencies for project * * *")
             # Quiet output
-            os.system("sudo apt-get install -y "+project[2]+" > /dev/null")
+            #os.system("sudo apt-get install -y "+project[2]+" > /dev/null")
+            print(" ####################### Currently disabled  ####################### ")
                     
             
             # Read input of the commit list (list of commits to be evaluated)     
@@ -408,8 +409,10 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
         installScrcpy("Target")
         
     elif(projectName == "grep"):
-        # Copy the build file, as this cannot be detected by SUI process
-        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/Makefile.am "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/")
+        # Copy the build+autoconf+boostrap files, as this cannot be detected by SUI process
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/Makefile.am "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/")       
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/configure.ac "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/bootstrap.conf "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
         moveTests(testFolder, testName)
         installGrep("Target")       
         
@@ -545,7 +548,9 @@ def setupProjectsForEvaluation(projectName, testFolder, testName):
     elif(projectName == "grep"):
         installGrep("Donor")
         # Use Donor's build files that include the new files
-        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/Makefile.am "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/")
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/Makefile.am "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/")        
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/configure.ac "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/bootstrap.conf "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
         installGrep("Target")
      
      
@@ -638,7 +643,7 @@ def installGrep(DonorOrTarget):
 
 #Copy test(s) from Donor to Target
 def moveTests(testFolder, testName): 
-    os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testFolder+testName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+testFolder)
+    os.system("cp -v -t "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+testFolder+" "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testFolder+testName)
 
 
  

@@ -167,7 +167,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
     additionalLinesPerFile = 0
     # For semantic diff utility
     inBlock = False
-    lastIf = ""
+    lastIf = False
 
     # For each entry in the patch list, build the file content
     # filename (0), linenumber (1), cline(2), code(3) (if exists), type(4) and internal path(5) (structure inside project) 
@@ -219,6 +219,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             additionalLinesPerFile = 0
             additionalLines = 0
             inBlock = False
+            lastIf = False
             lChanged = True
             fChanged = True
         else:
@@ -251,10 +252,14 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
             if (lastIf):
                 # Reset switch
                 lastIf = False
+
                 # Exclude all blockstarters, as they are either curly brackets or unique enough (and need a special handling either way)
                 if not (statement[4] in typeList):
+                    #Remove existing if we have multiple statements in one line
+                    lineContent = re.sub("###.*?###", '', lineContent) 
                     # Build the line content with the name of the current block and the parent if. Also add the block info after each linebreak (at the beginning of each new line).
-                    lineContent = "###Block " +str(blockStarterStack)+str(currentBlockName)+ "### "+lineContent+" ### "  
+                    lineContent = "###Block " +str(blockStarterStack)+str(currentBlockName)+ "### "+lineContent  
+                    #print("New line content: "+lineContent)
                     # Go on with the next statement
                     continue
             
@@ -411,4 +416,4 @@ def convertToCode(SEMANTIC, workingdir, foldername, topLevelProjectName):
 
 # When called via console, comment this line in to run the script (needs a result.txt with node ids from an imported project and the Jess server running)
 # Add semantic enhancement, location of result.txt, target output folder   
-convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
+#convertToCode(True, os.getcwd()+"/Results", "ConvertedCode", "/home/lea/Downloads/Jess/customScripts/Results/DonorProjectCode")    
