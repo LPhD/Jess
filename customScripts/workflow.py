@@ -618,10 +618,10 @@ def installGrep(DonorOrTarget):
     os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
     # Quiet
     os.system("./bootstrap --skip-po > /dev/null") 
-    print("Bootstrap end")
+
     # Wno-error, as per default warnings are treated as erros (which we do not want)
     os.system("./configure -q CFLAGS=\"-Wno-error\"") 
-    print("configure end")
+
     # Quiet
     os.system("make -j30 > /dev/null") 
     # Run DonorOrTarget's tests
