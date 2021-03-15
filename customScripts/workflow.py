@@ -186,7 +186,7 @@ def iterateThroughCommits():
             # Install dependencies for project
             print("* * * Installing dependencies for project * * *")
             # Quiet output
-            #os.system("sudo apt-get install -y "+project[2]+" > /dev/null")
+            os.system("sudo apt-get install -y "+project[2]+" > /dev/null")
             print(" ####################### Currently disabled  ####################### ")
                     
             
@@ -297,9 +297,11 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
     # Imports the Donor as Code Property Graph and validates the result
     os.chdir(topLvlDir+"/"+resultFoldername)
     
+    # Some projects have a slightly different structure for their src code (as we do not want to parse other libraries)
     if (projectName == "grep"):
-        print("Grep")
         importProjectasCPG("DonorProject", "/src")
+    elif (projectName == "php"):
+        importProjectasCPG("DonorProject", "/main")
     else:
         importProjectasCPG("DonorProject", "")
 
@@ -414,7 +416,12 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
         os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/configure.ac "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
         os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/bootstrap.conf "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
         moveTests(testFolder, testName)
-        installGrep("Target")       
+        installGrep("Target")
+
+    elif(projectName == "php"):
+        # Potentially move build files here
+        moveTests(testFolder, testName)
+        installPhp("Target")        
         
     else:
         print("Project specific implementation for: "+projectName+" is missing here")
@@ -477,6 +484,7 @@ def createRepos():
 
 # Creates all needed repositories for the EVALUATION mode (do this just once per project)
 def createReposForEvaluation(repoURL):
+    print("Starting to clone repositories. This may take a while...")
     # Measure timings
     start_checkout = time.time()
     with open("Evaluation/EvaluationStatistics/timings.txt", "a") as file:
@@ -552,7 +560,11 @@ def setupProjectsForEvaluation(projectName, testFolder, testName):
         os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/configure.ac "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
         os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/bootstrap.conf "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/")
         installGrep("Target")
-     
+    
+    elif(projectName == "php"):
+        installPhp("Donor")
+        # Move buildfiles here
+        installPhp("Target")    
      
     else:
         print("Project: "+projectName+" has no implemented functions. No further actions taken")
@@ -638,6 +650,32 @@ def installGrep(DonorOrTarget):
         file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
     print("* * * Installing "+DonorOrTarget+" finished! * * *")    
 
+
+# Installation and test process for php
+def installPhp(DonorOrTarget):
+    print("* * * Installing "+DonorOrTarget+"... * * *")
+    # Install DonorOrTarget
+    os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
+    # Quiet
+    #os.system("./buildconf > /dev/null") 
+    os.system("./buildconf")
+    # Not so quiet
+    os.system("./configure") 
+    # Quiet
+    #os.system("make -j30 > /dev/null") 
+    os.system("make -j30") 
+    
+    # Run DonorOrTarget's tests
+    print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
+    
+    out, err = Popen("make TEST_PHP_ARGS=-j30 test ".split(), stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore').communicate()  
+    tests = "Info: \n"+ str(out) + "\nErrors: \n" + str(err)
+    
+    # Store test results
+    os.chdir(topLvlDir)
+    with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
+    print("* * * Installing "+DonorOrTarget+" finished! * * *")    
 
 
 
