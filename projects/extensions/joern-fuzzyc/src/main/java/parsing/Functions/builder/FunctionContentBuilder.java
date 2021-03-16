@@ -759,6 +759,7 @@ public class FunctionContentBuilder extends ASTNodeBuilder {
 	 * @return True if there is a comment in the same line, false otherwise
 	 */
 	private Boolean checkIfCommentInSameLine(Comment comment) {
+		//TODO: This does not work for multiline statements (e.g. structs), as their line is equal to their first line
 		//If there are statement and comment in the same line
 		if(previousStatement != null && previousStatement.getLine() == comment.getLine()) {
 			comment.setCommentee(previousStatement);

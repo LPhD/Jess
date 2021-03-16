@@ -54,6 +54,50 @@ public class ModuleBuildersTest {
 		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
 		assertEquals("foo", codeItem.getChild(0).getEscapedCodeStr());
 	}
+	
+	@Test
+	public void testStructWithCommentAfterEnding() {
+		String input = " struct _php_stream { \n" + 
+				"   const php_stream_ops * ops ; \n" + 
+				"   void * abstract ; /* convenience pointer for abstraction */ \n" + 
+				"   zend_off_t writepos ; \n" + 
+				"   \n" + 
+				"   /* how much data to read when filling buffer */ \n" + 
+				"   size_t chunk_size ; \n" + 
+				"   \n" + 
+				"   #if ZEND_DEBUG \n" + 
+				"   const char * open_filename ; \n" + 
+				"   uint32_t open_lineno ; \n" + 
+				"   #endif \n" + 
+				"   \n" + 
+				"   struct _php_stream * enclosing_stream ; /* this is a private stream owned by enclosing_stream */ \n" + 
+				"   } ;	/* php_stream */" +
+				" int a;";
+		List<ASTNode> codeItems = parseInput(input);
+		StructUnionEnum codeItem = (StructUnionEnum) codeItems.get(0);
+		//Currently, we handle the comment as part of the struct, as we cannot validate that the comment is in the same line as the struct
+		//because the Struct's line is its starting line (here 1), where the comment is in line 15.
+		//TODO: Match with ctx.getEnd() or something instead of getLine()
+//		IdentifierDeclStatement codeItem2 = (IdentifierDeclStatement) codeItems.get(1);
+//		Comment codeItem3 = (Comment) codeItems.get(2);
+		assertEquals("struct _php_stream { \n" + 
+				" const php_stream_ops * ops ; \n" + 
+				" void * abstract ; /* convenience pointer for abstraction */ \n" + 
+				" zend_off_t writepos ; \n" + 
+				" \n" + 
+				" /* how much data to read when filling buffer */ \n" + 
+				" size_t chunk_size ; \n" + 
+				" \n" + 
+				" #if ZEND_DEBUG \n" + 
+				" const char * open_filename ; \n" + 
+				" uint32_t open_lineno ; \n" + 
+				" #endif \n" + 
+				" \n" + 
+				" struct _php_stream * enclosing_stream ; /* this is a private stream owned by enclosing_stream */ \n" + 
+				" } ; /* php_stream */", codeItem.getEscapedCodeStr());
+//		assertEquals("/* php_stream */", codeItem3.getEscapedCodeStr0));
+//		assertEquals("struct content", codeItem3.getCommentee().getEscapedCodeStr());
+	}
 
 	@Test
 	public void testTypedefStruct() {

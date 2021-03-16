@@ -6,7 +6,7 @@ simple_decl : var_decl;
 var_decl : 
          (TYPEDEF expression_fragment*)?  type_name expression_fragment* init_declarator_list  #declByType
          | (TYPEDEF expression_fragment*)?  type_name expression_fragment* '('? expression_fragment* callingConvention? expression_fragment* ptr_operator '('? expression_fragment* identifier? ')' expression_fragment* param_type_list expression_fragment* (pre_other | macroCall)? ('=' expression_fragment* argument)? ';' #FunctionPointerDeclare
-         | ((CV_QUALIFIER | function_decl_specifiers | TYPEDEF)+ expression_fragment*)?  special_datatype expression_fragment* init_declarator_list? ';'? ONELINE_COMMENT? #StructUnionEnum
+         | ((CV_QUALIFIER | function_decl_specifiers | TYPEDEF)+ expression_fragment*)?  special_datatype expression_fragment* init_declarator_list? ';'? (ONELINE_COMMENT|MULTILINE_COMMENT)? #StructUnionEnum     //We include the unparsed comments here (see parser for more infos)
          ;
 
 //Can be done by a macro or directly (something like __cdecl)
@@ -18,7 +18,7 @@ special_datatype: SPECIAL_DATA expression_fragment* pre_other? (identifier expre
         ;
 
         
-init_declarator_list: init_declarator (expression_fragment* ',' expression_fragment* init_declarator)* expression_fragment* (pre_other | macroCall)? ';' ONELINE_COMMENT?;
+init_declarator_list: init_declarator (expression_fragment* ',' expression_fragment* init_declarator)* expression_fragment* (pre_other | macroCall)? ';';
 
 
 type_name: (
