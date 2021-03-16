@@ -188,8 +188,9 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
         if (not (lastLine + additionalLines) == statement[1]):
             if(len(lineContent) > 0):
                 #Solve the switched brackets problem for empty function content
-                if re.search('\)..}{', lineContent):
-                    lineContent = lineContent.replace("}{", "{}")
+                if re.search('\)\s*}\s*{', lineContent):
+                    lineContent = re.sub('\)\s*}\s*{', ") {}",lineContent)
+                    #print("Replaced: "+lineContent)
 
                 #Write finished line to output (done after we switch lines)
                 outputFileContent.append(lineContent)
