@@ -186,7 +186,7 @@ def iterateThroughCommits():
             # Install dependencies for project
             print("* * * Installing dependencies for project * * *")
             # Quiet output
-            os.system("sudo apt-get install -y "+project[2]+" > /dev/null")
+            #os.system("sudo apt-get install -y "+project[2]+" > /dev/null")
             print(" ####################### Currently disabled  ####################### ")
                     
             
@@ -657,24 +657,22 @@ def installPhp(DonorOrTarget):
     # Install DonorOrTarget
     os.chdir(topLvlDir+"/"+resultFoldername+"/"+DonorOrTarget+"ProjectCode")
     # Quiet
-    #os.system("./buildconf > /dev/null") 
-    os.system("./buildconf")
-    # Not so quiet
-    os.system("./configure") 
-    # Quiet
-    #os.system("make -j30 > /dev/null") 
-    os.system("make -j30") 
+    os.system("./buildconf > /dev/null") 
+    os.system("./configure -q --disable-all > /dev/null") 
+    os.system("make -j30 > /dev/null")  
     
     # Run DonorOrTarget's tests
     print("* * * Running "+DonorOrTarget+"'s tests. This may take a while... * * * ")
     
-    out, err = Popen("make TEST_PHP_ARGS=-j30 test ".split(), stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore').communicate()  
+    #os.system("make TEST_PHP_ARGS=-j30 NO_INTERACTION=yes test ")
+    
+    out, err = Popen("make TEST_PHP_ARGS=-j30 NO_INTERACTION=yes test ".split(), stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore').communicate()  
     tests = "Info: \n"+ str(out) + "\nErrors: \n" + str(err)
     
     # Store test results
     os.chdir(topLvlDir)
-    with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
-        file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
+    #with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
+    #    file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
     print("* * * Installing "+DonorOrTarget+" finished! * * *")    
 
 
