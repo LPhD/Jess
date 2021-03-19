@@ -324,7 +324,7 @@ def writeOutput(structuredCodeList, SEMANTIC, foldername):
                     #Remove the closed blockstarter from the stack
                     lastBlockstarter = blockStarterStack.pop()   
                 else:
-                    print("Stack is emtpy: "+lineContent+" line: "+str(statement[1])+" at path: "+statement[0])
+                    if DEBUG: print("Stack is emtpy: "+lineContent+" line: "+str(statement[1])+" at path: "+statement[0])
                     
                 # Go on with the next statement
                 continue

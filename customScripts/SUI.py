@@ -49,7 +49,7 @@ plotGraph = False
 ###################### Configuration options for entry point input ## ####################
 console = False
 #################### Configuration options for debug output (console) ####################
-DEBUG = True
+DEBUG = False
 showStatistics = True
 ##########################################################################################
 
@@ -1195,7 +1195,7 @@ def addLocalBackwardSlice (nodes):
             .id()""" % (node)
         controlFlow = set(db.runGremlinQuery(query))
         if (DEBUG) : print("Got control flow: "+str(controlFlow))
-        print("Got control flow: "+str(controlFlow))
+        
         
         #Only check for data flow if we have nodes that could influence the entry point
         if (len(controlFlow) > 0):        
@@ -2077,5 +2077,5 @@ def output(G):
 
 # Un-comment to run the script via console
 # Evaluation mode? (if False: the other parameters have no effect), "entryPointType", "pathOrNameOrIdentifierOrString", "statementLine", "statementType"
-initializeSUI(True, "Location", ["src/dfa.c"],"3602","FunctionDef")    
+#initializeSUI(True, "Location", ["src/dfa.c"],"3602","FunctionDef")    
 
