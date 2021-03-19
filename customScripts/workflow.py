@@ -202,7 +202,7 @@ def iterateThroughCommits():
                 for commit in csvCommitFile:
                 
                     if (len(commit) == 0):
-                        print("Commit information in commitList.csv is empty!. Terminating process")
+                        print("Commit information in commitList.csv is empty! Terminating process")
                         break
                     
                     # Reset collection of entry points for each new commit
@@ -666,13 +666,16 @@ def installPhp(DonorOrTarget):
     
     #os.system("make TEST_PHP_ARGS=-j30 NO_INTERACTION=yes test ")
     
-    out, err = Popen("make TEST_PHP_ARGS=-j30 NO_INTERACTION=yes test ".split(), stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore').communicate()  
+    # Run tests non-interactive, skip slow tests and online tests, only show failed tests
+    out, err = Popen("make test NO_INTERACTION=1 SKIP_SLOW_TESTS=1 SKIP_ONLINE_TESTS=1 TEST_PHP_ARGS=-gFAIL".split(), stdout=PIPE, stderr=PIPE, encoding='utf-8', errors='ignore').communicate()  
     tests = "Info: \n"+ str(out) + "\nErrors: \n" + str(err)
+    
+    
     
     # Store test results
     os.chdir(topLvlDir)
-    #with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
-    #    file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
+    with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:    
+        file.write("\n"+str(datetime.datetime.now())+": Results for "+DonorOrTarget+": "+tests) 
     print("* * * Installing "+DonorOrTarget+" finished! * * *")    
 
 
