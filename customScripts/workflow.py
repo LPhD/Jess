@@ -151,10 +151,7 @@ def iterateThroughCommits():
         file.write("\nBegin new run at: "+str(datetime.datetime.now()))
     with open("Evaluation/EvaluationStatistics/testResults.txt", "a") as file:
         file.write("\n----------------------------------------------------------------")
-        file.write("\nBegin new run at: "+str(datetime.datetime.now()))            
-    with open("Evaluation/EvaluationStatistics/diffs_TargetOldvsNew.txt", "a") as file:
-        file.write("\n----------------------------------------------------------------")
-        file.write("\nBegin new run at: "+str(datetime.datetime.now())) 
+        file.write("\nBegin new run at: "+str(datetime.datetime.now()))             
 
  
     # Read input of the project list (list of projects to be evaluated)     
@@ -388,6 +385,10 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
     tLines = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -l").read()
     tWords = os.popen("( find ./ -name '*.c' -or -name '*.h' -print0 | xargs -0 cat ) | wc -w").read()
     
+    #Only compare the relevant subfolder of php (to focus on the part where changes are made through Jess, and not bc of updated configs, generators, etc)
+    if(projectName == "php"):
+        os.chdir(topLvlDir+"/"+resultFoldername+"/TargetProjectCode/main")
+        
     #Get a diff of old vs new Target
     os.system("git diff -w -b --ignore-blank-lines  > "+topLvlDir+"/Evaluation/EvaluationStatistics/diffs_"+str(donorCommit)+"_in_"+str(targetCommit)+"_"+str(entryPointType)+".txt")
     os.chdir(topLvlDir)    
@@ -682,7 +683,8 @@ def installPhp(DonorOrTarget):
 
 #Copy test(s) from Donor to Target
 def moveTests(testFolder, testName): 
-    os.system("cp -v -t "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+testFolder+" "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testFolder+testName)
+    print("Copy test...")
+    os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/"+testFolder+testName+" "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/"+testFolder+"")
 
 
  
