@@ -4,22 +4,22 @@ Semantic Unit Identification
 INTRODUCTION
 --------------
 
-The use case of the Semantic Unit identification process is to automatically migrate useful changes between a product line and separated products. These changes can be assigned to Semantic Units.
+The use case of the Semantic Unit Identification (SUI) process is to automatically migrate useful changes among a product line and separated products. These changes can be assigned to Semantic Units.
 
 A Semantic Unit consists of semantically related lines of code. Semantically related means, that there is a common purpose belonging to the related code. This purpose can for example be defined by a test case. Thus, all code that is needed to make a test case pass belongs to one Semantic Unit.
 
-We need a user given entry point do identify a Semantic Unit, because the user decides, which useful changes should be migrated. The idea is, that the user selects only one line of code, for example a method declaration or an assert statement from a test case. Based on this selection, the proposed approach identifies all semantically related lines of code and, hence, the Semantic Unit.
+We need a user-given entry point do identify a Semantic Unit, because the user decides which useful changes should be migrated. The idea is, that the user selects only one line of code  (e.g., a method declaration or an assert statement from a test case) or a generic string/identifier/feature name (e.g., "FORWARDSEARCH") as entry point. Based on this selection, the proposed approach identifies all semantically related lines of code and, hence, the Semantic Unit.
 
-Depending on the entry point, there are different possibilities of what should belong to the Semantic Unit. For example, when the user selects a line of code with an if-statement. Does a following else-statement also belong to the Semantic Unit? This decision is arguable, so the user should have the possibility to configure the desired behavior. The next sections describe the general idea, the input and output relations, the configurable decisions and the default configuration of the Semantic Unit Identification process.
+Depending on the entry point, there are different possibilities of what should belong to the Semantic Unit. For example, when the user selects a line of code with an if-statement. Does a following else-statement also belong to the Semantic Unit? This decision is arguable, so the user should have the possibility to configure the desired behavior. The next sections describe the general idea, the input and output relations, the configurable decisions and the default configuration of the SUI process.
 
 GENERAL IDEA
 --------------
 
-The Semantic Unit Identification process identifies semantically related lines of code based on one or more given entry points. The underlaying structure of the process is a graph database, consisting of AST (Abstract Syntax Tree) elements and relations between them. These relations are not only AST relations (is parent of), but also data flow (uses, defines) and control flow (controls) relations.
+The SUI process identifies semantically related lines of code based on one or more given entry points. The underlaying structure of the process is a graph database, consisting of AST (Abstract Syntax Tree) elements and several different relations among them. These relations are not only AST relations (is parent of), but also data flow (uses, defines), variability (code annotated with #ifdefs), and control flow (controls) relations. Furthermore, the process takes into account the specific C relations, where a header file can exist for a C file (is header of), and where the content of a file can be included by another file (includes).
 
--**Input:** AST Element: Entry Point
+-**Input:** AST Element(s): Entry Point(s) (Either defined by a location, an identifier or generic string, or the name of a configuration option)
 
--**Output:** AST Element: Semantic Unit, Relations of Semantic Unit
+-**Output:** AST Element(s): Semantic Unit (including the relations among their elements)
 
 -**Function:** Set(Entry Point) -> Set(Semantic Unit) | There is a relation between all elements
 
@@ -47,31 +47,23 @@ The selected elements of the Semantic Unit (output) depend on the type of the gi
 	• Configuration option -> All #if/#ifdef/#elif nodes and their enclosed content
 	• PreDiagnostic, PreOther, PreLine, PrePragma -> AST children
 
-• **Todo (somewhere in the distant future):**
-	• C++ specific elements like classes, try/catch statements, etc.
 
 • **Do nothing for:**
-	• 'AdditiveExpression' a + b
-	• 'PrimaryExpression' 1
-	• 'IncDec' ++
-	• 'UnaryOperator' !
-	• 'UnaryOperationExpression' - 1
-	• 'ArrayIndexing' array[1]
-	• 'ReturnType' void
-	• 'CFGEntryNode' ENRTY
-	• 'CFGExitNode' EXIT
+	• Subexpressions like: 'AdditiveExpression' a + b, 'PrimaryExpression' 1, 'IncDec' ++, 'UnaryOperator' !, 'UnaryOperationExpression' - 1, 'ArrayIndexing' array[1], 'RelationalExpression' i > 5, 'Sizeof', 'SizeofOperand'  (already contained in ExpressionStatement, no further analysis needed)
+	• All kind of types like: 'ReturnType' void, 'IdentifierDeclType' int, 'ParameterType' int (no further analysis needed)
+	• 'CFGEntryNode' ENRTY and 'CFGExitNode' EXIT (no further analysis needed)
 	• 'Symbol' (already contained in the dataflow analysis)
-	• 'IdentifierDeclType' int (contained in IdentifierDeclStatement)
-	• 'IdentifierDecl' i (contained in IdentifierDeclStatement)
-	• 'ParameterType' int (contained in ParameterList)
-	• 'RelationalExpression' i > 5 (contained in condition)
-	• 'Sizeof', 'SizeofOperand'  (contained in call expression)
-	• 'CompoundStatement' (container element)
-	• 'BreakStatement', 'ContinueStatement'
-	• 'PreMacroParameters' parameters of a function-like macro
-	• 'PreMacro' the macro content
-	• 'PreInclude', 'PreIncludeNext' (choose the file instead)
-	• 'Decl', DeclStmt (already contained in DeclStmt/FunctionDef/Callee. For entry point: Choose FunctionDef instead)
+	• 'Label' case 1: (already contained in Goto or Switch analysis)
+	• 'IdentifierDecl' i and 'Decl' i (contained in IdentifierDeclStatement)
+	• 'DeclByType' int i, 'StructUnionEnum', 'FunctionPointerDeclare' (global declares will (all) be included in the end, but do not trigger further analysis)
+	• 'CompoundStatement' (container element, already contained in analysis of AST parent element)
+	• 'BreakStatement', 'ContinueStatement' (no further analysis needed)
+	• 'Statement' (generic toplevel element, already contained in other analyses, as this never appears without more specific children)
+	• 'PreMacroParameters' parameters of a function-like macro (no further analysis needed)
+	• 'PreInclude', 'PreIncludeNext' (choose the file instead, already included in other analyses)
+	• 'Comment' (no further analysis needed, can be included in the end)
+	• 'CustomNode' (this is for custom rules, so there is no generic rule)
+
 
 
 VARIABILITY HANDLING
