@@ -21,15 +21,23 @@ The SUI process identifies semantically related lines of code based on one or mo
 
 -**Output:** AST Element(s): Semantic Unit (including the relations among their elements)
 
--**Function:** Set(Entry Point) -> Set(Semantic Unit) | There is a relation between all elements
+-**Function:** Set(Entry Point) -> Set(Semantic Unit) | There is a relation among all elements
 
 
 INPUT/OUTPUT RELATIONS
 --------------
 
-The selected elements of the Semantic Unit (output) depend on the type of the given entry point (input). All type-based decisions and the resulting input and output relations are listed below and described in form of Input Type -> Resulting Output. Some of these decisions are configurable and described again in detail in the next section **Configuration Options**.
+The selected elements of the Semantic Unit (output) depend on the type (location/string/identifier/feature) of the given entry point (input). Furthermore, the related nodes to one node are selected based on the node-type of this node. All type-based decisions and the resulting input and output relations are listed below and described in form of Input Type -> Resulting Output. Some of these decisions are configurable and described again in detail in the next section **Configuration Options**.
 
-• **Working:**
+
+• **Entry Point:**
+	• Location(s) (e.g. src/main.c Line:75) -> The node at this location is set as entry point. If there are several nodes, the user can select which one is added as entry point. Then the SUI process starts and all other nodes are added based on the Note-to-Node relations (iteratively)
+	• Identifier(s) (e.g. "search") -> The graph is queried for all identifiers that match exactly the given name. Then the top-level (visible) AST parent(s) of the identifier node(s) (e.g. the parent node of identifier "search" is its IdentifierDeclareStmt "char search;") are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
+	• String(s) (e.g. "search")  -> The graph is queried for all nodes that partly or fully match the given string. Then the subset of top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
+	• Feature(s) (e.g. "search") -> The graph is queried for all conditional compilation statements (#if/#ifdef/#ifndef/#elif) that reference the given feature (e.g. contain the text "search"). The #ifdef constructs as well as their enclosed top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.	
+
+
+• **Node-to-Node Relations:**
 	• Directory -> All included files in this directory
 	• File -> All included code elements in this file 
 	• Function definition -> All enclosed code elements (configurable) and all calls to this function (configurable)
