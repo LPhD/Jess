@@ -31,29 +31,42 @@ The selected elements of the Semantic Unit (output) depend on the type (location
 
 
 • **Entry Point:**
-	• Location(s) (e.g. src/main.c Line:75) -> The node at this location is set as entry point. If there are several nodes, the user can select which one is added as entry point. Then the SUI process starts and all other nodes are added based on the Note-to-Node relations (iteratively)
+	• Location(s) (e.g. src/main.c Line:75) -> The node at this location is set as entry point. If there are several nodes at the selected location, the user can select which one is added as entry point. Then the SUI process starts and all other nodes are added based on the Node-to-Node relations (iteratively)
 	• Identifier(s) (e.g. "search") -> The graph is queried for all identifiers that match exactly the given name. Then the top-level (visible) AST parent(s) of the identifier node(s) (e.g. the parent node of identifier "search" is its IdentifierDeclareStmt "char search;") are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
 	• String(s) (e.g. "search")  -> The graph is queried for all nodes that partly or fully match the given string. Then the subset of top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
 	• Feature(s) (e.g. "search") -> The graph is queried for all conditional compilation statements (#if/#ifdef/#ifndef/#elif) that reference the given feature (e.g. contain the text "search"). The #ifdef constructs as well as their enclosed top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.	
 
 
 • **Node-to-Node Relations:**
+	• *Structural*:
 	• Directory -> All included files in this directory
 	• File -> All included code elements in this file 
 	• Function definition -> All enclosed code elements (configurable) and all calls to this function (configurable)
 	• If, for, while, do-while, switch statements -> All enclosed code elements (configurable)
-	• Else statement -> Corresponding if statement
-	• Callee, call expression -> Called function or macro definition, #include statement and declaration in header file if target is in another file
-	• ExpressionStatement, IdentifierDeclStatement -> All AST children
-	• Callee -> Get called FunctionDef (as well as includes and declaration in header files if necessary) or function-like macro	
-	• Macro definition -> All uses and defines of the macro (in the current file and files that include the macro definition)
-	• Function -> FunctionDef
-	• Condition, PreIfCondition, Parameter, ParameterList -> Get definition of the element that contains the condition or parameter	
-	• Identifier declare statement, parameter, expression statement, argument, condition, return statement -> All uses and defines of the contained variables	
-	• Include statements -> Whenever a function or macro is called from an external file, the correspoding include statement in that files is added to the Semantic Unit
-	• Label, goto -> All labels used by goto and vice versa	
-	• Configuration option -> All #if/#ifdef/#elif nodes and their enclosed content
-	• PreDiagnostic, PreOther, PreLine, PrePragma -> AST children
+	• Else statement -> All enclosed code elements (configurable) and the corresponding if statement
+	• ExpressionStatement, IdentifierDeclStatement, Condition, PreDefine, PreDiagnostic, PreOther -> All AST children (as they could contain calls)
+	• *Calls/Usage*:
+	• Callee, MacroCall -> Called function or macro definition, #include statement and declaration in header file if target is in another file
+	• PreIfCondition, PreMacro -> Callees or MacroCalls (to get the used functions or macros, see above)
+	• FunctionDef -> Callees of that function (configurable)
+	• PreUndef, PreDefine -> PreMacroIdentifier (configurable)
+	• PreMacroIdentifier -> All uses and defines of the macro (in the current file and files that include the macro definition) for the macro (configurable), only works for function-like macros
+	• *Defines*:	
+	• Function -> FunctionDef (as this is the visible node)
+	• FunctionDef -> Declaration of the function (DeclStmt) in its header file (if existing)
+	• AddressOfExpression -> Referenced FunctionDef or variable
+	• DeclStmt -> Definition of the function (FunctionDef) in its C file (if existing) and the necessary include statement
+	• Condition, PreIfCondition, Parameter, ParameterList -> Get definition of the element that contains the condition or parameter	(e.g. the IfStatement)
+	• *Data Flow*:	
+	• ForInit, IdentifierDeclStatement, Parameter, AssignmentExpression, ExpressionStatement, Argument, ArgumentList, Condition, UnaryExpression, ReturnStatement -> All uses and defines of the contained variables (configurable)
+	• *Control Flow*:
+	• GotoStatement-> All labels referenced by the goto		
+	• *Variability*:	
+	• PreIfStatement -> All variable statements (Preprocessor and C code); as well as all syntactical children (#else, #endif, PreIfCondition, etc) or just the #endif and PreIfCondition (configurable)
+	• PreElIfStatement -> Same as PreIfStatement, but also get the starting #if
+	• PreElseStatement -> All variable statements (Preprocessor and C code) and the starting #if	
+	• PreEndIfStatement -> Get the starting #if
+
 
 
 • **Do nothing for:**
