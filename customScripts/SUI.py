@@ -65,7 +65,7 @@ entryIdentifiers = list()
 entryStrings = ['kwset']
 
 # List with statement types that appear directly in the code (including CompoundStatement for structural reasons)
-visibleStatementTypes = ['CustomNode', 'ClassDef', 'DeclByClass', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'Statement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'TryStatement', 'CatchStatement', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ThrowStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
+visibleStatementTypes = ['CustomNode', 'DeclByType', 'FunctionDef', 'CompoundStatement', 'Statement', 'DeclStmt', 'StructUnionEnum', 'FunctionPointerDeclare', 'IfStatement', 'ElseStatement', 'SwitchStatement', 'ForStatement', 'DoStatement', 'WhileStatement', 'BreakStatement', 'ContinueStatement', 'GotoStatement', 'Label', 'ReturnStatement', 'ExpressionStatement', 'IdentifierDeclStatement', 'PreIfStatement', 'PreElIfStatement', 'PreElseStatement', 'PreEndIfStatement', 'PreDefine', 'PreUndef', 'PreDiagnostic', 'PreOther', 'PreInclude', 'PreIncludeNext', 'PreLine', 'PrePragma', 'UsingDirective', 'BlockCloser', 'Comment', 'File', 'Directory']
 
 # Initialize the needed variables and runs the desired process (interactive console, predefined evaluation mode via workflow.py, or automated process with predefined db and entry points)
 def initializeSUI(EVALUATION, entryPointType, pathOrNameOrIdentifierOrString, statementLine, statementType):
@@ -340,8 +340,8 @@ def analyzeNode (currentNode):
          # Print result
         if (DEBUG): print("Result structural relation: "+str(result)+"\n")
 
-    # Get the AST children if current vertice is an expression, identifierDecl statement or PreDefine (they could contain Callees)
-    if (type[0] in ["ExpressionStatement", "Statement", "IdentifierDeclStatement", "PreDefine"]):                       
+    # Get the AST children if current vertice is an expression, identifierDecl, condition, statement or PreDefine (they could contain Callees)
+    if (type[0] in ["ExpressionStatement", "Condition", "IdentifierDeclStatement", "PreDefine", "PreDiagnostic", "PreOther"]):                       
         result = set(getASTChildren(currentNode))
         # Get related elements of the AST children
         analysisList.extend(result)          
@@ -530,15 +530,6 @@ def analyzeNode (currentNode):
         if (DEBUG): print("Result variability relation: "+str(result)+"\n")
 
 
-##############################################################################################################################
-#################################### No impact analysis, just call (backward) analysis  ######################################                
-
-    # Get all AST childs and analyze them      
-    if (type[0] in["PreDiagnostic", "PreOther", "PreLine", "PrePragma"]):
-        result = set(getASTChildren(currentNode))
-        analysisList.extend(result)
-        # Print result
-        if (DEBUG): print("Result AST children: "+str(result)+"\n")
                 
 #####################################################################################################################
 #################################### End of rules  ##################################################################                     
@@ -569,10 +560,7 @@ def analyzeNode (currentNode):
     # 'ArrayIndexing' array[1]    
     # 'Decl' (already contained in DeclStmt/FunctionDef/Callee)    
     # 'PreInclude', 'PreIncludeNext' (choose the file instead)
-    ####################### C ++ specific (maybe done later) ###############################################
-    # 'ClassDef'
-    # 'TryStatement', 'CatchStatement', 'ThrowStatement'
-    # 'UsingDirective'
+
 
 
 ################################ Definition of helper functions ########################################################     

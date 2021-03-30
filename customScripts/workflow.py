@@ -401,7 +401,9 @@ def evaluationWorkflow(projectName, donorCommit, targetCommit, entryPointType, e
     start_final_installation = time.time()
     
     # Install Target, move tests (from Donor to Target), run, and document tests     
-    if(projectName == "Silver Searcher"):  
+    if(projectName == "Silver Searcher"): 
+        #This file is needed for a new test case
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/is_binary.pdf "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/")   
         moveTests(testFolder, testName)
         installSilverSearcher("Target")
         
@@ -546,6 +548,8 @@ def setupProjectsForEvaluation(projectName, testFolder, testName):
     #Variable installation process for each project
     if(projectName == "Silver Searcher"):  
         installSilverSearcher("Donor")
+        #This file is needed for a new test case
+        os.system("cp -v "+topLvlDir+"/"+resultFoldername+"/DonorProjectCode/tests/is_binary.pdf "+topLvlDir+"/"+resultFoldername+"/TargetProjectCode/tests/") 
         installSilverSearcher("Target")
         
     elif(projectName == "scrcpy"):
