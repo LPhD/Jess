@@ -32,10 +32,13 @@ The selected elements of the Semantic Unit (output) depend on the type (location
 
 **Entry Point:**
 
-	• Location(s) (e.g. src/main.c Line:75) -> The node at this location is set as entry point. If there are several nodes at the selected location, the user can select which one is added as entry point. Then the SUI process starts and all other nodes are added based on the Node-to-Node relations (iteratively)
-	• Identifier(s) (e.g. "search") -> The graph is queried for all identifiers that match exactly the given name. Then the top-level (visible) AST parent(s) of the identifier node(s) (e.g. the parent node of identifier "search" is its IdentifierDeclareStmt "char search;") are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
-	• String(s) (e.g. "search")  -> The graph is queried for all nodes that partly or fully match the given string. Then the subset of top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
-	• Feature(s) (e.g. "search") -> The graph is queried for all conditional compilation statements (#if/#ifdef/#ifndef/#elif) that reference the given feature (e.g. contain the text "search"). The #ifdef constructs as well as their enclosed top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.	
+• Location(s) (e.g. src/main.c Line:75) -> The node at this location is set as entry point. If there are several nodes at the selected location, the user can select which one is added as entry point. Then the SUI process starts and all other nodes are added based on the Node-to-Node relations (iteratively)
+	
+• Identifier(s) (e.g. "search") -> The graph is queried for all identifiers that match exactly the given name. Then the top-level (visible) AST parent(s) of the identifier node(s) (e.g. the parent node of identifier "search" is its IdentifierDeclareStmt "char search;") are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
+
+• String(s) (e.g. "search")  -> The graph is queried for all nodes that partly or fully match the given string. Then the subset of top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
+
+• Feature(s) (e.g. "search") -> The graph is queried for all conditional compilation statements (#if/#ifdef/#ifndef/#elif) that reference the given feature (e.g. contain the text "search"). The #ifdef constructs as well as their enclosed top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.	
 
 
 **Node-to-node relations:**
@@ -104,49 +107,73 @@ CONFIGURATION OPTIONS
 • Console
 	• Explanation: Activate to use the interactive console to input the Entry Point. If it's deactivated, you either have to edit the Entry Point manually in the script or use the automated workflow. This has no effect on the Semantic Unit identification process.
 	
-**Entry Point handling:**
+**Entry Point handling (all except location):**
+
+• Include backward slice 
+	• Explanation: Classical intraprocedural syntax preserving backward slice, includes all statements that appear previously in the control flow and are reachable either via dataflow or are structural (AST) parents (except the parent functionDef). Can be de-/activated independently from the other options.
+	• Example node: An increment of variable x inside an ifStatement.
+	• Effect on Semantic Unit: All surrounding control statements (here the ifStatement) and all statements that appear previously in the control flow and have a data flow connection (either direct or indirect through other variables) to the variable x (e.g. its declare statement) are added to the initial Entry Point set
+	• Hint: This option gives the best combination of precision and recall for non-location entry points. For complex functions it takes a comparable long time, though.
+
+• Include parent blocks  
+	• Explanation: Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares. Can be de-/activated independently from the other options.
+	• Example node: An increment of variable x inside an ifStatement.
+	• Effect on Semantic Unit: All surrounding AST parents (here the ifStatement) of the variable x are added to the initial Entry Point set.
+	• Hint: Potentially the smallest number of entry points, but also not complete (no data dependencies taken into account).
+
+• Include local data flows 
+	• Explanation: Recursively includes all statements inside the function of an entry point that have a dataflow connection (read/write). Can be de-/activated independently from the other options.
+	• Example node: An increment of variable x inside an ifStatement.
+	• Effect on Semantic Unit: All statements that have a data flow connection (either direct or indirect through other variables) to the variable x (e.g. its declare statement) are added to the initial Entry Point set.
+	• Hint: Makes the slice bigger, but (potentially) not so much as the option "include parent function". 
+
+• Include parent function  
+	• Explanation: Adds the parent functionDef (if existing) to the entryPoint set. This option is normally selection in combination with the "include enclosed code" options, which leads to inclusion of the whole function's content.
+	• Example node: An increment of variable x inside an ifStatement.
+	• Effect on Semantic Unit: The increment statement and the parent functionDef are added to the initial Entry Point set.
+	• Hint: Makes the slice bigger, not recommended for fine-grained slicing. Most complete, but potentially overfitting.
 
 **(Iterative) node-to-node relations:**
 
 • Include enclosed code
 	• Explanation: Whenever a syntax structure is selected that encloses code, this code is included in the Semantic Unit. 
-	• Example entry point: A function declaration 
+	• Example node: A function declaration 
 	• Effect on Semantic Unit: All code inside the function belongs to the Semantic Unit (and thus probably makes the result bigger, decreases precision and increases recall)
 	• Hint: You should not turn this off when you plan to use structure-based entry points (like class/method declaration), as the result will be empty. You can turn this off when you use behavior-based entry points like assert statements from test cases. Deactivation makes the result strongly rely on the quality of your test case.
 
 • Connect if with else
 	• Explanation: Always connect an existing else-statement, whenever an if-statement is selected
-	• Example entry point: An if-statement that has one else statement
+	• Example node: An if-statement that has one else statement
 	• Effect on Semantic Unit: The else statement is added to the Semantic Unit
 	• Hint: Deactivate only if you want to focus on special cases and not on the whole case distinction. Deactivation has no effect, if the include enclosed code option is activated.
 
 • Follow data flows
 	• Explanation: Follow data flow relations (uses/defines)
-	• Example entry point: Identifier of a variable declaration statement 
+	• Example node: Identifier of a variable declaration statement 
 	• Effect on Semantic Unit: The result contains all statements that read and write this variable
 	• Hint: The Semantic Unit will get bigger if you activate this. Deactivate if you are interested in more coarsed grained analyses.
 	
 • Search directories recursively
 	• Explanation: When a directory node is analyzed, all contained directories are added to the Semantic Unit and then recursively analyzed
-	• Example entry point: A directory which contains one or more directories
+	• Example node: A directory which contains one or more directories
 	• Effect on Semantic Unit: All contained directories (on all levels underneath) are added to the Semantic Unit
 	• Hint: Activate if you want to recursively add all directories under a given root node. This can result in very big Semantic Units. Deactivate if you want to stay on the current directory level.
 
 • Include other features
 	• Explanation: When we search for the semantically related lines for a specific feature, we only expand for the occurrence of this feature name. When we reach an implementation that is connected to another feature (via incoming variability edges), we do not search for all other implementations that are annotated with this other feature. We do include the implementations that were reached through all (except variability) edges. 
-	• Example entry point: A feature identifier
+	• Example node: A feature identifier
 	• Effect on Semantic Unit: All blocks that are annotated with an #ifdef that contains the identifier of the entry-point-feature are added to the Semantic Unit. All other variability links (connected to different feature identifiers) will not be followed/analyzed.
 	• Hint: Activate if you want to follow all appearing variability links and include all implementations of a feature whenever you reach one of its implementations. This can result in very big Semantic Units. Deactivate if you want to focus on the current feature(s).
 	
 • Look for all function calls
 	• Explanation: Whenever a functionDef statement is analyzed, additionally look for all calls to this function. If deaktivated, the process will only analyze the content of the function.
-	• Example entry point: A function definition
+	• Example node: A function definition
 	• Effect on Semantic Unit: The result additionally contains all calls to this function (as well as needed include statements and declarations in header files) 
 	• Hint: The Semantic Unit will get bigger if you activate this option. The results will now additionally contain all other statements that use this function (instead of only the statements that were needed by this function).
 	
 • Look for all macro usages
 	• Explanation: Whenever a preDefine or preUndef statement is analyzed, additionally look for all usages of this macro. This only works for function-like macros. If deaktivated, the process will only analyze the content of the macro.
-	• Example entry point: A function-like macro definition
+	• Example node: A function-like macro definition
 	• Effect on Semantic Unit: The result additionally contains all usages of this macro (as well as needed include statements) 
 	• Hint: The Semantic Unit will get bigger if you activate this option. The results will now additionally contain all other statements that use this macro (instead of only the statements that were needed by this function).
 
