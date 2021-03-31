@@ -30,38 +30,40 @@ INPUT/OUTPUT RELATIONS
 The selected elements of the Semantic Unit (output) depend on the type (location/string/identifier/feature) of the given entry point (input). Furthermore, the related nodes to one node are selected based on the node-type of this node. All type-based decisions and the resulting input and output relations are listed below and described in form of Input Type -> Resulting Output. Some of these decisions are configurable and described again in detail in the next section **Configuration Options**.
 
 
-• **Entry Point:**
+**Entry Point:**
+
 	• Location(s) (e.g. src/main.c Line:75) -> The node at this location is set as entry point. If there are several nodes at the selected location, the user can select which one is added as entry point. Then the SUI process starts and all other nodes are added based on the Node-to-Node relations (iteratively)
 	• Identifier(s) (e.g. "search") -> The graph is queried for all identifiers that match exactly the given name. Then the top-level (visible) AST parent(s) of the identifier node(s) (e.g. the parent node of identifier "search" is its IdentifierDeclareStmt "char search;") are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
 	• String(s) (e.g. "search")  -> The graph is queried for all nodes that partly or fully match the given string. Then the subset of top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.
 	• Feature(s) (e.g. "search") -> The graph is queried for all conditional compilation statements (#if/#ifdef/#ifndef/#elif) that reference the given feature (e.g. contain the text "search"). The #ifdef constructs as well as their enclosed top-level (visible) AST nodes are set as entry point(s). Further steps are basend on the configuration options for entry point handling.	
 
 
-• **Node-to-node relations:**
-	• *Structural*:
+**Node-to-node relations:**
+
+• *Structural*:
 	• Directory -> All included files in this directory
 	• File -> All included code elements in this file 
 	• Function definition -> All enclosed code elements (configurable) and all calls to this function (configurable)
 	• If, for, while, do-while, switch statements -> All enclosed code elements (configurable)
 	• Else statement -> All enclosed code elements (configurable) and the corresponding if statement
 	• ExpressionStatement, IdentifierDeclStatement, Condition, PreDefine, PreDiagnostic, PreOther -> All AST children (as they could contain calls)
-	• *Calls/Usage*:
+• *Calls/Usage*:
 	• Callee, MacroCall -> Called function or macro definition, #include statement and declaration in header file if target is in another file
 	• PreIfCondition, PreMacro -> Callees or MacroCalls (to get the used functions or macros, see above)
 	• FunctionDef -> Callees of that function (configurable)
 	• PreUndef, PreDefine -> PreMacroIdentifier (configurable)
 	• PreMacroIdentifier -> All uses and defines of the macro (in the current file and files that include the macro definition) for the macro (configurable), only works for function-like macros
-	• *Defines*:	
+• *Defines*:	
 	• Function -> FunctionDef (as this is the visible node)
 	• FunctionDef -> Declaration of the function (DeclStmt) in its header file (if existing)
 	• AddressOfExpression -> Referenced FunctionDef or variable
 	• DeclStmt -> Definition of the function (FunctionDef) in its C file (if existing) and the necessary include statement
 	• Condition, PreIfCondition, Parameter, ParameterList -> Get definition of the element that contains the condition or parameter	(e.g. the IfStatement)
-	• *Data Flow*:	
+• *Data Flow*:	
 	• ForInit, IdentifierDeclStatement, Parameter, AssignmentExpression, ExpressionStatement, Argument, ArgumentList, Condition, UnaryExpression, ReturnStatement -> All uses and defines of the contained variables (configurable)
-	• *Control Flow*:
+• *Control Flow*:
 	• GotoStatement-> All labels referenced by the goto		
-	• *Variability*:	
+• *Variability*:	
 	• PreIfStatement -> All variable statements (Preprocessor and C code); as well as all syntactical children (#else, #endif, PreIfCondition, etc) or just the #endif and PreIfCondition (configurable)
 	• PreElIfStatement -> Same as PreIfStatement, but also get the starting #if
 	• PreElseStatement -> All variable statements (Preprocessor and C code) and the starting #if	
@@ -69,7 +71,8 @@ The selected elements of the Semantic Unit (output) depend on the type (location
 
 
 
-• **Do nothing for:**
+**Do nothing for:**
+
 	• Subexpressions like: 'AdditiveExpression' a + b, 'PrimaryExpression' 1, 'IncDec' ++, 'UnaryOperator' !, 'UnaryOperationExpression' - 1, 'ArrayIndexing' array[1], 'RelationalExpression' i > 5, 'Sizeof', 'SizeofOperand'  (already contained in ExpressionStatement, no further analysis needed)
 	• All kind of types like: 'ReturnType' void, 'IdentifierDeclType' int, 'ParameterType' int (no further analysis needed)
 	• 'CFGEntryNode' ENRTY and 'CFGExitNode' EXIT (no further analysis needed)
@@ -96,13 +99,15 @@ In our use-case, variability is realized with conditional compilation through #i
 CONFIGURATION OPTIONS
 --------------
 
-• **Input formats:**
+**Input formats:**
+
 • Console
 	• Explanation: Activate to use the interactive console to input the Entry Point. If it's deactivated, you either have to edit the Entry Point manually in the script or use the automated workflow. This has no effect on the Semantic Unit identification process.
 	
-• **Entry Point handling:**
+**Entry Point handling:**
 
-• **(Iterative) node-to-node relations:**
+**(Iterative) node-to-node relations:**
+
 • Include enclosed code
 	• Explanation: Whenever a syntax structure is selected that encloses code, this code is included in the Semantic Unit. 
 	• Example entry point: A function declaration 
@@ -145,29 +150,37 @@ CONFIGURATION OPTIONS
 	• Effect on Semantic Unit: The result additionally contains all usages of this macro (as well as needed include statements) 
 	• Hint: The Semantic Unit will get bigger if you activate this option. The results will now additionally contain all other statements that use this macro (instead of only the statements that were needed by this function).
 
-• **Post-analysis steps:**	
+**Post-analysis steps:**
+
 • Include variability information
 	• Explanation: After the analysis is finished, look for variability implementations that affect the Semantic Unit. This is helpfull if you would like to know the variability information of all statements in the Semantic Unit. Activation does not trigger further analyses.
 
 • Include comments
 	• Explanation: After the analysis is finished, look for comments for the included code and add them to the result. Activation does not trigger further analyses.
 
-• **Output formats:**
+**Output formats:**
+
 • Generate only AST
 	• Explanation: The resulting slice contains only AST elements to clarify the illustration. This has no effect on the Semantic Unit identification process.
+	
 • Generate only visible code
 	• Explanation: The resulting slice contains only top level AST statements (the statements that contain the lines of code as you see them when you are programming). This has no effect on the Semantic Unit identification process. This option is mandatory if you would like to use the patch creator script.
+
 • Show only structural edges
 	• Explanation: The resulting slice contains only 'IS_AST_PARENT', 'IS_FILE_OF', 'IS_FUNCTION_OF_AST', 'IS_PARENT_DIR_OF', 'VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF', 'COMMENTS' edges to clarify the illustration. This has no effect on the Semantic Unit identification process.	
+
 • Plot graph
 	• Explanation: The resulting slice is plotted as graph in *.png format. This has no effect on the Semantic Unit identification process, but can take a lot of time for bigger slices.
 
 
-• **Debug options:**
+**Debug options:**
+
 • DEBUG
 	• Explanation: Activate to get more outputs on the console, e.g., in which order the statements are added to the Semantic Unit. This has no effect on the Semantic Unit identification process.	
+
 • Show statistics
 	• Explanation: Activate to get statistical information about the SU, e.g., the number of contained visible nodes. This has no effect on the Semantic Unit identification process.	
+	
 	
 
 DEFAULT CONFIGURATION
