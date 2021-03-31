@@ -178,13 +178,32 @@ CONFIGURATION OPTIONS
 	• Hint: The Semantic Unit will get bigger if you activate this option. The results will now additionally contain all other statements that use this macro (instead of only the statements that were needed by this function).
 
 **Post-analysis steps:**
+	
+• Add all files included by SU files recursively
+	• Explanation: For all files that are part of the SU, add all contained include (that appear in these files) and the included files themselves (without their content). Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses).
+	• Effect on Semantic Unit: The result additionally contains all included files and the needed include statements.
+	• Hint: This allows to reduce the number of added global ressources that are otherwise not analyzable (e.g. we cannot know if an external library is used or not if we do not know its content). With this option, we can only include global ressources that are reachable/accessible (via include chains) from within the scope of the SU.
+	
+• Add all external library includes
+	• Explanation: Adds all includeStatements from the whole project that include external libraries. Overwrites "add external library includes only for SU files".
+	• Effect on Semantic Unit: The result additionally contains all include statements that include external ressources. 
+	• Hint: Makes the SU bigger, but guarantees that all needed includes are there. Low precision, maximum recall.
+	
+• Add external library includes only for SU files
+	• Explanation: Adds all includeStatements accessible from the SU that include external libraries. Has no effect if "add all external library includes" is true.
+	• Effect on Semantic Unit: The result additionally contains all include statements accessible from the SU that include external ressources. 
+	• Hint: Makes the SU bigger, but not so much as "add all external library includes", while all needed includes should be there (there may be corner cases where includes are too obfuscated to be detected and therefore missed with this option). Medium precision, high recall.
+
+
 
 • Include variability information
 	• Explanation: After the analysis is finished, look for variability implementations that affect the Semantic Unit. This is helpfull if you would like to know the variability information of all statements in the Semantic Unit. Activation does not trigger further analyses.
-
+	• Effect on Semantic Unit: The result additionally contains all (directly connected via a 'VARIABILITY' edge) surrounding #ifdefs.
+	
 • Include comments
 	• Explanation: After the analysis is finished, look for comments for the included code and add them to the result. Activation does not trigger further analyses.
-
+	• Effect on Semantic Unit: The result additionally contains all (directly connected via a 'COMMENTS' edge) belonging comments.
+	
 **Output formats:**
 
 • Generate only AST
