@@ -8,6 +8,14 @@ from octopus.server.DBInterface import DBInterface
 from joern.shelltool.PlotConfiguration import PlotConfiguration
 from joern.shelltool.PlotResult import NodeResult, EdgeResult
 
+###################### Configuration options for input format ######################
+console = False
+
+################# Configuration options for entry point handling (only affecting string/identifier/feature and not id) #################
+includeBackwardSlice = True #Recommended: True. Classical syntax preserving backward slice, includes all statements that appear previously in the control flow and are reachable either via dataflow or are structural (AST) parents.
+includeParentBlocks = False # Recommended: False. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares. Potentially the smallest number of entry points, but also not complete (no data dependencies taken into account)
+includeLocalDataflows = False # Recommended: False.  Makes the slice bigger, but (potentially) not so much as the option underneath. Recursively includes all statements inside the function of an entry point that have a dataflow connection (read/write).
+includeParentFunction = False # Recommended: False. Makes the slice bigger, not recommended for fine-grained slicing. Most complete, but potentially overfitting.
 
 ################# Configuration options for Semantic Unit identification #################
 includeEnclosedCode = True # Recommended: True.
@@ -17,11 +25,7 @@ searchDirsRecursively = False # Recommended: False.
 includeOtherFeatures = False # Recommended: False.
 lookForAllFunctionCalls = False # Recommended: False.
 lookForAllMacroUsages = False # Recommended: False.
-################# Configuration options for entry point handling (only affecting string/identifier/feature and not id) #################
-includeBackwardSlice = True #Recommended: True. Classical syntax preserving backward slice, includes all statements that appear previously in the control flow and are reachable either via dataflow or are structural (AST) parents.
-includeParentBlocks = False # Recommended: False. Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares. Potentially the smallest number of entry points, but also not complete (no data dependencies taken into account)
-includeLocalDataflows = False # Recommended: False.  Makes the slice bigger, but (potentially) not so much as the option underneath. Recursively includes all statements inside the function of an entry point that have a dataflow connection (read/write).
-includeParentFunction = False # Recommended: False. Makes the slice bigger, not recommended for fine-grained slicing. Most complete, but potentially overfitting.
+
 ############### Further options to refine the Semantic Unit after analysis ###############
 # --- SU's files ---
 addAllFilesIncludedBySUFilesRecursively = True # Recommended: True. Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses)
@@ -33,24 +37,25 @@ addInternalFileIncludesOnlyForSUFiles = True # Recommended: True. Has no effect 
 # --- Global datatype/variable declarations
 addOnlyProbablyUsedGlobalDeclarationsOfVariables = False # Recommended: False. Works good for simple declares, but misses content of e.g. structs or enums
 addAllGoblaDelcarationsOfVariablesForSUFiles = True # Recommended: True. Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true     
-addAllGoblaDelcarationsOfVariables = False # Recommended: False. Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead
+addAllGoblaDelcarationsOfVariables = False # Recommended: False. Has no effect if the addOnlyProbablyUsedGlobalDeclarationsOfVariables is true. Potentially very big overhead. Needs addAllExternalFileIncludes and addAllInternalFileIncludes, as the include statements are not checked again.
 # --- Defines ---
-addOnlyProbablyUsedNonFunctionLikeDefines = False # Recommended: False.
-addNonFunctionLikeDefinesForSUFiles = True # Recommended: True. Has no effect if addNonFunctionLikeDefines is true   
-addAllNonFunctionLikeDefines = False # Recommended: False. Has no effect if addNonFunctionLikeDefines is true. Potentially very big overhead. Needs addAllExternalFileIncludes and addAllInternalFileIncludes
+addOnlyProbablyUsedNonFunctionLikeDefines = False # Recommended: False. Overwrites the other two options.
+addNonFunctionLikeDefinesForSUFiles = True # Recommended: True. Has no effect if addOnlyProbablyUsedNonFunctionLikeDefines is true   
+addAllNonFunctionLikeDefines = False # Recommended: False. Has no effect if addOnlyProbablyUsedNonFunctionLikeDefines or addNonFunctionLikeDefinesForSUFiles is true. Potentially very big overhead. Needs addAllExternalFileIncludes and addAllInternalFileIncludes
 # --- These happen at the end ---
 addVariabilityInformation = True 
 addAssociatedComments = True  
+
 ######################### Configuration options for graph output #########################
 generateOnlyAST = False
 generateOnlyVisibleCode = True
 showOnlyStructuralEdges = True
 plotGraph = False
-###################### Configuration options for entry point input ## ####################
-console = False
+
 #################### Configuration options for debug output (console) ####################
 DEBUG = False
 showStatistics = True
+
 ##########################################################################################
 
 # Work with sets, as they are way faster and allow only unique elements 
