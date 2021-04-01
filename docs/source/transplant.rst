@@ -9,9 +9,10 @@ This process is also known as software transplantation (`see this paper <http://
 where Target should recieve additional functionality from Donor.
 
 The workflow.py script realizes an interactive workflow for this scenario.
-It contains the functionality of the SUI, codeConverter, and evaluation script.
-Furthermore, the workflow script clones the necessary Git branches from Donor and Target, and allows to automate the whole migration process.
-Currently, the configuration of the Semantic Unit identification process must still be set manually in the SUI script.
+It contains the functionality of the SUI, codeConverter, and evaluation script. Please take care that all of these scripts are not in manual mode, the last line of the scripts has to be commented out.
+Furthermore, the workflow script clones the desired versions from Donor and Target from a Git repository, and allows to automate the whole migration process.
+Currently, the configuration of the Semantic Unit identification process must still be set manually in the SUI script. 
+However, the default configuration is sufficient for this process.
 
 
 
@@ -19,7 +20,6 @@ How to Use
 --------------
 
 First, you have to start the jess-server (Terminal 1) and then open a new terminal (Terminal 2) and navigate to the customScripts folder. There, you can invoke the workflow script.
-Note that the server needs to be restarted before each use of the script. Furthermore, the top level source code folder must be called src (this requirement should be omitted in the future).
 
 Terminal 1:
 
