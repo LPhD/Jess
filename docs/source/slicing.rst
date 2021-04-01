@@ -104,7 +104,7 @@ CONFIGURATION OPTIONS
 
 **Input formats:**
 
-• Console
+• console
 	• Explanation: Activate to use the interactive console to input the Entry Point. If it's deactivated, you either have to edit the Entry Point manually in the script or use the automated workflow. This has no effect on the Semantic Unit identification process.
 	
 **Entry Point handling (impacts all except location):**
@@ -245,7 +245,7 @@ CONFIGURATION OPTIONS
 **Output formats:**
 
 • generateOnlyAST
-	• Explanation: The resulting slice contains only AST elements to clarify the illustration. This has no effect on the Semantic Unit identification process.
+	• Explanation: The resulting slice contains only AST elements to clarify the illustration. Has no effect if "generateOnlyVisibleCode" is true. This has no effect on the Semantic Unit identification process.
 	
 • generateOnlyVisibleCode
 	• Explanation: The resulting slice contains only top level AST statements (the statements that contain the lines of code as you see them when you are programming). This has no effect on the Semantic Unit identification process. This option is mandatory if you would like to use the patch creator script.
@@ -270,18 +270,54 @@ CONFIGURATION OPTIONS
 DEFAULT CONFIGURATION
 --------------
 
-• Include enclosed code: TRUE
-• Follow data flows: TRUE
-• Select multiple entry points: FALSE
-• Connect if with else: TRUE
-• Search directories recursively: TRUE
-• Include other features: FALSE
-• Look for all function calls: FALSE
-• Include variability information: FALSE
-• Include comments: FALSE
-• Generate only AST: TRUE
-• Generate only visible code: TRUE
-• DEBUG: FALSE
+**Input formats:**
+
+• console = True
+
+**Entry Point handling:**
+
+• includeBackwardSlice = True 
+• includeParentBlocks = False 
+• includeLocalDataflows = False 
+• includeParentFunction = False 
+
+**Node-to-node relations:**
+
+• includeEnclosedCode = True 
+• connectIfWithElse = True 
+• followDataflows = False 
+• searchDirsRecursively = False 
+• includeOtherFeatures = False 
+• lookForAllFunctionCalls = False 
+• lookForAllMacroUsages = False 
+
+**Post-analysis steps:**
+
+• addAllFilesIncludedBySUFilesRecursively = True 
+• addAllExternalLibraryIncludes = False 
+• addExternalLibraryIncludesOnlyForSUFiles = True 
+• addAllInternalFileIncludes = False 
+• addInternalFileIncludesOnlyForSUFiles = True 
+• addOnlyProbablyUsedGlobalDeclarationsOfVariables = False 
+• addAllGoblaDelcarationsOfVariablesForSUFiles = True  
+• addAllGoblaDelcarationsOfVariables = False
+• addOnlyProbablyUsedNonFunctionLikeDefines = False 
+• addNonFunctionLikeDefinesForSUFiles = True 
+• addAllNonFunctionLikeDefines = False 
+• addVariabilityInformation = True 
+• addAssociatedComments = True  
+
+**Output formats:**
+
+• generateOnlyAST = False
+• generateOnlyVisibleCode = True
+• showOnlyStructuralEdges = True
+• plotGraph = False
+
+**Debug options:**
+
+• DEBUG = False
+• showStatistics = True
 
 
 HOW TO USE
