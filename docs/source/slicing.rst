@@ -128,7 +128,7 @@ CONFIGURATION OPTIONS
 	• Hint: Makes the slice bigger, but (potentially) not so much as the option "include parent function". 
 
 • includeParentFunction  
-	• Explanation: Adds the parent functionDef (if existing) to the entryPoint set. This option is normally selection in combination with the "include enclosed code" options, which leads to inclusion of the whole function's content.
+	• Explanation: Adds the parent functionDef (if existing) to the entryPoint set. This option is normally selected in combination with the "include enclosed code" options, which leads to inclusion of the whole function's content.
 	• Example node: An increment of variable x inside an ifStatement.
 	• Effect on Semantic Unit: The increment statement and the parent functionDef are added to the initial Entry Point set.
 	• Hint: Makes the slice bigger, not recommended for fine-grained slicing. Most complete, but potentially overfitting.
