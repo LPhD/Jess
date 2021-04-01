@@ -177,7 +177,7 @@ CONFIGURATION OPTIONS
 	• Effect on Semantic Unit: The result additionally contains all usages of this macro (as well as needed include statements) 
 	• Hint: The Semantic Unit will get bigger if you activate this option. The results will now additionally contain all other statements that use this macro (instead of only the statements that were needed by this function).
 
-**Post-analysis steps:**
+**Post-analysis steps (done once after iterative process is finished):**
 	
 • addAllFilesIncludedBySUFilesRecursively
 	• Explanation: For all files that are part of the SU, add all contained include (that appear in these files) and the included files themselves (without their content). Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses).
@@ -199,7 +199,7 @@ CONFIGURATION OPTIONS
 	• Effect on Semantic Unit: The result additionally contains all include statements that include project-internal files. 
 	• Hint: Makes the SU bigger, but guarantees that all needed includes are there. Low precision, maximum recall.
 	
-•addInternalFileIncludesOnlyForSUFiles
+• addInternalFileIncludesOnlyForSUFiles
 	• Explanation: Adds all includeStatements accessible from the SU that include project-internal files. Has no effect if "addAllInternalFileIncludes" is true.
 	• Effect on Semantic Unit: The result additionally contains all include statements accessible from the SU that include project-internal files. 
 	• Hint: Makes the SU bigger, but not so much as "addAllInternalFileIncludes", while all needed includes should be there. Medium precision, high recall.
@@ -234,26 +234,26 @@ CONFIGURATION OPTIONS
 	• Effect on Semantic Unit: The result additionally contains all non-function-like preDefineStatements. 
 	• Hint: Makes the SU bigger (with a potentially very big overhead), but guarantees that all needed non-function-like preDefineStatements are there. Low precision, maximum recall.
 
-• Include variability information
+• addVariabilityInformation
 	• Explanation: After the analysis is finished, look for variability implementations that affect the Semantic Unit. This is helpfull if you would like to know the variability information of all statements in the Semantic Unit. Activation does not trigger further analyses.
 	• Effect on Semantic Unit: The result additionally contains all (directly connected via a 'VARIABILITY' edge) surrounding #ifdefs.
 	
-• Include comments
+• addAssociatedComments
 	• Explanation: After the analysis is finished, look for comments for the included code and add them to the result. Activation does not trigger further analyses.
 	• Effect on Semantic Unit: The result additionally contains all (directly connected via a 'COMMENTS' edge) belonging comments.
 	
 **Output formats:**
 
-• Generate only AST
+• generateOnlyAST
 	• Explanation: The resulting slice contains only AST elements to clarify the illustration. This has no effect on the Semantic Unit identification process.
 	
-• Generate only visible code
+• generateOnlyVisibleCode
 	• Explanation: The resulting slice contains only top level AST statements (the statements that contain the lines of code as you see them when you are programming). This has no effect on the Semantic Unit identification process. This option is mandatory if you would like to use the patch creator script.
 
-• Show only structural edges
+• showOnlyStructuralEdges
 	• Explanation: The resulting slice contains only 'IS_AST_PARENT', 'IS_FILE_OF', 'IS_FUNCTION_OF_AST', 'IS_PARENT_DIR_OF', 'VARIABILITY', 'DECLARES', 'INCLUDES', 'IS_HEADER_OF', 'COMMENTS' edges to clarify the illustration. This has no effect on the Semantic Unit identification process.	
 
-• Plot graph
+• plotGraph
 	• Explanation: The resulting slice is plotted as graph in *.png format. This has no effect on the Semantic Unit identification process, but can take a lot of time for bigger slices.
 
 
@@ -262,7 +262,7 @@ CONFIGURATION OPTIONS
 • DEBUG
 	• Explanation: Activate to get more outputs on the console, e.g., in which order the statements are added to the Semantic Unit. This has no effect on the Semantic Unit identification process.	
 
-• Show statistics
+• showStatistics
 	• Explanation: Activate to get statistical information about the SU, e.g., the number of contained visible nodes. This has no effect on the Semantic Unit identification process.	
 	
 	
