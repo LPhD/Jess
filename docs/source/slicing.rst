@@ -107,27 +107,27 @@ CONFIGURATION OPTIONS
 • Console
 	• Explanation: Activate to use the interactive console to input the Entry Point. If it's deactivated, you either have to edit the Entry Point manually in the script or use the automated workflow. This has no effect on the Semantic Unit identification process.
 	
-**Entry Point handling (all except location):**
+**Entry Point handling (impacts all except location):**
 
-• Include backward slice 
+• includeBackwardSlice 
 	• Explanation: Classical intraprocedural syntax preserving backward slice, includes all statements that appear previously in the control flow and are reachable either via dataflow or are structural (AST) parents (except the parent functionDef). Can be de-/activated independently from the other options.
 	• Example node: An increment of variable x inside an ifStatement.
 	• Effect on Semantic Unit: All surrounding control statements (here the ifStatement) and all statements that appear previously in the control flow and have a data flow connection (either direct or indirect through other variables) to the variable x (e.g. its declare statement) are added to the initial Entry Point set
 	• Hint: This option gives the best combination of precision and recall for non-location entry points. For complex functions it takes a comparable long time, though.
 
-• Include parent blocks  
+• includeParentBlocks  
 	• Explanation: Preserve syntactical structure, e.g. ifStatements around the entry point. Does not add the parent function to analysis (if existing). Also adds local declares. Can be de-/activated independently from the other options.
 	• Example node: An increment of variable x inside an ifStatement.
 	• Effect on Semantic Unit: All surrounding AST parents (here the ifStatement) of the variable x are added to the initial Entry Point set.
 	• Hint: Potentially the smallest number of entry points, but also not complete (no data dependencies taken into account).
 
-• Include local data flows 
+• includeLocalDataflows
 	• Explanation: Recursively includes all statements inside the function of an entry point that have a dataflow connection (read/write). Can be de-/activated independently from the other options.
 	• Example node: An increment of variable x inside an ifStatement.
 	• Effect on Semantic Unit: All statements that have a data flow connection (either direct or indirect through other variables) to the variable x (e.g. its declare statement) are added to the initial Entry Point set.
 	• Hint: Makes the slice bigger, but (potentially) not so much as the option "include parent function". 
 
-• Include parent function  
+• includeParentFunction  
 	• Explanation: Adds the parent functionDef (if existing) to the entryPoint set. This option is normally selection in combination with the "include enclosed code" options, which leads to inclusion of the whole function's content.
 	• Example node: An increment of variable x inside an ifStatement.
 	• Effect on Semantic Unit: The increment statement and the parent functionDef are added to the initial Entry Point set.
@@ -135,43 +135,43 @@ CONFIGURATION OPTIONS
 
 **(Iterative) node-to-node relations:**
 
-• Include enclosed code
+• includeEnclosedCode
 	• Explanation: Whenever a syntax structure is selected that encloses code, this code is included in the Semantic Unit. 
 	• Example node: A function declaration 
 	• Effect on Semantic Unit: All code inside the function belongs to the Semantic Unit (and thus probably makes the result bigger, decreases precision and increases recall)
 	• Hint: You should not turn this off when you plan to use structure-based entry points (like class/method declaration), as the result will be empty. You can turn this off when you use behavior-based entry points like assert statements from test cases. Deactivation makes the result strongly rely on the quality of your test case.
 
-• Connect if with else
+• connectIfWithElse
 	• Explanation: Always connect an existing else-statement, whenever an if-statement is selected
 	• Example node: An if-statement that has one else statement
 	• Effect on Semantic Unit: The else statement is added to the Semantic Unit
 	• Hint: Deactivate only if you want to focus on special cases and not on the whole case distinction. Deactivation has no effect, if the include enclosed code option is activated.
 
-• Follow data flows
+• followDataflows
 	• Explanation: Follow data flow relations (uses/defines)
 	• Example node: Identifier of a variable declaration statement 
 	• Effect on Semantic Unit: The result contains all statements that read and write this variable
 	• Hint: The Semantic Unit will get bigger if you activate this. Deactivate if you are interested in more coarsed grained analyses.
 	
-• Search directories recursively
+• searchDirsRecursively
 	• Explanation: When a directory node is analyzed, all contained directories are added to the Semantic Unit and then recursively analyzed
 	• Example node: A directory which contains one or more directories
 	• Effect on Semantic Unit: All contained directories (on all levels underneath) are added to the Semantic Unit
 	• Hint: Activate if you want to recursively add all directories under a given root node. This can result in very big Semantic Units. Deactivate if you want to stay on the current directory level.
 
-• Include other features
+• includeOtherFeatures
 	• Explanation: When we search for the semantically related lines for a specific feature, we only expand for the occurrence of this feature name. When we reach an implementation that is connected to another feature (via incoming variability edges), we do not search for all other implementations that are annotated with this other feature. We do include the implementations that were reached through all (except variability) edges. 
 	• Example node: A feature identifier
 	• Effect on Semantic Unit: All blocks that are annotated with an #ifdef that contains the identifier of the entry-point-feature are added to the Semantic Unit. All other variability links (connected to different feature identifiers) will not be followed/analyzed.
 	• Hint: Activate if you want to follow all appearing variability links and include all implementations of a feature whenever you reach one of its implementations. This can result in very big Semantic Units. Deactivate if you want to focus on the current feature(s).
 	
-• Look for all function calls
+• lookForAllFunctionCalls
 	• Explanation: Whenever a functionDef statement is analyzed, additionally look for all calls to this function. If deaktivated, the process will only analyze the content of the function.
 	• Example node: A function definition
 	• Effect on Semantic Unit: The result additionally contains all calls to this function (as well as needed include statements and declarations in header files) 
 	• Hint: The Semantic Unit will get bigger if you activate this option. The results will now additionally contain all other statements that use this function (instead of only the statements that were needed by this function).
 	
-• Look for all macro usages
+• lookForAllMacroUsages
 	• Explanation: Whenever a preDefine or preUndef statement is analyzed, additionally look for all usages of this macro. This only works for function-like macros. If deaktivated, the process will only analyze the content of the macro.
 	• Example node: A function-like macro definition
 	• Effect on Semantic Unit: The result additionally contains all usages of this macro (as well as needed include statements) 
@@ -179,22 +179,60 @@ CONFIGURATION OPTIONS
 
 **Post-analysis steps:**
 	
-• Add all files included by SU files recursively
+• addAllFilesIncludedBySUFilesRecursively
 	• Explanation: For all files that are part of the SU, add all contained include (that appear in these files) and the included files themselves (without their content). Has an effect on the addition of all analyses that are based on SU files (as this extension happens before the other analyses).
 	• Effect on Semantic Unit: The result additionally contains all included files and the needed include statements.
-	• Hint: This allows to reduce the number of added global ressources that are otherwise not analyzable (e.g. we cannot know if an external library is used or not if we do not know its content). With this option, we can only include global ressources that are reachable/accessible (via include chains) from within the scope of the SU.
+	• Hint: This allows to reduce the number of added global ressources that are otherwise not analyzable (e.g. we cannot know if an external library is used or not if we do not know its content). With this option, we can only include global ressources that are reachable/accessible (via include chains) from within the scope of the SU. There may be corner cases where includes are too obfuscated to be detected and therefore missed with this option. This limitation holds for all configuration options that are contain "SUFiles".
 	
-• Add all external library includes
-	• Explanation: Adds all includeStatements from the whole project that include external libraries. Overwrites "add external library includes only for SU files".
+• addAllExternalLibraryIncludes
+	• Explanation: Adds all includeStatements from the whole project that include external libraries. Overwrites "addExternalLibraryIncludesOnlyForSUFiles".
 	• Effect on Semantic Unit: The result additionally contains all include statements that include external ressources. 
 	• Hint: Makes the SU bigger, but guarantees that all needed includes are there. Low precision, maximum recall.
 	
-• Add external library includes only for SU files
-	• Explanation: Adds all includeStatements accessible from the SU that include external libraries. Has no effect if "add all external library includes" is true.
+• addExternalLibraryIncludesOnlyForSUFiles
+	• Explanation: Adds all includeStatements accessible from the SU that include external libraries. Has no effect if "addAllExternalLibraryIncludes" is true.
 	• Effect on Semantic Unit: The result additionally contains all include statements accessible from the SU that include external ressources. 
-	• Hint: Makes the SU bigger, but not so much as "add all external library includes", while all needed includes should be there (there may be corner cases where includes are too obfuscated to be detected and therefore missed with this option). Medium precision, high recall.
+	• Hint: Makes the SU bigger, but not so much as "add all external library includes", while all needed includes should be there. Medium precision, high recall.
+	
+• addAllInternalFileIncludes
+	• Explanation: Adds all includeStatements from the whole project that include project-internal files. Overwrites "addInternalFileIncludesOnlyForSUFiles".
+	• Effect on Semantic Unit: The result additionally contains all include statements that include project-internal files. 
+	• Hint: Makes the SU bigger, but guarantees that all needed includes are there. Low precision, maximum recall.
+	
+•addInternalFileIncludesOnlyForSUFiles
+	• Explanation: Adds all includeStatements accessible from the SU that include project-internal files. Has no effect if "addAllInternalFileIncludes" is true.
+	• Effect on Semantic Unit: The result additionally contains all include statements accessible from the SU that include project-internal files. 
+	• Hint: Makes the SU bigger, but not so much as "addAllInternalFileIncludes", while all needed includes should be there. Medium precision, high recall.
 
+• addOnlyProbablyUsedGlobalDeclarationsOfVariables
+	• Explanation: Adds all the global declarations of variables which are probably used (=their identifier appears) in the SU. Overwrites "addAllGoblaDelcarationsOfVariablesForSUFiles" and "addAllGoblaDelcarationsOfVariables".
+	• Effect on Semantic Unit: The result additionally contains the global declarations of variables that are used in the SU. 
+	• Hint: Works good for simple declares, but misses content of e.g. structs or enums. High precision, low recall.
 
+• addAllGoblaDelcarationsOfVariablesForSUFiles
+	• Explanation: Adds all the global declarations of variables/structs/typedefs etc. (everything but functions, they are detected during the iterative process) which appear in files that are part of or included by the SU (depending on addAllFilesIncludedBySUFilesRecursively). Has no effect if the "addOnlyProbablyUsedGlobalDeclarationsOfVariables" is true.
+	• Effect on Semantic Unit: The result additionally contains all the global declarations of data structures that appear in files that are part of or included by the SU. 
+	• Hint: Makes the SU bigger as "addOnlyProbablyUsedGlobalDeclarationsOfVariables", but not so much as "addAllGoblaDelcarationsOfVariables", while all needed declarations should be there. Medium precision, high recall.
+	
+• addAllGoblaDelcarationsOfVariables
+	• Explanation: Adds all global declarations of data structures (no functionDefs) from the whole project. Has no effect if "addOnlyProbablyUsedGlobalDeclarationsOfVariables" or "addAllGoblaDelcarationsOfVariablesForSUFiles" is true. Needs addAllExternalFileIncludes and addAllInternalFileIncludes, as the include statements are not checked again.
+	• Effect on Semantic Unit: The result additionally contains all global declarations of data structures. 
+	• Hint: Makes the SU bigger (with a potentially very big overhead), but guarantees that all needed declarations are there. Low precision, maximum recall.
+
+• addOnlyProbablyUsedNonFunctionLikeDefines
+	• Explanation: Adds all the non-function-like #defines which are probably used (=their identifier appears) in the SU (function-like defines are detected during the iterative process) . Overwrites "addNonFunctionLikeDefinesForSUFiles" and "addAllNonFunctionLikeDefines".
+	• Effect on Semantic Unit: The result additionally contains the non-function-like preDefineStatements that are used in the SU. 
+	• Hint: Due to the not-so-good string search, this delivers a high number of false positives while being costly. Medium precision, medium recall.
+
+• addNonFunctionLikeDefinesForSUFiles
+	• Explanation: Adds all the non-function-like #defines which appear in files that are part of or included by the SU (depending on addAllFilesIncludedBySUFilesRecursively). Has no effect if the "addOnlyProbablyUsedNonFunctionLikeDefines" is true.
+	• Effect on Semantic Unit: The result additionally contains all the non-function-like preDefineStatements that appear in files that are part of or included by the SU. 
+	• Hint: Makes the SU bigger as "addOnlyProbablyUsedNonFunctionLikeDefines", but not so much as "addAllNonFunctionLikeDefines", while all needed declarations should be there. Medium precision, high recall.
+	
+• addAllNonFunctionLikeDefines
+	• Explanation: Adds all non-function-like #defines from the whole project. Has no effect if "addNonFunctionLikeDefinesForSUFiles" or "addOnlyProbablyUsedNonFunctionLikeDefines" is true. Needs addAllExternalFileIncludes and addAllInternalFileIncludes, as the include statements are not checked again.
+	• Effect on Semantic Unit: The result additionally contains all non-function-like preDefineStatements. 
+	• Hint: Makes the SU bigger (with a potentially very big overhead), but guarantees that all needed non-function-like preDefineStatements are there. Low precision, maximum recall.
 
 • Include variability information
 	• Explanation: After the analysis is finished, look for variability implementations that affect the Semantic Unit. This is helpfull if you would like to know the variability information of all statements in the Semantic Unit. Activation does not trigger further analyses.
